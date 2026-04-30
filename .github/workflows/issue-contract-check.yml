@@ -1,0 +1,96 @@
+name: Issue Contract Check
+
+on:
+  issues:
+    types:
+      - opened
+      - edited
+      - reopened
+
+permissions:
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check issue body
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const body = issue.body || "";
+
+            async function ensureLabel(name, color, description) {
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name,
+                color,
+                description
+              }).catch((error) => {
+                if (error.status !== 422) {
+                  throw error;
+                }
+              });
+            }
+
+            await ensureLabel("needs-triage", "d876e3", "This issue has not been triaged yet.");
+            await ensureLabel("feature", "1d76db", "New feature, behavior change, or implementation task.");
+            await ensureLabel("needs-info", "fbca04", "This issue needs more information before implementation.");
+            await ensureLabel("ready-for-ai", "0e8a16", "This issue is ready for AI-driven implementation.");
+
+            const required = [
+              "App name",
+              "Target platform",
+              "Purpose",
+              "Scope",
+              "Non-scope",
+              "Acceptance criteria",
+              "Test perspectives"
+            ];
+
+            const missing = required.filter((heading) => !body.includes(heading));
+            const labels = issue.labels.map((label) => label.name);
+
+            if (missing.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ["needs-info"]
+              });
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: [
+                  "This issue is missing required contract fields for AI-driven development.",
+                  "",
+                  ...missing.map((item) => `- ${item}`),
+                  "",
+                  "Please update the issue before implementation starts."
+                ].join("\n")
+              });
+
+              return;
+            }
+
+            if (labels.includes("needs-info")) {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                name: "needs-info"
+              }).catch(() => {});
+            }
+
+            if (!labels.includes("ready-for-ai")) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ["ready-for-ai"]
+              });
+            }

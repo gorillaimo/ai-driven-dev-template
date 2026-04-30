@@ -1,0 +1,156 @@
+name: Feature / Change
+description: New feature, behavior change, or implementation task
+title: "[Feature]: "
+labels:
+  - needs-triage
+  - feature
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form as the contract between humans and AI agents.
+        Fill unknown items with "TBD" rather than leaving them ambiguous.
+  - type: input
+    id: app_name
+    attributes:
+      label: App name
+      description: Name of the application or product.
+      placeholder: Example App
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Target platform
+      multiple: true
+      options:
+        - Next.js Web
+        - Flutter iOS
+        - Flutter Android
+        - Flutter Web
+        - Backend API
+        - Infrastructure
+        - Documentation
+    validations:
+      required: true
+  - type: textarea
+    id: purpose
+    attributes:
+      label: Purpose
+      description: What should this issue accomplish?
+      placeholder: Describe the outcome this issue should create.
+    validations:
+      required: true
+  - type: textarea
+    id: background
+    attributes:
+      label: Background
+      description: Why is this needed now?
+      placeholder: User problem, business context, or technical motivation.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What is included in this issue?
+      placeholder: |
+        - TBD
+    validations:
+      required: true
+  - type: textarea
+    id: non_scope
+    attributes:
+      label: Non-scope
+      description: What should not be handled in this issue?
+      placeholder: |
+        - TBD
+    validations:
+      required: true
+  - type: textarea
+    id: users
+    attributes:
+      label: Target users / roles
+      description: Who uses this feature, and what permissions do they need?
+      placeholder: Admin, member, guest, system job, etc.
+    validations:
+      required: true
+  - type: textarea
+    id: usage
+    attributes:
+      label: Main usage scenario
+      description: When and how will the feature be used?
+      placeholder: Describe the user's flow or operational scenario.
+    validations:
+      required: true
+  - type: textarea
+    id: io
+    attributes:
+      label: Input / output
+      description: User input, API input, saved data, screen output, API response, notifications, etc.
+      placeholder: |
+        Input:
+        Output:
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: Data requirements
+      description: Data to save or read, including personal or sensitive information.
+      placeholder: TBD
+    validations:
+      required: true
+  - type: textarea
+    id: auth
+    attributes:
+      label: Authentication / authorization
+      description: Login requirements, roles, permissions, and access restrictions.
+      placeholder: TBD
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Checkable completion criteria.
+      placeholder: |
+        - [ ] TBD
+        - [ ] TBD
+        - [ ] TBD
+    validations:
+      required: true
+  - type: textarea
+    id: tests
+    attributes:
+      label: Test perspectives
+      description: Normal, error, authorization, boundary, and regression cases.
+      placeholder: |
+        - Normal:
+        - Error:
+        - Authorization:
+        - Boundary:
+        - Regression:
+    validations:
+      required: true
+  - type: textarea
+    id: docs
+    attributes:
+      label: Related documents
+      description: Existing docs that the AI agent must read or update.
+      placeholder: |
+        - docs/system-context.md
+        - docs/requirements/TBD.md
+        - docs/design/TBD.md
+        - docs/api/openapi.yaml
+    validations:
+      required: false
+  - type: textarea
+    id: open_questions
+    attributes:
+      label: Open questions
+      description: Anything that must be clarified before implementation.
+      placeholder: |
+        - [ ] TBD
+    validations:
+      required: false

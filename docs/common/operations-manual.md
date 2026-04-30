@@ -1,0 +1,352 @@
+# 生成AIコーディング・運用マニュアル
+
+このマニュアルは、`development-rules.md` に基づき、**issueを開発の最小単位**としてAI駆動開発を進めるために人間が読む手順書です。
+
+`development-rules.md` はAIに読ませる規約です。このファイルは、人間がissueをどう切り、どのタイミングでAIへ何を依頼し、どこを確認するかを定義します。
+
+## 1. 基本方針
+
+すべての開発は、以下のサイクルで進めます。
+
+1. **issueを作る**: 目的、背景、完了条件、影響範囲を明文化する。
+2. **ドキュメントを育てる**: issueに基づき、要件・設計・API定義を更新する。
+3. **テストで縛る**: 完了条件をテストへ落とし、AIの根拠なき実装を防ぐ。
+4. **コードを生成する**: テストと設計を根拠に、最小差分で実装する。
+5. **issueを閉じる**: 受け入れ条件、テスト結果、ドキュメント更新を確認する。
+
+issueは単なるタスクメモではなく、AIと人間が共有する「作業契約」です。AIに依頼するときは、必ずissue本文またはissue番号を起点にします。
+
+## 2. テンプレート利用時の初期セットアップ
+
+このプロジェクトをテンプレートとして使う場合、`.github/` 配下の自動化用ファイルも一緒にコピーしてください。
+
+コピー対象は以下です。
+
+- `README.md`
+- `AGENTS.md`
+- `CLAUDE.md`
+- `.gitattributes`
+- `.gitignore`
+- `LICENSE`
+- `docs/common/template-guide.md`
+- `docs/common/development-rules.md`
+- `docs/common/operations-manual.md`
+- `docs/common/issue-template.md`
+- `.github/ISSUE_TEMPLATE/feature.yml`
+- `.github/pull_request_template.md`
+- `.github/workflows/issue-contract-check.yml`
+- `.github/workflows/pr-issue-link-check.yml`
+
+`README.md` は利用先プロジェクト用の雛形です。テンプレート公開元のREADME相当の情報は `docs/common/template-guide.md` に置き、具体的な運用手順はこの `docs/common/operations-manual.md` に集約します。
+
+`AGENTS.md` はAIエージェント共通の入口です。詳細な規約は `docs/common/development-rules.md` に置き、各AI開発ツール向けの入口ファイルからも `AGENTS.md` を参照させます。
+
+`.github/` 配下のファイルは、GitHub Issue Form、PRテンプレート、issue/PRチェック用のGitHub Actionsです。基本的にはコピー後そのまま利用できます。
+
+### AI開発ツールごとの入口
+
+このテンプレートの中心は、特定のAI開発ツールではなく、GitHub issue と `docs/` 配下のドキュメントを作業契約にする運用です。
+
+そのため、各ツール固有のファイルや機能は、共通ルールへの入口または補助として扱います。
+
+- **共通**: `AGENTS.md` をAIエージェント共通の入口として置く。詳細規約は `docs/common/development-rules.md`、人間向け手順は `docs/common/operations-manual.md` に集約する。
+- **Codex**: `AGENTS.md` を入口として使う。Codexのスキルは必須ではなく、複数プロジェクトで同じ手順を繰り返す場合や、GitHub issue作成、要件定義、PR作成などを専用ワークフローとして強制したい場合に追加する。
+- **Claude Code**: `CLAUDE.md` を入口として使い、そこから `AGENTS.md` と `docs/common/development-rules.md` を参照させる。必要に応じて `.claude/commands/` にプロジェクト用slash commandを追加し、チーム共有する権限設定は `.claude/settings.json` で管理する。
+- **その他のAI開発ツール**: ツールが自動で読む規約ファイルやルール機能がある場合は、そのファイルから `AGENTS.md` と `docs/common/development-rules.md` を参照させる。ツール固有の権限設定、コマンド、メモリ、コンテキスト読み込み仕様は、利用ツールに合わせて調整する。
+
+ツール固有の設定を追加する場合でも、issueを作業契約にすること、issue外の変更を勝手に実装しないこと、実装前に要件・設計・API・検証観点を確認することは共通ルールとして維持します。ツールの権限や自動実行の範囲を広げる場合は、セキュリティ上の影響を確認し、必要に応じて `docs/common/operations-manual.md` に運用差分を追記してください。
+
+### GitHubリポジトリを作るタイミング
+
+GitHubリポジトリは、テンプレートから新規プロジェクトを作成した直後、最初のissueを作る前に作成することを推奨します。
+
+おすすめの流れは以下です。
+
+1. テンプレートから新規プロジェクトを作成する。
+2. アプリ名、リポジトリ名、公開範囲を決める。
+3. `README.md` を利用先プロジェクトの内容に合わせて更新する。
+4. GitHubリポジトリを作成し、初期状態をpushする。
+5. GitHub Issues と GitHub Actions が有効になっていることを確認する。
+6. プロジェクト初期化をAIへ依頼し、`docs/system-context.md` を作成する。
+7. GitHub Issue Formで最初のissueを作成する。
+8. `ready-for-ai` ラベルが付いたissueからAIに作業を依頼する。
+
+ローカルで作業を進めてからGitHub化すると、issue番号、PR、Actions、AIへの作業契約が後付けになりやすくなります。issueベース開発では、リポジトリ作成を開発開始時の最初の手順として扱います。
+
+### AIにGitHubリポジトリ作成を依頼する
+
+`gh` CLIがインストール済みで、GitHubにログイン済みであれば、リポジトリ作成もAIに依頼できます。
+
+事前に人間が決める項目は以下です。
+
+- GitHub owner: 個人アカウントまたはOrganization名
+- リポジトリ名
+- 公開範囲: public / private
+- デフォルトブランチ名: 通常は `main`
+- 初期コミットメッセージ
+
+**プロンプト:**
+
+> このプロジェクトをGitHubリポジトリとして初期化してください。
+>
+> - GitHub owner: [owner]
+> - リポジトリ名: [repository-name]
+> - 公開範囲: [public / private]
+> - デフォルトブランチ: main
+> - 初期コミットメッセージ: Initial project template setup
+>
+> 実行前に、現在のディレクトリ、`git status`、`gh auth status` を確認してください。
+> 既存のGit履歴やremoteがある場合は、上書きせずに状況を報告してください。
+> 問題なければ、GitHubリポジトリを作成し、現在の内容を初期コミットとしてpushしてください。
+> push後に、GitHub Issues と GitHub Actions が利用可能か確認し、最初のissueを作れる状態か報告してください。
+
+AIが実行する代表的なコマンドは以下です。実際のコマンドは、現在のGit状態を確認してからAIに判断させます。
+
+```bash
+git init
+git add .
+git commit -m "Initial project template setup"
+git branch -M main
+gh repo create [owner]/[repository-name] --private --source=. --remote=origin --push
+```
+
+公開リポジトリにする場合は `--private` を `--public` に変更します。既にGit管理されている場合やremoteが設定済みの場合は、AIに既存状態を確認させてから進めます。
+
+### コピー後に確認すること
+
+- GitHub Issues が有効になっている。
+- GitHub Actions が有効になっている。
+- Actions の `GITHUB_TOKEN` に issue / PR への書き込み権限がある。
+- `.github/workflows/*.yml` がデフォルトブランチに入っている。
+- Issue Formの項目名を変更した場合、`issue-contract-check.yml` のチェック文字列も更新している。
+
+`needs-triage`、`feature`、`needs-info`、`ready-for-ai` ラベルはworkflowが自動作成します。手動作成は不要です。
+
+## 3. issueの粒度
+
+### 良いissue
+
+- 1つの目的に集中している。
+- 完了条件がチェック可能である。
+- 仕様変更、実装、テスト、ドキュメント更新の範囲が説明されている。
+- 共通APIやデータモデルに触れる場合、その影響が書かれている。
+
+### 分割した方がよいissue
+
+- 要件が未確定な調査と、実装が同じissueに入っている。
+- Backend、Frontend、Infrastructure、API仕様の変更が大きく絡み、レビューが重くなる。
+- `docs/system-context.md` や `docs/api/openapi.yaml` など共通定義の変更が、複数機能へ波及する。
+
+迷った場合は、先に「調査・設計issue」を作り、その結果から実装issueを作ります。
+
+## 4. issueテンプレート
+
+issue作成時は、必要に応じて `docs/common/issue-template.md` を利用してください。
+
+最低限、以下を埋めます。
+
+- **目的**: なぜこの変更が必要か。
+- **スコープ**: 何をやるか、何をやらないか。
+- **受け入れ条件**: 何が満たされれば完了か。
+- **参照ドキュメント**: 関連する `docs/` 配下の仕様。
+- **影響範囲**: Frontend / Backend / Infrastructure / API / DB / Auth など。
+- **テスト観点**: 正常系、異常系、権限、境界値。
+
+## 5. フェーズ別プロンプトテンプレート
+
+### フェーズ0：プロジェクト初期化
+
+AIにプロジェクト全体の前提を作らせます。これは初回、または大きな方向転換時だけ実施します。
+
+**プロンプト:**
+
+> `@docs/common/development-rules.md` を読み込み、本プロジェクトの行動規範として扱ってください。
+> 開発するアプリの概要は次の通りです。
+>
+> [ここに概要を入力]
+>
+> STEP 0 として `docs/system-context.md` を作成してください。
+> ビジョン、主要ドメイン、用語集、権限、エラー、セキュリティ、運用上の前提を記述してください。
+
+### フェーズ1：issue作成・整理
+
+実装前に、人間がissueを作るか、AIにissue案を作らせます。
+
+**issue案作成プロンプト:**
+
+> `@docs/common/development-rules.md` と `@docs/system-context.md` を読んでください。
+> 次の要望をissue化してください。
+>
+> [要望を書く]
+>
+> `docs/common/issue-template.md` の形式に沿って、目的、スコープ、受け入れ条件、影響範囲、テスト観点を整理してください。
+> 実装に入らず、まずissue本文案だけを提示してください。
+
+**既存issueを始めるプロンプト:**
+
+> issue #[番号] に着手します。
+> `@docs/common/development-rules.md`、`@docs/system-context.md`、issue本文、関連する `@docs/` を読み、以下を報告してください。
+>
+> - issueの目的
+> - 受け入れ条件
+> - 影響範囲
+> - 不明点
+> - 実装前に更新すべきドキュメント
+>
+> 不明点が解消するまで実装しないでください。
+
+### フェーズ2：要件・設計・API定義
+
+issueが実装可能な粒度になったら、STEP 1-3を進めます。
+
+まずSTEP 1の要件定義を具体化し、アプリ名、対象プラットフォーム、ユーザー、利用シーン、成功条件をAIに渡します。ここが曖昧だと、AIは画面、API、権限、テスト観点を推測しやすくなります。
+
+**STEP 1 要件定義プロンプト:**
+
+> issue #[番号] の要件定義を行います。
+> `@docs/common/development-rules.md`、`@docs/system-context.md`、issue本文、関連する `@docs/` を読んでください。
+>
+> 前提情報は以下です。
+>
+> - アプリ名: [アプリ名]
+> - アプリの概要: [何をするアプリか]
+> - 対象プラットフォーム: [Next.js Web / Flutter iOS / Flutter Android / Flutter Web など]
+> - 対象ユーザー: [利用者の種類、ロール、権限]
+> - 主な利用シーン: [いつ、どこで、何のために使うか]
+> - 解決したい課題: [ユーザーまたは業務上の課題]
+> - 今回作る機能: [機能名と概要]
+> - 今回やらないこと: [非スコープ]
+> - 入力: [ユーザー入力、API入力、外部イベントなど]
+> - 出力: [画面表示、APIレスポンス、通知、保存データなど]
+> - データ要件: [保存する情報、参照する情報、個人情報の有無]
+> - 認証・認可: [ログイン要否、必要な権限、ロールごとの差]
+> - 外部連携: [外部API、AWSサービス、決済、メールなど]
+> - 成功条件: [ユーザーにとって成功と判断できる状態]
+> - 受け入れ条件: [チェック可能な完了条件]
+> - 例外・エラー: [想定される失敗、バリデーション、権限エラー]
+> - 非機能要件: [パフォーマンス、セキュリティ、ログ、監査、アクセシビリティなど]
+>
+> 上記をもとに、規約の STEP 1 として `docs/requirements/[issue-number]-[feature].md` を作成してください。
+> 要件定義書には、目的、背景、対象ユーザー、対象プラットフォーム、スコープ、非スコープ、ユースケース、機能要件、非機能要件、データ要件、認証認可、例外パターン、受け入れ条件、テスト観点、未決事項を含めてください。
+> 不明点がある場合は、推測で埋めずに「確認事項」として列挙してください。
+> まず作成方針と確認事項を提示し、承認後にファイルへ反映してください。
+
+STEP 1の内容が固まってから、設計とAPI定義へ進みます。
+
+**STEP 2-3 設計・API定義プロンプト:**
+
+> issue #[番号] に基づき、規約の STEP 1-3 を進めてください。
+>
+> - `docs/requirements/[issue-number]-[feature].md` の要件定義を再確認
+> - `docs/design/[issue-number]-[feature].md` に設計を作成
+> - API変更がある場合は `docs/api/openapi.yaml` の更新案を提示
+>
+> まず変更方針と作成・更新ファイル一覧を提示してください。承認後に反映してください。
+
+共通API、認証、データモデル、インフラ権限を変えるissueでは、実装前にドキュメント差分だけでレビューすることを推奨します。
+
+### フェーズ3：テスト先行実装
+
+設計が承認されたら、先にテストを書かせます。
+
+**プロンプト:**
+
+> issue #[番号] の承認済み仕様に基づき、実装フェーズに移行します。
+> まず受け入れ条件を満たすテストを作成してください。
+>
+> - 正常系
+> - 異常系
+> - 権限・認可
+> - 境界値
+> - 既存機能への回帰
+>
+> テスト作成後、まだ本体実装は行わず、テストが何を保証するか説明してください。
+
+### フェーズ4：実装
+
+テストの意図が妥当であることを確認してから実装します。
+
+**プロンプト:**
+
+> 作成したテストをパスするように、issue #[番号] の実装を行ってください。
+> `@docs/common/development-rules.md` の規約に従い、Backend、Frontend、Infrastructure、API仕様、型生成への影響を確認してください。
+> 最小差分で実装し、最後に実行した検証コマンドと結果を報告してください。
+
+## 6. 人間側のレビュー観点
+
+AIの出力やPRを確認するときは、以下をチェックします。
+
+- [ ] issueの受け入れ条件がすべて満たされている。
+- [ ] issue外の変更が混ざっていない。
+- [ ] `docs/system-context.md` と矛盾していない。
+- [ ] 要件・設計・API定義が実装前に更新されている。
+- [ ] テストが受け入れ条件に対応している。
+- [ ] BackendとFrontendの型安全が保たれている。
+- [ ] Infrastructureの権限・環境変数・デプロイ設定が実装と連動している。
+- [ ] 共通APIや共通モデルの変更が、別issueや別PRで合意されている。
+- [ ] PR本文にissue番号、変更概要、検証結果、残課題が書かれている。
+
+## 7. チーム開発における同期手順
+
+### GitHubで自動化できること
+
+このリポジトリでは、GitHub上のissue運用を補助するために以下を用意します。
+
+- `.github/ISSUE_TEMPLATE/feature.yml`: issue作成時に、アプリ名、対象プラットフォーム、受け入れ条件、テスト観点などをフォームで入力させる。
+- `.github/pull_request_template.md`: PR本文に対応issue、受け入れ条件、検証結果、残課題を書かせる。
+- `.github/workflows/issue-contract-check.yml`: issue本文に必要項目があるか確認し、不足があれば `needs-info`、揃っていれば `ready-for-ai` を付ける。
+- `.github/workflows/pr-issue-link-check.yml`: PR本文に `Closes #123` 形式のissueリンクと検証欄があるか確認する。
+
+これにより、GitHub IssuesをAIへの作業指示の入口として使いやすくなります。ただし、GitHub Actionsは仕様の妥当性までは判断できません。受け入れ条件が本当に正しいか、issueのスコープが適切かは人間が確認します。
+
+### 作業開始前
+
+1. 最新のmainブランチを取得する。
+2. GitHub Issue Formでissueを作成する。
+3. `ready-for-ai` ラベルが付いていることを確認する。
+4. issue本文を最新化する。
+5. AIへ次のように指示する。
+
+**プロンプト:**
+
+> 最新のコードとドキュメントを反映しました。
+> GitHub issue #[番号]、`@docs/system-context.md`、関連する `@docs/` を読み直し、現在の作業への影響を教えてください。
+> issue本文を作業契約として扱い、受け入れ条件、非スコープ、不明点を先に報告してください。
+
+### 作業中
+
+- 仕様が変わったら、先にissue本文と `docs/` を更新します。
+- AIがissue外の実装を始めたら止めます。
+- 追加作業が見つかったら、原則として別issueに切り出します。
+
+### PR作成時
+
+**プロンプト:**
+
+> 今回の変更内容に基づき、PR概要を作成してください。
+>
+> - 対応issue
+> - 受け入れ条件ごとの対応内容
+> - 更新したドキュメント
+> - 実装した主要ロジック
+> - Infrastructure / API / 型定義への影響
+> - 実行したテストと結果
+> - 残課題または別issueに切り出す内容
+
+## 8. トラブルシューティング
+
+| 状況 | 対処法 |
+| :--- | :--- |
+| AIがissueを読まずに実装する | 「issueを作業契約として扱い、目的・受け入れ条件・影響範囲を再確認してください」と指示する。 |
+| issueのスコープが大きすぎる | 調査、共通仕様、Backend、Frontend、Infrastructureなどに分割する。 |
+| AIがテストを書かずにコードを書く | 「規約のTDDルールに戻り、まず受け入れ条件に対応するテストを作成してください」と指示する。 |
+| AIが仕様を推測する | 「推測せず、不明点として質問してください。必要ならissue本文を更新します」と指示する。 |
+| 途中で手動修正した | 「[ファイル名] を手動修正しました。再読解し、これを最新の正解として扱ってください」と伝える。 |
+| issue外の改善が見つかった | 現issueには混ぜず、別issue候補としてPR本文に残す。 |
+
+## 9. チーム共通のAI運用ルール
+
+- `development-rules.md` の変更は、チームで合意してから行う。
+- issueテンプレートや運用手順は、AIが迷いやすかった箇所を見つけたら継続的に改善する。
+- AIへの依頼は、なるべくissue番号、関連ドキュメント、期待する成果物をセットで渡す。
+- AIの出力は最終判断ではなく、issueの受け入れ条件に対する提案としてレビューする。
