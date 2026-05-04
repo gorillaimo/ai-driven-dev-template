@@ -43,6 +43,75 @@ issueは単なるタスクメモではなく、AIと人間が共有する「作�
 
 `.github/` 配下のファイルは、GitHub Issue Form、PRテンプレート、issue/PRチェック用のGitHub Actionsです。基本的にはコピー後そのまま利用できます。
 
+### GitHubを使わない場合
+
+このテンプレートは、GitHub Issues、Pull Request、GitHub Actions を使う運用を標準としています。
+
+GitHubを使わないプロジェクトでは、利用する管理ツールに合わせて、以下の対応関係を決めてから運用してください。
+
+- GitHub issue に相当する作業単位。
+- issue番号に相当するID。
+- `ready-for-ai` ラベルに相当する状態、タグ、カスタムフィールド。
+- assignee に相当する担当者フィールド。
+- Pull Request に相当するレビュー単位。
+- `Closes #123` に相当する完了リンクまたは参照形式。
+- GitHub Actions によるチェックに相当する確認方法。
+
+例:
+
+- Jira / Linear / Backlog のチケットを作業契約として扱う。
+- Notion / Markdown ファイルで `docs/common/issue-template.md` 相当の項目を管理する。
+- `ready-for-ai` はステータス、タグ、カスタムフィールドで表現する。
+- assignee は担当者フィールドで表現する。
+- Pull Request がない場合は、Merge Request、変更レビュー記録、レビュー済みコミットで代替する。
+
+GitHubを使わない場合でも、以下の原則は維持してください。
+
+- 作業単位を明確にする。
+- 作業契約に目的、スコープ、非スコープ、受け入れ条件、検証観点を書く。
+- AIに依頼できる状態を明確にする。
+- 担当者を明確にする。
+- AIは作業契約外の変更をしない。
+- 完了時に検証結果と残課題を残す。
+
+#### GitHubを使わない場合に編集するファイル
+
+GitHubを使わない場合は、以下のファイルに含まれる GitHub 固有の表現を、利用する管理ツールに合わせて書き換えてください。
+
+AIが読むファイル:
+
+- `AGENTS.md`
+  - `GitHub issue本文` を、利用する管理ツールの作業チケット、タスク、または `docs/issues/*.md` に置き換える。
+  - `ready-for-ai` ラベルを、管理ツール上のステータス、タグ、カスタムフィールドに置き換える。
+  - `assignee` を、管理ツール上の担当者フィールドに置き換える。
+  - `PR本文` や `Closes #123` を、利用するレビュー・完了記録の形式に置き換える。
+- `docs/common/development-rules.md`
+  - `GitHub issue`、`GitHub Issue Form`、`ready-for-ai`、`assignee`、`PR`、`Closes #123` などの用語を、利用する管理ツールの用語へ置き換える。
+  - AIが作業開始時に確認する作業契約の場所を明記する。
+  - AIが完了時に検証結果や残課題を残す場所を明記する。
+- `CLAUDE.md`
+  - Claude Codeを使う場合、`GitHub issue本文` や `ready-for-ai` の参照先を、利用する管理ツールに合わせて置き換える。
+- `docs/common/issue-template.md`
+  - GitHub issue番号またはURLの欄を、チケットID、タスクURL、またはMarkdownファイルパスに置き換える。
+  - 管理ツールで入力する項目名に合わせる。
+
+人間向けの運用ファイル:
+
+- `docs/common/operations-manual.md`
+  - GitHub issue作成、PR作成、GitHub Actions確認の手順を、利用する管理ツールとCIの手順へ置き換える。
+  - 人間がAIへ依頼するときのプロンプト例を、GitHub issue番号ではなく、チケットIDやファイルパスを渡す形に変更する。
+- `docs/common/template-guide.md`
+  - テンプレート公開元README相当の説明として、GitHub以外の運用を正式に採用する場合は、その前提を追記する。
+
+GitHub専用ファイル:
+
+- `.github/ISSUE_TEMPLATE/feature.yml`
+- `.github/pull_request_template.md`
+- `.github/workflows/issue-contract-check.yml`
+- `.github/workflows/pr-issue-link-check.yml`
+
+GitHubを使わない場合、これらはそのままでは機能しません。不要なら削除し、利用する管理ツールやCIに合わせて代替ファイルを用意してください。
+
 ### AI開発ツールごとの入口
 
 このテンプレートの中心は、特定のAI開発ツールではなく、GitHub issue と `docs/` 配下のドキュメントを作業契約にする運用です。
