@@ -52,16 +52,28 @@ GitHubへ公開して Actions を有効にすると、テンプレート本体�
 
 テンプレート本体を変更するissueでは、例えば以下のように記載します。
 
-- App name: AI Driven Development Template
-- Target platform: Documentation
-- Purpose: テンプレートガイドにテンプレート本体の運用方針を追記する
-- Scope: `docs/common/template-guide.md` の「テンプレート本体の運用」セクションを更新する
-- Non-scope: 利用先プロジェクトの開発規約やGitHub Actionsの仕様変更は含めない
-- Acceptance criteria: テンプレート本体ではissue運用のみを適用することがテンプレートガイドから読み取れる
-- Test perspectives: テンプレートガイドの記載が現在の `.github/` ファイル構成と矛盾していないことを確認する
-- Related documents: `docs/common/template-guide.md`, `.github/ISSUE_TEMPLATE/feature.yml`, `.github/workflows/issue-contract-check.yml`
+- アプリ名: AI Driven Development Template
+- 対象プラットフォーム: Documentation
+- 目的: テンプレートガイドにテンプレート本体の運用方針を追記する
+- スコープ: `docs/common/template-guide.md` の「テンプレート本体の運用」セクションを更新する
+- 非スコープ: 利用先プロジェクトの開発規約やGitHub Actionsの仕様変更は含めない
+- 受け入れ条件: テンプレート本体ではissue運用のみを適用することがテンプレートガイドから読み取れる
+- テスト観点: テンプレートガイドの記載が現在の `.github/` ファイル構成と矛盾していないことを確認する
+- 参照ドキュメント: `docs/common/template-guide.md`, `.github/ISSUE_TEMPLATE/feature.yml`, `.github/workflows/issue-contract-check.yml`
 
 この運用により、テンプレート自体の改善も issue とPRの履歴として残せます。
+
+## マルチエージェント運用
+
+このテンプレートでは、マルチエージェント運用を特定ツール専用の機能ではなく、Codex、Claude Code、その他AI開発ツールを含む一般ルールとして扱います。
+
+`ready-for-ai` はAIに依頼できる状態を示すラベルであり、自動着手や担当者確定を意味しません。AIエージェントに作業させるissueには、事前に `assignee` を設定します。
+
+人間は、通常のissue依頼時にマルチエージェント機能を意識する必要はありません。AIが必要性を判断し、有効な場合は分割案を提示します。人間が承認した場合にのみ、複数エージェントで作業します。
+
+1つのissueを複数エージェントに分割する場合は、primary agentまたは統合担当者、各エージェントの担当範囲、変更予定ファイルを事前に明確にします。
+
+具体的な運用手順は `docs/common/operations-manual.md` を参照してください。
 
 ## 想定スタック
 
