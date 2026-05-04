@@ -41,13 +41,13 @@ jobs:
             await ensureLabel("ready-for-ai", "0e8a16", "This issue is ready for AI-driven implementation.");
 
             const required = [
-              "App name",
-              "Target platform",
-              "Purpose",
-              "Scope",
-              "Non-scope",
-              "Acceptance criteria",
-              "Test perspectives"
+              "アプリ名",
+              "対象プラットフォーム",
+              "目的",
+              "スコープ",
+              "非スコープ",
+              "受け入れ条件",
+              "テスト観点"
             ];
 
             const missing = required.filter((heading) => !body.includes(heading));
@@ -66,11 +66,11 @@ jobs:
                 repo: context.repo.repo,
                 issue_number: issue.number,
                 body: [
-                  "This issue is missing required contract fields for AI-driven development.",
+                  "このissueには、AI駆動開発の作業契約に必要な項目が不足しています。",
                   "",
                   ...missing.map((item) => `- ${item}`),
                   "",
-                  "Please update the issue before implementation starts."
+                  "実装を開始する前に、issue本文を更新してください。"
                 ].join("\n")
               });
 

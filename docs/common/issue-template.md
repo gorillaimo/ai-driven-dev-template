@@ -2,7 +2,7 @@
 
 ## 概要
 
-- Issue:
+- Issue: GitHub issue番号またはURL。未作成の場合は「作成後に記入」。
 - 種別: Feature / Bug / Refactor / Docs / Investigation
 - 優先度:
 - 担当:
