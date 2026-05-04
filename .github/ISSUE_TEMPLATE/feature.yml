@@ -10,6 +10,7 @@ body:
       value: |
         このフォームは、人間とAIエージェントの作業契約として扱います。
         不明な項目は空欄にせず「TBD」と記入してください。
+        AIへ依頼するissueでは、GitHubのAssigneesで担当（assignee）を設定してください。
   - type: input
     id: app_name
     attributes:

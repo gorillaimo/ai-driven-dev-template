@@ -67,7 +67,7 @@ GitHubへ公開して Actions を有効にすると、テンプレート本体�
 
 このテンプレートでは、マルチエージェント運用を特定ツール専用の機能ではなく、Codex、Claude Code、その他AI開発ツールを含む一般ルールとして扱います。
 
-`ready-for-ai` はAIに依頼できる状態を示すラベルであり、自動着手や担当者確定を意味しません。AIエージェントに作業させるissueには、事前に `assignee` を設定します。ここでいう assignee は、issueの責任を持つ人間のGitHubアカウントです。
+`ready-for-ai` はAIに依頼できる状態を示すラベルであり、自動着手や担当確定を意味しません。AIエージェントに作業させるissueには、事前に担当（assignee）を設定します。ここでいう担当（assignee）は、issueの責任を持つ人間のGitHubアカウントです。
 
 人間は、通常のissue依頼時にマルチエージェント機能を意識する必要はありません。AIが必要性を判断し、有効な場合は分割案を提示します。人間が承認した場合にのみ、複数エージェントで作業します。
 
@@ -84,7 +84,7 @@ GitHubを使わないプロジェクトでは、利用する管理ツールに�
 - GitHub issue に相当する作業単位。
 - issue番号に相当するID。
 - `ready-for-ai` ラベルに相当する状態、タグ、カスタムフィールド。
-- assignee に相当する担当者フィールド。
+- 担当（assignee）に相当する担当者フィールド。
 - Pull Request に相当するレビュー単位。
 - `Closes #123` に相当する完了リンクまたは参照形式。
 - GitHub Actions によるチェックに相当する確認方法。
@@ -94,7 +94,7 @@ GitHubを使わないプロジェクトでは、利用する管理ツールに�
 - Jira / Linear / Backlog のチケットを作業契約として扱う。
 - Notion / Markdown ファイルで `docs/common/issue-template.md` 相当の項目を管理する。
 - `ready-for-ai` はステータス、タグ、カスタムフィールドで表現する。
-- assignee は担当者フィールドで表現する。
+- 担当（assignee）は担当者フィールドで表現する。
 - Pull Request がない場合は、Merge Request、変更レビュー記録、レビュー済みコミットで代替する。
 
 GitHubを使わない場合でも、以下の原則は維持してください。
@@ -115,10 +115,10 @@ AIが読むファイル:
 - `AGENTS.md`
   - `GitHub issue本文` を、利用する管理ツールの作業チケット、タスク、または `docs/issues/*.md` に置き換える。
   - `ready-for-ai` ラベルを、管理ツール上のステータス、タグ、カスタムフィールドに置き換える。
-  - `assignee` を、管理ツール上の担当者フィールドに置き換える。
+  - `担当（assignee）` を、管理ツール上の担当者フィールドに置き換える。
   - `PR本文` や `Closes #123` を、利用するレビュー・完了記録の形式に置き換える。
 - `docs/common/development-rules.md`
-  - `GitHub issue`、`GitHub Issue Form`、`ready-for-ai`、`assignee`、`PR`、`Closes #123` などの用語を、利用する管理ツールの用語へ置き換える。
+  - `GitHub issue`、`GitHub Issue Form`、`ready-for-ai`、`担当（assignee）`、`PR`、`Closes #123` などの用語を、利用する管理ツールの用語へ置き換える。
   - AIが作業開始時に確認する作業契約の場所を明記する。
   - AIが完了時に検証結果や残課題を残す場所を明記する。
 - `CLAUDE.md`
