@@ -3,8 +3,11 @@
 このREADMEは、AI駆動開発テンプレートから作成されたプロジェクト用の雛形です。
 プロジェクト初期化時に、アプリ名、概要、セットアップ手順、起動方法に合わせて更新してください。
 
-このテンプレートの公開元README相当の情報は `docs/common/template-guide.md` を参照してください。
-具体的な運用手順は `docs/common/operations-manual.md` を参照してください。
+テンプレート本体の説明、公開元README相当の情報、使い方は以下を参照してください。
+
+- `docs/common/template-guide.md`
+- `docs/common/operations-manual.md`
+- `docs/examples/issues/001-user-profile-edit.md`
 
 ## 概要
 
@@ -50,7 +53,16 @@ AIエージェントへ作業を依頼する前に、以下を確認してくだ
 - `docs/system-context.md`
 - 対応するGitHub issue
 
-`docs/system-context.md` は、プロジェクト初期化時にAIエージェントへ依頼して作成するプロジェクト固有の前提ドキュメントです。
+`docs/system-context.md` は、このテンプレートに最初から含まれる固定ファイルではありません。プロジェクト初期化時に、テンプレートの規約に従ってAIへ作成を依頼するプロジェクト固有の前提ドキュメントです。
+
+## AIへの依頼例
+
+```text
+issue #123 に着手します。
+AGENTS.md、docs/common/development-rules.md、docs/system-context.md、issue本文を読み、
+目的、受け入れ条件、影響範囲、不明点、実装前に更新すべきドキュメントを報告してください。
+不明点が解消するまで実装しないでください。
+```
 
 ## ライセンス
 

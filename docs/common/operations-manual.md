@@ -32,6 +32,7 @@ issueは単なるタスクメモではなく、AIと人間が共有する「作�
 - `docs/common/development-rules.md`
 - `docs/common/operations-manual.md`
 - `docs/common/issue-template.md`
+- `docs/examples/issues/001-user-profile-edit.md`
 - `.github/ISSUE_TEMPLATE/feature.yml`
 - `.github/pull_request_template.md`
 - `.github/workflows/issue-contract-check.yml`
@@ -214,6 +215,8 @@ gh repo create [owner]/[repository-name] --private --source=. --remote=origin --
 ## 4. issueテンプレート
 
 issue作成時は、必要に応じて `docs/common/issue-template.md` を利用してください。
+
+記載粒度に迷う場合は、`docs/examples/issues/001-user-profile-edit.md` を参照してください。このサンプルは、実開発で頻出する機能追加issueの例です。
 
 最低限、以下を埋めます。
 
