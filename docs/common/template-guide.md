@@ -6,6 +6,8 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 
 また、要件、設計、API仕様、テスト観点、運用ルールをリポジトリ内のファイルとして管理する **Everything as Code** の考え方に沿っています。AIエージェントは、口頭の指示や暗黙知ではなく、GitHub issue と `docs/` 配下のドキュメントを根拠に作業します。
 
+このファイルは、このテンプレート本体のREADME相当のドキュメントです。`README.md` は、テンプレート利用先プロジェクト用のREADME雛形として扱います。
+
 ## 目的
 
 - issueを開発の最小単位として扱う
@@ -30,82 +32,6 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 - `.github/pull_request_template.md`: PRテンプレート
 - `.github/workflows/issue-contract-check.yml`: issue契約チェック
 - `.github/workflows/pr-issue-link-check.yml`: PR本文チェック
-
-## 利用開始時の入口
-
-このファイルは、テンプレート公開元のREADME相当の情報を置く場所です。
-
-`README.md` は、GitHub上で初めてこのテンプレートを見る人の入口であり、同時に利用先プロジェクトのREADME雛形でもあります。そのため、詳細な設計意図、公開設定、GitHubを使わない場合の読み替えは、この `docs/common/template-guide.md` に集約します。
-
-テンプレートから新しいプロジェクトを始める具体的な手順は、`docs/common/operations-manual.md` を参照してください。実際のissue記載例は `docs/examples/issues/001-user-profile-edit.md` を参照してください。
-
-`docs/system-context.md` は、このテンプレートに含まれる固定ファイルではありません。新しいプロジェクトの概要、対象ユーザー、技術スタック、権限、運用前提などをAIエージェントへ渡し、初期化手順の中で生成するプロジェクト固有のドキュメントです。
-
-## 公開前に整えること
-
-このテンプレートをpublicリポジトリとして公開する前に、以下を確認してください。
-
-### READMEを初見向けに整える
-
-GitHubのREADMEは、記事や検索から来た人が最初に読む入口です。以下が数分で分かる状態にします。
-
-- 何のテンプレートか。
-- 誰向けか。
-- どの課題を解決するか。
-- 最短でどう使い始めるか。
-- 詳細説明や運用手順をどこで読むか。
-
-READMEには詳細な運用思想を詰め込みすぎず、詳しい説明は `docs/common/template-guide.md`、具体的な手順は `docs/common/operations-manual.md` へ誘導します。
-
-### template-guideを公開元README相当にする
-
-`docs/common/template-guide.md` は、テンプレート本体の設計意図を説明する場所です。利用先プロジェクトのREADMEとは役割を分け、以下を記載します。
-
-- AI駆動開発テンプレートとしての目的。
-- Everything as Codeとして管理する対象。
-- 各ファイルの役割。
-- GitHubを使う場合、使わない場合の読み替え。
-- AI開発ツールごとの入口。
-- テンプレート本体を改善するときの運用。
-
-### サンプルissueを用意する
-
-空のissueテンプレートだけでは、利用者が記載粒度を判断しづらくなります。`docs/examples/issues/001-user-profile-edit.md` のような実開発で頻出する完成例を用意し、READMEや運用マニュアルから参照できるようにします。
-
-サンプルissueは、以下を伝えるために置きます。
-
-- issueがAIとの作業契約であること。
-- スコープと非スコープを分けること。
-- 受け入れ条件をチェック可能にすること。
-- テスト観点を実装前に明記すること。
-- 不明点を推測で埋めず、未決事項として残すこと。
-
-### GitHubのTemplate repositoryを有効にする
-
-GitHub repository settingsで **Template repository** を有効にすると、利用者が `Use this template` から新しいリポジトリを作成できます。
-
-cloneだけで利用しても問題ありませんが、Template repositoryを有効にすると以下の利点があります。
-
-- 利用者がremoteの付け替えを意識せず始められる。
-- テンプレートから作成した新規プロジェクトとして履歴を分離できる。
-- GitHub上の導線が分かりやすくなる。
-
-### topicsを設定する
-
-GitHub repositoryのAbout欄にtopicsを設定すると、GitHub検索や関連リポジトリから見つけてもらいやすくなります。
-
-推奨topics:
-
-- `ai-driven-development`
-- `coding-agent`
-- `github-issues`
-- `everything-as-code`
-- `template`
-- `codex`
-- `claude-code`
-- `developer-productivity`
-
-topicsは機能には影響しません。公開後に、このテンプレートを必要とする人へ届きやすくするためのメタ情報です。
 
 ## テンプレート本体の運用
 

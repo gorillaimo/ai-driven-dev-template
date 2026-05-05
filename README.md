@@ -3,11 +3,7 @@
 このREADMEは、AI駆動開発テンプレートから作成されたプロジェクト用の雛形です。
 プロジェクト初期化時に、アプリ名、概要、セットアップ手順、起動方法に合わせて更新してください。
 
-テンプレート本体の説明、公開元README相当の情報、使い方は以下を参照してください。
-
-- `docs/common/template-guide.md`
-- `docs/common/operations-manual.md`
-- `docs/examples/issues/001-user-profile-edit.md`
+テンプレート本体のREADME相当の説明や使い方は、まず `docs/common/template-guide.md` を参照してください。
 
 ## 概要
 
