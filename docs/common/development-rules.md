@@ -176,6 +176,7 @@ AIは実装前に、必ず以下を提示して人間の承認を得ること。
 ## 7. チーム開発・Git運用規約
 
 - **Issue First**: コミット、ブランチ、PRは原則としてissueに紐づけること。
+- **PR Scope**: PRは対応issueの完了成果物として扱い、要件定義、設計、API定義、テスト、実装のどこまでを完了させるかをissue本文とPR本文に明記すること。
 - **GitHub Issue Form**: GitHub上で作成されたissueは、Issue Formの入力内容を正式な作業契約として扱うこと。
 - **Ready Label**: `ready-for-ai` ラベルがないissueは、実装前に不足情報を確認すること。
 - **担当（Assignee）必須**: 担当（assignee）が未設定のissueは、AIが着手してはならない。
