@@ -307,15 +307,21 @@ AIにプロジェクト全体の前提を作らせます。これは初回、ま
 **既存issueを始めるプロンプト:**
 
 > issue #[番号] に着手します。
-> `@docs/common/development-rules.md`、`@docs/system-context.md`、issue本文、関連する `@docs/` を読み、以下を報告してください。
+> まず現在のブランチ、`git status`、最新の `origin/main` との差分を確認してください。
+> 問題がなければ、issue番号と要約を含む作業ブランチを作成してください。
+> 例: `feature/[issue-number]-[short-summary]`
+>
+> そのうえで、`@docs/common/development-rules.md`、`@docs/system-context.md`、issue本文、関連する `@docs/` を読み、以下を報告してください。
 >
 > - issueの目的
 > - 受け入れ条件
 > - 影響範囲
 > - 不明点
 > - 実装前に更新すべきドキュメント
+> - 作成した作業ブランチ名
 >
 > 不明点が解消するまで実装しないでください。
+> `main` へ直接コミットまたはpushしないでください。
 
 ### フェーズ2：要件・設計・API定義
 
@@ -455,8 +461,14 @@ AIへ依頼する場合は、以下のように指示します。
 **プロンプト:**
 
 > 最新のコードとドキュメントを反映しました。
-> GitHub issue #[番号]、`@docs/system-context.md`、関連する `@docs/` を読み直し、現在の作業への影響を教えてください。
-> issue本文を作業契約として扱い、受け入れ条件、非スコープ、不明点を先に報告してください。
+> GitHub issue #[番号] に着手します。
+> まず現在のブランチ、`git status`、最新の `origin/main` との差分を確認してください。
+> 問題がなければ、issue番号と要約を含む作業ブランチを作成してください。
+> 例: `feature/[issue-number]-[short-summary]`
+>
+> そのうえで、GitHub issue #[番号]、`@docs/system-context.md`、関連する `@docs/` を読み直し、現在の作業への影響を教えてください。
+> issue本文を作業契約として扱い、受け入れ条件、非スコープ、不明点、作成した作業ブランチ名を先に報告してください。
+> `main` へ直接コミットまたはpushしないでください。
 
 ### 作業中
 
