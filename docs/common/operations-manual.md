@@ -193,6 +193,7 @@ gh repo create [owner]/[repository-name] --private --source=. --remote=origin --
 - Actions の `GITHUB_TOKEN` に issue / PR への書き込み権限がある。
 - `.github/workflows/*.yml` がデフォルトブランチに入っている。
 - Issue Formの項目名を変更した場合、`issue-contract-check.yml` のチェック文字列も更新している。
+- チーム運用では、`main` ブランチ保護を設定し、direct push 禁止、PR必須、必要なActions成功必須を有効にしている。
 
 `needs-triage`、`feature`、`needs-info`、`ready-for-ai` ラベルはworkflowが自動作成します。手動作成は不要です。
 
@@ -424,6 +425,23 @@ AIの出力やPRを確認するときは、以下をチェックします。
 - `.github/workflows/pr-issue-link-check.yml`: PR本文に `Closes #123` 形式のissueリンクと検証欄があるか確認する。
 
 これにより、GitHub IssuesをAIへの作業指示の入口として使いやすくなります。ただし、GitHub Actionsは仕様の妥当性までは判断できません。受け入れ条件が本当に正しいか、issueのスコープが適切かは人間が確認します。
+
+ブランチ保護はGitHubリポジトリ設定で有効化します。このテンプレートの初期状態では強制しませんが、チーム運用では `main` への direct push を禁止し、PR経由のマージを必須にすることを推奨します。
+
+### ブランチとpushの運用
+
+通常開発では、AIに `mainへpushして` と依頼しません。issue単位で作業ブランチを作成し、そのブランチへpushしてPRを作成します。
+
+AIへ依頼する場合は、以下のように指示します。
+
+> issue #[番号] の作業ブランチを作成してください。
+> 変更をコミットし、作業ブランチへpushしてください。
+> その後、PR本文案を作成してください。
+> `main` へ直接pushしないでください。
+
+個人開発やテンプレート初期整備で `main` へ直接pushする場合は、人間がレビュー不要と判断し、明示的に `mainへpushしてよい` と依頼した場合に限ります。
+
+チーム運用では、GitHubのブランチ保護で `main` への direct push を禁止し、PR経由でのみ反映することを推奨します。
 
 ### 作業開始前
 
