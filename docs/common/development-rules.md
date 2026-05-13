@@ -178,9 +178,12 @@ AIは実装前に、必ず以下を提示して人間の承認を得ること。
 - **Issue First**: コミット、ブランチ、PRは原則としてissueに紐づけること。
 - **Branch / PR First**: AIは、通常開発では `main` へ直接 push してはならない。issue単位で作業ブランチを作成し、そのブランチへ push したうえでPRを作成すること。
 - **Branch Before Work**: AIは、issue着手時に現在のブランチと作業ツリーを確認し、通常開発ではissue番号を含む作業ブランチを作成してから変更を開始すること。
+- **Work-in-progress Push**: AIは、通常開発では作業の区切りごとに作業ブランチへ push してよい。ただし `main` へ直接 push してはならない。
+- **Issue Progress Log**: AIは、作業ブランチへ push した場合、issueコメントまたは指定された作業記録に、pushしたコミット、変更概要、実行した検証、未解決事項、次の作業を記録すること。
 - **Direct Push Exception**: `main` への直接 push は、ユーザーが明示的に依頼し、かつテンプレート初期整備、小さなドキュメント修正、緊急修正などレビュー不要と判断された場合に限る。
 - **Main Protection**: `main` への反映は、原則としてPR mergeによって行う。GitHubのブランチ保護で direct push を禁止することを推奨する。
 - **PR Scope**: PRは対応issueの完了成果物として扱い、要件定義、設計、API定義、テスト、実装のどこまでを完了させるかをissue本文とPR本文に明記すること。
+- **PR Timing**: 作業途中の push はPR作成を意味しない。PRは、issue本文に定義された「PRで完了させる範囲」を満たした時点で作成すること。
 - **GitHub Issue Form**: GitHub上で作成されたissueは、Issue Formの入力内容を正式な作業契約として扱うこと。
 - **Ready Label**: `ready-for-ai` ラベルがないissueは、実装前に不足情報を確認すること。
 - **担当（Assignee）必須**: 担当（assignee）が未設定のissueは、AIが着手してはならない。
