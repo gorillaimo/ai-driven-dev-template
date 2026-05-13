@@ -417,7 +417,7 @@ AIの出力やPRを確認するときは、以下をチェックします。
 - [ ] BackendとFrontendの型安全が保たれている。
 - [ ] Infrastructureの権限・環境変数・デプロイ設定が実装と連動している。
 - [ ] 共通APIや共通モデルの変更が、別issueや別PRで合意されている。
-- [ ] PR本文にissue番号、変更概要、検証結果、残課題が書かれている。
+- [ ] PR本文にissue番号、変更概要、実行した検証、残課題が書かれている。
 
 ## 7. チーム開発における同期手順
 
@@ -426,9 +426,9 @@ AIの出力やPRを確認するときは、以下をチェックします。
 このリポジトリでは、GitHub上のissue運用を補助するために以下を用意します。
 
 - `.github/ISSUE_TEMPLATE/feature.yml`: issue作成時に、アプリ名、対象プラットフォーム、受け入れ条件、テスト観点などをフォームで入力させる。
-- `.github/pull_request_template.md`: PR本文に対応issue、受け入れ条件、検証結果、残課題を書かせる。
+- `.github/pull_request_template.md`: PR本文に対応issue、受け入れ条件、実行した検証、残課題を書かせる。
 - `.github/workflows/issue-contract-check.yml`: issue本文に必要項目があるか確認し、不足があれば `needs-info`、揃っていれば `ready-for-ai` を付ける。
-- `.github/workflows/pr-issue-link-check.yml`: PR本文に `Closes #123` 形式のissueリンクと検証欄があるか確認する。
+- `.github/workflows/pr-issue-link-check.yml`: PR本文に `Closes #123` 形式のissueリンクと `実行した検証` があるか確認する。
 
 これにより、GitHub IssuesをAIへの作業指示の入口として使いやすくなります。ただし、GitHub Actionsは仕様の妥当性までは判断できません。受け入れ条件が本当に正しいか、issueのスコープが適切かは人間が確認します。
 
@@ -506,7 +506,7 @@ AIへ依頼する場合は、以下のように指示します。
 > - 更新したドキュメント
 > - 実装した主要ロジック
 > - Infrastructure / API / 型定義への影響
-> - 実行したテストと結果
+> - 実行した検証
 > - 残課題または別issueに切り出す内容
 
 ## 8. トラブルシューティング

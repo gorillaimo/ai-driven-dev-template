@@ -14,7 +14,7 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 - AIが推測で実装しないよう、要件・設計・受け入れ条件を明文化する
 - 要件、設計、API、テスト、運用ルールを Everything as Code として管理する
 - GitHub Issue Form と GitHub Actions で作業契約の不足を検出する
-- PRに対応issue、検証結果、残課題を残す
+- PRに対応issue、実行した検証、残課題を残す
 - プロジェクトごとの `AGENTS.md` とツール別入口ファイルからAIエージェントへ規約を伝える
 
 ## 含まれるもの
