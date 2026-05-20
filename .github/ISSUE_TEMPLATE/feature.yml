@@ -30,6 +30,7 @@ body:
         - Flutter Android
         - Flutter Web
         - Backend API
+        - Architecture
         - Infrastructure
         - Documentation
     validations:
@@ -111,6 +112,30 @@ body:
     validations:
       required: true
   - type: textarea
+    id: architecture
+    attributes:
+      label: アーキテクチャ
+      description: docs/architecture.md との関係。デフォルト構成から外れる場合は理由、比較、影響範囲、承認が必要な事項を書く。
+      placeholder: |
+        - 採用構成: デフォルト構成 / docs/architecture.md に従う / 変更候補あり
+        - デフォルト構成との差分: TBD
+        - 変更理由: TBD
+        - 承認が必要な事項: TBD
+    validations:
+      required: false
+  - type: textarea
+    id: messages_i18n
+    attributes:
+      label: メッセージ / 多言語対応
+      description: ユーザー向け文言の管理場所、対象言語、将来の多言語対応要否、APIエラーコード方針。
+      placeholder: |
+        - 対象言語: 日本語のみ / 日本語・英語 / TBD
+        - メッセージ定義の配置: TBD
+        - APIエラーコード方針: 表示文言ではなく安定したコードを返す / TBD
+        - Fallback方針: TBD
+    validations:
+      required: false
+  - type: textarea
     id: acceptance
     attributes:
       label: 受け入れ条件
@@ -141,6 +166,7 @@ body:
       description: AIエージェントが読む、または更新する必要がある既存ドキュメント。
       placeholder: |
         - docs/system-context.md
+        - docs/architecture.md
         - docs/requirements/TBD.md
         - docs/design/TBD.md
         - docs/api/openapi.yaml

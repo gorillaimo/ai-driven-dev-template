@@ -19,6 +19,7 @@
 - `docs/common/development-rules.md`: AI向けの開発規約
 - `docs/common/operations-manual.md`: 人間向けの運用手順
 - `docs/system-context.md`: アプリ全体の前提、存在する場合は必ず参照
+- `docs/architecture.md`: 採用アーキテクチャ、技術スタック、デフォルト構成との差分、存在する場合は必ず参照
 - GitHub issue本文: 対応issueがある場合は必ず参照
 
 ## 作業開始時の確認
@@ -39,7 +40,7 @@
 
 ## 実装前の原則
 
-- STEP 0: `docs/system-context.md` を確認する。
+- STEP 0: `docs/system-context.md` と `docs/architecture.md` を確認する。
 - STEP 1: `docs/requirements/[issue-number]-[feature].md` を作成または更新する。
 - STEP 2: `docs/design/[issue-number]-[feature].md` を作成または更新する。
 - STEP 3: API変更がある場合は `docs/api/openapi.yaml` を更新する。
@@ -51,4 +52,4 @@
 
 - PR本文には対応issueを `Closes #123` の形式で記載する。
 - PR本文には受け入れ条件ごとの対応、更新したドキュメント、実行した検証、残課題を記載する。
-- 共通定義、API、認証、Infrastructureに影響する変更は、実装前に人間の承認を得る。
+- アーキテクチャ、共通定義、API、認証、Infrastructureに影響する変更は、実装前に人間の承認を得る。

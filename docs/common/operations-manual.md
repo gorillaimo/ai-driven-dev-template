@@ -140,8 +140,8 @@ GitHubリポジトリは、テンプレートから新規プロジェクトを�
 3. `README.md` を利用先プロジェクトの内容に合わせて更新する。
 4. GitHubリポジトリを作成し、初期状態をpushする。
 5. GitHub Issues と GitHub Actions が有効になっていることを確認する。
-6. プロジェクト初期化をAIへ依頼し、`docs/system-context.md` を作成する。
-7. `docs/system-context.md` に記載された機能単位一覧を確認し、要件定義、設計、実装、テストへ進める単位に分割する。
+6. プロジェクト初期化をAIへ依頼し、`docs/system-context.md` と `docs/architecture.md` を作成する。
+7. `docs/system-context.md` に記載された機能単位一覧と `docs/architecture.md` の採用構成を確認し、要件定義、設計、実装、テストへ進める単位に分割する。
 8. 分割した機能単位ごとに GitHub Issue Form でissueを作成する。
 9. `ready-for-ai` ラベルが付き、担当（assignee）が設定されたissueからAIに作業を依頼する。
 
@@ -210,11 +210,11 @@ gh repo create [owner]/[repository-name] --private --source=. --remote=origin --
 
 - 要件が未確定な調査と、実装が同じissueに入っている。
 - Backend、Frontend、Infrastructure、API仕様の変更が大きく絡み、レビューが重くなる。
-- `docs/system-context.md` や `docs/api/openapi.yaml` など共通定義の変更が、複数機能へ波及する。
+- `docs/system-context.md`、`docs/architecture.md`、`docs/api/openapi.yaml` など共通定義の変更が、複数機能へ波及する。
 
 迷った場合は、先に「調査・設計issue」を作り、その結果から実装issueを作ります。
 
-初回のプロジェクト初期化では、いきなり個別機能のissueを作るのではなく、まず `docs/system-context.md` に全体要件と機能単位一覧を作成します。人間はその一覧を確認し、開発対象として妥当な粒度に調整してから、機能単位ごとにissueを作成します。
+初回のプロジェクト初期化では、いきなり個別機能のissueを作るのではなく、まず `docs/system-context.md` に全体要件と機能単位一覧を作成し、`docs/architecture.md` に採用アーキテクチャを作成します。人間はその一覧と構成判断を確認し、開発対象として妥当な粒度に調整してから、機能単位ごとにissueを作成します。
 
 機能単位一覧には、以下を含めることを推奨します。
 
@@ -252,7 +252,7 @@ issue作成時は、必要に応じて `docs/common/issue-template.md` を利用
 - **スコープ**: 何をやるか、何をやらないか。
 - **受け入れ条件**: 何が満たされれば完了か。
 - **参照ドキュメント**: 関連する `docs/` 配下の仕様。
-- **影響範囲**: Frontend / Backend / Infrastructure / API / DB / Auth など。
+- **影響範囲**: Architecture / Frontend / Backend / Infrastructure / API / DB / Auth など。
 - **テスト観点**: 正常系、異常系、権限、境界値。
 
 ## 5. フェーズ別プロンプトテンプレート
@@ -261,7 +261,7 @@ issue作成時は、必要に応じて `docs/common/issue-template.md` を利用
 
 AIにプロジェクト全体の前提を作らせます。これは初回、または大きな方向転換時だけ実施します。
 
-このフェーズでは、個別機能の詳細要件や実装には進みません。`docs/system-context.md` に全体要件を整理し、後続の要件定義、設計、実装、テストを行うissueへ分割するための機能単位一覧を作成します。
+このフェーズでは、個別機能の詳細要件や実装には進みません。`docs/system-context.md` に全体要件を整理し、`docs/architecture.md` に採用アーキテクチャとデフォルト構成との差分を整理します。そのうえで、後続の要件定義、設計、実装、テストを行うissueへ分割するための機能単位一覧を作成します。
 
 **プロンプト:**
 
@@ -270,8 +270,11 @@ AIにプロジェクト全体の前提を作らせます。これは初回、ま
 >
 > [ここに概要を入力]
 >
-> STEP 0 として `docs/system-context.md` を作成してください。
+> STEP 0 として `docs/system-context.md` と `docs/architecture.md` を作成してください。
 > ビジョン、全体要件、主要ドメイン、用語集、権限、エラー、セキュリティ、運用上の前提を記述してください。
+> `docs/architecture.md` には、採用アーキテクチャ、デフォルト構成との差分、技術スタック、クラウド、実行基盤、認証基盤、データストア、外部サービス、採用理由、未決事項を記述してください。
+> 特に理由がない場合は、`@docs/common/development-rules.md` のデフォルト技術スタックを採用してください。
+> デフォルト構成から外れる場合は、理由、比較した選択肢、影響範囲、人間に承認してほしい判断事項を明記してください。
 >
 > あわせて、要件定義、設計、実装、テストを行うissueとして分割すべき機能単位一覧を作成してください。
 > 各機能単位には、機能名、目的、想定ユーザーまたはロール、主なスコープ、主な非スコープ、依存関係、優先度、未決事項を含めてください。
@@ -282,11 +285,12 @@ AIにプロジェクト全体の前提を作らせます。これは初回、ま
 
 実装前に、人間がissueを作るか、AIにissue案を作らせます。
 
-初回開発では、フェーズ0で作成した `docs/system-context.md` の機能単位一覧を起点にします。人間は一覧を確認し、開発対象、優先度、分割粒度を調整したうえで、機能単位ごとにissueを作成します。AIにissue案を作らせる場合も、`docs/system-context.md` の機能単位一覧から対象機能を指定します。
+初回開発では、フェーズ0で作成した `docs/system-context.md` の機能単位一覧と `docs/architecture.md` の採用構成を起点にします。人間は一覧を確認し、開発対象、優先度、分割粒度を調整したうえで、機能単位ごとにissueを作成します。AIにissue案を作らせる場合も、`docs/system-context.md` の機能単位一覧と `docs/architecture.md` のアーキテクチャ判断から対象機能を指定します。
 
 **issue案作成プロンプト:**
 
 > `@docs/common/development-rules.md` と `@docs/system-context.md` を読んでください。
+> `@docs/architecture.md` も読み、採用アーキテクチャとデフォルト構成との差分を確認してください。
 > `docs/system-context.md` の機能単位一覧を確認し、次の対象機能をissue化してください。
 >
 > [対象機能名、または追加要望を書く]
@@ -311,7 +315,7 @@ AIにプロジェクト全体の前提を作らせます。これは初回、ま
 > 問題がなければ、issue番号と要約を含む作業ブランチを作成してください。
 > 例: `feature/[issue-number]-[short-summary]`
 >
-> そのうえで、`@docs/common/development-rules.md`、`@docs/system-context.md`、issue本文、関連する `@docs/` を読み、以下を報告してください。
+> そのうえで、`@docs/common/development-rules.md`、`@docs/system-context.md`、`@docs/architecture.md`、issue本文、関連する `@docs/` を読み、以下を報告してください。
 >
 > - issueの目的
 > - 受け入れ条件
@@ -334,13 +338,14 @@ issueが実装可能な粒度になったら、STEP 1-3を進めます。
 **STEP 1 要件定義プロンプト:**
 
 > issue #[番号] の要件定義を行います。
-> `@docs/common/development-rules.md`、`@docs/system-context.md`、issue本文、関連する `@docs/` を読んでください。
+> `@docs/common/development-rules.md`、`@docs/system-context.md`、`@docs/architecture.md`、issue本文、関連する `@docs/` を読んでください。
 >
 > 前提情報は以下です。
 >
 > - アプリ名: [アプリ名]
 > - アプリの概要: [何をするアプリか]
 > - 対象プラットフォーム: [Next.js Web / Flutter iOS / Flutter Android / Flutter Web など]
+> - アーキテクチャ: [デフォルト構成を採用 / `docs/architecture.md` に従う / 変更候補あり]
 > - 対象ユーザー: [利用者の種類、ロール、権限]
 > - 主な利用シーン: [いつ、どこで、何のために使うか]
 > - 解決したい課題: [ユーザーまたは業務上の課題]
@@ -350,6 +355,7 @@ issueが実装可能な粒度になったら、STEP 1-3を進めます。
 > - 出力: [画面表示、APIレスポンス、通知、保存データなど]
 > - データ要件: [保存する情報、参照する情報、個人情報の有無]
 > - 認証・認可: [ログイン要否、必要な権限、ロールごとの差]
+> - メッセージ / 多言語対応: [ユーザー向け文言の管理場所、対象言語、将来の多言語対応要否]
 > - 外部連携: [外部API、AWSサービス、決済、メールなど]
 > - 成功条件: [ユーザーにとって成功と判断できる状態]
 > - 受け入れ条件: [チェック可能な完了条件]
@@ -358,7 +364,7 @@ issueが実装可能な粒度になったら、STEP 1-3を進めます。
 >
 > 上記をもとに、規約の STEP 1 として `docs/requirements/[issue-number]-[feature].md` を作成してください。
 > ただし、テンプレート本体の改善issueでは、issue別の要件定義書を作成せず、issue本文と既存共通ドキュメント更新で代替してください。
-> 要件定義書には、目的、背景、対象ユーザー、対象プラットフォーム、スコープ、非スコープ、ユースケース、機能要件、非機能要件、データ要件、認証認可、例外パターン、受け入れ条件、テスト観点、未決事項を含めてください。
+> 要件定義書には、目的、背景、対象ユーザー、対象プラットフォーム、アーキテクチャ前提、スコープ、非スコープ、ユースケース、機能要件、非機能要件、データ要件、認証認可、メッセージ / 多言語対応方針、例外パターン、受け入れ条件、テスト観点、未決事項を含めてください。
 > 不明点がある場合は、推測で埋めずに「確認事項」として列挙してください。
 > まず作成方針と確認事項を提示し、承認後にファイルへ反映してください。
 
@@ -411,9 +417,13 @@ AIの出力やPRを確認するときは、以下をチェックします。
 - [ ] issueの受け入れ条件がすべて満たされている。
 - [ ] issue外の変更が混ざっていない。
 - [ ] `docs/system-context.md` と矛盾していない。
+- [ ] `docs/architecture.md` と矛盾していない。
+- [ ] デフォルト構成から外れる変更では、理由、比較、影響範囲、承認結果が `docs/architecture.md` に記録されている。
 - [ ] 要件・設計・API定義が実装前に更新されている。
 - [ ] テンプレート本体の改善issueでは、不要なissue別要件定義書・設計書を作成していない。
 - [ ] テストが受け入れ条件に対応している。
+- [ ] ユーザー向け文言がコードへ直書きされず、メッセージ定義ファイルまたはメッセージ管理モジュールに集約されている。
+- [ ] APIエラーは可能な限り安定したコードで表現され、表示文言への依存がFrontend側へ分離されている。
 - [ ] BackendとFrontendの型安全が保たれている。
 - [ ] Infrastructureの権限・環境変数・デプロイ設定が実装と連動している。
 - [ ] 共通APIや共通モデルの変更が、別issueや別PRで合意されている。
@@ -483,7 +493,7 @@ AIへ依頼する場合は、以下のように指示します。
 > 問題がなければ、issue番号と要約を含む作業ブランチを作成してください。
 > 例: `feature/[issue-number]-[short-summary]`
 >
-> そのうえで、GitHub issue #[番号]、`@docs/system-context.md`、関連する `@docs/` を読み直し、現在の作業への影響を教えてください。
+> そのうえで、GitHub issue #[番号]、`@docs/system-context.md`、`@docs/architecture.md`、関連する `@docs/` を読み直し、現在の作業への影響を教えてください。
 > issue本文を作業契約として扱い、受け入れ条件、非スコープ、不明点、作成した作業ブランチ名を先に報告してください。
 > `main` へ直接コミットまたはpushしないでください。
 

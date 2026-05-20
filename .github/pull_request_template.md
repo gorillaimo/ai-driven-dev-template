@@ -21,6 +21,7 @@
 
 - Frontend:
 - Backend:
+- Architecture:
 - Infrastructure:
 - API:
 - Auth:

@@ -45,6 +45,7 @@
 ## 参照ドキュメント
 
 - `docs/system-context.md`
+- `docs/architecture.md`
 - `docs/api/openapi.yaml`
 - `docs/common/development-rules.md`
 
@@ -52,6 +53,7 @@
 
 - Frontend: プロフィール編集画面、入力フォーム、エラー表示
 - Backend: プロフィール取得・更新API
+- Architecture: 既存構成を変更しない
 - Infrastructure: なし
 - API: プロフィール更新エンドポイント
 - Auth: ログインユーザー本人のみ更新可能
@@ -69,7 +71,7 @@
 
 ## 実装メモ
 
-AIエージェントは、実装前に `docs/system-context.md` と既存の認証・ユーザー管理方針を確認する。API追加が必要な場合は、実装前に `docs/api/openapi.yaml` の更新方針を提示する。
+AIエージェントは、実装前に `docs/system-context.md`、`docs/architecture.md`、既存の認証・ユーザー管理方針を確認する。API追加が必要な場合は、実装前に `docs/api/openapi.yaml` の更新方針を提示する。
 
 ## 未決事項
 

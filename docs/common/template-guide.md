@@ -27,6 +27,7 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 - `docs/common/operations-manual.md`: 人間向けの具体的な運用手順
 - `docs/common/template-guide.md`: テンプレート本体の説明、公開設定、利用時の読み替えガイド
 - `docs/common/issue-template.md`: issue本文テンプレート
+- `docs/architecture.md`: 利用先プロジェクトの採用アーキテクチャ、デフォルト構成との差分、設計判断
 - `docs/examples/issues/001-user-profile-edit.md`: issue記載例
 - `.github/ISSUE_TEMPLATE/feature.yml`: GitHub Issue Form
 - `.github/pull_request_template.md`: PRテンプレート
@@ -97,6 +98,8 @@ GitHubを使わない場合でも、以下の原則は維持してください�
 
 - 作業単位を明確にする。
 - 作業契約に目的、スコープ、非スコープ、受け入れ条件、検証観点を書く。
+- アーキテクチャ設計を `docs/architecture.md` 相当のドキュメントに残し、デフォルト構成から外れる場合は理由と承認結果を書く。
+- 多言語対応を今すぐ行わない場合でも、ユーザー向け文言はメッセージ定義ファイルへ集約する。
 - AIに依頼できる状態を明確にする。
 - 担当者を明確にする。
 - AIは作業契約外の変更をしない。
@@ -140,9 +143,9 @@ GitHub専用ファイル:
 
 GitHubを使わない場合、これらはそのままでは機能しません。不要なら削除し、利用する管理ツールやCIに合わせて代替ファイルを用意してください。
 
-## 想定スタック
+## デフォルト構成
 
-`docs/common/development-rules.md` では、以下の構成を想定しています。
+`docs/common/development-rules.md` では、特に理由がない場合に採用するデフォルト構成として以下を定義しています。
 
 - Frontend: Flutter または Next.js
 - Backend: Hono
@@ -150,7 +153,11 @@ GitHubを使わない場合、これらはそのままでは機能しません�
 - Runtime: AWS Lambda + AWS Lambda Web Adapter
 - Auth / Hosting: AWS Amplify
 
-実際のプロジェクトで使う技術スタックは、最初に `docs/system-context.md` へ明記してください。
+利用先プロジェクトでは、STEP 0で `docs/system-context.md` とあわせて `docs/architecture.md` を作成し、デフォルト構成を採用するか、要件や制約に応じて別構成にするかを判断します。デフォルト構成から外れる場合は、採用理由、比較した選択肢、影響範囲、未決事項、人間の承認結果を `docs/architecture.md` に記録してください。
+
+ユーザーに表示する文言は、画面、バリデーション、エラー、通知、メール文面を含めてメッセージ定義ファイルまたはメッセージ管理モジュールに集約します。多言語対応を今すぐ行わない場合でも、後から言語を追加できるキー設計にしてください。APIは表示文言そのものではなく、可能な限り安定したエラーコードを返し、Frontend側で表示文言に変換します。
+
+実際のプロジェクトで使う技術スタックは、最初に `docs/architecture.md` へ明記してください。
 
 ## AIエージェントへの依頼方法
 
@@ -160,7 +167,7 @@ GitHubを使わない場合、これらはそのままでは機能しません�
 
 ```text
 issue #123 に着手します。
-AGENTS.md、docs/common/development-rules.md、docs/system-context.md、issue本文を読み、
+AGENTS.md、docs/common/development-rules.md、docs/system-context.md、docs/architecture.md、issue本文を読み、
 目的、受け入れ条件、影響範囲、不明点、実装前に更新すべきドキュメントを報告してください。
 ```
 
