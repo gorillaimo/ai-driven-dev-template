@@ -20,6 +20,7 @@
 - `docs/common/operations-manual.md`: 人間向けの運用手順
 - `docs/system-context.md`: アプリ全体の前提、存在する場合は必ず参照
 - `docs/architecture.md`: 採用アーキテクチャ、技術スタック、デフォルト構成との差分、存在する場合は必ず参照
+- `docs/prototype.md`: プロトタイプの範囲、検証結果、後続issue候補、プロトタイプ関連issueでは必ず参照
 - GitHub issue本文: 対応issueがある場合は必ず参照
 
 ## 作業開始時の確認
@@ -41,6 +42,7 @@
 ## 実装前の原則
 
 - STEP 0: `docs/system-context.md` と `docs/architecture.md` を確認する。
+- 任意 STEP 0.5: 営業デモ、要件確認、画面遷移確認、技術検証が必要な場合は `docs/prototype.md` を作成または更新し、プロトタイプの範囲と本番との差分を確認する。
 - STEP 1: `docs/requirements/[issue-number]-[feature].md` を作成または更新する。
 - STEP 2: `docs/design/[issue-number]-[feature].md` を作成または更新する。
 - STEP 3: API変更がある場合は `docs/api/openapi.yaml` を更新する。

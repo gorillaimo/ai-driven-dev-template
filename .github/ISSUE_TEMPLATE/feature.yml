@@ -20,6 +20,20 @@ body:
     validations:
       required: true
   - type: dropdown
+    id: issue_type
+    attributes:
+      label: issue種別
+      description: このissueで完了させる範囲。
+      options:
+        - 通常の機能issue
+        - 要件・設計issue
+        - プロトタイプissue
+        - 実装issue
+        - Docs / Template改善
+        - Investigation
+    validations:
+      required: true
+  - type: dropdown
     id: platform
     attributes:
       label: 対象プラットフォーム
@@ -124,6 +138,20 @@ body:
     validations:
       required: false
   - type: textarea
+    id: prototype
+    attributes:
+      label: プロトタイプ
+      description: プロトタイプissue、またはプロトタイプ由来のissueの場合に、目的、範囲、本番との差分、反映先を書く。
+      placeholder: |
+        - プロトタイプ目的: 営業デモ / 要件確認 / 画面遷移確認 / 技術検証 / なし
+        - 参照する docs/prototype.md: TBD
+        - 再現する範囲: TBD
+        - 再現しない範囲: TBD
+        - 本番アーキテクチャとの差分: TBD
+        - 要件・設計へ反映すること: TBD
+    validations:
+      required: false
+  - type: textarea
     id: messages_i18n
     attributes:
       label: メッセージ / 多言語対応
@@ -167,6 +195,7 @@ body:
       placeholder: |
         - docs/system-context.md
         - docs/architecture.md
+        - docs/prototype.md
         - docs/requirements/TBD.md
         - docs/design/TBD.md
         - docs/api/openapi.yaml
