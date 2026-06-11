@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="560" viewBox="0 0 760 560" role="img" aria-labelledby="title desc">
+  <title id="title">AI駆動開発テンプレートの開発フロー</title>
+  <desc id="desc">プロジェクト定義からissue、要件と設計、テスト、実装、PRレビューへ進む流れ。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#334155"/>
+    </marker>
+    <style>
+      .bg { fill: #f8fafc; }
+      .box { fill: #ffffff; stroke: #94a3b8; stroke-width: 1.4; }
+      .start { fill: #eff6ff; stroke: #2563eb; }
+      .contract { fill: #fff7ed; stroke: #ea580c; }
+      .define { fill: #f0fdf4; stroke: #16a34a; }
+      .build { fill: #f5f3ff; stroke: #7c3aed; }
+      .review { fill: #f8fafc; stroke: #475569; }
+      .title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; font-size: 22px; font-weight: 700; }
+      .caption { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #475569; font-size: 14px; }
+      .step { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #0f172a; font-size: 18px; font-weight: 700; }
+      .note { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #334155; font-size: 13px; }
+      .num { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ffffff; font-size: 13px; font-weight: 700; text-anchor: middle; dominant-baseline: central; }
+      .dot { fill: #334155; }
+      .arrow { stroke: #334155; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="760" height="560"/>
+  <text class="title" x="40" y="44">AI駆動開発の工程</text>
+  <text class="caption" x="40" y="72">詳細な役割分担ではなく、issueを中心に開発が進む順序だけを示しています。</text>
+
+  <g transform="translate(160 108)">
+    <rect class="box start" x="0" y="0" width="440" height="62" rx="14"/>
+    <circle class="dot" cx="34" cy="31" r="14"/>
+    <text class="num" x="34" y="31">1</text>
+    <text class="step" x="70" y="28">初期定義</text>
+    <text class="note" x="70" y="48">目的・前提・採用構成を整理する</text>
+  </g>
+
+  <path class="arrow" d="M 380 174 L 380 203"/>
+
+  <g transform="translate(160 208)">
+    <rect class="box contract" x="0" y="0" width="440" height="62" rx="14"/>
+    <circle class="dot" cx="34" cy="31" r="14"/>
+    <text class="num" x="34" y="31">2</text>
+    <text class="step" x="70" y="28">issue作成</text>
+    <text class="note" x="70" y="48">目的・スコープ・受け入れ条件を作業契約にする</text>
+  </g>
+
+  <path class="arrow" d="M 380 274 L 380 303"/>
+
+  <g transform="translate(160 308)">
+    <rect class="box define" x="0" y="0" width="440" height="62" rx="14"/>
+    <circle class="dot" cx="34" cy="31" r="14"/>
+    <text class="num" x="34" y="31">3</text>
+    <text class="step" x="70" y="28">要件・設計・API定義</text>
+    <text class="note" x="70" y="48">実装前に仕様と検証観点をそろえる</text>
+  </g>
+
+  <path class="arrow" d="M 380 374 L 380 403"/>
+
+  <g transform="translate(160 408)">
+    <rect class="box build" x="0" y="0" width="440" height="62" rx="14"/>
+    <circle class="dot" cx="34" cy="31" r="14"/>
+    <text class="num" x="34" y="31">4</text>
+    <text class="step" x="70" y="28">テスト・実装</text>
+    <text class="note" x="70" y="48">受け入れ条件を満たす最小差分で進める</text>
+  </g>
+
+  <path class="arrow" d="M 380 474 L 380 503"/>
+
+  <g transform="translate(160 508)">
+    <rect class="box review" x="0" y="0" width="440" height="44" rx="14"/>
+    <circle class="dot" cx="34" cy="22" r="14"/>
+    <text class="num" x="34" y="22">5</text>
+    <text class="step" x="70" y="27">PRレビュー・issue close</text>
+  </g>
+</svg>
