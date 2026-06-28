@@ -29,6 +29,23 @@
 - DB / Storage:
 - Monitoring / Logging:
 
+## 変更リスク
+
+- 分類: Low Risk / Medium Risk / High Risk
+- 理由:
+
+## Quality Gates
+
+- NFR: 該当なし / 確認済み / 未確認あり
+- Security: 該当なし / 確認済み / 未確認あり
+- Resiliency: 該当なし / 確認済み / 未確認あり
+
+確認内容:
+- TBD
+
+未確認事項 / 後続issue候補:
+- TBD
+
 ## 実行した検証
 
 - [ ] 未実行

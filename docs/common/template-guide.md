@@ -34,6 +34,7 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 - `.gitattributes`: Git上の改行コードとテキスト判定の基本設定
 - `docs/common/development-rules.md`: AI向け開発規約
 - `docs/common/operations-manual.md`: 人間向けの具体的な運用手順
+- `docs/common/quality-gates.md`: NFR、Security、Resiliency の品質ゲート
 - `docs/common/template-guide.md`: テンプレート本体の説明、公開設定、利用時の読み替えガイド
 - `docs/common/issue-template.md`: issue本文テンプレート
 - `docs/architecture.md`: 利用先プロジェクトの採用アーキテクチャ、デフォルト構成との差分、設計判断

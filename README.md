@@ -46,6 +46,7 @@ AIエージェントへ作業を依頼する前に、以下を確認してくだ
 - 利用するAI開発ツール向けの入口ファイル、存在する場合のみ
 - `docs/common/development-rules.md`
 - `docs/common/operations-manual.md`
+- `docs/common/quality-gates.md`
 - `docs/system-context.md`
 - `docs/architecture.md`
 - `docs/prototype.md`、プロトタイプ関連issueの場合

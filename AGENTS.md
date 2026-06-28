@@ -18,6 +18,7 @@
 
 - `docs/common/development-rules.md`: AI向けの開発規約
 - `docs/common/operations-manual.md`: 人間向けの運用手順
+- `docs/common/quality-gates.md`: NFR、Security、Resiliency の品質ゲート
 - `docs/system-context.md`: アプリ全体の前提、存在する場合は必ず参照
 - `docs/architecture.md`: 採用アーキテクチャ、技術スタック、デフォルト構成との差分、存在する場合は必ず参照
 - `docs/prototype.md`: プロトタイプの範囲、検証結果、後続issue候補、プロトタイプ関連issueでは必ず参照
@@ -46,6 +47,7 @@
 - STEP 1: `docs/requirements/[issue-number]-[feature].md` を作成または更新する。
 - STEP 2: `docs/design/[issue-number]-[feature].md` を作成または更新する。
 - STEP 3: API変更がある場合は `docs/api/openapi.yaml` を更新する。
+- STEP 3.5: `docs/common/quality-gates.md` を確認し、NFR、Security、Resiliency の該当有無を整理する。
 - STEP 4: 受け入れ条件に対応するテストを先に作成し、その後に実装する。
 
 テンプレート本体の改善issueでは、利用先プロジェクトに不要な履歴ドキュメントを残さないため、原則として `docs/requirements/` や `docs/design/` にissue別ドキュメントを作成しない。issue本文と既存共通ドキュメント更新で要件・設計整理を代替する。

@@ -31,6 +31,7 @@ issueは単なるタスクメモではなく、AIと人間が共有する「作�
 - `docs/common/template-guide.md`
 - `docs/common/development-rules.md`
 - `docs/common/operations-manual.md`
+- `docs/common/quality-gates.md`
 - `docs/common/issue-template.md`
 - `docs/examples/issues/001-user-profile-edit.md`
 - `.github/ISSUE_TEMPLATE/feature.yml`
@@ -197,6 +198,40 @@ gh repo create [owner]/[repository-name] --private --source=. --remote=origin --
 
 `needs-triage`、`feature`、`needs-info`、`ready-for-ai` ラベルはworkflowが自動作成します。手動作成は不要です。
 
+### 既存プロジェクトへ導入する場合
+
+既存コードベースへこのテンプレートを導入する場合は、AIにいきなり機能実装やリファクタリングを依頼しません。まず調査専用issueを作成し、既存構成をリバースエンジニアリングします。
+
+調査専用issueでは、以下を整理します。
+
+- ディレクトリ構成と主要責務。
+- 技術スタック、起動方法、テスト方法、ビルド方法。
+- Frontend、Backend、Infrastructure、Auth、Data Store、External Services の現状。
+- API、認証認可、データモデル、環境変数、シークレット、デプロイ前提。
+- 既存ドキュメントと不足しているドキュメント。
+- `docs/system-context.md` と `docs/architecture.md` の作成または更新案。
+- 後続issue候補。
+
+調査専用issueの非スコープには、機能実装、リファクタリング、依存関係更新、API仕様変更、Infrastructure変更を明記します。既存コードを理解する前にAIへ変更させると、暗黙の構成や運用前提を壊しやすくなるためです。
+
+**既存プロジェクト調査プロンプト:**
+
+> 既存プロジェクトへAI駆動開発テンプレートを導入するための調査issueに着手します。
+> `AGENTS.md` と `docs/common/development-rules.md` を読み、まだ機能実装やリファクタリングは行わないでください。
+>
+> まず既存コードベースを調査し、以下を整理してください。
+>
+> - ディレクトリ構成と主要責務
+> - 技術スタック
+> - 起動、ビルド、テスト、デプロイ方法
+> - Frontend、Backend、Infrastructure、Auth、Data Store、External Services の現状
+> - API、認証認可、データモデル、環境変数、シークレット、デプロイ前提
+> - 既存ドキュメントと不足しているドキュメント
+> - `docs/system-context.md` と `docs/architecture.md` の作成または更新案
+> - 後続issue候補
+>
+> このissueではコード変更、依存関係更新、API仕様変更、Infrastructure変更は行わないでください。
+
 ## 3. issueの粒度
 
 ### 良いissue
@@ -240,6 +275,58 @@ gh repo create [owner]/[repository-name] --private --source=. --remote=origin --
 
 小さな機能では、1機能 = 1 issue = 1 PR を基本とします。大きな機能では、要件・設計issueと実装issueに分割し、各issueのPRで完了させる範囲を明記します。
 
+### 変更リスクに応じた工程調整
+
+issue作成時は、変更リスクを Low / Medium / High のいずれかで整理します。AIへ依頼する前に、リスク分類が妥当か人間が確認してください。
+
+#### Low Risk
+
+例:
+
+- 文言修正、README修正、小さなドキュメント修正。
+- テスト追加のみ。
+- 明確な軽微バグ修正。
+
+進め方:
+
+- issue本文またはユーザー指示を確認する。
+- 受け入れ条件と影響範囲を確認する。
+- issue別の要件定義書や設計書は省略してよい。
+- 必要な検証だけを実行し、結果を報告する。
+
+#### Medium Risk
+
+例:
+
+- 通常の機能追加。
+- 既存画面、既存API、既存データ構造を使う変更。
+- 認証済みユーザー向けの標準的な機能。
+
+進め方:
+
+- issue、関連ドキュメント、受け入れ条件を確認する。
+- 要件、設計、テスト観点を整理する。
+- 実装前に人間が方針を確認する。
+- テスト追加または更新を行う。
+
+#### High Risk
+
+例:
+
+- 認証、認可、ロール、権限の変更。
+- API仕様、共通データモデル、DB / Storage構造の変更。
+- Infrastructure、AWSリソース、IAM、環境変数、デプロイ構成の変更。
+- 外部サービス連携、決済、通知、メール、ファイルアップロード。
+- 本番データ、個人情報、機微情報、セキュリティ、レジリエンスに影響する変更。
+
+進め方:
+
+- `docs/system-context.md` と `docs/architecture.md` を確認または更新する。
+- 必要に応じて `docs/requirements/`、`docs/design/`、`docs/api/openapi.yaml` を更新する。
+- `docs/common/quality-gates.md` に基づき、NFR / Security / Resiliency の該当有無を確認する。
+- 実装前に人間が明示的に承認する。
+- PR本文にQuality Gatesの確認結果、未確認事項、残課題を書く。
+
 ## 4. issueテンプレート
 
 issue作成時は、必要に応じて `docs/common/issue-template.md` を利用してください。
@@ -249,11 +336,13 @@ issue作成時は、必要に応じて `docs/common/issue-template.md` を利用
 最低限、以下を埋めます。
 
 - **目的**: なぜこの変更が必要か。
+- **変更リスク**: Low / Medium / High とその理由。
 - **スコープ**: 何をやるか、何をやらないか。
 - **受け入れ条件**: 何が満たされれば完了か。
 - **参照ドキュメント**: 関連する `docs/` 配下の仕様。
 - **影響範囲**: Architecture / Frontend / Backend / Infrastructure / API / DB / Auth など。
 - **テスト観点**: 正常系、異常系、権限、境界値。
+- **Quality Gates**: NFR / Security / Resiliency の該当有無。
 
 ## 5. フェーズ別プロンプトテンプレート
 
@@ -267,6 +356,7 @@ issue作成時は、必要に応じて `docs/common/issue-template.md` を利用
 | フェーズ0.5 | 任意 STEP 0.5 | プロトタイプ作成 |
 | フェーズ1 | なし | issue作成・整理 |
 | フェーズ2 | STEP 1-3 | 要件定義、設計、API定義 |
+| フェーズ2.5 | STEP 3.5 | Quality Gates確認 |
 | フェーズ3 | STEP 4のテスト先行部分 | 受け入れ条件に対応するテスト作成 |
 | フェーズ4 | 実装 | テストと設計に基づく本実装 |
 
@@ -368,6 +458,8 @@ AIにプロジェクト全体の前提を作らせます。これは初回、ま
 > 判断理由も説明してください。
 >
 > そのうえで、`docs/common/issue-template.md` の形式に沿って、目的、スコープ、非スコープ、受け入れ条件、影響範囲、テスト観点を整理してください。
+> 変更リスクを Low / Medium / High で分類し、分類理由、必要な工程、省略可能な工程、人間の承認が必要な判断を明記してください。
+> High Riskの場合は、`docs/common/quality-gates.md` に基づき、NFR / Security / Resiliency の該当有無を整理してください。
 > PRで完了させる範囲も明記してください。
 > `docs/system-context.md` にない仕様は推測せず、未決事項として列挙してください。
 > 実装に入らず、まずissue本文案だけを提示してください。
@@ -384,6 +476,8 @@ AIにプロジェクト全体の前提を作らせます。これは初回、ま
 > - issueの目的
 > - 受け入れ条件
 > - 影響範囲
+> - 変更リスク分類と理由
+> - Quality Gatesの該当有無
 > - 不明点
 > - 実装前に更新すべきドキュメント
 > - 作成した作業ブランチ名
@@ -447,6 +541,27 @@ STEP 1の内容が固まってから、設計とAPI定義へ進みます。
 
 共通API、認証、データモデル、インフラ権限を変えるissueでは、実装前にドキュメント差分だけでレビューすることを推奨します。
 
+### フェーズ2.5：Quality Gates確認（STEP 3.5）
+
+設計とAPI方針が固まったら、実装前に `docs/common/quality-gates.md` を確認します。すべてのissueで全項目を満たす必要はありませんが、AIは該当有無と理由を明記します。
+
+High Risk issueでは、Quality Gatesの確認結果を人間が承認してから、テスト作成と実装へ進みます。
+
+**Quality Gates確認プロンプト:**
+
+> issue #[番号] の実装前に、`@docs/common/quality-gates.md` を確認してください。
+> issue本文、要件定義、設計、API定義、影響範囲をもとに、以下を整理してください。
+>
+> - 変更リスク分類: Low / Medium / High
+> - NFR Gateの該当有無、確認結果、未確認事項
+> - Security Gateの該当有無、確認結果、未確認事項
+> - Resiliency Gateの該当有無、確認結果、未確認事項
+> - 実装前に人間が承認すべき判断
+> - 後続issue候補
+>
+> 該当しないゲートについても、該当なしと判断した理由を説明してください。
+> High Riskの場合は、人間の承認があるまでテスト作成や実装に進まないでください。
+
 ### フェーズ3：テスト先行実装（STEP 4のテスト先行部分）
 
 設計が承認されたら、先にテストを書かせます。
@@ -486,6 +601,9 @@ AIの出力やPRを確認するときは、以下をチェックします。
 - [ ] デフォルト構成から外れる変更では、理由、比較、影響範囲、承認結果が `docs/architecture.md` に記録されている。
 - [ ] プロトタイプ由来の変更では、`docs/prototype.md` の検証結果が要件・設計・API定義・後続issueへ反映されている。
 - [ ] プロトタイプコードを流用している場合は、本実装として必要な品質、テスト、セキュリティ、アーキテクチャ適合性が再確認されている。
+- [ ] 変更リスク分類が Low / Medium / High で明記され、分類理由が妥当である。
+- [ ] High Risk issueでは、実装前に人間の明示承認がある。
+- [ ] `docs/common/quality-gates.md` に基づき、NFR / Security / Resiliency の該当有無と確認結果が整理されている。
 - [ ] 要件・設計・API定義が実装前に更新されている。
 - [ ] テンプレート本体の改善issueでは、不要なissue別要件定義書・設計書を作成していない。
 - [ ] テストが受け入れ条件に対応している。

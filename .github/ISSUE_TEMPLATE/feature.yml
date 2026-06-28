@@ -49,6 +49,17 @@ body:
         - Documentation
     validations:
       required: true
+  - type: dropdown
+    id: change_risk
+    attributes:
+      label: 変更リスク
+      description: 変更内容のリスク分類。High Riskでは実装前に人間の明示承認が必要です。
+      options:
+        - Low Risk
+        - Medium Risk
+        - High Risk
+    validations:
+      required: true
   - type: textarea
     id: purpose
     attributes:
@@ -185,6 +196,19 @@ body:
         - 権限・認可:
         - 境界値:
         - 回帰:
+    validations:
+      required: true
+  - type: textarea
+    id: quality_gates
+    attributes:
+      label: Quality Gates
+      description: docs/common/quality-gates.md を参照し、NFR / Security / Resiliency の該当有無を書く。
+      placeholder: |
+        - NFR: 該当なし / 確認済み / 未確認あり
+        - Security: 該当なし / 確認済み / 未確認あり
+        - Resiliency: 該当なし / 確認済み / 未確認あり
+        - 確認内容: TBD
+        - 未確認事項 / 後続issue候補: TBD
     validations:
       required: true
   - type: textarea

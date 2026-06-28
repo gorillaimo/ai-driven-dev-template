@@ -82,3 +82,6 @@ amplify/mock-data/
 tmp/
 temp/
 .cache/
+
+# Local article drafts
+docs/articles/

@@ -43,11 +43,13 @@ jobs:
             const required = [
               "アプリ名",
               "対象プラットフォーム",
+              "変更リスク",
               "目的",
               "スコープ",
               "非スコープ",
               "受け入れ条件",
-              "テスト観点"
+              "テスト観点",
+              "Quality Gates"
             ];
 
             const missing = required.filter((heading) => !body.includes(heading));
