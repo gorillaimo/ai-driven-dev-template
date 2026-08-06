@@ -36,6 +36,7 @@ AIは、既存のメッセージ管理方針がある場合はそれに従う。
 - `docs/architecture.md`: [重要] 採用アーキテクチャ、技術スタック、デフォルト構成との差分、設計判断
 - `docs/prototype.md`: 営業デモ、要件確認、画面遷移確認、技術検証のためのプロトタイプ範囲と結果
 - `docs/common/quality-gates.md`: NFR、Security、Resiliency の品質ゲート
+- `docs/common/adaptive-workflow-design.md`: Issue内部の適応的な実行計画、状態管理、追跡性検査、モジュール式ルール、Brownfield解析、Golden Testの共通設計（後続実装完了までは設計参照のみ）
 - `docs/requirements/`: issueまたは機能別の要件定義書
 - `docs/design/`: issueまたは機能別の設計書、シーケンス図 (Mermaid)
 - `docs/api/`: API仕様書 (`openapi.yaml`)
