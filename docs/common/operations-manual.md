@@ -232,6 +232,14 @@ gh repo create [owner]/[repository-name] --private --source=. --remote=origin --
 >
 > このissueではコード変更、依存関係更新、API仕様変更、Infrastructure変更は行わないでください。
 
+### 適応ワークフローの設計
+
+1つのIssue内部における、作業規模に応じた工程選択、中断からの再開、フェーズ境界の追跡性検査、ルールのモジュール化、Brownfield解析、ワークフローのGolden Testについては、`docs/common/adaptive-workflow-design.md` に共通設計を定義しています。
+
+この設計はIssue契約、assignee、`ready-for-ai`、変更リスク分類、Quality Gates、人間の承認を置き換えません。後続実装Issueが完了するまでは設計参照のみとし、計画・状態ファイルや自動チェックが利用可能であるとは扱わないでください。導入時は既存運用を維持し、機構ごとに追加方式で有効化します。
+
+複数feature / Issue / 開発者をまたぐ開発順序、チーム台帳、担当割当、claim、進捗集約、AI主導の次Issue選択は別のプロジェクト統制機構として扱い、このIssue内部ワークフローだけで実行しません。
+
 ## 3. issueの粒度
 
 ### 良いissue
