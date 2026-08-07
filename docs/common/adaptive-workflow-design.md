@@ -88,7 +88,7 @@ AI-DLC 2.0への完全移行、多数のステージや専門エージェント�
 
 ### 3.5 プロジェクトレベルの統制との境界
 
-この設計は1つのIssueまたはwork item内部の工程を対象とする。複数feature / Issue / 開発者 / AIエージェントをまたぐ優先順位、依存グラフ、担当割当、claim、並列wave、共有ファイルの統合責任はIssue #9で扱い、この設計へ混在させない。
+この設計は1つのIssueまたはwork item内部の工程を対象とする。複数feature / Issue / 開発者 / AIエージェントをまたぐ優先順位、依存グラフ、担当割当、claim、並列wave、共有ファイルの統合責任は`docs/common/project-orchestration-design.md`（Issue #9）で扱い、この設計へ混在させない。
 
 将来のプロジェクト集約から参照できるよう、Issue単位の成果物は任意の`project_id`と`feature_id`、標準状態イベントを持てるようにする。これらの参照が未設定でも単一Issue運用はblockしない。`feature_id`の採番、開発順序、担当者の選択、自動割当はプロジェクト側の責務であり、本設計のplan/stateチェッカーが独自に決定しない。
 
@@ -100,9 +100,9 @@ AI-DLC 2.0への完全移行、多数のステージや専門エージェント�
 | プロジェクト進捗 | GitHub Issues。採用時はGitHub Projectsを含む | Issue内部状態から投影できるが、プロジェクト側の値を独自に確定しない |
 | Issue内部のステージ、再開地点、検証、承認参照 | `.ai-workflow/issues/<work-id>/state.yaml` | 再開と境界検査の正本として更新する |
 | feature定義と`feature_id` | `docs/system-context.md` | 対象featureへの参照だけを保持する |
-| プロジェクトの依存、wave、チーム、担当可能領域 | Issue #9で定義するプロジェクト成果物とGitHub | Issue内部成果物へ複製しない |
+| プロジェクトの依存、wave、チーム、担当可能領域 | project orchestration成果物とGitHub | Issue内部成果物へ複製しない |
 
-GitHub上の工程表示はIssue内部状態を集約した投影として扱う。GitHubと`state.yaml`に不整合がある場合、どちらかを自動上書きせず`blocked`として差分と更新時刻を提示し、Issue #9で定義する同期・復旧手順へ委ねる。
+GitHub上の工程表示はIssue内部状態を集約した投影として扱う。GitHubと`state.yaml`に不整合がある場合、どちらかを自動上書きせず`blocked`として差分と更新時刻を提示し、project orchestrationで定義する同期・復旧手順へ委ねる。
 
 ## 4. 共通成果物
 
@@ -110,7 +110,7 @@ GitHub上の工程表示はIssue内部状態を集約した投影として扱う
 
 ```text
 .ai-workflow/
-  project/               # Issue #9が所有するプロジェクト統制用の予約領域
+  project/               # project orchestrationが所有するプロジェクト統制用の予約領域
   rules/                 # プロジェクト固有・opt-inルール
     <rule-id>/
       rule.md
@@ -132,7 +132,7 @@ GitHub上の工程表示はIssue内部状態を集約した投影として扱う
 - `brownfield.md`: 既存構成の調査結果と人間向け要約。
 - `brownfield.yaml`: 構成要素、コマンド、リスク、文書不足の機械可読表現。
 
-`.ai-workflow/project/`は、将来の機能台帳、依存グラフ、チーム台帳、集約状態のために予約する。Issue #8では配下のschemaや更新主体を定義せず、Issue単位のチェッカーもこの領域を書き換えない。
+`.ai-workflow/project/`は、機能台帳、依存グラフ、チーム台帳、集約方針のために予約する。配下のschemaや更新主体は`docs/common/project-orchestration-design.md`で定義し、Issue単位のチェッカーはこの領域を書き換えない。
 
 MarkdownとYAMLは同じ事実を別々に管理しない。YAMLを構造化された正本、Markdownをレビュー用の説明とし、矛盾した場合は境界検査をblockにする。成果物には秘密情報、トークン、個人情報、本番データ、未マスクのログを含めない。
 
@@ -229,7 +229,7 @@ planned -> in_progress -> awaiting_approval -> in_progress -> completed
 - `work_paused`、`work_resumed`、`work_blocked`
 - `work_failed`、`work_cancelled`、`work_completed`
 
-状態イベントはIssue内部の監査・再開情報を表し、プロジェクト側は集約用入力として参照できる。ただし、イベントだけからassignee変更、claim取得、次Issueの自動割当を行ってはならない。プロジェクト側が取り込んだイベントのcheckpointを管理し、同じ`event_id`の再処理は状態を重複更新しない冪等な扱いとする。イベントの配送保証、同期方向、競合復旧はIssue #9の責務とする。
+状態イベントはIssue内部の監査・再開情報を表し、プロジェクト側は集約用入力として参照できる。ただし、イベントだけからassignee変更、claim取得、次Issueの自動割当を行ってはならない。プロジェクト側が取り込んだイベントのcheckpointを管理し、同じ`event_id`の再処理は状態を重複更新しない冪等な扱いとする。イベントの配送保証、同期方向、競合復旧はproject orchestrationの責務とする。
 
 ### 6.3 再開手順
 
@@ -394,7 +394,7 @@ tests/workflow-golden/
 
 各Issueは、対象機構のschema version、後方互換性、移行手順、失敗時のfallback、受け入れ条件を個別に定義する。1から7までは決定的・オフラインに検証可能であることを優先し、AIサービスを必須依存にしない。
 
-共通スキーマの実装Issueでは、Issue #9との連携点として`project_id`、`feature_id`、`actor_ref`、`on_behalf_of`、標準状態イベントを定義する。プロジェクトCoordinator、チーム台帳、依存グラフ、claim、自動割当、イベント同期の実装はIssue #9の後続Issueへ分離する。
+共通スキーマの実装Issueでは、project orchestrationとの連携点として`project_id`、`feature_id`、`actor_ref`、`on_behalf_of`、標準状態イベントを定義する。プロジェクトCoordinator、チーム台帳、依存グラフ、claim、自動割当、イベント同期の実装はIssue #9の後続Issueへ分離する。
 
 ## 14. 設計承認チェックリスト
 

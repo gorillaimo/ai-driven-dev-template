@@ -34,6 +34,7 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 - `.gitattributes`: Git上の改行コードとテキスト判定の基本設定
 - `docs/common/development-rules.md`: AI向け開発規約
 - `docs/common/adaptive-workflow-design.md`: Issue内部の適応的な実行計画、状態管理と再開、追跡性検査、モジュール式ルール、Brownfield解析、Golden Testの共通設計
+- `docs/common/project-orchestration-design.md`: 複数feature、Issue、開発者、AIエージェントをまたぐ計画、割当、進捗、競合防止の共通設計
 - `docs/common/operations-manual.md`: 人間向けの具体的な運用手順
 - `docs/common/quality-gates.md`: NFR、Security、Resiliency の品質ゲート
 - `docs/common/template-guide.md`: テンプレート本体の説明、公開設定、利用時の読み替えガイド
@@ -46,7 +47,9 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 - `.github/workflows/issue-contract-check.yml`: issue契約チェック
 - `.github/workflows/pr-issue-link-check.yml`: PR本文チェック
 
-`docs/common/adaptive-workflow-design.md` に記載された機構は、現時点では後続実装のための設計です。対応するテンプレート、チェッカー、GitHub Actionsが追加されるまでは、従来のIssueベース運用だけが有効です。プロジェクト全体の開発順序、担当割当、進捗集約、AI主導の次Issue選択はこの設計に含まれず、別のプロジェクト統制機構として扱います。
+`docs/common/adaptive-workflow-design.md` と `docs/common/project-orchestration-design.md` に記載された機構は、現時点では後続実装のための設計です。対応するtemplate、schema、checker、GitHub Actionsが追加されるまでは、従来のIssueベース運用だけが有効です。
+
+Issue内部の工程選択と再開はadaptive workflow、プロジェクト全体の開発順序、担当割当、進捗集約、AI主導の次Issue提案はproject orchestrationの責務です。後者の初期標準はIssues-onlyと手動Coordinatorであり、GitHub Projects、Dispatcher、外部Agent Runnerを必須にしません。
 
 ## テンプレート本体の運用
 
