@@ -37,6 +37,7 @@ AIは、既存のメッセージ管理方針がある場合はそれに従う。
 - `docs/prototype.md`: 営業デモ、要件確認、画面遷移確認、技術検証のためのプロトタイプ範囲と結果
 - `docs/common/quality-gates.md`: NFR、Security、Resiliency の品質ゲート
 - `docs/common/adaptive-workflow-design.md`: Issue内部の適応的な実行計画、状態管理、追跡性検査、モジュール式ルール、Brownfield解析、Golden Testの共通設計（後続実装完了までは設計参照のみ）
+- `docs/common/project-orchestration-design.md`: 複数feature、Issue、開発者、AIエージェントをまたぐ計画、割当、進捗、競合防止の共通設計（後続実装完了までは設計参照のみ）
 - `docs/requirements/`: issueまたは機能別の要件定義書
 - `docs/design/`: issueまたは機能別の設計書、シーケンス図 (Mermaid)
 - `docs/api/`: API仕様書 (`openapi.yaml`)

@@ -1,0 +1,557 @@
+# Project-level AI Development Orchestration Design
+
+このドキュメントは、`docs/system-context.md`で分割したfeatureを、複数のIssue、開発者、AIエージェントにまたがって計画、割当、追跡するための共通設計を定義する。Issue #8のIssue内部ワークフローを置き換えず、その外側にプロジェクトレベルの統制を追加する。
+
+## 1. 文書の状態
+
+- 状態: 設計承認済み（Issue #9、2026-08-07）
+- 承認記録: https://github.com/gorillaimo/ai-driven-dev-template/issues/9#issuecomment-5207242159
+- 適用開始: 人間による設計承認後、対応する後続実装Issueが完了した機構から段階的に有効化する
+- 現時点の扱い: データ契約、責務境界、手動運用、自動化境界の設計。schema、チェッカー、Dispatcher、GitHub Actionsは未実装
+- 初期標準: GitHub Issuesを使う手動Coordinator方式
+- 任意拡張: GitHub Projects、中央Dispatcher、外部Agent Runner
+- 互換性: 1人開発、単一Issue、従来のprompt運用を壊さない追加方式
+
+設計承認前は、この文書だけを根拠としてラベル追加、自動割当、権限変更、Dispatcher実装へ進んではならない。設計承認後も、各後続Issueの契約、assignee、`ready-for-ai`、変更リスク、人間承認を個別に確認する。
+
+## 2. 採用判断
+
+| 論点 | 採用方針 | 理由 |
+| :--- | :--- | :--- |
+| AI主導の進行 | 人間がセッションを開始し、AIが次の安全な作業を提案する | 常駐・自己起動を前提にせず、promptの選択負荷を減らす |
+| 実行時の正本 | GitHub Issue / PR。GitHub Projects採用時はproject fieldを追加 | 複数人が同じ状態を確認でき、チャットや共有YAMLへの分散を避ける |
+| 静的な計画 | リポジトリ内のproject成果物 | 依存関係、チーム方針、schemaをレビュー可能にする |
+| Issue内部状態 | Issue #8の`.ai-workflow/issues/<work-id>/state.yaml` | 再開地点と工程内履歴をプロジェクト割当から分離する |
+| 共有project state | 単一の手編集`state.yaml`は作らない | 並列更新のhot spotと競合を避ける |
+| GitHub Projects | opt-in。初期標準では必須にしない | 軽量なIssues-only運用を維持する |
+| claim | 手動Coordinatorを初期標準とし、自動化時は中央Dispatcherだけが確定する | 各AIによる自由選択と二重着手を防ぐ |
+| stale claim | 警告後に人間が解放・再割当する。自動stealしない | 長時間作業、休日、通信断による誤解放を避ける |
+| メンバー確認 | `team.yaml`、GitHub login、repository permission、任意のOrganization Teamの積集合 | プロジェクト役割と実アクセス権を分離して検証する |
+| integration owner | area単位を標準とし、Issue単位で上書き可能 | 共有ファイルの責任を明確にしつつ単一人物への集中を避ける |
+| 完全自動実行 | 初期リリースに含めない | 権限、費用、障害復旧、監査の運用実績が必要なため |
+
+## 3. 目的と非目的
+
+### 3.1 目的
+
+- 「開発を続けてください」という最小指示から、AIが現在地と次の安全な作業を説明できるようにする。
+- feature、Issue、Issue内部ステージ、assignee、claim、branch、PR、blockerを追跡可能にする。
+- feature間の依存関係をDAGとして管理し、着手順序と並列waveを決定可能にする。
+- 開発メンバー、役割、担当可能area、同時担当上限、integration ownerを機械可読にする。
+- 複数人と各自のAIエージェントによる重複着手、共有ファイル競合、責任者不明を防ぐ。
+- 手動運用からDispatcher、外部Runnerへ段階的に拡張できる境界を定める。
+
+### 3.2 非目的
+
+- 人間の指示なしにAIが常駐・自己起動すること。
+- 人間の承認を省略した仕様決定、自動マージ、自動本番デプロイ。
+- AIエージェントやツール名をassigneeまたは開発責任者として扱うこと。
+- 全開発者または全AIが単一の共有状態ファイルを更新すること。
+- GitHub Projects、Organization Team、特定AIツールを全プロジェクトへ必須化すること。
+- Issue #8の適応的計画、再開、追跡性検査、Brownfield解析、Golden Testを再定義すること。
+- この設計IssueでDispatcher、Agent Runner、GitHub Actionsを実装すること。
+
+## 4. Issue #8および既存運用との境界
+
+### 4.1 責務
+
+| 対象 | 正本 | 主な更新主体 |
+| :--- | :--- | :--- |
+| featureの目的・説明・`feature_id` | `docs/system-context.md` | 人間が承認したPR |
+| project設定、依存、計画制約、チーム属性 | `.ai-workflow/project/` | Coordinatorまたはintegration ownerのPR |
+| Issue契約、assignee、claim、project status、PR | GitHub | 担当者、Coordinator。自動化時は権限を限定したDispatcher |
+| Issue内部のstage、再開地点、検証、承認参照 | Issue #8のIssue別成果物 | 当該Issueのprimary agentまたは担当者 |
+| project全体の集約表示 | GitHubまたは生成snapshot | 集約処理。手編集しない |
+
+Issue内部の`state.yaml`は再開と境界検査の正本であり、assignee、claim、priority、feature依存を正本として複製しない。project側はIssue #8の`project_id`、`feature_id`、標準状態イベントを読み取れるが、Issue内部stageを独自に完了扱いしない。
+
+GitHub上の集約値とIssue内部状態が矛盾する場合、自動上書きせず対象Issueを`blocked`相当として差分、更新時刻、推奨復旧手順を提示する。
+
+### 4.2 優先順位
+
+競合する指示は次の順で解決する。
+
+1. 人間の停止指示、明示承認、最新の指示
+2. Issue契約と非スコープ
+3. `AGENTS.md`とalways-onルール
+4. 承認済みproject設定と依存制約
+5. Coordinatorが確定したassigneeとactive claim
+6. AIが生成した次タスク提案
+
+AIの提案は上位の契約、承認、割当、依存を緩和できない。
+
+### 4.3 人間の承認点
+
+| 判断 | 必要な人間の操作・承認 |
+| :--- | :--- |
+| project設定、team、依存、共有areaの変更 | PRレビューと承認 |
+| assignee、active Coordinator、claimの確定 | 初期標準ではCoordinatorまたは人間ownerの明示操作 |
+| stale claimのrelease、block override、再割当 | Coordinatorが既存作業を確認して記録 |
+| 進行中Issueへ影響する再計画 | 影響IssueのownerとCoordinatorが継続・pause・cancelを判断 |
+| High Risk Issueの工程通過 | 当該Issue契約とQuality Gatesが要求する明示承認 |
+| Projects、Dispatcher、Runnerの有効化 | 後続Issueで権限、費用、fallbackを承認 |
+| merge、deploy、権限変更 | 既存のrepository・環境ルールに従う。AI提案だけでは実行しない |
+
+## 5. Project成果物
+
+将来の実装では次の配置を標準とする。
+
+```text
+.ai-workflow/
+  project/
+    project.yaml          # project識別子、runtime backend、claim・同期方針
+    delivery-plan.yaml    # feature参照、依存、area、計画制約
+    delivery-plan.md      # 人間向けの生成・レビュー表示
+    team.yaml             # project参加者、役割、area、capacity
+  issues/
+    <work-id>/            # Issue #8が所有するIssue内部成果物
+```
+
+### 5.1 `project.yaml`
+
+最低限、次を持つ。
+
+- `schema_version`
+- `project_id`
+- `runtime_backend`: `issues`または`projects`
+- `coordination_mode`: 初期標準の`manual`または後続の`dispatcher`
+- manual時のactive Coordinatorまたはarea別Coordinator
+- repository参照
+- `membership_source`: repository、任意のOrganization Team
+- project statusとGitHub label / fieldのmapping
+- claimのstale判定、heartbeat、解放方針
+- 共有areaと競合方針
+- 同期方向、checkpoint、失敗時fallback
+
+初期標準は`runtime_backend: issues`とする。`projects`を選ぶ場合もIssue本文、assignee、claim、PRの正本はGitHub Issue / PRに残し、Project fieldはpriority、wave、project statusなどproject viewの正本として使う。
+
+### 5.2 `delivery-plan.yaml`
+
+最低限、各featureについて次を持つ。
+
+- `feature_id`
+- `source_ref`: `docs/system-context.md`の見出しまたはanchor
+- `depends_on`: 先行feature ID
+- `area_ids`: 主な変更領域
+- `planned_priority`: 承認済み計画時点の優先度
+- `constraints`: 承認、外部依存、共有areaなど
+- `issue_refs`: 作成済みIssueへの参照。未作成を許可する
+
+featureの目的と詳細要件は`docs/system-context.md`を正本とし、`delivery-plan.yaml`へ文章を複製しない。実行時のpriority、assignee、statusはGitHubを正本とし、計画との差分だけを再計画理由として記録する。
+
+`delivery-plan.md`はYAMLとGitHubから生成できる人間向け表示とする。手編集内容を正本にせず、生成時刻と入力revisionを表示する。
+
+### 5.3 `team.yaml`
+
+最低限、次を持つ。
+
+```yaml
+schema_version: 1
+project_id: example-app
+membership_source:
+  type: repository
+members:
+  - github_login: example-user
+    active: true
+    roles: [developer]
+    areas: [backend]
+    max_concurrent_issues: 1
+    integration_owner: [backend]
+```
+
+- `github_login`: 人間のGitHubアカウント。AI名やツール名を入れない。
+- `active`: project内で新規割当を受けられるか。
+- `roles`: coordinator、developer、reviewerなど。
+- `areas`: 担当可能な変更領域。
+- `max_concurrent_issues`: active claimの上限。
+- `integration_owner`: 統合判断を担当するarea IDの配列。
+
+メールアドレス、端末識別子、token、秘密情報、勤務状況などの個人情報は保存しない。休暇や一時離脱は`active: false`と既存claimの引き継ぎ記録で扱う。
+
+### 5.4 共有project stateを作らない
+
+全エージェントが更新する`.ai-workflow/project/state.yaml`は作らない。project状態はGitHubから取得し、必要な集約結果はCI artifact、ローカル一時ファイル、生成Markdownとして作成する。生成物をコミットする場合も手編集を禁止し、入力revisionと生成時刻を持たせる。
+
+## 6. 識別子と追跡性
+
+### 6.1 識別子
+
+- `project_id`: repository内で一意かつ不変。小文字英数字とhyphenを使う。
+- `feature_id`: project内で一意かつ不変。名称変更後も再利用・変更しない。
+- `work_id`: Issue #8の作業ID。GitHub利用時はIssue番号へ解決可能にする。
+- `claim_id`: claim試行ごとに一意。再割当時は新しいIDを発行する。
+- `area_id`: 共有境界、所有、競合判定に使う安定ID。
+
+削除したIDを別のfeatureやareaへ再利用しない。表示名、Issue title、担当者が変わってもIDは維持する。
+
+### 6.2 追跡関係
+
+少なくとも次を相互参照できるようにする。
+
+```text
+project_id
+  -> feature_id
+    -> issue_ref / work_id
+      -> current_stage
+      -> assignee / claim_id
+      -> branch / PR
+      -> blocker / approval
+```
+
+1つのfeatureに複数Issueを許可する。feature完了は、必須Issueがすべて完了し、未解決blockerがなく、feature単位の受け入れ条件が確認された場合だけとする。調査Issue、prototype Issue、設計Issue、実装Issueを同じfeatureへ関連付けても、個別の完了をfeature全体の完了と誤認しない。
+
+## 7. 状態モデル
+
+### 7.1 Issueのproject status
+
+機械可読値は次を標準とする。
+
+```text
+draft -> available_for_work -> assigned -> in_progress -> in_review -> completed
+                    \-> blocked -----------/            \-> cancelled
+```
+
+- `draft`: 契約または依存が未確定。
+- `available_for_work`: 契約、依存、承認準備が揃い、Coordinatorが割当可能。
+- `assigned`: 人間のassigneeが確定し、まだactive claimがない。
+- `in_progress`: active claimと作業branchがある。
+- `blocked`: 依存、承認、競合、権限、障害により進められない。
+- `in_review`: PRまたは設計承認のレビュー中。
+- `completed`: Issue契約と必須検証を完了。
+- `cancelled`: 人間が終了した終端状態。
+
+`ready-for-ai`はAIへ依頼可能な契約品質を表す既存ラベルであり、project status、assignee、claimを意味しない。
+
+### 7.2 feature status
+
+- `planned`: featureと依存を定義済み。
+- `ready`: 先行featureが完了し、必須Issueを割当可能。
+- `active`: 関連Issueのいずれかが`assigned`、`in_progress`、`in_review`。
+- `blocked`: 必須Issueまたはfeature依存がblocked。
+- `completed`: 必須Issueとfeature受け入れ条件を完了。
+- `cancelled`: 人間が計画から除外。
+
+feature statusはGitHub上の関連Issueから集約する。手編集でIssue状態と矛盾させない。
+
+### 7.3 Issue内部stage
+
+requirements、design、tests、implementationなどのstageはIssue #8の`current_stage`を参照する。project statusとstageを1つの値へ統合しない。例えば、project statusが`in_progress`、current stageが`design`という組み合わせを許可する。
+
+## 8. 依存関係、開発順序、wave
+
+### 8.1 DAG
+
+feature依存は`depends_on`の有向辺で表し、自己参照、未知ID、循環をblockする。循環を検出した場合、AIは順序を推測せず、循環経路と分割・境界変更の候補を人間へ提示する。
+
+依存には理由を記録する。代表例はAPI契約、共通データモデル、認証基盤、共有UI、Infrastructure、walking skeleton、外部承認である。「念のため」の依存を増やさず、成果物または契約上の先行条件がある場合だけ設定する。
+
+### 8.2 wave計画
+
+基本waveはtopological orderから決定する。
+
+- 依存を持たないfeatureを最初のwave候補とする。
+- featureのwaveは、未完了の依存featureより後にする。
+- 同じwaveでも共有area、capacity、integration ownerの制約が衝突する場合は直列化する。
+- walking skeletonや共通契約は明示的なfoundation featureとして先行させる。
+- 外部依存や人間承認待ちはwaveへ含めず`blocked`として分離する。
+
+waveは計画上の並列可能性であり、自動着手命令ではない。Coordinatorがassignee、claim、変更scopeを確定したIssueだけが実行される。
+
+### 8.3 再計画
+
+依存、priority、scope、area、feature追加・取消が変わった場合はplan revisionを増やし、変更理由、承認者、影響feature、無効になったwaveを記録する。進行中Issueを黙って別waveへ移動せず、継続、pause、cancelの判断を人間へ求める。
+
+## 9. メンバー確認と割当可能性
+
+### 9.1 現在の人間を識別する
+
+AIは作業開始時に、利用中のGitHub認証からloginを取得し、次を確認する。
+
+1. `team.yaml`に同じ`github_login`があり`active: true`である。
+2. repositoryにproject方針が要求するpermissionがある。
+3. Organization Teamを設定した場合はactive memberとして確認できる。
+4. Issueのassigneeまたは依頼コメントの人間と作業依頼の関係が説明できる。
+
+確認APIや権限が利用できない場合、自動割当はblockし、人間が確認したGitHubコメントへの参照を記録する。membershipを推測しない。
+
+開発者本人のcredentialを使うinteractive modeでは、認証中loginを人間ownerとして扱う。共有bot credentialを使う場合、botを`team.yaml`の開発メンバーやassigneeにせず、Dispatcherまたは人間の依頼記録から`on_behalf_of`のGitHub loginを受け取り、その人間についてmembership、permission、assigneeを検証する。`on_behalf_of`を確認できないbot作業はblockする。
+
+### 9.2 実効メンバー
+
+- Organization Teamを設定しない場合: `team.yaml`のactive memberかつ必要なrepository permissionを持つ人間。
+- Organization Teamを設定する場合: `team.yaml`、Organization Team、repository permissionの条件をすべて満たす人間。
+- Organization Teamに所属していても`team.yaml`にいない人間は、このprojectの自動割当対象にしない。
+- `team.yaml`でactiveでもTeam所属またはpermissionを失った人間には新規割当しない。
+
+不一致は自動修正せず、Coordinatorへ差分を報告する。
+
+### 9.3 割当候補
+
+候補者は、active membership、role、area、capacity、既存claim、休止状態、integration owner制約を満たす必要がある。AIは候補と根拠を提示できるが、初期標準ではCoordinatorがassigneeを確定する。
+
+## 10. Coordinator、claim、競合防止
+
+### 10.1 手動Coordinator方式
+
+初期標準では、`roles`に`coordinator`を持つ人間が次を行う。
+
+1. 依存、契約、`ready-for-ai`、承認準備を確認する。
+2. area、capacity、既存作業から担当候補を選ぶ。
+3. GitHub assigneeを設定する。
+4. change scope、非担当領域、integration ownerをIssueまたは着手コメントへ記録する。
+5. active claimを記録し、project statusを`in_progress`へ進める。
+6. 完了、release、block、再割当を記録する。
+
+各開発者のAIは、自分の依頼元の人間へ割り当てられたIssueだけを実行する。未割当Issueを提案することはできるが、自分でassigneeやclaimを確定しない。
+
+manual modeでは、project全体または互いに重ならないareaごとにactive Coordinatorを1人だけ指定する。複数Coordinatorを登録しても、同じIssueまたは同じ共有areaの割当操作を同時に行わない。交代時は、GitHubへhandoff時刻、未完了の割当操作、active claimを記録してからactive Coordinatorを変更する。
+
+1つのIssueには責任を持つ人間ownerを1人定める。GitHub上で複数assigneeを許可する場合も、claimの`human_owner`は1人とし、追加参加者はreviewerまたは明示された協力者として扱う。
+
+### 10.2 claim記録
+
+claimには少なくとも次を持たせる。
+
+- `claim_id`
+- Issue / `work_id`
+- 人間のowner GitHub login
+- 利用するAIツールまたはagent識別子。責任者としては扱わない
+- branch
+- 変更可能area / file scope
+- 非担当領域
+- primary agentまたはintegration owner
+- `claimed_at`
+- `last_heartbeat_at`
+- stale判定時刻またはproject設定への参照
+
+GitHub Issueコメントを標準記録場所とする。再割当時は旧claimを編集して消さず、releaseまたはsupersededの記録と新しい`claim_id`を追加する。
+
+### 10.3 stale claim
+
+初期標準では、project設定の`stale_after`超過は警告であり、自動解放しない。Coordinatorは担当者、branch、PR、直近eventを確認し、次のいずれかを記録する。
+
+- heartbeatを更新して継続する。
+- `paused`または`blocked`として保持する。
+- claimをreleaseし、作業treeと引き継ぎ情報を確認して再割当する。
+- 不明な変更があるため再割当を停止する。
+
+自動Dispatcherを導入する場合も、期限切れを直接stealせず、reconciliation状態を経てから再割当する。
+
+### 10.4 共有area
+
+`docs/system-context.md`、`docs/architecture.md`、OpenAPI、共通schema、共通型、lockfile、認証、Infrastructureなどを共有areaとして登録できる。共有areaを変更するIssueにはintegration ownerを必須とし、次のいずれかを選ぶ。
+
+- foundation Issueとして先にmergeする。
+- 変更scopeが重ならないよう分割する。
+- 同じintegration ownerが順序を決めて直列化する。
+- 共通変更を専用Issueへ切り出す。
+
+`CODEOWNERS`はレビュー責任を表すが、claimや排他制御の代替ではない。assigneeはIssue責任、claimは着手権、integration ownerは共有areaの統合責任を表す。
+
+### 10.5 1つのIssueを複数AIで扱う場合
+
+Issue内部の並列化は既存のマルチエージェント規約に従い、人間の承認、primary agent、担当scope、変更可能ファイル、非担当領域を必須とする。project CoordinatorはIssueを1つの割当単位として扱い、内部sub-agentを別メンバーや別assigneeとして数えない。
+
+## 11. AI主導の次タスク提案
+
+### 11.1 トリガー
+
+AIは常駐せず、人間がセッションで「開発を続けてください」などの最小指示を与えた時点をトリガーとする。イベント駆動の自動起動には、後続の外部Agent RunnerまたはGitHub Actionsと明示的な権限設計が必要である。
+
+### 11.2 入力
+
+- 認証中のGitHub login、または検証済みの`on_behalf_of`。
+- `project.yaml`、`delivery-plan.yaml`、`team.yaml`の承認済みrevision。
+- GitHubのIssue契約、assignee、status、claim、branch、PR、承認記録。
+- Issue #8の`current_stage`、blocker、次に許可されたstage、状態event。
+- feature依存、wave、priority、area競合、member capacity。
+- 人間の最新指示、停止指示、override。
+
+### 11.3 選択手順
+
+AIは次の順で判断する。
+
+1. 認証中のGitHub loginと実効メンバー条件を確認する。
+2. 自分の依頼元の人間に割り当てられた`in_progress` Issueを探す。
+3. active claimがある場合、Issue #8の再開手順で安全な次stageを提案する。
+4. `assigned` Issueがある場合、依存、承認、競合、capacityを再確認してclaim開始を提案する。
+5. `blocked`または`in_review`しかない場合、勝手に別Issueへ移らず、blockerまたはレビュー待ちを報告する。
+6. 割当Issueがない場合、Coordinator向けに`available_for_work`候補をpriority、wave、Issue番号の安定順で提示するが、初期標準では自動claimしない。
+
+同順位の候補は、明文化されたpriority、wave、依存解除時刻、Issue番号など決定的なtie-breakで並べる。AIの主観だけで順序を変更しない。
+
+人間owner本人が自分に割り当てられたIssueについて最小指示を行った場合、その指示をclaim開始の依頼として扱える。AIは着手条件を再検査し、claimコメントとIssue branchを作成する前に、対象Issue、scope、競合の有無を短く報告する。未割当Issue、他人がownerのIssue、共有botで`on_behalf_of`を確認できない場合は、最小指示だけでclaimを開始しない。
+
+### 11.4 出力
+
+AIは次を短く提示する。
+
+- project、feature、Issue、current stage、assignee、claimの現在地。
+- 選択した次の1作業と選択理由。
+- 満たした依存、承認、capacity、競合検査。
+- 作成・更新しようとするclaim、branch、成果物。
+- 人間の承認が必要な判断、blocker、未確認事項。
+- 選択できない場合は上位候補と除外理由。
+
+### 11.5 停止条件
+
+- assignee、claim、membership、permissionを確認できない。
+- High Riskの必要承認がない。
+- 依存featureまたはIssueが未完了。
+- change scopeが既存claimまたは進行中PRと競合する。
+- GitHubとIssue内部stateが不整合。
+- feature ID、Issue契約、受け入れ条件が不足する。
+- 人間が停止、pause、priority変更を指示した。
+
+停止時は、理由、影響、確認先、再開条件を提示する。
+
+## 12. 自動DispatcherとAgent Runner
+
+### 12.1 Dispatcher
+
+自動割当を導入する場合、各AIがGitHubから自由にIssueを選ぶ方式は採用しない。中央Dispatcherをclaim確定のsingle writerとし、同一repository / projectの割当処理を直列化する。
+
+Dispatcherは次を満たす。
+
+- requestごとのidempotency key。
+- 同じIssueにactive claimがないことの再確認。
+- assignee、membership、permission、capacity、依存、競合の検査。
+- GitHub更新の部分失敗を検出するreconciliation。
+- 監査eventと人間ownerの`on_behalf_of`記録。
+- 停止、手動override、read-only fallback。
+
+原子的なclaimはDispatcherの直列化・永続化境界で保証し、複数の独立AIによるGitHub更新のタイミング一致へ依存しない。
+
+### 12.2 Agent Runner
+
+RunnerはDispatcherが確定したclaimだけを受け取り、指定Issue、branch、scope、人間ownerを実行contextへ渡す。Runner障害時に自動で別Issueへ移らず、同じclaimの再開または人間によるreleaseを待つ。
+
+初期リリースではRunnerを含めない。導入には権限、sandbox、secret、費用、timeout、停止方法、監査、同時実行上限の別設計と明示承認を必要とする。
+
+## 13. 同期と復旧
+
+### 13.1 同期
+
+- project設定の変更はPRでレビューする。
+- GitHub runtime状態をproject YAMLへ書き戻さない。
+- Issue #8の状態eventを集約する場合、`event_id`ごとのcheckpointを持ち冪等に処理する。
+- Project fieldやlabelを投影する場合、同期元、同期先、更新時刻、revisionを記録する。
+- 双方向同期を初期標準にせず、fieldごとに一方向のownerを1つ決める。
+
+### 13.2 復旧表
+
+| 状況 | 動作 |
+| :--- | :--- |
+| duplicate event | checkpointで無視し、同じ結果を返す |
+| GitHub更新の部分失敗 | claim確定を保留し、差分をreconciliation対象にする |
+| stale claim | 自動stealせず、担当者・branch・PRを確認する |
+| 担当者の離脱 | `active: false`、既存claimのpause/release、引き継ぎ記録を行う |
+| branchはあるがclaimがない | orphan候補としてblockし、所有者を確認する |
+| claimはあるがbranchがない | 作業未開始か削除かを確認し、勝手に再作成しない |
+| dependencyが失敗・取消 | 下流をblockし、代替依存または再計画を承認する |
+| GitHubとIssue内部stageが不一致 | 自動上書きせず、更新時刻と根拠を比較して人間が解消する |
+| Dispatcher停止 | 新規自動割当を止め、既存claimは維持し、手動Coordinatorへfallbackする |
+| GitHub API rate limit | cacheとbackoffを使い、最新性を確認できない割当は停止する |
+
+復旧不能でも従来のIssue、assignee、着手コメント、branch / PRによる手動運用へ戻れることを必須とする。
+
+## 14. GitHub ProjectsとGitHubを使わない場合
+
+### 14.1 Issues-only
+
+初期標準。Issue本文、assignee、labels、claimコメント、branch、PRを使う。導入が軽い一方、feature横断の一覧は生成reportまたは検索で補う。
+
+### 14.2 GitHub Projects opt-in
+
+多数feature、複数team、portfolio表示、custom fieldによるpriority / wave / project statusが必要な場合に採用する。`project.yaml`で`runtime_backend: projects`を明示し、field IDとmappingを設定する。利用不能時に暗黙でIssues-onlyへ切り替えず、read-only表示または人間承認付きfallbackを使う。
+
+### 14.3 GitHubを使わない場合
+
+作業管理ツールに、Issue、assignee、claim、status、review、stable ID、監査eventに相当する機構があることを確認する。原子的claimを提供しない場合は手動Coordinatorを使う。ツール名だけを置き換え、責務境界と停止条件を緩和しない。
+
+## 15. Security、Privacy、NFR、Resiliency
+
+| Gate | 設計時点の判定 | 後続実装で確認すること |
+| :--- | :--- | :--- |
+| NFR | 未確認あり | 対象Issue数、応答時間、API call数、rate limit時の目標値 |
+| Security | 方針確認済み・実装未確認 | token scope、bot権限、Organization Team確認権限、監査情報の公開範囲 |
+| Resiliency | 方針確認済み・実装未確認 | claimの部分失敗、checkpoint永続化、reconciliation、manual fallbackの実動作 |
+
+### 15.1 Security / Privacy
+
+- AIは認証中のloginとpermissionを検証するが、tokenやcredentialを成果物・コメントへ出力しない。
+- `team.yaml`にはGitHub loginとproject運用属性だけを保存し、メール、端末、勤務情報、秘密情報を保存しない。
+- bot / Dispatcher / Runnerは最小権限とし、read、claim更新、PR操作、merge、deployの権限を分離する。
+- AIエージェントやbotによる更新は`actor_ref`と人間ownerの`on_behalf_of`を記録する。
+- fork PRや信頼できない入力へsecretを渡さない。
+- 生成結果だけで承認、merge、deploy、権限変更を行わない。
+
+### 15.2 NFR
+
+- API取得は必要なIssue、field、期間へ限定し、cache、pagination、rate limit、backoffを設計する。
+- 大規模projectではfeature、area、waveで集約範囲を限定できるようにする。
+- 集約結果には取得時刻とfreshnessを表示する。
+- 次タスク提案は候補数と評価理由を制限し、全repositoryの無制限走査を避ける。
+- 初期実装Issueで、対象Issue数、応答時間、API call数の計測可能な目標を定める。
+
+### 15.3 Resiliency
+
+- claim、event、同期はidempotentにする。
+- 部分失敗は完了扱いせず、reconciliation可能な中間状態として保持する。
+- Dispatcher、Projects、集約処理が停止しても既存Issue作業を継続できる。
+- stale情報に基づく割当を止め、read-onlyまたは手動Coordinatorへfallbackする。
+- 再割当前にbranch、PR、未push変更、Issue内部stateの引き継ぎを確認する。
+
+## 16. Project OrchestrationのGolden Test
+
+Issue #8のGolden Testハーネスへ、次のfixtureを追加する。
+
+- 1人・1feature・Issues-onlyで次Issueを提案する。
+- 依存未完了のIssueを`available_for_work`にしない。
+- DAGの循環と未知feature IDをblockする。
+- 同一waveでも共有area競合を直列化する。
+- inactive member、permission不足、capacity超過を割当候補から除外する。
+- Organization Teamと`team.yaml`の不一致をblockする。
+- 2つの同時claim要求を1つだけactiveにする。
+- stale claimを自動stealしない。
+- duplicate eventを冪等に処理する。
+- GitHubとIssue内部stateの不整合をblockする。
+- Dispatcher停止時に手動Coordinatorへfallbackする。
+- AIが未割当Issueを勝手にclaimしない。
+- bot更新で`on_behalf_of`が欠落した場合にblockする。
+- Projects未採用のprojectでProjectsを要求しない。
+
+静的fixtureを必須とし、AIによる優先度や意味評価は任意のinformational testへ分離する。
+
+## 17. 後続実装Issueの分割案
+
+| 順序 | 実装Issue | 主な成果物 | 依存関係 |
+| :--- | :--- | :--- | :--- |
+| 1 | Issue #8共通schemaとの連携 | `project_id`、`feature_id`、actor、eventの共通定義 | Issue #8の共通schema実装 |
+| 2 | Project成果物schemaとtemplate | `project.yaml`、`delivery-plan.yaml`、`team.yaml` | 1 |
+| 3 | feature依存DAGとwave validator | ID、循環、依存、共有area、計画revision検査 | 2 |
+| 4 | member・ownership validator | membership、permission、capacity、integration owner検査 | 2 |
+| 5 | 手動Coordinator運用 | status mapping、claim template、stale・release・再割当手順 | 3、4 |
+| 6 | project集約とreconciliation | GitHub＋Issue内部eventのread-only集約、差分検出 | Issue #8状態チェッカー、3、5 |
+| 7 | AI次タスクrecommender | 決定的な候補選択、理由、停止条件 | 6 |
+| 8 | Project Golden TestとActions | 本文書の必須fixture、オフラインCI | Issue #8 Golden Test、3、4、5、6、7 |
+| 9 | GitHub Projects adapter | opt-in field mappingと一方向同期 | 6、運用上の必要性 |
+| 10 | 中央Dispatcher | 直列claim、idempotency、reconciliation | 5、6、8の運用実績 |
+| 11 | 外部Agent Runner | event駆動実行、sandbox、権限、費用・停止制御 | 10の運用実績と別途High Risk承認 |
+
+1から8までを初期の手動Coordinator対応範囲とし、9から11は利用規模と運用実績に基づくopt-inとする。Issue #8と重複するschema、event、Golden Test基盤は別実装を作らず、共通成果物へ拡張する。
+
+## 18. 設計承認チェックリスト
+
+- [x] AI主導の次タスク提案の入力、出力、停止条件、人間承認点が合意されている。
+- [x] feature、Issue、stage、assignee、claim、branch、PRの追跡関係が合意されている。
+- [x] DAG、循環検出、wave、共有area、再計画方式が合意されている。
+- [x] GitHub、project成果物、Issue内部state、生成集約物の正本が合意されている。
+- [x] `team.yaml`、Organization Team、permission、実効メンバーの関係が合意されている。
+- [x] assignee、claim、Coordinator、integration owner、`CODEOWNERS`の責務が合意されている。
+- [x] stale claim、担当離脱、部分失敗、重複event、不整合の復旧方法が合意されている。
+- [x] Issues-onlyを初期標準、Projects・Dispatcher・Runnerをopt-inとする段階導入が合意されている。
+- [x] Security、Privacy、NFR、Resiliencyの制約が合意されている。
+- [x] Issue #8との連携と後続実装Issueの依存順序が合意されている。
+
+本設計は2026-08-07に明示承認済みであり、後続実装Issueを作成できる。各後続Issueの作成、着手、実装承認は本承認に含めず、個別のIssue契約に従う。

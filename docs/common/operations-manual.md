@@ -238,7 +238,13 @@ gh repo create [owner]/[repository-name] --private --source=. --remote=origin --
 
 この設計はIssue契約、assignee、`ready-for-ai`、変更リスク分類、Quality Gates、人間の承認を置き換えません。後続実装Issueが完了するまでは設計参照のみとし、計画・状態ファイルや自動チェックが利用可能であるとは扱わないでください。導入時は既存運用を維持し、機構ごとに追加方式で有効化します。
 
-複数feature / Issue / 開発者をまたぐ開発順序、チーム台帳、担当割当、claim、進捗集約、AI主導の次Issue選択は別のプロジェクト統制機構として扱い、このIssue内部ワークフローだけで実行しません。
+複数feature / Issue / 開発者をまたぐ開発順序、チーム台帳、担当割当、claim、進捗集約、AI主導の次Issue選択は、`docs/common/project-orchestration-design.md`で別のプロジェクト統制機構として設計しています。このIssue内部ワークフローだけでは実行しません。
+
+### プロジェクト統制の設計
+
+`docs/common/project-orchestration-design.md`は、`docs/system-context.md`で分割したfeatureの依存順序、工程進捗、開発メンバー、担当・claim、共有領域の競合防止を定義します。初期標準はGitHub Issuesと人間のCoordinatorを使う方式で、GitHub Projects、中央Dispatcher、外部Agent Runnerは任意の後続拡張です。
+
+この機構も後続実装Issueが完了するまでは設計参照のみです。現時点では、AIへ「開発を続けてください」と指示しても、AIが未割当Issueを自動claimしたり、複数人の作業を自動調整したりできるとは扱わないでください。従来どおり、人間がassignee、着手コメント、変更範囲、既存PRを確認します。
 
 ## 3. issueの粒度
 
