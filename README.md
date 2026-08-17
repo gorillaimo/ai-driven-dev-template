@@ -5,6 +5,8 @@
 
 テンプレート本体のREADME相当の説明や使い方は、まず `docs/common/template-guide.md` を参照してください。
 
+テンプレートの現在version、v1 / v2のrelease方針、移行方法は、`VERSION`、`CHANGELOG.md`、`docs/common/versioning-policy.md`、`docs/common/migration-v1-to-v2.md`を参照してください。ルート`VERSION`はtemplate本体のversionであり、利用先アプリケーションのversionではありません。
+
 ## 概要
 
 TBD
