@@ -1,0 +1,146 @@
+# Migration Guide: v1 to v2
+
+このドキュメントは、v1の文書・prompt中心のIssueベース運用から、v2のadaptive workflowとproject orchestrationへ段階移行する方針を定義する。
+
+## 1. 現在の注意事項
+
+- v1 stable: `v1.0.0`
+- v2: development line
+- `v2.0.0`stable Release: 未公開
+- 現在の`main`にはv2の設計文書が含まれるが、schema、checker、Golden Test、Actionsは未実装
+
+設計文書が存在するだけで、AIが状態管理、自動再開、次Issue選択、claim、複数人調整を自動実行できるとは扱わない。対応する後続実装Issueが完了した機構だけを有効化する。
+
+## 2. 移行しない選択
+
+v1運用が要件を満たす場合、移行は必須ではない。
+
+- `v1.0.0`tagを基準としてrepositoryを作成する。
+- Issue、assignee、`ready-for-ai`、着手コメント、branch、PR、人間承認を継続する。
+- `main`のv2開発中の変更を自動で取り込まない。
+- v1 patchが必要な場合は、Issueを作成してv1保守方針を確認する。
+
+## 3. 移行前の確認
+
+### 3.1 Template由来の差分
+
+- 利用開始時のtemplate tagまたはcommit。
+- `AGENTS.md`、共通規約、Issue Form、PR template、Actionsへの独自変更。
+- `docs/system-context.md`、`docs/architecture.md`、API、認証、Infrastructureへのproject固有変更。
+- AIツール固有の入口、権限、commands、skills。
+
+### 3.2 Brownfield確認
+
+既存projectへ導入する場合は、機能実装と混ぜず調査Issueを作成する。ディレクトリ、技術stack、テスト、CI/CD、API、Auth、Data、Infrastructure、secretの所在、変更禁止領域、後続Issue候補を整理する。値やsecretは成果物へ記録しない。
+
+### 3.3 Backupとfallback
+
+- 移行前commitまたはtagを記録する。
+- 移行を独立branch / PRで行う。
+- 従来のIssueベース運用を削除しない。
+- schemaやcheckerが失敗した場合に手動運用へ戻れることを確認する。
+- 自動割当、merge、deployを移行と同時に有効化しない。
+
+## 4. 段階移行
+
+### Phase 0: v1契約を固定する
+
+- 対応Issue、assignee、`ready-for-ai`、承認、Quality Gatesを最新化する。
+- 既存の着手コメント、branch、PR、未完了作業を整理する。
+- v2導入の目的、対象範囲、非スコープ、成功条件を移行Issueへ記載する。
+
+この段階では動作を変更しない。
+
+### Phase 1: v2設計を参照する
+
+- `docs/common/adaptive-workflow-design.md`を確認する。
+- 複数feature / Issueを扱う場合は`docs/common/project-orchestration-design.md`を確認する。
+- Issue内部とproject全体の正本・責務境界を合意する。
+- 利用しない機構を明記する。
+
+設計だけを導入した状態では、v1と同じ手動運用を継続する。
+
+### Phase 2: Issue内部schemaを導入する
+
+後続実装が利用可能になった機構だけを導入する。
+
+- plan、state、traceability、Brownfield成果物のschemaとtemplate。
+- `project_id`、`feature_id`、`actor_ref`、`on_behalf_of`、標準event。
+- schema validationと参照整合check。
+
+最初のv2成果物schemaが`schema_version: 1`でも、template v2と矛盾しない。
+
+### Phase 3: CheckerとGolden Testを導入する
+
+- 適応的計画と状態遷移checker。
+- フェーズ境界の追跡性checker。
+- Brownfield、Low / Medium / High RiskのGolden Test。
+- PRのoffline GitHub Actions。
+
+最初はwarnまたは任意checkとして計測し、誤検知、実行時間、成果物量を確認してから必須化する。
+
+### Phase 4: Project orchestrationを導入する
+
+複数feature / Issue / 開発者を追跡する必要がある場合だけ導入する。
+
+- `project.yaml`、`delivery-plan.yaml`、`team.yaml`。
+- feature ID、依存DAG、wave、共有area、integration owner。
+- GitHub Issuesをruntime backendとする手動Coordinator運用。
+- assignee、claim、stale / release / 再割当、read-only集約。
+- AIによる次タスク提案。未割当Issueの自動claimは行わない。
+
+1人・単一Issueのprojectでは、project orchestrationを省略してもよい。
+
+### Phase 5: 任意自動化
+
+GitHub Projects、中央Dispatcher、外部Agent Runnerは、手動運用とGolden Testの実績を確認した後、個別のHigh Risk Issueと人間承認で導入する。
+
+v2.0.0への移行条件として必須にしない。
+
+## 5. Compatibility matrix
+
+| 項目 | v1 | v2 development / stable target |
+| :--- | :--- | :--- |
+| Issue契約 | 必須 | 必須。廃止しない |
+| 人間assignee | 必須 | 必須。AIをassigneeにしない |
+| 人間承認 | 必須 | 必須。機械的Gateを追加 |
+| prompt選択 | 人間が工程ごとに選択 | AIが計画と次作業を提案 |
+| Issue内部state | 会話・コメント中心 | Issue別YAML＋GitHub参照 |
+| 再開 | 人間がcontextを再提示 | stateとGit差分から安全に再開 |
+| 追跡性 | 人間review中心 | 静的checker＋人間review |
+| feature依存 | system contextと人間判断 | DAG、wave、共有areaで検査 |
+| team / claim | assigneeと着手コメント | team schema＋手動Coordinatorから開始 |
+| Golden Test | なし | offline fixtureを必須化 |
+| Projects / Dispatcher / Runner | なし | 任意。stable v2.0の必須条件ではない |
+
+## 6. Fallback
+
+次の場合は新しい自動化を停止し、v1互換の手動運用へ戻す。
+
+- schema破損またはversion非対応。
+- GitHubとIssue内部stateの不整合を解消できない。
+- checkerの誤検知で安全な作業を継続できない。
+- GitHub API、Projects、Dispatcher、Runnerが利用不能。
+- membership、permission、assignee、claimを確認できない。
+- secret、個人情報、費用、外部送信の懸念がある。
+
+Fallback時も、Issue契約、assignee、branch、PR、承認、検証結果を維持する。新しい成果物を削除して履歴を失わせず、無効化理由と最後に正常だった境界を記録する。
+
+## 7. 移行完了条件
+
+- 採用したv2機構と省略した機構が明記されている。
+- 既存project固有ルールを失っていない。
+- schema、参照、checker、Golden Testが対象範囲で成功する。
+- GitHubとIssue内部stateの正本が矛盾しない。
+- Security、Privacy、NFR、Resiliencyの該当事項を確認した。
+- 人間が移行結果とfallback手順を承認した。
+- 未導入の自動化を利用可能であるかのように説明していない。
+
+## 8. 参照
+
+- `docs/common/versioning-policy.md`
+- `docs/common/adaptive-workflow-design.md`
+- `docs/common/project-orchestration-design.md`
+- `docs/common/development-rules.md`
+- `docs/common/operations-manual.md`
+- [v1.0.0 Release](https://github.com/gorillaimo/ai-driven-dev-template/releases/tag/v1.0.0)

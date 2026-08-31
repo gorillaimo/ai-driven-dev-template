@@ -12,6 +12,19 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 
 このテンプレートは、GitHub issue を作業契約にして、人間とAIエージェントが同じ前提を読みながら開発を進めるためのものです。
 
+## バージョンとリリース
+
+- 公開済みstable: `v1.0.0`
+- `main`: v2 development line
+- 現在の目標version: ルート`VERSION`を参照
+- 変更履歴: `CHANGELOG.md`
+- release基準: `docs/common/versioning-policy.md`
+- v1からv2への移行: `docs/common/migration-v1-to-v2.md`
+
+v1はIssue、assignee、prompt、人間承認を中心とする軽量な文書駆動baselineです。v2はIssue #8のadaptive workflowとIssue #9のproject orchestrationを段階的に追加します。現在の`main`はv2開発ラインですが、対応するschema、checker、Golden Test、Actionsが実装されるまでv2機構を利用可能とは扱いません。
+
+template release versionと各成果物の`schema_version`は独立しています。template v2で最初に導入するschemaが`schema_version: 1`でも問題ありません。利用先projectでは、このrepositoryの`VERSION`をアプリケーションversionと混同しないでください。
+
 ### 開発フロー
 
 ![AI駆動開発テンプレートの開発フロー](../assets/template-guide/development-flow.svg)
@@ -29,12 +42,16 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 ## 含まれるもの
 
 - `README.md`: 利用先プロジェクト用READMEの雛形
+- `VERSION`: template本体の現在の目標version
+- `CHANGELOG.md`: template本体の変更履歴とrelease境界
 - `AGENTS.md`: AIエージェント共通の入口
 - `CLAUDE.md`: Claude Code向けの入口
 - `.gitattributes`: Git上の改行コードとテキスト判定の基本設定
 - `docs/common/development-rules.md`: AI向け開発規約
 - `docs/common/adaptive-workflow-design.md`: Issue内部の適応的な実行計画、状態管理と再開、追跡性検査、モジュール式ルール、Brownfield解析、Golden Testの共通設計
 - `docs/common/project-orchestration-design.md`: 複数feature、Issue、開発者、AIエージェントをまたぐ計画、割当、進捗、競合防止の共通設計
+- `docs/common/versioning-policy.md`: template release、pre-release、schema version、保守branchの方針
+- `docs/common/migration-v1-to-v2.md`: v1からv2への段階移行とfallback
 - `docs/common/operations-manual.md`: 人間向けの具体的な運用手順
 - `docs/common/quality-gates.md`: NFR、Security、Resiliency の品質ゲート
 - `docs/common/template-guide.md`: テンプレート本体の説明、公開設定、利用時の読み替えガイド
