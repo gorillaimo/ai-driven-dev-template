@@ -7,7 +7,7 @@
 - v1 stable: `v1.0.0`
 - v2: development line
 - `v2.0.0`stable Release: 未公開
-- 現在の`main`にはv2の設計文書が含まれるが、schema、checker、Golden Test、Actionsは未実装
+- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テストがある。工程選択・再開・追跡性checker、Golden Test、Actions統合、Project成果物は後続実装
 
 設計文書が存在するだけで、AIが状態管理、自動再開、次Issue選択、claim、複数人調整を自動実行できるとは扱わない。対応する後続実装Issueが完了した機構だけを有効化する。
 
@@ -67,6 +67,8 @@ v1運用が要件を満たす場合、移行は必須ではない。
 - plan、state、traceability、Brownfield成果物のschemaとtemplate。
 - `project_id`、`feature_id`、`actor_ref`、`on_behalf_of`、標準event。
 - schema validationと参照整合check。
+
+現在利用できるのはschema v1、テンプレート、同梱例の形式テストまでであり、参照先の存在や状態整合を検査するcheckerは未実装。`operations-manual.md`の「Issue成果物テンプレートの利用」に従い、形式と実際のIssue記録を分けて確認する。
 
 最初のv2成果物schemaが`schema_version: 1`でも、template v2と矛盾しない。
 

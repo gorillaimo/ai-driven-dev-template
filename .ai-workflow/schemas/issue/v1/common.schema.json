@@ -1,0 +1,480 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:issue:v1:common",
+  "title": "common workflow schema v1",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+    },
+    "login": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 39,
+      "pattern": "^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "stage": {
+      "enum": [
+        "intake",
+        "context",
+        "brownfield",
+        "prototype",
+        "requirements",
+        "design",
+        "api",
+        "quality",
+        "tests",
+        "implementation",
+        "validation",
+        "handoff"
+      ]
+    },
+    "workStatus": {
+      "enum": [
+        "planned",
+        "in_progress",
+        "awaiting_approval",
+        "paused",
+        "blocked",
+        "failed",
+        "cancelled",
+        "completed"
+      ]
+    },
+    "stageStatus": {
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "skipped",
+        "blocked",
+        "failed"
+      ]
+    },
+    "risk": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "extensions": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "issueRef": {
+      "type": "string",
+      "pattern": "^https:\\/\\/[^/\\s?#@]+\\/[^/\\s?#]+\\/[^/\\s?#]+\\/issues\\/[1-9][0-9]*$"
+    },
+    "filePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^(?!\\/)(?!.*(?:^|\\/)\\.{1,2}(?:\\/|$))(?!.*[\\\\:#?\\s])[A-Za-z0-9_.-]+(?:\\/[A-Za-z0-9_.-]+)*$"
+    },
+    "reference": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "file",
+            "url",
+            "id"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fragment": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "kind",
+        "target"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "file"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "target": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "url"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "target": {
+                "type": "string",
+                "format": "uri",
+                "pattern": "^https:\\/\\/[^\\s@]+$"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "id"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "target": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "actor": {
+      "type": "object",
+      "properties": {
+        "actor_type": {
+          "enum": [
+            "human",
+            "ai_agent",
+            "bot",
+            "system"
+          ]
+        },
+        "actor_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+        },
+        "on_behalf_of": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+        }
+      },
+      "required": [
+        "actor_type",
+        "actor_ref"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "actor_type": {
+                "enum": [
+                  "ai_agent",
+                  "bot"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "on_behalf_of"
+            ],
+            "properties": {
+              "on_behalf_of": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "actor_type": {
+                "const": "human"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "actor_ref": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "approval": {
+      "type": "object",
+      "properties": {
+        "approval_type": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        },
+        "approved_by": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+        },
+        "reference": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+        },
+        "approved_at": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+        }
+      },
+      "required": [
+        "approval_type",
+        "approved_by",
+        "reference",
+        "approved_at"
+      ],
+      "additionalProperties": false
+    },
+    "validation": {
+      "type": "object",
+      "properties": {
+        "validation_id": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        },
+        "status": {
+          "enum": [
+            "passed",
+            "failed",
+            "not_evaluated"
+          ]
+        },
+        "reference": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+        },
+        "executed_at": {
+          "anyOf": [
+            {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "validation_id",
+        "status",
+        "reference",
+        "executed_at"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "not_evaluated"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "reason"
+            ],
+            "properties": {
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "event": {
+      "type": "object",
+      "properties": {
+        "event_id": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        },
+        "event_type": {
+          "enum": [
+            "work_planned",
+            "plan_revised",
+            "stage_started",
+            "stage_completed",
+            "stage_skipped",
+            "approval_requested",
+            "approval_recorded",
+            "work_paused",
+            "work_resumed",
+            "work_blocked",
+            "work_failed",
+            "work_cancelled",
+            "work_completed"
+          ]
+        },
+        "occurred_at": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+        },
+        "actor": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/actor"
+        },
+        "stage": {
+          "anyOf": [
+            {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "before": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "$ref": "urn:ai-workflow:issue:v1:common#/$defs/workStatus"
+                },
+                {
+                  "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stageStatus"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "after": {
+          "anyOf": [
+            {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/workStatus"
+            },
+            {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stageStatus"
+            }
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+          },
+          "minItems": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "plan_revision": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+        }
+      },
+      "required": [
+        "event_id",
+        "event_type",
+        "occurred_at",
+        "actor",
+        "stage",
+        "before",
+        "after",
+        "evidence"
+      ],
+      "additionalProperties": false
+    },
+    "envelope": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "artifact_kind": {
+          "enum": [
+            "plan",
+            "state",
+            "traceability",
+            "brownfield"
+          ]
+        },
+        "work_id": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        },
+        "work_source": {
+          "enum": [
+            "github_issue",
+            "external"
+          ]
+        },
+        "issue_ref": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/issueRef"
+        },
+        "project_id": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        },
+        "feature_id": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        },
+        "updated_at": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+        },
+        "updated_by": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/actor"
+        },
+        "extensions": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/extensions"
+        }
+      },
+      "required": [
+        "schema_version",
+        "artifact_kind",
+        "work_id",
+        "work_source",
+        "updated_at",
+        "updated_by"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "work_source": {
+                "const": "github_issue"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "issue_ref"
+            ],
+            "properties": {
+              "issue_ref": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/issueRef"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

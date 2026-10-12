@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:issue:v1:state",
+  "title": "state workflow schema v1",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/envelope"
+    }
+  ],
+  "properties": {
+    "artifact_kind": {
+      "const": "state"
+    },
+    "plan_revision": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+    },
+    "status": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/workStatus"
+    },
+    "current_stage": {
+      "anyOf": [
+        {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "last_completed_stage": {
+      "anyOf": [
+        {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "next_stage": {
+      "anyOf": [
+        {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "git": {
+      "type": "object",
+      "properties": {
+        "commit": {
+          "type": "string",
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+        },
+        "branch": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "commit",
+        "branch"
+      ],
+      "additionalProperties": false
+    },
+    "issue_updated_at": {
+      "anyOf": [
+        {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stage_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+          },
+          "status": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stageStatus"
+          }
+        },
+        "required": [
+          "stage_id",
+          "status"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "validations": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/validation"
+      },
+      "minItems": 0
+    },
+    "approvals": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/approval"
+      },
+      "minItems": 0
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "blocker_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+            },
+            "minItems": 0
+          },
+          "resolution": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "blocker_id",
+          "reason",
+          "evidence",
+          "resolution"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "failure_reason": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "resume": {
+      "type": "object",
+      "properties": {
+        "instructions": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pending_operations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 0
+        },
+        "safe_to_retry": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "instructions",
+        "pending_operations",
+        "safe_to_retry"
+      ],
+      "additionalProperties": false
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/event"
+      },
+      "minItems": 0
+    }
+  },
+  "required": [
+    "plan_revision",
+    "status",
+    "current_stage",
+    "last_completed_stage",
+    "next_stage",
+    "git",
+    "issue_updated_at",
+    "stages",
+    "validations",
+    "approvals",
+    "blockers",
+    "failure_reason",
+    "resume",
+    "history"
+  ],
+  "unevaluatedProperties": false
+}

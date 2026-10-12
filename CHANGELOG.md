@@ -8,6 +8,7 @@ AI Driven Development Templateの利用者へ影響する変更を記録する�
 
 ### Added
 
+- Issue成果物の共通定義とplan/state/traceability/BrownfieldのJSON Schema v1、YAMLテンプレート、合成fixtureのオフライン形式テスト。
 - Issue内部の適応的実行計画、状態管理と再開、追跡性検査、モジュール式ルール、Brownfield解析、Golden Testの設計。
 - 複数feature、Issue、開発者、AIエージェントを対象とするproject orchestration、依存DAG、team、claim、手動Coordinatorの設計。
 - v1 / v2のrelease policy、`VERSION`、v1からv2へのmigration guide。
@@ -15,7 +16,7 @@ AI Driven Development Templateの利用者へ影響する変更を記録する�
 ### Important
 
 - `VERSION`は`2.0.0-0.dev.0`だが、v2機構は設計・開発中であり、`v2.0.0`stable Releaseは未公開。
-- 対応するschema、template、checker、Golden Test、GitHub Actionsが実装されるまで、実際に有効なのはv1と同じ従来のIssueベース運用。
+- schema v1とtemplateは利用可能。工程選択・再開・追跡性checker、Golden Test、GitHub Actions統合は後続実装であり、運用は従来のIssue契約と人間承認を維持する。
 - GitHub Projects、中央Dispatcher、外部Agent Runnerはv2.0.0の必須条件ではなく、運用実績に応じたopt-in候補。
 
 ## [1.0.0] - 2026-08-07

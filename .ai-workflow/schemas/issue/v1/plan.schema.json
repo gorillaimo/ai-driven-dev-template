@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:issue:v1:plan",
+  "title": "plan workflow schema v1",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/envelope"
+    }
+  ],
+  "properties": {
+    "artifact_kind": {
+      "const": "plan"
+    },
+    "revision": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+    },
+    "risk": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/risk"
+    },
+    "context": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+      },
+      "minItems": 0
+    },
+    "resolved_rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rule_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reference": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+          }
+        },
+        "required": [
+          "rule_id",
+          "version",
+          "reference"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stage_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+          },
+          "selection": {
+            "enum": [
+              "required",
+              "optional",
+              "skipped"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+            },
+            "minItems": 1
+          },
+          "decided_by": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/actor"
+          },
+          "depends_on": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+            },
+            "minItems": 0
+          },
+          "artifacts": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+            },
+            "minItems": 0
+          },
+          "approval_required": {
+            "type": "boolean"
+          },
+          "validation_methods": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 0
+          }
+        },
+        "required": [
+          "stage_id",
+          "selection",
+          "reason",
+          "evidence",
+          "decided_by",
+          "depends_on",
+          "artifacts",
+          "approval_required",
+          "validation_methods"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "revision",
+    "risk",
+    "context",
+    "resolved_rules",
+    "stages"
+  ],
+  "unevaluatedProperties": false
+}

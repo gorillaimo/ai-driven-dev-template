@@ -7,7 +7,7 @@
 - 状態: 設計承認済み（Issue #8、2026-08-06）
 - 承認記録: https://github.com/gorillaimo/ai-driven-dev-template/issues/8#issuecomment-5206128174
 - 適用開始: 後続実装Issueが完了し、この文書の各機構が有効化された時点
-- 現時点の扱い: データ契約と実装境界の定義。チェッカー、CLI、GitHub Actionsは未実装
+- 現時点の扱い: Issue成果物のschema v1、YAMLテンプレート、同梱例のオフライン形式テストを提供する。工程選択・再開・追跡性チェッカー、CLI、GitHub Actions統合は未実装
 - 互換性方針: 既存利用者を壊さない追加方式とし、従来のIssueベース運用だけでも開発を継続できること
 
 設計承認前は、この文書を根拠として実装へ進んではならない。設計承認後も、対応する後続実装Issueの契約、assignee、`ready-for-ai`、変更リスクに応じた人間承認を確認してから着手する。初期リリースは共通仕様、テンプレート、オフライン静的チェック、GitHub Actionsを対象とし、統合CLIは利用実績を確認してから別Issueで判断する。
@@ -139,6 +139,57 @@ MarkdownとYAMLは同じ事実を別々に管理しない。YAMLを構造化さ�
 各YAMLは`schema_version`と`work_id`を持つ。GitHub Issueを利用する場合は`issue_ref`を必須とし、プロジェクト統制へ接続する場合だけ`project_id`と`feature_id`を追加する。プロジェクト参照は識別と集約に限定し、担当、優先順位、依存関係などプロジェクト側の実行時状態をIssue成果物へ複製しない。
 
 初期実装では、成果物のコミットを一律必須にしない。複数環境で再開する場合は作業ブランチへ保存し、PR作成時の保持・削除方針はプロジェクトで選択する。ただし、検証結果と重要な承認履歴はIssueまたはPRへ残す。
+
+### 4.1 実装済みのschema v1
+
+JSON Schema Draft 2020-12を採用し、次の場所を正本とする。これは成果物の形式契約であり、工程を自動実行する機構ではない。
+
+| 配置 | 内容 |
+| :--- | :--- |
+| `.ai-workflow/schemas/issue/v1/common.schema.json` | 共通識別子、参照、actor、承認、検証、イベント、共通ヘッダー |
+| `.ai-workflow/schemas/issue/v1/plan.schema.json` | 工程選択、理由、判断者、依存、成果物、承認点、検証方法 |
+| `.ai-workflow/schemas/issue/v1/state.schema.json` | 状態、Git参照、検証、承認、blocker、再開情報、履歴 |
+| `.ai-workflow/schemas/issue/v1/traceability.schema.json` | typed node、ID間リンク、境界検査結果、期限付き抑制 |
+| `.ai-workflow/schemas/issue/v1/brownfield.schema.json` | 調査範囲、構成、コマンド、設定名と所在、リスク、未確認事項 |
+| `.ai-workflow/templates/issue/v1/*.yaml` | 各schemaに適合する、置換して使う合成記入例 |
+| `tests/workflow-schema/` | 正常・異常fixture、変更条件と期待成否のcase一覧 |
+| `tools/workflow-schema/` | 同梱成果物の適合テストと専用の開発依存 |
+
+各schemaの`$id`は`urn:ai-workflow:issue:v1:<kind>`である。共通定義への`$ref`もこのURNを使い、検証器へ全5 schemaをローカル登録する。URNやメタスキーマのURLを検証時にネットワーク取得しない。
+
+全成果物で`schema_version: 1`、`artifact_kind`、`work_id`、`work_source`、`updated_at`、`updated_by`を必須とする。`work_source: github_issue`ではIssue URLの`issue_ref`も必須。`external`では省略でき、他の管理ツールの契約は`reference`で参照する。`work_id`はGitHub利用時に`issue-<番号>`を推奨し、URLとの一致確認は後続checkerが行う。`project_id`と`feature_id`は任意で、未設定でも検証できる。
+
+共通IDは小文字英数字をhyphenまたはunderscoreで区切る1～128文字。project IDは上位のproject設計に従いhyphenを使う。GitHub loginは1～39文字の英数字・hyphen。日時はタイムゾーン付きのdate-time文字列で記録する。YAMLでは日時を引用符で囲み、単一文書・重複キーなし・aliasなしで記述する。
+
+`updated_by`、工程の`decided_by`、履歴の`actor`は同じactor objectを使う。`actor_type`は`human / ai_agent / bot / system`。`ai_agent`と`bot`では`on_behalf_of`に人間のGitHub loginを必須とする。`system`は人間の依頼を代理しないシステム処理の記録用であり、代理実行を表す用途には使わない。actorの種類や本人性をschemaだけで認証することはできない。
+
+参照は`{kind, target, fragment?}`とする。`kind: file`はrepository相対のファイルまたはディレクトリ、`url`はHTTPS URL、`id`は成果物内の安定IDを表す。`fragment`は見出し、operation、テスト、schema内の位置などの補足である。fileのv1形式は英数字・underscore・hyphen・dotをslashで区切り、絶対パス、親ディレクトリ、空白、backslashを許可しない。参照先の存在・アクセス可否・fragmentの有効性はこのschemaでは検査しない。
+
+### 4.2 記入上の対応関係
+
+- plan: `revision`は1以上。`stages[]`で`stage_id`、`selection`、`reason`、`evidence`、`decided_by`、`depends_on`、`artifacts`、`approval_required`、`validation_methods`を記録する。適用条件の根拠はreasonとevidence、解決済みルールの参照は`resolved_rules`へ記録する。
+- state: `current_stage / last_completed_stage / next_stage`は該当なしの場合null。`stages[]`、`validations[]`、`approvals[]`、`blockers[]`、`failure_reason`、`resume`、`history[]`を持つ。履歴未記録の初期状態は空配列を許可するが、既存履歴の削除は許可しない運用とする。`issue_updated_at`はexternal運用で参照時刻がない場合nullとする。
+- history: 標準eventごとに`event_id / event_type / occurred_at / actor / stage / before / after / evidence`を記録する。作業全体のeventはstageをnull、初回作成のbeforeはnullとする。計画改訂では`plan_revision`と`reason`も記録する。
+- traceability: `nodes[]`の`kind`にAC、非スコープ、要件、設計、API、Gate、承認、テスト、変更、検証、未決事項、残課題、後続Issue、featureを区別する。`links[]`はIDでfrom/toを結ぶ。`checks[]`は境界とwarn/block/pass、`suppressions[]`は理由・期限・人間の承認参照を持つ。
+- Brownfield: `depth`は`low / medium / high`。`commands[]`は実行命令ではなく調査記録で、`documented / verified / not_verified`と根拠・副作用を区別する。`settings[]`はnameとlocationだけを持ち値を保存しない。data_models、flows、ownership、constraints、risks、unknowns、unanalysed、document_updates、follow_upで未解析や後続作業も残す。
+
+配列はstage一覧とBrownfield scope、工程判断・eventの根拠を除き空を許可する。これは書き始めの形式を受理するためで、必要な成果物が空でも工程を完了できるという意味ではない。空欄を埋めるために架空の承認・実行結果を作らない。
+
+### 4.3 形式検証の責務と限界
+
+schemaは型、必須field、enum、形式、条件付き必須、未知fieldを検査する。top-levelは共通定義との合成に`unevaluatedProperties: false`、nested objectは`additionalProperties: false`を使う。独自情報はtop-levelの`extensions`だけへ保存し、core契約を上書きできない。
+
+同梱テストはschemaの妥当性、テンプレートとfixtureの成否、診断の決定性、入力が変更されないことを検証する。任意の利用先成果物を操作するCLIや、ワークフローのGolden Testではない。
+
+以下は後続checkerと人間レビューの責務として残す。
+
+- 参照先の存在、IDの意味上の一意性、featureやIssueとの一致。
+- 必須工程の網羅、依存循環、同時実行、状態遷移、現在地と履歴の一致。
+- 追記履歴が削除されていないこと、改訂時の理由、成果物の新旧。
+- ACとテスト・変更・検証の網羅、承認の適用範囲・有効性・本人性。
+- 自然言語、URL、extensions内に秘密情報・個人情報・本番データが含まれないこと。
+
+形式に適合しても意味的に安全とは限らない。失敗時に元ファイルを変更したり、完了状態を推測して補完したりしない。非対応versionや破損時の移行・fallbackは`versioning-policy.md`に従う。
 
 ## 5. 適応的な実行計画
 

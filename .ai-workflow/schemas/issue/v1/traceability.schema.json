@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:issue:v1:traceability",
+  "title": "traceability workflow schema v1",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/envelope"
+    }
+  ],
+  "properties": {
+    "artifact_kind": {
+      "const": "traceability"
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "kind": {
+            "enum": [
+              "acceptance_criterion",
+              "non_scope",
+              "requirement",
+              "design",
+              "api",
+              "quality_gate",
+              "approval",
+              "test",
+              "change",
+              "validation",
+              "open_question",
+              "remaining_work",
+              "follow_up",
+              "feature"
+            ]
+          },
+          "ref": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "complete",
+              "not_applicable"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "ref",
+          "status"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "to": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "relation": {
+            "enum": [
+              "satisfies",
+              "implements",
+              "verifies",
+              "references",
+              "excludes",
+              "follows_up"
+            ]
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "relation"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "check_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "boundary": {
+            "enum": [
+              "draft",
+              "requirements_to_design",
+              "design_to_implementation",
+              "implementation_to_pr",
+              "completion"
+            ]
+          },
+          "result": {
+            "enum": [
+              "warn",
+              "block",
+              "pass"
+            ]
+          },
+          "references": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+            },
+            "minItems": 0
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "check_id",
+          "boundary",
+          "result",
+          "references",
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "suppressions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "check_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expires_at": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+          },
+          "approval": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/approval"
+          }
+        },
+        "required": [
+          "check_id",
+          "reason",
+          "expires_at",
+          "approval"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    }
+  },
+  "required": [
+    "nodes",
+    "links",
+    "checks",
+    "suppressions"
+  ],
+  "unevaluatedProperties": false
+}

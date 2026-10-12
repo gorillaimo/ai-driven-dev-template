@@ -1,0 +1,61 @@
+schema_version: 1
+artifact_kind: brownfield
+work_id: issue-1
+work_source: github_issue
+issue_ref: https://github.com/example/project/issues/1
+updated_at: "2026-10-12T00:00:00Z"
+updated_by:
+  actor_type: human
+  actor_ref: example-user
+depth: low
+status: partial
+scope: [docs]
+unanalysed: [アプリケーション構成は未調査]
+components:
+  - component_id: service
+    area: backend
+    location: {kind: file, target: packages/backend}
+    responsibility: 合成サービス例
+    technologies: [TypeScript]
+    depends_on: []
+commands:
+  - purpose: test
+    command: npm test
+    status: documented
+    evidence: [{kind: file, target: README.md}]
+    side_effects: 実行していないため未確認
+data_models:
+  - model_id: profile
+    description: 合成モデル
+    reference: {kind: file, target: docs/architecture.md}
+flows:
+  - flow_id: profile-request
+    description: 合成リクエストフロー
+    components: [service]
+    evidence: [{kind: file, target: docs/architecture.md}]
+settings:
+  - name: EXAMPLE_ENDPOINT
+    location: {kind: file, target: .env.example}
+documents: []
+tests: []
+ci: []
+ownership:
+  - area: backend
+    owner_ref: example-user
+    evidence: [{kind: file, target: AGENTS.md}]
+constraints: [調査は読み取り専用とし、副作用のあるコマンドは実行しない]
+prohibited_areas: []
+change_candidates: []
+risks:
+  - risk_id: no-tests
+    severity: medium
+    description: テスト実行可否未確認
+    evidence: [{kind: file, target: README.md}]
+unknowns: [採用アーキテクチャ]
+document_updates:
+  - target: docs/architecture.md
+    proposal: 調査後に採用構成を人間へ確認する。
+follow_up:
+  - summary: テスト実行手順の確認
+    reason: 副作用を確認してから実行する。
+    references: [{kind: file, target: README.md}]

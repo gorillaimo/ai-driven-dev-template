@@ -1,0 +1,33 @@
+# 合成の記入例。ID・参照・日時・状態を実際の作業に合わせて置換してください。
+# 形式検証の成功は、承認・工程完了・参照先の存在を保証しません。
+schema_version: 1
+artifact_kind: brownfield
+work_id: issue-1
+work_source: github_issue
+issue_ref: https://github.com/example/project/issues/1
+updated_at: "2026-10-12T00:00:00Z"
+updated_by:
+  actor_type: human
+  actor_ref: example-user
+depth: low
+status: partial
+scope: [docs]
+unanalysed: [アプリケーション構成は未調査]
+components: []
+commands: []
+data_models: []
+flows: []
+settings: []
+documents: []
+tests: []
+ci: []
+ownership: []
+constraints: [調査は読み取り専用とし、副作用のあるコマンドは実行しない]
+prohibited_areas: []
+change_candidates: []
+risks: []
+unknowns: [採用アーキテクチャ]
+document_updates:
+  - target: docs/architecture.md
+    proposal: 調査後に採用構成を人間へ確認する。
+follow_up: []
