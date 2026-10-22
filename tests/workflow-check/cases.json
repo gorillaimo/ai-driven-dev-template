@@ -1,0 +1,8 @@
+[
+  {"id":"unknown-gate","path":["context","gates","security","applicable"],"value":null,"code":"unknown_fact"},
+  {"id":"bad-stage-enum","path":["state","current_stage"],"value":"unknown","code":"schema_invalid"},
+  {"id":"unknown-extension-field","path":["state","extensions","workflow_check","typo"],"value":true,"code":"schema_invalid"},
+  {"id":"unsupported-extension","path":["state","extensions","workflow_check","schema_version"],"value":2,"code":"schema_invalid"},
+  {"id":"revision-mismatch","path":["state","plan_revision"],"value":2,"code":"revision_invalid"},
+  {"id":"reference-omitted","path":["context","facts","changes_api","evidence"],"value":[],"code":"schema_invalid"}
+]

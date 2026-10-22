@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:checks:v1:state-extension",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "approval_scopes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "reference": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+          },
+          "plan_revision": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+          },
+          "stage": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+          },
+          "contract_ref": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+          },
+          "event_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "rule_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          }
+        },
+        "required": [
+          "reference",
+          "plan_revision",
+          "stage",
+          "contract_ref",
+          "event_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "validation_scopes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "validation_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "plan_revision": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+          },
+          "stage": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+          }
+        },
+        "required": [
+          "validation_id",
+          "plan_revision",
+          "stage"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "revisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "event_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "from_revision": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+          },
+          "to_revision": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+          },
+          "restart_stage": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+          },
+          "invalidated_stages": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+            },
+            "uniqueItems": true
+          },
+          "invalidated_artifacts": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "event_id",
+          "from_revision",
+          "to_revision",
+          "restart_stage",
+          "invalidated_stages",
+          "invalidated_artifacts"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "approval_scopes",
+    "validation_scopes",
+    "revisions"
+  ],
+  "additionalProperties": false
+}

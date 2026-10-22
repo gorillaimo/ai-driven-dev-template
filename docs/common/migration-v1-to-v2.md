@@ -7,7 +7,7 @@
 - v1 stable: `v1.0.0`
 - v2: development line
 - `v2.0.0`stable Release: 未公開
-- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。工程選択・再開・追跡性checker、Golden Test、Actions統合、Project成果物は後続実装
+- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。工程自動実行・追跡性checker、Golden Test、Actions統合、Project成果物は後続実装
 
 設計文書が存在するだけで、AIが状態管理、自動再開、次Issue選択、claim、複数人調整を自動実行できるとは扱わない。対応する後続実装Issueが完了した機構だけを有効化する。
 
@@ -68,7 +68,7 @@ v1運用が要件を満たす場合、移行は必須ではない。
 - `project_id`、`feature_id`、`actor_ref`、`on_behalf_of`、標準event。
 - schema validationと参照整合check。
 
-Issue成果物にはschema v1、テンプレート、同梱例の形式テストがあり、参照先の存在や状態整合を検査するcheckerは未実装。`operations-manual.md`の「Issue成果物テンプレートの利用」に従い、形式と実際のIssue記録を分けて確認する。
+Issue成果物にはschema v1、テンプレート、同梱例の形式テストがあり、状態・履歴・再開候補は静的checkerで検査できる。全参照先の存在やAC追跡性の網羅を検査するcheckerは後続実装。`operations-manual.md`の「Issue成果物テンプレートの利用」に従い、形式と実際のIssue記録を分けて確認する。
 
 最初のv2成果物schemaが`schema_version: 1`でも、template v2と矛盾しない。
 
@@ -157,3 +157,13 @@ plan schema v1を改変せず、詳細結果をextensions.rule_resolutionへ保�
 任意のextensionsを保存しただけでは検証済みにならないため、必ずprojectPlan経由で再解決・検証します。
 元成果物とtemplate commitを保存し、metadata/本文/context/opt-in変更時は再読込・再解決します。
 非対応version、未知条件、循環、競合が解消できない場合は自動進行を止め、元データを保持して従来のIssue運用へ戻します。
+
+## plan/stateの意味検査への追加移行
+
+既存schema v1の成果物はそのまま形式検証できます。新checkerの通過には、人間が確認したcontext、
+再解決済みrule結果、state.extensions.workflow_checkの承認・検証・改訂scopeを明示的に追加します。
+初期plannedの空履歴以外は履歴と現在地を照合し、追記性確認にはpreviousを保存して比較します。
+複数改訂の履歴がある場合は過去のrevisionPlansも用意します。過去計画や承認が失われていれば推測で補わず停止します。
+日時・actor・履歴を都合よく作り直してcheckerを通過させません。元の成果物・template commitを保存して
+Issue上の事実と人間が比較し、復元できない承認は再承認を受けます。
+unknown/nullは不要/falseではありません。候補を出せない場合も従来のIssue・branch・PR運用へ戻れます。

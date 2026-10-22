@@ -7,7 +7,7 @@
 - 状態: 設計承認済み（Issue #8、2026-08-06）
 - 承認記録: https://github.com/gorillaimo/ai-driven-dev-template/issues/8#issuecomment-5206128174
 - 適用開始: 後続実装Issueが完了し、この文書の各機構が有効化された時点
-- 現時点の扱い: Issue成果物のschema v1、YAMLテンプレート、同梱例のオフライン形式テスト、およびモジュール式ルールのmetadata・オフライン解決libraryを提供する。工程選択・再開・追跡性チェッカー、CLI、GitHub Actions統合は未実装
+- 現時点の扱い: Issue成果物のschema v1、YAMLテンプレート、同梱例のオフライン形式テスト、およびモジュール式ルールのmetadata・オフライン解決libraryを提供する。plan/stateの工程・履歴・再開候補を検査する静的checkerも提供する。追跡性チェッカー、CLI、GitHub Actions統合は未実装
 - 互換性方針: 既存利用者を壊さない追加方式とし、従来のIssueベース運用だけでも開発を継続できること
 
 設計承認前は、この文書を根拠として実装へ進んではならない。設計承認後も、対応する後続実装Issueの契約、assignee、`ready-for-ai`、変更リスクに応じた人間承認を確認してから着手する。初期リリースは共通仕様、テンプレート、オフライン静的チェック、GitHub Actionsを対象とし、統合CLIは利用実績を確認してから別Issueで判断する。
@@ -181,7 +181,7 @@ schemaは型、必須field、enum、形式、条件付き必須、未知fieldを
 
 同梱テストはschemaの妥当性、テンプレートとfixtureの成否、診断の決定性、入力が変更されないことを検証する。任意の利用先成果物を操作するCLIや、ワークフローのGolden Testではない。
 
-以下は後続checkerと人間レビューの責務として残す。
+以下のうち工程・履歴・再開の構造検査は第5.4・6.4節のcheckerで提供する。追跡性の網羅や外部本人性・自然言語の意味は後続checkerと人間レビューの責務として残す。
 
 - 参照先の存在、IDの意味上の一意性、featureやIssueとの一致。
 - 必須工程の網羅、依存循環、同時実行、状態遷移、現在地と履歴の一致。
@@ -234,6 +234,56 @@ schemaは型、必須field、enum、形式、条件付き必須、未知fieldを
 - 計画変更時は既存計画を黙って上書きせず、`revision`を増やし、変更理由と影響を状態履歴へ残す。
 
 計画生成に失敗した場合は、従来工程へ安全側にフォールバックし、不明な工程を自動で省略しない。契約不足、競合、High Risk未承認は`blocked`として実装前に停止する。
+
+### 5.4 実装済みの静的checker
+
+`tools/workflow-check/`はNode.js 22以上のread-only libraryを提供する。
+人間やAIが作成した計画を検査するもので、自然言語から計画を生成せず、工程やGit操作を実行しない。
+context/result/state-extension schema v1の正本は`.ai-workflow/schemas/checks/v1/`、URNは
+`urn:ai-workflow:checks:v1:<kind>`。既存plan/state schema v1の受理集合を変更しない。
+
+入力は`checkWorkflow({ plan, state, context, ruleInput, previous, revisionPlans })`。
+
+| 入力 | 責務 |
+| :--- | :--- |
+| plan / state | 既存schema v1の現在の作業計画・状態 |
+| context | 人間が確認した契約、担当、依頼準備、競合、Git、事実、Gate判定のsnapshot |
+| ruleInput | loadRulesで再読込した現在のmetadata・原文digest、rule context、opt-in参照 |
+| previous | 任意の直前plan/state。履歴と承認・検証・拡張の追記性を比較する |
+| revisionPlans | 改訂履歴に現れる過去のplan。初回revisionは1、以後は1ずつ増やす |
+
+contextはschema_version、work_id/work_source、GitHub利用時のissue_ref、任意project_id/feature_id、risk、
+contract_ref、assignee（externalでは責任を持つ人間owner）、ready_for_ai、issue_updated_at、conflicts、gitを持つ。
+gitはcommit/branch/clean/remote_matchesを持ち、snapshot収集をlibraryが代行しない。
+GitHub利用時のwork_idはissue-番号とし、Issue URLの番号と一致させる。
+
+factsの各値は`{ value: true/false/null, evidence: [...] }`で、needs_brownfield、needs_prototype、changes_spec、
+minor_change、changes_api、changes_implementationを必須にする。
+gatesはnfr/security/resiliencyそれぞれの`applicable: true/false/null`、reason、evidenceを持つ。
+nullは不明であり、工程が不要との判定に転用しない。snapshot自体の事実性・鮮度や自然言語契約との対応は人間が確認する。
+
+省略不可4工程に加え、事実trueに対応する工程、Medium/Highのdesign、Highまたは該当Gateありのquality、
+実装変更時のtests/implementation、context.required_stagesをrequiredにする。
+条件に該当しなくても、人間がより厳しい工程を追加・必須化できる。
+skippedは理由・根拠・判断者を要求する。必須条件による工程の例外的skipには、context.skip_overridesで
+stage/plan_revision/更新済みcontract_ref/reasonと人間のstage-skip承認参照を要求する。
+省略不可4工程、または現契約のrequired_stagesと矛盾するskipは許可しない。
+履歴の例外skipは当該人間のactor・承認参照・時刻も照合する。
+
+明示depends_onに、intake→context、各選択工程のintake/context境界、requirements→design、
+design/api/quality→tests、tests→implementation、作業工程→validation→handoffの暗黙依存を加える。
+存在・適用する工程だけを暗黙依存の対象にする。未知依存、skipped工程への依存、合成グラフの循環を拒否する。
+テスト前に実装できる経路は、明示承認された工程例外以外には作らない。
+次候補は依存が完了したpending工程を第5.2節の標準順で1つだけ返す。
+planでskippedの工程は実行候補にしないが、完了状態にはstage_skippedの記録が必要。
+optionalは人間が採用した工程として扱い、自動skipしない。
+
+plan.extensions.rule_resolutionとresolved_rulesは現在のruleInputで再解決して照合する。
+拡張のない旧planは形式上有効でも、新checkerでは明示移行が必要としてblockする。
+診断はcode/path/stage/eventのみで、入力本文・コマンド・秘密値を出力しない。
+resultは各checkのpass/block/not_evaluated、全体pass/blocked、input_digest、checker_version、
+resume_decisionとnext_stageを持つ。実行時刻を挿入せず同じ入力で同じ結果になる。
+検査ごとの結果を確認する。state検査がpassでもresume検査がblockなら全体はblockedとなる。
 
 ## 6. 状態管理と再開
 
@@ -292,6 +342,62 @@ planned -> in_progress -> awaiting_approval -> in_progress -> completed
 6. 人間へ現在地、差分、ブロッカー、次の1ステージを報告して再開する。
 
 正常な中断では、実行中ステージを安全な境界まで戻して`paused`にし、未完了操作と次の作業を記録する。やり直しでは対象ステージとその下流を`pending`へ戻し、計画revision、理由、無効化した成果物を履歴へ記録する。状態ファイルが欠損・破損・古い場合は、Git履歴、Issue、成果物から復元案を作るが、自動で完了状態を推測しない。復元不能な承認は再承認を求める。
+
+### 6.4 履歴再生・改訂・再開の実装契約
+
+初回work_plannedのbeforeはnull、afterはplanned、stageはnull。空履歴はrevision 1の初期plannedだけに許可する。
+event_id一意、時刻非減少、snapshot更新時刻以前を要求する。同時刻は配列順を実行順として扱う。
+各履歴を再生し、作業状態・stage状態・current/last_completed/nextがsnapshotと一致することを検査する。
+previousも単独で履歴との整合を検査してから、prefixと保持済み証跡を比較する。
+
+| event_type | 許可する遷移・動作 |
+| :--- | :--- |
+| work_planned | 初回のみnull→planned、全stage pending |
+| stage_started | pending→in_progress。作業状態planned/in_progress、依存完了、承認有効、他の実行stageなし |
+| stage_completed | 実行中の1 stageをcompletedにし、last_completedを更新 |
+| stage_skipped | pending→skipped。planで省略済み、必要なら例外承認と人間actorを確認 |
+| approval_requested | 実行stageのないin_progress→awaiting_approval |
+| approval_recorded | awaiting_approval→in_progress。人間actorと承認参照を確認。stageは開始しない |
+| work_paused | 実行stageのないin_progress→paused |
+| work_resumed | paused/blocked/failed/awaiting_approval→in_progress。stageは開始しない |
+| work_blocked / work_failed | 非終端状態からblocked/failed。実行stageがあれば同状態へ移す |
+| work_cancelled | 非終端状態からcancelled。実行stageはblockedとして停止し、終端なので後続eventを拒否 |
+| work_completed | 実行stageなし、採用工程完了・省略記録済み、当該revisionのvalidation成功、blockerなし |
+| plan_revised | 非終端状態からplanned。revisionを1増加し、起点と下流stageをpendingへ戻す |
+
+work eventのstageはnull、stage eventは対象stageを持つ。completed/cancelled後に再開しない。
+work_blockedの直前がblocked、work_failedの直前がfailedの重複遷移は拒否する。
+blocked snapshotはblockers、failed snapshotはfailure_reasonが必要。
+停止・失敗の履歴だけから副作用の有無は判定できないため、再開には別途resumeの記録と人間の確認を要求する。
+
+state.extensions.workflow_checkはschema_version: 1と次の配列を持つ。
+
+- approval_scopes: reference、plan_revision、stage、contract_ref、approval_recordedのevent_id、rule承認時のrule_id。
+- validation_scopes: validation_id、plan_revision、stage。
+- revisions: plan_revisedのevent_id、from_revision/to_revision、restart_stage、invalidated_stages、invalidated_artifacts。
+
+state.approvals/validationsの既存形式は変更しない。承認scopeは当該改訂・契約・stageへ結び付け、
+承認者loginと人間actor、参照、時刻を照合する。Highはtests/implementation開始前にdesign/quality承認が必要。
+approval_requiredまたはcontext.approval_stagesの工程にはapproval_type: stage、
+選択済みruleのapproval_requiredにはtests/implementationの対象stageでapproval_type: ruleとrule_idを要求する。
+後からの承認で以前の不正な開始を正当化しない。scopeの照合は外部承認の本人性を保証しない。
+
+previousのhistory、approvals、validations、workflow_check配列は同じprefixを保持する。
+既存証跡を書き換えず追加する。同一revisionで計画内容を変えたり、履歴を切り詰めたりしない。
+更新日時・更新者だけの変更は計画内容の改訂と区別する。
+計画改訂にはeventのreason/evidence/plan_revisionとrevisionsの詳細が必要で、起点から旧新依存グラフの下流を無効化する。
+無効化対象の旧成果物参照を記録し、変更したstageを無効化対象外に残さない。
+旧承認・検証は保存するが、新revisionの工程通過には再利用しない。
+過去planが足りなければ停止する。過去planも現在提出された事実・契約を安全側に適用して検査するため、
+当時の例外が現契約で証明できない場合は人間の移行レビューが必要となる。
+
+再開候補には、担当・ready-for-ai・競合なし、Git commit/branchの一致、clean/remote一致、
+Issue更新時刻の一致、最新rule結果、有効な計画・証跡を要求する。
+初期planned以外（再計画後のplannedを含む）はpreviousと最後の完了stageに対する当該revisionの検証成功が必要。
+未完了pending_operations、safe_to_retry=false、context.retry_review.confirmedが不明/falseなら候補を返さない。
+blocked/failed/awaiting_approvalのまま、またはstage実行中のsnapshotは、state検査が通ってもresumeはblockする。
+人間が理由を解消し、根拠・再計画・再開eventを明示記録して再検査する。checker自身は修復や再実行をしない。
+previousがなければ追記性はnot_evaluatedであり、初期planned以外の再開を許可しない。
 
 ## 7. フェーズ境界の追跡性検査
 

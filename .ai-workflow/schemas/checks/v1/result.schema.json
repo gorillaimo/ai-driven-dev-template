@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:checks:v1:result",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "checker_version": {
+      "const": "1.0.0"
+    },
+    "input_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "status": {
+      "enum": [
+        "pass",
+        "blocked"
+      ]
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "check_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "status": {
+            "enum": [
+              "pass",
+              "block",
+              "not_evaluated"
+            ]
+          }
+        },
+        "required": [
+          "check_id",
+          "status"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "path": {
+            "type": "string"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "event": {
+            "anyOf": [
+              {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "path",
+          "stage",
+          "event"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "resume_decision": {
+      "enum": [
+        "candidate",
+        "blocked",
+        "terminal"
+      ]
+    },
+    "next_stage": {
+      "anyOf": [
+        {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "checker_version",
+    "input_digest",
+    "status",
+    "checks",
+    "diagnostics",
+    "resume_decision",
+    "next_stage"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "resume_decision": {
+            "enum": [
+              "blocked",
+              "terminal"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "next_stage": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+export const messages = Object.freeze({
+ schema_invalid: '入力形式が不正です。', identity_mismatch: '作業の識別子が一致しません。',
+ unknown_fact: '工程判断の事実が不明です。', required_stage: '必須工程が不足しています。',
+ duplicate_stage: '工程IDが重複しています。', stage_cycle: '工程依存に循環があります。',
+ dependency_unknown: '依存先の工程が存在しません。', skipped_dependency: '省略した工程に依存しています。',
+ rule_mismatch: 'ルール解決結果が現在の入力と一致しません。', parallel_stages: '複数工程が同時実行中です。',
+ history_mismatch: '履歴と現在の状態が一致しません。', duplicate_event: 'イベントIDが重複しています。',
+ event_time: '履歴の時刻が逆転しています。', invalid_transition: '許可されない状態遷移です。',
+ history_rewritten: '以前の履歴が削除または書き換えられています。', revision_invalid: '計画の改訂情報が不正です。',
+ revision_missing: '過去の計画が不足しています。', approval_missing: '対象工程・改訂への承認参照が不足しています。',
+ approval_invalid: '承認参照と人間の記録が一致しません。', dependency_incomplete: '先行工程が完了していません。',
+ blocker_missing: '停止理由が記録されていません。', failure_reason_missing: '失敗理由が記録されていません。',
+ validation_missing: '当該改訂の検証成功記録がありません。', next_stage_mismatch: '次の工程と現在の状態が一致しません。',
+ previous_missing: '再開に必要な以前の状態がありません。', git_changed: 'Gitの状況が変わったか不明です。',
+ issue_changed: '契約の更新状況が変わったか不明です。', intake_blocked: '担当・依頼準備・競合の確認が必要です。',
+ unsafe_retry: '未完了操作または安全な再実行の確認が必要です。', state_stopped: '現在は工程を開始できない状態です。',
+ reference_invalid: '参照先を確認できません。',
+});

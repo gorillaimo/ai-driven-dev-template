@@ -1,0 +1,17 @@
+{
+  "name": "workflow-check",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node ../../tests/workflow-check/run.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "workflow-rules": "file:../workflow-rules",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "yaml": "^2.8.1"
+  }
+}

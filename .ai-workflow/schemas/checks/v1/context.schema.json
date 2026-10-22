@@ -1,0 +1,513 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:checks:v1:context",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "work_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "work_source": {
+      "enum": [
+        "github_issue",
+        "external"
+      ]
+    },
+    "issue_ref": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/issueRef"
+    },
+    "project_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "feature_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "risk": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/risk"
+    },
+    "contract_ref": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+    },
+    "assignee": {
+      "anyOf": [
+        {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ready_for_ai": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "issue_updated_at": {
+      "anyOf": [
+        {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "conflicts": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "git": {
+      "type": "object",
+      "properties": {
+        "commit": {
+          "type": "string",
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+        },
+        "branch": {
+          "type": "string",
+          "minLength": 1
+        },
+        "clean": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "remote_matches": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "commit",
+        "branch",
+        "clean",
+        "remote_matches"
+      ],
+      "additionalProperties": false
+    },
+    "facts": {
+      "type": "object",
+      "properties": {
+        "needs_brownfield": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "value",
+            "evidence"
+          ],
+          "additionalProperties": false
+        },
+        "needs_prototype": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "value",
+            "evidence"
+          ],
+          "additionalProperties": false
+        },
+        "changes_spec": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "value",
+            "evidence"
+          ],
+          "additionalProperties": false
+        },
+        "minor_change": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "value",
+            "evidence"
+          ],
+          "additionalProperties": false
+        },
+        "changes_api": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "value",
+            "evidence"
+          ],
+          "additionalProperties": false
+        },
+        "changes_implementation": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "value",
+            "evidence"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "needs_brownfield",
+        "needs_prototype",
+        "changes_spec",
+        "minor_change",
+        "changes_api",
+        "changes_implementation"
+      ],
+      "additionalProperties": false
+    },
+    "gates": {
+      "type": "object",
+      "properties": {
+        "nfr": {
+          "type": "object",
+          "properties": {
+            "applicable": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "applicable",
+            "reason",
+            "evidence"
+          ],
+          "additionalProperties": false
+        },
+        "security": {
+          "type": "object",
+          "properties": {
+            "applicable": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "applicable",
+            "reason",
+            "evidence"
+          ],
+          "additionalProperties": false
+        },
+        "resiliency": {
+          "type": "object",
+          "properties": {
+            "applicable": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "applicable",
+            "reason",
+            "evidence"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "nfr",
+        "security",
+        "resiliency"
+      ],
+      "additionalProperties": false
+    },
+    "required_stages": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+      },
+      "uniqueItems": true
+    },
+    "approval_stages": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+      },
+      "uniqueItems": true
+    },
+    "skip_overrides": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stage": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+          },
+          "plan_revision": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+          },
+          "contract_ref": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "approval": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/approval"
+          }
+        },
+        "required": [
+          "stage",
+          "plan_revision",
+          "contract_ref",
+          "reason",
+          "approval"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "retry_review": {
+      "type": "object",
+      "properties": {
+        "confirmed": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "confirmed",
+        "evidence"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "work_id",
+    "work_source",
+    "risk",
+    "contract_ref",
+    "assignee",
+    "ready_for_ai",
+    "issue_updated_at",
+    "conflicts",
+    "git",
+    "facts",
+    "gates",
+    "required_stages",
+    "approval_stages",
+    "skip_overrides",
+    "retry_review"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "work_source": {
+            "const": "github_issue"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "issue_ref"
+        ],
+        "properties": {
+          "issue_ref": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/issueRef"
+          }
+        }
+      }
+    }
+  ]
+}
