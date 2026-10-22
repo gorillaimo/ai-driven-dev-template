@@ -165,3 +165,15 @@ alphaは試用版であり、schemaや運用が変更される可能性をReleas
 - `docs/common/adaptive-workflow-design.md`
 - `docs/common/project-orchestration-design.md`
 - [v1.0.0 Release](https://github.com/gorillaimo/ai-driven-dev-template/releases/tag/v1.0.0)
+
+## Rule schema v1の互換性
+
+rule/context/resolution schemaは`.ai-workflow/schemas/rules/v1/`に置きます。
+coreの未知fieldは拒否します。受理集合を変えるfield・enum・型・必須性の変更は新しいschema majorへ追加します。
+rule本文/metadataの意味を変更するときはrule versionを更新します。requiresとopt-inは固定SemVerを参照し、
+version範囲やlatestから推測しません。非対応schema versionは自動変換しません。
+resolver versionは結果の計算規則、source digestは参照原文を含む入力内容の識別用です。
+plan schema v1の受理集合は変えず、拡張内容を別のresolution schemaとlibraryで検証します。
+同じrule versionでも原文digestが変われば古い結果を使わず、人間がversion更新を確認して再解決します。
+初期legacy ruleは1.0.0。旧planのversion文字列1を暗黙に書き換えず、明示移行時に結果を更新します。
+移行時の元データ保存・レビュー・従来運用へのfallbackはIssue成果物と同じ原則に従います。

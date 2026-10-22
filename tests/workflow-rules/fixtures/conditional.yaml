@@ -1,0 +1,19 @@
+schema_version: 1
+rule_id: example
+version: 1.0.0
+level: conditional
+category: [testing]
+applies_when:
+  - {fact: technologies, any_of: [node]}
+requires:
+  - {rule_id: legacy, version: 1.0.0}
+conflicts_with: []
+after: []
+severity: warn
+purpose: 合成fixture
+inputs: [context]
+expected_outputs: [review]
+on_failure: 人間へ確認する。
+approval_required: true
+body_refs:
+  - {kind: file, target: .ai-workflow/rules/example/rule.md}

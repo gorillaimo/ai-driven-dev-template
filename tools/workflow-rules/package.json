@@ -1,0 +1,16 @@
+{
+  "name": "workflow-rules",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node ../../tests/workflow-rules/run.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "yaml": "^2.8.1"
+  }
+}

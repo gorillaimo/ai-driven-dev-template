@@ -1,0 +1,74 @@
+[
+  {
+    "id": "risk-match",
+    "rule": {
+      "level": "conditional",
+      "applies_when": [
+        {
+          "fact": "risk",
+          "any_of": [
+            "high"
+          ]
+        }
+      ]
+    },
+    "context": {
+      "risk": "high"
+    },
+    "status": "selected"
+  },
+  {
+    "id": "tech-match",
+    "rule": {
+      "level": "conditional",
+      "applies_when": [
+        {
+          "fact": "technologies",
+          "any_of": [
+            "node"
+          ]
+        }
+      ]
+    },
+    "context": {
+      "technologies": [
+        "node"
+      ]
+    },
+    "status": "selected"
+  },
+  {
+    "id": "data-mismatch",
+    "rule": {
+      "level": "conditional",
+      "applies_when": [
+        {
+          "fact": "data_types",
+          "any_of": [
+            "personal"
+          ]
+        }
+      ]
+    },
+    "context": {
+      "data_types": []
+    },
+    "status": "not_applicable"
+  },
+  {
+    "id": "risk-unknown",
+    "rule": {
+      "level": "conditional",
+      "applies_when": [
+        {
+          "fact": "risk",
+          "any_of": [
+            "high"
+          ]
+        }
+      ]
+    },
+    "context": {},
+    "status": "conflicted"
+  }
+]

@@ -754,3 +754,55 @@ AIへ依頼する場合は、以下のように指示します。
 - issueテンプレートや運用手順は、AIが迷いやすかった箇所を見つけたら継続的に改善する。
 - AIへの依頼は、なるべくissue番号、関連ドキュメント、期待する成果物をセットで渡す。
 - AIの出力は最終判断ではなく、issueの受け入れ条件に対する提案としてレビューする。
+
+## モジュール式ルールの手動利用
+
+Node.js 22以上で`npm ci --prefix tools/workflow-rules --ignore-scripts --no-audit --no-fund`を実行します。
+インストール後、`npm test --prefix tools/workflow-rules`はネットワーク・外部AIなしで実行できます。
+既存schemaの回帰は`node tools/workflow-schema/validate.mjs`で実行できます（同パッケージの依存を事前に導入）。
+
+ルール正本は共通の`docs/common/rules/<rule-id>/`または利用先固有の`.ai-workflow/rules/<rule-id>/`です。
+各directoryにrule.yamlとrule.mdを対で置き、rule_idとdirectory名を一致させます。
+legacy以外はbody_refsに対のrule.mdを含めます。既存IDを同名projectルールで上書きできません。
+`.ai-workflow/templates/rules/v1/`は合成記入例であり、自動採用・承認の記録ではありません。
+rule.yamlはlegacy参照の例、context.yamlは既知空集合を含む例、resolution.yamlは解決結果の構造例です。
+resolutionの入力digestは実際のrepositoryの最新文書から再生成します。
+
+repository rootからの利用例:
+
+```js
+import { readFileSync } from 'node:fs';
+import { loadRules, parseYaml } from './tools/workflow-rules/load.mjs';
+import { resolveRules } from './tools/workflow-rules/resolve.mjs';
+import { projectPlan } from './tools/workflow-rules/plan.mjs';
+
+const input = {
+  ...loadRules(process.cwd()),
+  context: { schema_version: 1, risk: 'low', areas: [], technologies: [], data_types: [] },
+  optIns: [],
+};
+const result = resolveRules(input);
+if (result.status === 'blocked') throw new Error(JSON.stringify(result.diagnostics));
+const plan = parseYaml(readFileSync('.ai-workflow/issues/issue-123/plan.yaml', 'utf8'));
+const candidate = projectPlan(plan, result, input);
+// 人間レビュー後、candidateのrevision・更新日時・actorを更新して明示保存する。
+```
+
+opt-inの採用例（実際の人間承認参照へ置換）:
+
+```js
+const optIns = [{
+  rule_id: 'example', version: '1.0.0',
+  approval: {
+    approval_type: 'opt-in', approved_by: 'example-user',
+    reference: { kind: 'url', target: 'https://github.com/example/project/issues/123#issuecomment-1' },
+    approved_at: '2026-10-22T00:00:00Z',
+  },
+}];
+```
+
+`loadRules`の失敗、blocked診断、変更されたcontext/本文/digestを無視して以前の結果を使わないでください。
+保存直前に再読込・再解決し、requires固定versionと採用承認の有効性を人間が確認します。
+診断のcode/rule_id/relatedは機械処理用、説明文はtools/workflow-rules/messages.mjsに集約しています。
+承認参照とapproval_requiredは承認そのものではなく、Issueのassignee・ready-for-ai・設計承認を引き続き確認します。
+対処不能な場合は元成果物を保持してIssueへ理由を記録し、従来のIssue・branch・PR運用で人間へ戻します。

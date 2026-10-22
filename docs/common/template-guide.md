@@ -21,7 +21,7 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 - release基準: `docs/common/versioning-policy.md`
 - v1からv2への移行: `docs/common/migration-v1-to-v2.md`
 
-v1はIssue、assignee、prompt、人間承認を中心とする軽量な文書駆動baselineです。v2はIssue #8のadaptive workflowとIssue #9のproject orchestrationを段階的に追加します。現在の`main`ではIssue成果物のschema v1、template、同梱例の形式テストを提供します。工程選択・再開・追跡性checker、Golden Test、Actions統合、Project統制は後続実装です。
+v1はIssue、assignee、prompt、人間承認を中心とする軽量な文書駆動baselineです。v2はIssue #8のadaptive workflowとIssue #9のproject orchestrationを段階的に追加します。現在の`main`ではIssue成果物のschema v1、template、同梱例の形式テストとモジュール式ルールのオフライン解決libraryを提供します。工程選択・再開・追跡性checker、Golden Test、Actions統合、Project統制は後続実装です。
 
 template release versionと各成果物の`schema_version`は独立しています。template v2で最初に導入するschemaが`schema_version: 1`でも問題ありません。利用先projectでは、このrepositoryの`VERSION`をアプリケーションversionと混同しないでください。
 
@@ -44,6 +44,9 @@ template release versionと各成果物の`schema_version`は独立していま�
 - `.ai-workflow/schemas/issue/v1/`: 共通定義と4種類のIssue成果物schema
 - `.ai-workflow/templates/issue/v1/`: schemaに適合する合成YAML記入例
 - `tests/workflow-schema/`: schema適合テストの正常・異常fixtureとcase一覧
+- `.ai-workflow/schemas/rules/v1/`と`.ai-workflow/templates/rules/v1/`: rule/context/resolutionの契約と例
+- `docs/common/rules/legacy/`: 既存2文書を維持するalways-on参照
+- `tools/workflow-rules/`と`tests/workflow-rules/`: オフライン解決・plan投影と回帰テスト
 - `tools/workflow-schema/`: Node.js 22以上を使用する独立した検証用パッケージ
 - `README.md`: 利用先プロジェクト用READMEの雛形
 - `VERSION`: template本体の現在の目標version
