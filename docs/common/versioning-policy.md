@@ -33,6 +33,14 @@ plan、state、traceability、Brownfield、project、teamなど、個別の機�
 - template versionがminor / patch更新されても、schemaが変わらなければ上げない。
 - 複数schemaが異なるversionを持つことを許可する。
 
+#### Issue成果物schema v1の互換性と移行
+
+Issue成果物v1の実装は`.ai-workflow/schemas/issue/v1/`に置く。各成果物で`schema_version: 1`を要求し、非対応versionを自動変換・推測して受理しない。core fieldは未知fieldを拒否するため、受理集合を変える追加、必須化、型変更、enum変更は新majorのschemaとして追加する。説明修正など受理集合を変えない修正は同じmajorに適用できる。独自情報は既存の`extensions`へ保存し、意味が不明な拡張から工程通過や承認を決定しない。
+
+移行時は元成果物と参照したtemplate commitを保存し、対応する新schemaのテンプレートへ明示的に項目を移す。新旧ID、計画revision、追記履歴、承認参照を人間が比較し、形式検証後に利用を切り替える。v1より前の文書運用には機械成果物がないため、空の完了履歴を補完せず実際のIssue記録から初期化する。
+
+破損・非対応version・復元不能な参照の場合は自動再開を止める。元ファイルを保存し、最後に確認できたGit commitとIssue／PR記録へ戻り、人間が現在地を確認する。復元できない承認は再承認を受ける。復元が難しい場合もIssue、assignee、着手コメント、branch、PRによる従来運用を継続できる。schema移行ツールと状態復旧checkerは後続Issueで扱う。
+
 ### 2.3 その他のversion
 
 rule version、prompt version、Golden Test fixture version、AI評価設定versionもtemplate release versionから分離する。変更対象の互換性と再現性に必要な単位だけをversioningする。

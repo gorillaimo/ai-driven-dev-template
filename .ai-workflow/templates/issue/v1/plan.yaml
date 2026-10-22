@@ -1,0 +1,61 @@
+# 合成の記入例。ID・参照・日時・状態を実際の作業に合わせて置換してください。
+# 形式検証の成功は、承認・工程完了・参照先の存在を保証しません。
+schema_version: 1
+artifact_kind: plan
+work_id: issue-1
+work_source: github_issue
+issue_ref: https://github.com/example/project/issues/1
+updated_at: "2026-10-12T00:00:00Z"
+updated_by:
+  actor_type: human
+  actor_ref: example-user
+revision: 1
+risk: low
+context:
+  - kind: file
+    target: docs/common/development-rules.md
+resolved_rules:
+  - rule_id: legacy
+    version: "1"
+    reference: {kind: file, target: AGENTS.md}
+stages:
+  - stage_id: intake
+    selection: required
+    reason: 常時必須工程
+    evidence:
+      - {kind: file, target: docs/common/adaptive-workflow-design.md}
+    decided_by: {actor_type: human, actor_ref: example-user}
+    depends_on: []
+    artifacts: []
+    approval_required: false
+    validation_methods: [人間による成果物レビュー]
+  - stage_id: context
+    selection: required
+    reason: 常時必須工程
+    evidence:
+      - {kind: file, target: docs/common/adaptive-workflow-design.md}
+    decided_by: {actor_type: human, actor_ref: example-user}
+    depends_on: [intake]
+    artifacts: []
+    approval_required: false
+    validation_methods: [人間による成果物レビュー]
+  - stage_id: validation
+    selection: required
+    reason: 常時必須工程
+    evidence:
+      - {kind: file, target: docs/common/adaptive-workflow-design.md}
+    decided_by: {actor_type: human, actor_ref: example-user}
+    depends_on: [context]
+    artifacts: []
+    approval_required: false
+    validation_methods: [人間による成果物レビュー]
+  - stage_id: handoff
+    selection: required
+    reason: 常時必須工程
+    evidence:
+      - {kind: file, target: docs/common/adaptive-workflow-design.md}
+    decided_by: {actor_type: human, actor_ref: example-user}
+    depends_on: [validation]
+    artifacts: []
+    approval_required: false
+    validation_methods: [人間による成果物レビュー]

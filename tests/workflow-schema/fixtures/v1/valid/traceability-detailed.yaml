@@ -1,0 +1,83 @@
+schema_version: 1
+artifact_kind: traceability
+work_id: issue-1
+work_source: github_issue
+issue_ref: https://github.com/example/project/issues/1
+updated_at: "2026-10-12T00:00:00Z"
+updated_by:
+  actor_type: human
+  actor_ref: example-user
+nodes:
+  - id: ac-1
+    kind: acceptance_criterion
+    ref: {kind: url, target: "https://github.com/example/project/issues/1", fragment: acceptance-criteria}
+    status: pending
+  - id: non-scope-1
+    kind: non_scope
+    ref: {kind: file, target: README.md}
+    status: pending
+  - id: requirement-1
+    kind: requirement
+    ref: {kind: file, target: README.md}
+    status: pending
+  - id: design-1
+    kind: design
+    ref: {kind: file, target: README.md}
+    status: pending
+  - id: api-1
+    kind: api
+    ref: {kind: file, target: README.md}
+    status: pending
+  - id: quality-gate-1
+    kind: quality_gate
+    ref: {kind: file, target: README.md}
+    status: pending
+  - id: approval-1
+    kind: approval
+    ref: {kind: file, target: README.md}
+    status: pending
+  - id: test-1
+    kind: test
+    ref: {kind: file, target: README.md}
+    status: pending
+  - id: change-1
+    kind: change
+    ref: {kind: file, target: README.md}
+    status: pending
+  - id: validation-1
+    kind: validation
+    ref: {kind: file, target: README.md}
+    status: pending
+  - id: open-question-1
+    kind: open_question
+    ref: {kind: file, target: README.md}
+    status: pending
+  - id: remaining-work-1
+    kind: remaining_work
+    ref: {kind: file, target: README.md}
+    status: pending
+  - id: follow-up-1
+    kind: follow_up
+    ref: {kind: file, target: README.md}
+    status: pending
+  - id: feature-1
+    kind: feature
+    ref: {kind: file, target: README.md}
+    status: pending
+links:
+  - {from: test-1, to: ac-1, relation: verifies}
+checks:
+  - check_id: coverage
+    boundary: draft
+    result: warn
+    references: [{kind: id, target: test-1}]
+    reason: テスト未作成
+suppressions:
+  - check_id: coverage
+    reason: 設計レビュー中のため一時抑制する合成例
+    expires_at: "2026-10-13T00:00:00Z"
+    approval:
+      approval_type: suppression
+      approved_by: example-user
+      reference: {kind: url, target: "https://github.com/example/project/issues/1#issuecomment-1"}
+      approved_at: "2026-10-12T00:00:00Z"

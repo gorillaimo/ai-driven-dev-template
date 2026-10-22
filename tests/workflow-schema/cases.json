@@ -1,0 +1,1323 @@
+[
+  {
+    "id": "plan-minimal",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": true
+  },
+  {
+    "id": "plan-external",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "work_source"
+        ],
+        "value": "external"
+      },
+      {
+        "path": [
+          "issue_ref"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "plan-missing-work-id",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "work_id"
+        ],
+        "value": null,
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "plan-unknown-version",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "schema_version"
+        ],
+        "value": 2
+      }
+    ],
+    "keyword": "const"
+  },
+  {
+    "id": "plan-missing-issue",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "issue_ref"
+        ],
+        "value": null,
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "plan-bad-issue",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "issue_ref"
+        ],
+        "value": "not-an-issue"
+      }
+    ],
+    "keyword": "pattern"
+  },
+  {
+    "id": "plan-empty-id",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "work_id"
+        ],
+        "value": ""
+      }
+    ],
+    "keyword": "minLength"
+  },
+  {
+    "id": "plan-bad-id",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "work_id"
+        ],
+        "value": "../escape"
+      }
+    ],
+    "keyword": "pattern"
+  },
+  {
+    "id": "plan-unknown-field",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "assignee"
+        ],
+        "value": "example-user"
+      }
+    ],
+    "keyword": "unevaluatedProperties"
+  },
+  {
+    "id": "plan-wrong-kind",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "artifact_kind"
+        ],
+        "value": "unknown"
+      }
+    ],
+    "keyword": "const"
+  },
+  {
+    "id": "plan-project",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "project_id"
+        ],
+        "value": "example-app"
+      },
+      {
+        "path": [
+          "feature_id"
+        ],
+        "value": "profile"
+      }
+    ]
+  },
+  {
+    "id": "plan-extension",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "extensions"
+        ],
+        "value": {
+          "example:note": "synthetic"
+        }
+      }
+    ]
+  },
+  {
+    "id": "state-minimal",
+    "kind": "state",
+    "file": "valid/state.yaml",
+    "valid": true
+  },
+  {
+    "id": "state-external",
+    "kind": "state",
+    "file": "valid/state.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "work_source"
+        ],
+        "value": "external"
+      },
+      {
+        "path": [
+          "issue_ref"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "state-missing-work-id",
+    "kind": "state",
+    "file": "valid/state.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "work_id"
+        ],
+        "value": null,
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "state-unknown-version",
+    "kind": "state",
+    "file": "valid/state.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "schema_version"
+        ],
+        "value": 2
+      }
+    ],
+    "keyword": "const"
+  },
+  {
+    "id": "state-missing-issue",
+    "kind": "state",
+    "file": "valid/state.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "issue_ref"
+        ],
+        "value": null,
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "state-bad-issue",
+    "kind": "state",
+    "file": "valid/state.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "issue_ref"
+        ],
+        "value": "not-an-issue"
+      }
+    ],
+    "keyword": "pattern"
+  },
+  {
+    "id": "state-empty-id",
+    "kind": "state",
+    "file": "valid/state.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "work_id"
+        ],
+        "value": ""
+      }
+    ],
+    "keyword": "minLength"
+  },
+  {
+    "id": "state-bad-id",
+    "kind": "state",
+    "file": "valid/state.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "work_id"
+        ],
+        "value": "../escape"
+      }
+    ],
+    "keyword": "pattern"
+  },
+  {
+    "id": "state-unknown-field",
+    "kind": "state",
+    "file": "valid/state.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "assignee"
+        ],
+        "value": "example-user"
+      }
+    ],
+    "keyword": "unevaluatedProperties"
+  },
+  {
+    "id": "state-wrong-kind",
+    "kind": "state",
+    "file": "valid/state.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "artifact_kind"
+        ],
+        "value": "unknown"
+      }
+    ],
+    "keyword": "const"
+  },
+  {
+    "id": "state-project",
+    "kind": "state",
+    "file": "valid/state.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "project_id"
+        ],
+        "value": "example-app"
+      },
+      {
+        "path": [
+          "feature_id"
+        ],
+        "value": "profile"
+      }
+    ]
+  },
+  {
+    "id": "state-extension",
+    "kind": "state",
+    "file": "valid/state.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "extensions"
+        ],
+        "value": {
+          "example:note": "synthetic"
+        }
+      }
+    ]
+  },
+  {
+    "id": "traceability-minimal",
+    "kind": "traceability",
+    "file": "valid/traceability.yaml",
+    "valid": true
+  },
+  {
+    "id": "traceability-external",
+    "kind": "traceability",
+    "file": "valid/traceability.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "work_source"
+        ],
+        "value": "external"
+      },
+      {
+        "path": [
+          "issue_ref"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "traceability-missing-work-id",
+    "kind": "traceability",
+    "file": "valid/traceability.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "work_id"
+        ],
+        "value": null,
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "traceability-unknown-version",
+    "kind": "traceability",
+    "file": "valid/traceability.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "schema_version"
+        ],
+        "value": 2
+      }
+    ],
+    "keyword": "const"
+  },
+  {
+    "id": "traceability-missing-issue",
+    "kind": "traceability",
+    "file": "valid/traceability.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "issue_ref"
+        ],
+        "value": null,
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "traceability-bad-issue",
+    "kind": "traceability",
+    "file": "valid/traceability.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "issue_ref"
+        ],
+        "value": "not-an-issue"
+      }
+    ],
+    "keyword": "pattern"
+  },
+  {
+    "id": "traceability-empty-id",
+    "kind": "traceability",
+    "file": "valid/traceability.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "work_id"
+        ],
+        "value": ""
+      }
+    ],
+    "keyword": "minLength"
+  },
+  {
+    "id": "traceability-bad-id",
+    "kind": "traceability",
+    "file": "valid/traceability.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "work_id"
+        ],
+        "value": "../escape"
+      }
+    ],
+    "keyword": "pattern"
+  },
+  {
+    "id": "traceability-unknown-field",
+    "kind": "traceability",
+    "file": "valid/traceability.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "assignee"
+        ],
+        "value": "example-user"
+      }
+    ],
+    "keyword": "unevaluatedProperties"
+  },
+  {
+    "id": "traceability-wrong-kind",
+    "kind": "traceability",
+    "file": "valid/traceability.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "artifact_kind"
+        ],
+        "value": "unknown"
+      }
+    ],
+    "keyword": "const"
+  },
+  {
+    "id": "traceability-project",
+    "kind": "traceability",
+    "file": "valid/traceability.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "project_id"
+        ],
+        "value": "example-app"
+      },
+      {
+        "path": [
+          "feature_id"
+        ],
+        "value": "profile"
+      }
+    ]
+  },
+  {
+    "id": "traceability-extension",
+    "kind": "traceability",
+    "file": "valid/traceability.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "extensions"
+        ],
+        "value": {
+          "example:note": "synthetic"
+        }
+      }
+    ]
+  },
+  {
+    "id": "brownfield-minimal",
+    "kind": "brownfield",
+    "file": "valid/brownfield.yaml",
+    "valid": true
+  },
+  {
+    "id": "brownfield-external",
+    "kind": "brownfield",
+    "file": "valid/brownfield.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "work_source"
+        ],
+        "value": "external"
+      },
+      {
+        "path": [
+          "issue_ref"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "brownfield-missing-work-id",
+    "kind": "brownfield",
+    "file": "valid/brownfield.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "work_id"
+        ],
+        "value": null,
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "brownfield-unknown-version",
+    "kind": "brownfield",
+    "file": "valid/brownfield.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "schema_version"
+        ],
+        "value": 2
+      }
+    ],
+    "keyword": "const"
+  },
+  {
+    "id": "brownfield-missing-issue",
+    "kind": "brownfield",
+    "file": "valid/brownfield.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "issue_ref"
+        ],
+        "value": null,
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "brownfield-bad-issue",
+    "kind": "brownfield",
+    "file": "valid/brownfield.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "issue_ref"
+        ],
+        "value": "not-an-issue"
+      }
+    ],
+    "keyword": "pattern"
+  },
+  {
+    "id": "brownfield-empty-id",
+    "kind": "brownfield",
+    "file": "valid/brownfield.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "work_id"
+        ],
+        "value": ""
+      }
+    ],
+    "keyword": "minLength"
+  },
+  {
+    "id": "brownfield-bad-id",
+    "kind": "brownfield",
+    "file": "valid/brownfield.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "work_id"
+        ],
+        "value": "../escape"
+      }
+    ],
+    "keyword": "pattern"
+  },
+  {
+    "id": "brownfield-unknown-field",
+    "kind": "brownfield",
+    "file": "valid/brownfield.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "assignee"
+        ],
+        "value": "example-user"
+      }
+    ],
+    "keyword": "unevaluatedProperties"
+  },
+  {
+    "id": "brownfield-wrong-kind",
+    "kind": "brownfield",
+    "file": "valid/brownfield.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "artifact_kind"
+        ],
+        "value": "unknown"
+      }
+    ],
+    "keyword": "const"
+  },
+  {
+    "id": "brownfield-project",
+    "kind": "brownfield",
+    "file": "valid/brownfield.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "project_id"
+        ],
+        "value": "example-app"
+      },
+      {
+        "path": [
+          "feature_id"
+        ],
+        "value": "profile"
+      }
+    ]
+  },
+  {
+    "id": "brownfield-extension",
+    "kind": "brownfield",
+    "file": "valid/brownfield.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "extensions"
+        ],
+        "value": {
+          "example:note": "synthetic"
+        }
+      }
+    ]
+  },
+  {
+    "id": "revision-zero",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "revision"
+        ],
+        "value": 0
+      }
+    ],
+    "keyword": "minimum"
+  },
+  {
+    "id": "stage-invalid",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "stages",
+          0,
+          "stage_id"
+        ],
+        "value": "deploy"
+      }
+    ],
+    "keyword": "enum"
+  },
+  {
+    "id": "selection-invalid",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "stages",
+          0,
+          "selection"
+        ],
+        "value": "auto"
+      }
+    ],
+    "keyword": "enum"
+  },
+  {
+    "id": "reason-empty",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "stages",
+          0,
+          "reason"
+        ],
+        "value": ""
+      }
+    ],
+    "keyword": "minLength"
+  },
+  {
+    "id": "stage-decision-missing",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "stages",
+          0,
+          "decided_by"
+        ],
+        "value": null,
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "actor-missing-owner",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "value": {
+          "actor_type": "ai_agent",
+          "actor_ref": "example-agent"
+        }
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "bot-missing-owner",
+    "kind": "state",
+    "file": "valid/state.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "history",
+          0,
+          "actor"
+        ],
+        "value": {
+          "actor_type": "bot",
+          "actor_ref": "example-bot"
+        }
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "actor-email",
+    "kind": "state",
+    "file": "valid/state.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "value": {
+          "actor_type": "human",
+          "actor_ref": "user@example.com"
+        }
+      }
+    ],
+    "keyword": "pattern"
+  },
+  {
+    "id": "actor-system",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "value": {
+          "actor_type": "system",
+          "actor_ref": "example-system"
+        }
+      }
+    ]
+  },
+  {
+    "id": "invalid-event",
+    "kind": "state",
+    "file": "valid/state.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "history",
+          0,
+          "event_type"
+        ],
+        "value": "claim_acquired"
+      }
+    ],
+    "keyword": "enum"
+  },
+  {
+    "id": "invalid-work-status",
+    "kind": "state",
+    "file": "valid/state.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "status"
+        ],
+        "value": "assigned"
+      }
+    ],
+    "keyword": "enum"
+  },
+  {
+    "id": "invalid-stage-status",
+    "kind": "state",
+    "file": "valid/state.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "stages",
+          0,
+          "status"
+        ],
+        "value": "paused"
+      }
+    ],
+    "keyword": "enum"
+  },
+  {
+    "id": "invalid-date",
+    "kind": "state",
+    "file": "valid/state.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_at"
+        ],
+        "value": "2026-02-30T00:00:00Z"
+      }
+    ],
+    "keyword": "format"
+  },
+  {
+    "id": "invalid-stage-ref",
+    "kind": "state",
+    "file": "valid/state.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "current_stage"
+        ],
+        "value": "not-a-stage"
+      }
+    ],
+    "keyword": "enum"
+  },
+  {
+    "id": "empty-history",
+    "kind": "state",
+    "file": "valid/state.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "history"
+        ],
+        "value": []
+      }
+    ]
+  },
+  {
+    "id": "bad-reference",
+    "kind": "traceability",
+    "file": "valid/traceability.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "nodes",
+          0,
+          "ref"
+        ],
+        "value": {
+          "kind": "file",
+          "target": "../secret"
+        }
+      }
+    ],
+    "keyword": "pattern"
+  },
+  {
+    "id": "bad-node-kind",
+    "kind": "traceability",
+    "file": "valid/traceability.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "nodes",
+          0,
+          "kind"
+        ],
+        "value": "whatever"
+      }
+    ],
+    "keyword": "enum"
+  },
+  {
+    "id": "unknown-nested-field",
+    "kind": "traceability",
+    "file": "valid/traceability.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "nodes",
+          0,
+          "secret"
+        ],
+        "value": "synthetic"
+      }
+    ],
+    "keyword": "additionalProperties"
+  },
+  {
+    "id": "bad-depth",
+    "kind": "brownfield",
+    "file": "valid/brownfield.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "depth"
+        ],
+        "value": "deep"
+      }
+    ],
+    "keyword": "enum"
+  },
+  {
+    "id": "bad-analysis-status",
+    "kind": "brownfield",
+    "file": "valid/brownfield.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "status"
+        ],
+        "value": "done"
+      }
+    ],
+    "keyword": "enum"
+  },
+  {
+    "id": "config-value-forbidden",
+    "kind": "brownfield",
+    "file": "valid/brownfield.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "settings"
+        ],
+        "value": [
+          {
+            "name": "EXAMPLE_ENDPOINT",
+            "location": {
+              "kind": "file",
+              "target": ".env.example"
+            },
+            "value": "synthetic"
+          }
+        ]
+      }
+    ],
+    "keyword": "additionalProperties"
+  },
+  {
+    "id": "invalid-yaml-duplicate",
+    "kind": "plan",
+    "file": "invalid/duplicate-key.yaml",
+    "valid": false,
+    "keyword": "yaml"
+  },
+  {
+    "id": "invalid-yaml-alias",
+    "kind": "plan",
+    "file": "invalid/alias.yaml",
+    "valid": false,
+    "keyword": "yaml"
+  },
+  {
+    "id": "invalid-required-fixture",
+    "kind": "state",
+    "file": "invalid/missing-fields.yaml",
+    "valid": false,
+    "keyword": "required"
+  },
+  {
+    "id": "state-detailed",
+    "kind": "state",
+    "file": "valid/state-detailed.yaml",
+    "valid": true
+  },
+  {
+    "id": "brownfield-detailed",
+    "kind": "brownfield",
+    "file": "valid/brownfield-detailed.yaml",
+    "valid": true
+  },
+  {
+    "id": "traceability-detailed",
+    "kind": "traceability",
+    "file": "valid/traceability-detailed.yaml",
+    "valid": true
+  },
+  {
+    "id": "approval-email",
+    "kind": "state",
+    "file": "valid/state-detailed.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "approvals",
+          0,
+          "approved_by"
+        ],
+        "value": "user@example.com"
+      }
+    ],
+    "keyword": "pattern"
+  },
+  {
+    "id": "suppression-expiry",
+    "kind": "traceability",
+    "file": "valid/traceability-detailed.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "suppressions",
+          0,
+          "expires_at"
+        ],
+        "value": "not-a-date"
+      }
+    ],
+    "keyword": "format"
+  },
+  {
+    "id": "missing-validation-reason",
+    "kind": "state",
+    "file": "valid/state-detailed.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "validations",
+          0,
+          "reason"
+        ],
+        "value": null,
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "max-id",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "work_id"
+        ],
+        "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      }
+    ],
+    "keyword": "maxLength"
+  },
+  {
+    "id": "valid-ai-owner",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "value": {
+          "actor_type": "ai_agent",
+          "actor_ref": "example-agent",
+          "on_behalf_of": "example-user"
+        }
+      }
+    ]
+  },
+  {
+    "id": "valid-bot-owner",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "value": {
+          "actor_type": "bot",
+          "actor_ref": "example-bot",
+          "on_behalf_of": "example-user"
+        }
+      }
+    ]
+  },
+  {
+    "id": "unknown-actor-type",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_by",
+          "actor_type"
+        ],
+        "value": "admin"
+      }
+    ],
+    "keyword": "enum"
+  },
+  {
+    "id": "path-absolute",
+    "kind": "traceability",
+    "file": "valid/traceability.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "nodes",
+          0,
+          "ref"
+        ],
+        "value": {
+          "kind": "file",
+          "target": "/etc/passwd"
+        }
+      }
+    ],
+    "keyword": "pattern"
+  },
+  {
+    "id": "path-embedded-parent",
+    "kind": "traceability",
+    "file": "valid/traceability.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "nodes",
+          0,
+          "ref"
+        ],
+        "value": {
+          "kind": "file",
+          "target": "docs/../secret"
+        }
+      }
+    ],
+    "keyword": "pattern"
+  },
+  {
+    "id": "empty-stages",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "stages"
+        ],
+        "value": []
+      }
+    ],
+    "keyword": "minItems"
+  },
+  {
+    "id": "project-id-length",
+    "kind": "plan",
+    "file": "valid/plan.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "project_id"
+        ],
+        "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      }
+    ]
+  }
+]

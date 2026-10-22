@@ -58,6 +58,8 @@ AIエージェントへ作業を依頼する前に、以下を確認してくだ
 
 テンプレート全体の開発フロー図は、`docs/common/template-guide.md` を参照してください。
 
+Issue成果物のschema v1とYAML記入例は`.ai-workflow/schemas/issue/v1/`、`.ai-workflow/templates/issue/v1/`にあります。項目定義は`docs/common/adaptive-workflow-design.md`、利用・検証手順は`docs/common/operations-manual.md`、互換性とfallbackは`docs/common/versioning-policy.md`を参照してください。
+
 ## AIへの依頼例
 
 ```text

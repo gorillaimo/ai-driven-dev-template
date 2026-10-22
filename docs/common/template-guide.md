@@ -21,7 +21,7 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 - release基準: `docs/common/versioning-policy.md`
 - v1からv2への移行: `docs/common/migration-v1-to-v2.md`
 
-v1はIssue、assignee、prompt、人間承認を中心とする軽量な文書駆動baselineです。v2はIssue #8のadaptive workflowとIssue #9のproject orchestrationを段階的に追加します。現在の`main`はv2開発ラインですが、対応するschema、checker、Golden Test、Actionsが実装されるまでv2機構を利用可能とは扱いません。
+v1はIssue、assignee、prompt、人間承認を中心とする軽量な文書駆動baselineです。v2はIssue #8のadaptive workflowとIssue #9のproject orchestrationを段階的に追加します。現在の`main`ではIssue成果物のschema v1、template、同梱例の形式テストを提供します。工程選択・再開・追跡性checker、Golden Test、Actions統合、Project統制は後続実装です。
 
 template release versionと各成果物の`schema_version`は独立しています。template v2で最初に導入するschemaが`schema_version: 1`でも問題ありません。利用先projectでは、このrepositoryの`VERSION`をアプリケーションversionと混同しないでください。
 
@@ -41,6 +41,10 @@ template release versionと各成果物の`schema_version`は独立していま�
 
 ## 含まれるもの
 
+- `.ai-workflow/schemas/issue/v1/`: 共通定義と4種類のIssue成果物schema
+- `.ai-workflow/templates/issue/v1/`: schemaに適合する合成YAML記入例
+- `tests/workflow-schema/`: schema適合テストの正常・異常fixtureとcase一覧
+- `tools/workflow-schema/`: Node.js 22以上を使用する独立した検証用パッケージ
 - `README.md`: 利用先プロジェクト用READMEの雛形
 - `VERSION`: template本体の現在の目標version
 - `CHANGELOG.md`: template本体の変更履歴とrelease境界
@@ -64,7 +68,7 @@ template release versionと各成果物の`schema_version`は独立していま�
 - `.github/workflows/issue-contract-check.yml`: issue契約チェック
 - `.github/workflows/pr-issue-link-check.yml`: PR本文チェック
 
-`docs/common/adaptive-workflow-design.md` と `docs/common/project-orchestration-design.md` に記載された機構は、現時点では後続実装のための設計です。対応するtemplate、schema、checker、GitHub Actionsが追加されるまでは、従来のIssueベース運用だけが有効です。
+`docs/common/adaptive-workflow-design.md`の4.1～4.3が実装済みschemaの契約です。templateは実際のIDや状態へ置換して利用します。形式検証の成功は承認・工程完了・参照先の存在を保証しません。利用・検証コマンドは`docs/common/operations-manual.md`、移行・fallbackは`docs/common/versioning-policy.md`を参照してください。Project統制と各種checkerは後続実装であり、従来のIssueベース運用を維持します。
 
 Issue内部の工程選択と再開はadaptive workflow、プロジェクト全体の開発順序、担当割当、進捗集約、AI主導の次Issue提案はproject orchestrationの責務です。後者の初期標準はIssues-onlyと手動Coordinatorであり、GitHub Projects、Dispatcher、外部Agent Runnerを必須にしません。
 

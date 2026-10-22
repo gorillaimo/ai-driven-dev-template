@@ -236,7 +236,25 @@ gh repo create [owner]/[repository-name] --private --source=. --remote=origin --
 
 1つのIssue内部における、作業規模に応じた工程選択、中断からの再開、フェーズ境界の追跡性検査、ルールのモジュール化、Brownfield解析、ワークフローのGolden Testについては、`docs/common/adaptive-workflow-design.md` に共通設計を定義しています。
 
-この設計はIssue契約、assignee、`ready-for-ai`、変更リスク分類、Quality Gates、人間の承認を置き換えません。後続実装Issueが完了するまでは設計参照のみとし、計画・状態ファイルや自動チェックが利用可能であるとは扱わないでください。導入時は既存運用を維持し、機構ごとに追加方式で有効化します。
+この設計はIssue契約、assignee、`ready-for-ai`、変更リスク分類、Quality Gates、人間の承認を置き換えません。Issue成果物のschema v1とYAMLテンプレート、同梱例の形式テストが利用できます。工程選択・再開・追跡性のcheckerは後続実装です。導入時は既存運用を維持し、機構ごとに追加方式で有効化します。
+
+### Issue成果物テンプレートの利用
+
+1. `.ai-workflow/templates/issue/v1/`からplan、state、traceabilityを作業用の`.ai-workflow/issues/<work-id>/`へコピーします。Brownfield調査時だけbrownfieldも使います。
+2. 合成例のID、Issue URL、actor、日時、Git commit、工程、調査結果を実際の作業へ置換します。空配列やnullは未記入・該当なしの初期値であり、承認や完了の証拠ではありません。
+3. 人間向けのplan.mdやbrownfield.mdはYAMLの説明として記述し、同じ状態を独立して管理しません。
+4. schemaで形式を確認したうえで、人間が参照先、履歴、承認、成果物の対応をレビューします。現在の同梱テストはrepositoryのtemplate・fixtureが対象で、任意の作業ファイルを自動走査しません。
+
+schemaの項目、参照形式、後続checkerとの分担は`adaptive-workflow-design.md`の4.1～4.3を参照してください。schemaとテストを利用する場合は、隠しディレクトリを含む`.ai-workflow/schemas/`、`.ai-workflow/templates/`、`tools/workflow-schema/`、`tests/workflow-schema/`を一緒にコピーします。
+
+Node.js 22以上とnpmを用意し、repository rootで次を実行します。初回の依存取得にはネットワークが必要です。lockfileで固定された依存取得後のテストはオフラインで動きます。
+
+```bash
+npm ci --prefix tools/workflow-schema --ignore-scripts --no-audit --no-fund
+npm test --prefix tools/workflow-schema
+```
+
+テストは外部AI、GitHub API、成果物内のcommandを呼び出しません。成功しても実際のIssue作業が承認済み・完了済みとは判断しません。診断はcase IDごとにartifact、instance path、schema path、keywordで確認できます。エラー時は元データを保存し、`versioning-policy.md`の手順に従って従来運用へ戻せます。
 
 複数feature / Issue / 開発者をまたぐ開発順序、チーム台帳、担当割当、claim、進捗集約、AI主導の次Issue選択は、`docs/common/project-orchestration-design.md`で別のプロジェクト統制機構として設計しています。このIssue内部ワークフローだけでは実行しません。
 

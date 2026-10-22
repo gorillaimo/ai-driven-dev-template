@@ -1,0 +1,413 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:issue:v1:brownfield",
+  "title": "brownfield workflow schema v1",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/envelope"
+    }
+  ],
+  "properties": {
+    "artifact_kind": {
+      "const": "brownfield"
+    },
+    "depth": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/risk"
+    },
+    "status": {
+      "enum": [
+        "complete",
+        "partial",
+        "blocked"
+      ]
+    },
+    "scope": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+      },
+      "minItems": 1
+    },
+    "unanalysed": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 0
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "component_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "area": {
+            "enum": [
+              "frontend",
+              "backend",
+              "api",
+              "auth",
+              "data_store",
+              "infrastructure",
+              "external_service",
+              "other"
+            ]
+          },
+          "location": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+          },
+          "responsibility": {
+            "type": "string",
+            "minLength": 1
+          },
+          "technologies": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 0
+          },
+          "depends_on": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+            },
+            "minItems": 0
+          }
+        },
+        "required": [
+          "component_id",
+          "area",
+          "location",
+          "responsibility",
+          "technologies",
+          "depends_on"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "purpose": {
+            "enum": [
+              "run",
+              "build",
+              "test",
+              "deploy"
+            ]
+          },
+          "command": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": [
+              "documented",
+              "verified",
+              "not_verified"
+            ]
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+            },
+            "minItems": 0
+          },
+          "side_effects": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "purpose",
+          "command",
+          "status",
+          "evidence",
+          "side_effects"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "data_models": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "model_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reference": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+          }
+        },
+        "required": [
+          "model_id",
+          "description",
+          "reference"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "flows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "flow_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+            },
+            "minItems": 0
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+            },
+            "minItems": 0
+          }
+        },
+        "required": [
+          "flow_id",
+          "description",
+          "components",
+          "evidence"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "settings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "location": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+          }
+        },
+        "required": [
+          "name",
+          "location"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "documents": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+      },
+      "minItems": 0
+    },
+    "tests": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+      },
+      "minItems": 0
+    },
+    "ci": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+      },
+      "minItems": 0
+    },
+    "ownership": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "area": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "owner_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+            },
+            "minItems": 0
+          }
+        },
+        "required": [
+          "area",
+          "owner_ref",
+          "evidence"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 0
+    },
+    "prohibited_areas": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+      },
+      "minItems": 0
+    },
+    "change_candidates": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+      },
+      "minItems": 0
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "risk_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "severity": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/risk"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+            },
+            "minItems": 0
+          }
+        },
+        "required": [
+          "risk_id",
+          "severity",
+          "description",
+          "evidence"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "unknowns": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 0
+    },
+    "document_updates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+          },
+          "proposal": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "target",
+          "proposal"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "follow_up": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "references": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+            },
+            "minItems": 0
+          }
+        },
+        "required": [
+          "summary",
+          "reason",
+          "references"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    }
+  },
+  "required": [
+    "depth",
+    "status",
+    "scope",
+    "unanalysed",
+    "components",
+    "commands",
+    "data_models",
+    "flows",
+    "settings",
+    "documents",
+    "tests",
+    "ci",
+    "ownership",
+    "constraints",
+    "prohibited_areas",
+    "change_candidates",
+    "risks",
+    "unknowns",
+    "document_updates",
+    "follow_up"
+  ],
+  "unevaluatedProperties": false
+}

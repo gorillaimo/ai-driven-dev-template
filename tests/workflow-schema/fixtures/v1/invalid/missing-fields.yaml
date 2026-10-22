@@ -1,0 +1,4 @@
+schema_version: 1
+artifact_kind: state
+work_id: issue-1
+work_source: external
