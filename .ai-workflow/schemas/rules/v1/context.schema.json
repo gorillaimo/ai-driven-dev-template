@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:rules:v1:context",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "risk": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/risk"
+    },
+    "areas": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "technologies": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "data_types": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "schema_version"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "optIn": {
+      "type": "object",
+      "properties": {
+        "rule_id": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+        },
+        "approval": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/approval"
+        }
+      },
+      "required": [
+        "rule_id",
+        "version",
+        "approval"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

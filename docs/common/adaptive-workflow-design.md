@@ -7,7 +7,7 @@
 - 状態: 設計承認済み（Issue #8、2026-08-06）
 - 承認記録: https://github.com/gorillaimo/ai-driven-dev-template/issues/8#issuecomment-5206128174
 - 適用開始: 後続実装Issueが完了し、この文書の各機構が有効化された時点
-- 現時点の扱い: Issue成果物のschema v1、YAMLテンプレート、同梱例のオフライン形式テストを提供する。工程選択・再開・追跡性チェッカー、CLI、GitHub Actions統合は未実装
+- 現時点の扱い: Issue成果物のschema v1、YAMLテンプレート、同梱例のオフライン形式テスト、およびモジュール式ルールのmetadata・オフライン解決libraryを提供する。工程選択・再開・追跡性チェッカー、CLI、GitHub Actions統合は未実装
 - 互換性方針: 既存利用者を壊さない追加方式とし、従来のIssueベース運用だけでも開発を継続できること
 
 設計承認前は、この文書を根拠として実装へ進んではならない。設計承認後も、対応する後続実装Issueの契約、assignee、`ready-for-ai`、変更リスクに応じた人間承認を確認してから着手する。初期リリースは共通仕様、テンプレート、オフライン静的チェック、GitHub Actionsを対象とし、統合CLIは利用実績を確認してから別Issueで判断する。
@@ -340,6 +340,66 @@ planned -> in_progress -> awaiting_approval -> in_progress -> completed
 共通モジュールは将来の`docs/common/rules/<rule-id>/`、プロジェクト固有・opt-inモジュールは`.ai-workflow/rules/<rule-id>/`を正本とし、それぞれ`rule.md`と`rule.yaml`を対にする。Security、Testing、Resiliency、Architectureなどの分類はmetadataで表現する。ツール別入口ファイルは解決済みルールへの参照、または同じ正本から生成した内容だけを持ち、独自ルールの正本にしない。
 
 初期実装では、現行の`AGENTS.md`と`docs/common/development-rules.md`を単一のlegacy always-onモジュールとして維持し、分割移行を一括で行わない。ルール解決結果は計画へ記録し、未知の条件や循環依存を検出した場合は安全側でblockする。
+
+### 8.3 実装済みのrule schema v1とlibrary
+
+`.ai-workflow/schemas/rules/v1/`の`rule`、`context`、`resolution`を正本とする。
+Draft 2020-12とローカルURN（`urn:ai-workflow:rules:v1:<kind>`）を使用し、未知core field・versionを拒否する。
+`tools/workflow-rules/`はNode.js 22以上の独立したオフラインlibraryで、統合CLIや工程実行器ではない。
+
+| metadata | 契約 |
+| :--- | :--- |
+| `schema_version` / `rule_id` / `version` | schema v1、一意ID、固定SemVer。範囲指定やlatestは使わない |
+| `level` / `category` | always-on / conditional / opt-in、分類IDの配列 |
+| `applies_when` | 条件のAND。各条件は`fact`と非空`any_of`配列 |
+| `requires` | 適用を要求するrule_idと固定version |
+| `conflicts_with` / `after` | 競合するID、先に適用するID。afterは必須採用を意味しない |
+| `severity` | ルール違反のwarn/block。resolver構造エラーのblockを緩和しない |
+| `purpose` / `inputs` / `expected_outputs` / `on_failure` | 目的、入力、期待出力、失敗時の人間向け手順 |
+| `approval_required` / `body_refs` | 実行前承認要否、repository内の本文参照（fileのみ） |
+
+contextの`schema_version: 1`は必須。`risk`はlow/medium/high、`areas`、`technologies`、`data_types`は文字列配列。
+条件のfactはこの4つに限定する。配列はany_ofとの共通要素、riskは列挙値の一致で判定する。
+空配列は既知の該当なし、項目欠落はunknown。ANDはfalseを優先し、falseがなくunknownがある場合はblockする。
+always-onの条件は空、conditionalは1件以上。opt-inは人間の採用承認参照を伴う明示採用と条件一致の両方が必要。
+未知条件キー・演算子は未採用opt-inでも形式エラー。技術名や領域名は利用先が定義する文字列である。
+
+処理順は形式検査、条件選択、宣言グラフ検査、競合検査、必須依存確認、決定的なtopological sort。
+共通とproject固有の同一ID上書きは不可。未知参照、固定version不一致、自己参照、requiresとafterの合成循環は
+未選択ルールを含む宣言全体でblockする。未選択のrequiresを自動有効化せず、opt-inの承認も補完しない。
+片側のconflicts_withでも両候補をconflictedにして全体blockする。依存先がconflictedの選択候補もconflictedになる。
+順序が自由な候補はalways-on、conditional、opt-in、rule_idのコードポイント辞書順で決める。
+依存順やafterは実行順序であり、第3.1節の契約上の優先順位を覆さない。
+
+`docs/common/rules/legacy/`はAGENTS.mdとdevelopment-rules.mdを単一always-onとして参照する。
+元本文は維持し、移動・複製・一括分割しない。legacyの欠落、opt-out、override、原文片方欠落はblock。
+旧planにあるversion文字列`1`はそのまま既存plan schemaで受理される。新ruleの初期versionは`1.0.0`。
+
+### 8.4 解決結果と計画への記録
+
+`resolveRules`は`selected/not_applicable/conflicted`、理由コード、本文metadata参照、適用順、診断、全体`pass/blocked`を返す。
+不明条件や依存不成立もconflictedで表し、診断コードで原因を区別する。構造不正な入力は診断に残し、選択済みとはみなさない。
+blocked時のorderは空。個別にselectedのルールがあっても全体の工程通過を許可しない。
+`severity: warn`や`approval_required: false`はresolverのblock解除や人間承認を意味しない。
+自然言語本文の矛盾、人間指示との意味上の衝突は人間レビューで確認する。
+
+結果にはresolver version、context、opt-in採用参照、入力全体のSHA-256 digest、入力文書ごとのdigestを保持する。
+`loadRules(root)`でmetadata、対のrule.md、body_refs（legacy原文を含む）のdigestを集める。
+配列入力のrule/opt-in順は正規化し、現在時刻・絶対パスを暗黙挿入しない。同じ入力で同じ結果を返す。
+rule内の条件・配列の編集も入力変更として再解決対象にする。
+
+`projectPlan(plan, result, currentInput)`は入力を再解決し、古い/改変された結果やrisk不一致を拒否する。
+成功時だけ既存plan v1のresolved_rulesへID/version/metadata参照を投影し、詳細を
+`extensions.rule_resolution`へ保存した新しいobjectを返す。plan本体と拡張用resolution schemaの両方を検証する。
+既存plan schema単体では自由拡張の意味や本人性を保証しない。
+計画revision・updated_at・actorの更新と保存は呼出側で明示し、元planを自動上書きしない。
+stateの遷移、承認の真正性照合、GitHub更新は実行しない。
+
+loaderは指定root内の通常ファイルのみを読み、symlink（root配下の経路を含む）、絶対パス、親参照を拒否する。
+1ファイルは最大1 MiB、YAML 1.2単一文書・重複キーなし・aliasなし・custom tagなし。
+URL取得、shell command、evalは実行しない。読み込み失敗は例外として停止し、部分成功結果を返さない。
+純粋関数resolveRulesは渡されたmetadataの解決用であり、ファイル実在・原文digestの収集はloadRulesの責務である。
+保存前にはloadRulesで現在の原文を再読込する。digestは改変検知用で、署名や承認者認証ではない。
 
 ## 9. Brownfield解析
 

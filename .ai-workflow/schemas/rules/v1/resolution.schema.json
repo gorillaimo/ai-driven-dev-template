@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:rules:v1:resolution",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "resolver_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+    },
+    "status": {
+      "enum": [
+        "pass",
+        "blocked"
+      ]
+    },
+    "context": {},
+    "opt_ins": {
+      "type": "array"
+    },
+    "input_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "source_digests": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      },
+      "propertyNames": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+      }
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rule_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+          },
+          "reference": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+          },
+          "status": {
+            "enum": [
+              "selected",
+              "not_applicable",
+              "conflicted"
+            ]
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+            },
+            "uniqueItems": true,
+            "minItems": 1
+          }
+        },
+        "required": [
+          "rule_id",
+          "version",
+          "reference",
+          "status",
+          "reasons"
+        ],
+        "additionalProperties": false
+      },
+      "uniqueItems": true
+    },
+    "order": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+      },
+      "uniqueItems": true
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "rule_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "related": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "code",
+          "rule_id",
+          "related"
+        ],
+        "additionalProperties": false
+      },
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "schema_version",
+    "resolver_version",
+    "status",
+    "context",
+    "opt_ins",
+    "input_digest",
+    "source_digests",
+    "rules",
+    "order",
+    "diagnostics"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "pass"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "context": {
+            "$ref": "urn:ai-workflow:rules:v1:context"
+          },
+          "opt_ins": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:rules:v1:context#/$defs/optIn"
+            }
+          },
+          "diagnostics": {
+            "type": "array",
+            "maxItems": 0
+          },
+          "order": {
+            "type": "array",
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "blocked"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "order": {
+            "type": "array",
+            "maxItems": 0
+          },
+          "diagnostics": {
+            "type": "array",
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}

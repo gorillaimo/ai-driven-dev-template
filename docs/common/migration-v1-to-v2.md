@@ -7,7 +7,7 @@
 - v1 stable: `v1.0.0`
 - v2: development line
 - `v2.0.0`stable Release: 未公開
-- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テストがある。工程選択・再開・追跡性checker、Golden Test、Actions統合、Project成果物は後続実装
+- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。工程選択・再開・追跡性checker、Golden Test、Actions統合、Project成果物は後続実装
 
 設計文書が存在するだけで、AIが状態管理、自動再開、次Issue選択、claim、複数人調整を自動実行できるとは扱わない。対応する後続実装Issueが完了した機構だけを有効化する。
 
@@ -68,7 +68,7 @@ v1運用が要件を満たす場合、移行は必須ではない。
 - `project_id`、`feature_id`、`actor_ref`、`on_behalf_of`、標準event。
 - schema validationと参照整合check。
 
-現在利用できるのはschema v1、テンプレート、同梱例の形式テストまでであり、参照先の存在や状態整合を検査するcheckerは未実装。`operations-manual.md`の「Issue成果物テンプレートの利用」に従い、形式と実際のIssue記録を分けて確認する。
+Issue成果物にはschema v1、テンプレート、同梱例の形式テストがあり、参照先の存在や状態整合を検査するcheckerは未実装。`operations-manual.md`の「Issue成果物テンプレートの利用」に従い、形式と実際のIssue記録を分けて確認する。
 
 最初のv2成果物schemaが`schema_version: 1`でも、template v2と矛盾しない。
 
@@ -146,3 +146,14 @@ Fallback時も、Issue契約、assignee、branch、PR、承認、検証結果を
 - `docs/common/development-rules.md`
 - `docs/common/operations-manual.md`
 - [v1.0.0 Release](https://github.com/gorillaimo/ai-driven-dev-template/releases/tag/v1.0.0)
+
+## モジュール式ルールへの追加移行
+
+既存AGENTS.mdとdevelopment-rules.mdは移動せず、legacy always-onの参照metadataを追加します。
+ルールを一括分割する必要はありません。rule schema v1とrule version 1.0.0はtemplate v2とは別管理です。
+旧planのlegacy version文字列`1`は形式上そのまま保持できます。新resolverで明示再解決した結果から
+固定SemVerとmetadata参照へ置換し、plan revisionを更新して差分をレビューします。
+plan schema v1を改変せず、詳細結果をextensions.rule_resolutionへ保存します。
+任意のextensionsを保存しただけでは検証済みにならないため、必ずprojectPlan経由で再解決・検証します。
+元成果物とtemplate commitを保存し、metadata/本文/context/opt-in変更時は再読込・再解決します。
+非対応version、未知条件、循環、競合が解消できない場合は自動進行を止め、元データを保持して従来のIssue運用へ戻します。
