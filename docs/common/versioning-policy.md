@@ -177,3 +177,12 @@ plan schema v1の受理集合は変えず、拡張内容を別のresolution sche
 同じrule versionでも原文digestが変われば古い結果を使わず、人間がversion更新を確認して再解決します。
 初期legacy ruleは1.0.0。旧planのversion文字列1を暗黙に書き換えず、明示移行時に結果を更新します。
 移行時の元データ保存・レビュー・従来運用へのfallbackはIssue成果物と同じ原則に従います。
+
+## Checker契約v1の互換性
+
+context/result/state-extensionのschema v1は`.ai-workflow/schemas/checks/v1/`に独立配置します。
+既存plan/state schema v1の受理集合を変更せず、extensionsの追加契約をcheckerが別途検証します。
+形式適合する旧成果物が、新しい意味検査でblockされる場合があります。これは暗黙移行や完了状態の推測を許可しません。
+core field・型・enum・必須性など受理集合の変更は新しいschema majorに追加します。
+checker_versionは検査計算規則、input_digestは提出された入力の識別用です。digestは署名・本人認証ではありません。
+移行時は元成果物を保存し、snapshot・履歴・scopeを人間が照合してから切り替えます。

@@ -236,7 +236,7 @@ gh repo create [owner]/[repository-name] --private --source=. --remote=origin --
 
 1つのIssue内部における、作業規模に応じた工程選択、中断からの再開、フェーズ境界の追跡性検査、ルールのモジュール化、Brownfield解析、ワークフローのGolden Testについては、`docs/common/adaptive-workflow-design.md` に共通設計を定義しています。
 
-この設計はIssue契約、assignee、`ready-for-ai`、変更リスク分類、Quality Gates、人間の承認を置き換えません。Issue成果物のschema v1とYAMLテンプレート、同梱例の形式テストが利用できます。工程選択・再開・追跡性のcheckerは後続実装です。導入時は既存運用を維持し、機構ごとに追加方式で有効化します。
+この設計はIssue契約、assignee、`ready-for-ai`、変更リスク分類、Quality Gates、人間の承認を置き換えません。Issue成果物のschema v1とYAMLテンプレート、同梱例の形式テストが利用できます。計画・状態・再開候補の静的checkerも利用できます。工程自動実行と追跡性checkerは後続実装です。導入時は既存運用を維持し、機構ごとに追加方式で有効化します。
 
 ### Issue成果物テンプレートの利用
 
@@ -806,3 +806,55 @@ const optIns = [{
 診断のcode/rule_id/relatedは機械処理用、説明文はtools/workflow-rules/messages.mjsに集約しています。
 承認参照とapproval_requiredは承認そのものではなく、Issueのassignee・ready-for-ai・設計承認を引き続き確認します。
 対処不能な場合は元成果物を保持してIssueへ理由を記録し、従来のIssue・branch・PR運用で人間へ戻します。
+
+## 計画・状態・再開候補の静的検査
+
+この検査は工程を実行せず、plan/state/contextを読み取って不足や矛盾を返します。
+作業予定表（plan）、現在地と履歴（state）、人間が確認した状況（context）を分けて準備します。
+記入例は`.ai-workflow/templates/checks/v1/`、全体を試す合成例は`tests/workflow-check/fixtures/`にあります。
+JSON表記の例もYAML 1.2として読み込めます。例のID・時刻・参照・digestを実作業へ置換してください。
+
+```sh
+npm ci --prefix tools/workflow-rules --ignore-scripts --no-audit --no-fund
+npm ci --prefix tools/workflow-check --ignore-scripts --no-audit --no-fund
+npm test --prefix tools/workflow-check
+npm test --prefix tools/workflow-rules
+node tools/workflow-schema/validate.mjs
+```
+
+依存導入後の検査・テストはネットワーク不要です。既存schemaパッケージの依存は別途導入します。
+workflow-checkはworkflow-rulesをfile依存で再利用し、rule側もruntime依存を明示しています。
+ruleの計算規則は変更せず、rootにアプリ用package.jsonを追加しません。
+
+repository rootから合成例を検査する例:
+
+```js
+import { loadWorkflow } from './tools/workflow-check/load.mjs';
+import { checkWorkflow } from './tools/workflow-check/check.mjs';
+
+const input = loadWorkflow(process.cwd(), {
+  plan: 'tests/workflow-check/fixtures/plan.yaml',
+  state: 'tests/workflow-check/fixtures/state.yaml',
+  context: 'tests/workflow-check/fixtures/context.yaml',
+  // 実作業の中断再開ではprevious: {plan: '...', state: '...'}も渡す。
+  revisionPlans: [],
+}, { schema_version: 1, risk: 'low', areas: [], technologies: [], data_types: [] }, []);
+const result = checkWorkflow(input);
+console.log(result);
+```
+
+実作業では、Git/Issueの最新状況を人間が確認してcontextへ反映し、ruleも保存直前に再読込します。
+checkerはGitHub照会・Git command・ファイル更新をしません。snapshotの内容が本当かを自動認証しません。
+通常ファイルを1 MiBまで読み、root外・symlink・不正YAMLを拒否します。loader失敗時は例外で停止します。
+純粋関数checkWorkflowへはJSON相当のobjectを渡します。形式不正は診断付きblockedとなります。
+
+state.extensions.workflow_checkへ承認・検証scopeと改訂情報を追加します。
+High Riskは設計と品質確認の両方について、対象revisionの承認参照が必要です。
+人間の承認参照を記入しただけで本人性が証明されたり、作業が自動実行されたりすることはありません。
+履歴の途中状態、例外skip、標準イベントの具体的な契約はadaptive-workflow-design第5.4・6.4節を参照してください。
+
+checks配列でplan/stateとresumeのどこが止まったかを確認します。
+resume_decision: candidateの場合だけnext_stageが1つ提示されますが、これは作業開始命令ではありません。
+blockedの場合は元ファイルを保持し、code/path/stage/eventから原因を確認してIssueへ記録します。
+中断・失敗時は未完了操作と安全な再実行を確認し、古い履歴や承認を消さず再計画・再承認します。
+terminalは完了または取消済みであり自動再開しません。
