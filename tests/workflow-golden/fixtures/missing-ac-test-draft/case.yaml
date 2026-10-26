@@ -1,0 +1,28 @@
+{
+  "format_version": 1,
+  "id": "missing-ac-test-draft",
+  "purpose": "Missing AC-to-test verification link yields warn at draft.",
+  "adapters": [
+    "trace"
+  ],
+  "inputs": {
+    "trace": "input/trace.yaml"
+  },
+  "expected": {
+    "trace": "expected/trace.yaml"
+  },
+  "signals": {
+    "trace": {
+      "status": "warn",
+      "codes": [
+        "orphan_node"
+      ]
+    }
+  },
+  "normalize": [],
+  "assets": [
+    "input/AGENTS.md",
+    "input/development-rules.md",
+    "input/issue.md"
+  ]
+}

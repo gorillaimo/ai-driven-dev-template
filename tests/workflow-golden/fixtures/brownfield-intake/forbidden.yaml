@@ -1,0 +1,35 @@
+{
+  "format_version": 1,
+  "rules": [
+    {
+      "adapter": "workflow",
+      "op": "equals",
+      "path": "/next_stage",
+      "value": "implementation"
+    },
+    {
+      "adapter": "rules",
+      "op": "text",
+      "path": "",
+      "value": "SYNTHETIC_CANARY_ONLY"
+    },
+    {
+      "adapter": "plan",
+      "op": "text",
+      "path": "",
+      "value": "SYNTHETIC_CANARY_ONLY"
+    },
+    {
+      "adapter": "workflow",
+      "op": "text",
+      "path": "",
+      "value": "SYNTHETIC_CANARY_ONLY"
+    },
+    {
+      "adapter": "brownfield",
+      "op": "text",
+      "path": "",
+      "value": "SYNTHETIC_CANARY_ONLY"
+    }
+  ]
+}

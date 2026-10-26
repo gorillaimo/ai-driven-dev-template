@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "checker_version": "1.0.0",
+  "input_digest": "90fe116ecc7e5b2c6704d0f429a414e6065a5e96f8930fa66bc1decbf5a8c432",
+  "status": "pass",
+  "checks": [
+    {
+      "check_id": "schema",
+      "status": "pass"
+    },
+    {
+      "check_id": "identity",
+      "status": "pass"
+    },
+    {
+      "check_id": "rules",
+      "status": "pass"
+    },
+    {
+      "check_id": "plan",
+      "status": "pass"
+    },
+    {
+      "check_id": "state",
+      "status": "pass"
+    },
+    {
+      "check_id": "append_only",
+      "status": "not_evaluated"
+    },
+    {
+      "check_id": "resume",
+      "status": "pass"
+    }
+  ],
+  "diagnostics": [],
+  "resume_decision": "candidate",
+  "next_stage": "intake"
+}

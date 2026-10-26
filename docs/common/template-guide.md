@@ -226,3 +226,14 @@ AGENTS.md、docs/common/development-rules.md、docs/system-context.md、docs/arc
 ## ライセンス
 
 MIT License
+
+## ワークフローのGolden Test
+
+`tools/workflow-golden/`と`tests/workflow-golden/`は、固定した合成入力から既存checkerを呼び、期待見本・禁止結果と比較する追加の開発ツールです。
+アプリケーションの言語に依存せず、PCやCIのNode.js 22以上で動きます。アプリや本番環境へのNode.js導入は不要です。
+対象システム自身のテストは各言語の仕組みで別途実行します。
+
+利用時は`.ai-workflow/schemas/`、既存の`tools/workflow-{rules,check,trace}/`、新しい`tools/workflow-golden/`と`tests/workflow-golden/`をまとめて保持します。
+既存checkerと新パッケージそれぞれの依存を導入した後、テスト中の外部通信はありません。
+セットアップ、実行、fixture契約、見本の手動更新、失敗時の扱いは[運用マニュアル](operations-manual.md#golden-testの実行)を参照してください。
+Golden Testの成功は同梱例の回帰確認であり、利用先Issueの承認・完了・安全性の証明ではありません。GitHub Actions接続とAI意味評価は後続実装です。

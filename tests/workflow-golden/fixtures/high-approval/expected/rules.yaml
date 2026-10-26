@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "resolver_version": "1.0.0",
+  "status": "pass",
+  "context": {
+    "schema_version": 1,
+    "risk": "high",
+    "areas": [],
+    "technologies": [],
+    "data_types": []
+  },
+  "opt_ins": [],
+  "input_digest": "3569be31eac4c03c053596105703b7c9b9553495debbf1ab7ec1aea38c88fcc8",
+  "source_digests": {
+    "AGENTS.md": "1c2ba169529d04a462b30dee45867d1672e17ca8d30397f05b86933d56148ff9",
+    "docs/common/development-rules.md": "1c2ba169529d04a462b30dee45867d1672e17ca8d30397f05b86933d56148ff9"
+  },
+  "rules": [
+    {
+      "rule_id": "legacy",
+      "version": "1.0.0",
+      "reference": {
+        "kind": "file",
+        "target": "docs/common/rules/legacy/rule.yaml"
+      },
+      "status": "selected",
+      "reasons": [
+        "always_on"
+      ]
+    }
+  ],
+  "order": [
+    "legacy"
+  ],
+  "diagnostics": []
+}

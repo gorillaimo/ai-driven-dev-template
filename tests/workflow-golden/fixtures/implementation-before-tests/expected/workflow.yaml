@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "checker_version": "1.0.0",
+  "input_digest": "9030fb62ef4c69ebfcc85e06d23c0c118868f59732cf8eabe247c761aa4cd28f",
+  "status": "blocked",
+  "checks": [
+    {
+      "check_id": "schema",
+      "status": "pass"
+    },
+    {
+      "check_id": "identity",
+      "status": "pass"
+    },
+    {
+      "check_id": "rules",
+      "status": "pass"
+    },
+    {
+      "check_id": "plan",
+      "status": "pass"
+    },
+    {
+      "check_id": "state",
+      "status": "block"
+    },
+    {
+      "check_id": "append_only",
+      "status": "pass"
+    },
+    {
+      "check_id": "resume",
+      "status": "block"
+    }
+  ],
+  "diagnostics": [
+    {
+      "code": "dependency_incomplete",
+      "path": "previous/state/history/9",
+      "stage": "implementation",
+      "event": "event-10"
+    },
+    {
+      "code": "dependency_incomplete",
+      "path": "state/history/9",
+      "stage": "implementation",
+      "event": "event-10"
+    },
+    {
+      "code": "next_stage_mismatch",
+      "path": "previous/state/next_stage",
+      "stage": null,
+      "event": null
+    },
+    {
+      "code": "next_stage_mismatch",
+      "path": "state/next_stage",
+      "stage": null,
+      "event": null
+    },
+    {
+      "code": "state_stopped",
+      "path": "state/current_stage",
+      "stage": null,
+      "event": null
+    }
+  ],
+  "resume_decision": "blocked",
+  "next_stage": null
+}

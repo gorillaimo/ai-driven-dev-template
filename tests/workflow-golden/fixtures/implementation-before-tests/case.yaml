@@ -1,0 +1,44 @@
+{
+  "format_version": 1,
+  "id": "implementation-before-tests",
+  "purpose": "Implementation start before tests completion is rejected by state dependency validation.",
+  "adapters": [
+    "rules",
+    "plan",
+    "workflow"
+  ],
+  "inputs": {
+    "rules": "input/rules.yaml",
+    "plan": "input/plan.yaml",
+    "workflow": "input/workflow.yaml"
+  },
+  "expected": {
+    "rules": "expected/rules.yaml",
+    "plan": "expected/plan.yaml",
+    "workflow": "expected/workflow.yaml"
+  },
+  "signals": {
+    "rules": {
+      "status": "pass",
+      "codes": []
+    },
+    "plan": {
+      "status": "pass",
+      "codes": []
+    },
+    "workflow": {
+      "status": "blocked",
+      "codes": [
+        "dependency_incomplete",
+        "next_stage_mismatch",
+        "state_stopped"
+      ]
+    }
+  },
+  "normalize": [],
+  "assets": [
+    "input/AGENTS.md",
+    "input/development-rules.md",
+    "input/issue.md"
+  ]
+}

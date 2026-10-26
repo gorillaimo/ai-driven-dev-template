@@ -186,3 +186,15 @@ Highの例は承認待ちであり、コピーしただけで調査開始は許�
 元成果物を保存し、未確認や承認履歴を人間が比較してから利用を切り替えます。
 extensionsのメモや形式テストの成功だけで調査完了・安全性・実装許可を推測しません。
 移行できない場合も元データを保持し、従来の調査専用Issueと人間レビューを継続できます。
+
+## Golden Testの追加導入
+
+既存成果物schema v1、AGENTS.md、development-rules.md、checkerの判定規則は変更しません。
+新ハーネスは追加導入で、利用先アプリケーションの言語や実行基盤を変更する必要はありません。
+運用マニュアルの手順で既存checkerとGolden Testの依存を導入し、固定合成fixtureをオフラインで検査します。
+fixtureの`format_version: 1`は実作業の`schema_version`、template release versionとは別管理です。
+
+期待見本や禁止条件を移すときは、元のtemplate commitとfixtureを保存し、新しい判定の理由をIssue・PRでレビューします。
+不明なversion、壊れた入力、予期しない差分は失敗です。実結果で見本を自動上書きせず、失敗したcase IDと比較pathから原因を確認します。
+合成の承認・検証履歴を実作業へコピーしません。移行できない場合も元データを保持し、個別checkerと従来のIssue・branch・PR運用を継続できます。
+Golden Testの追加だけでActions自動実行やv2 stable公開を有効にはしません。

@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "checker_version": "1.0.0",
+  "input_digest": "d1c8c651c5f2b0efc53939f6b3c578c5b178e6c94972ddf946faa2c733cd1bd0",
+  "subject_digest": "c4efd88e3186a84f9e80357fa9fa3c81fb44fbaf058f4c4e6fb3a831fd0e0217",
+  "boundary": "draft",
+  "status": "warn",
+  "coverage": [
+    {
+      "ac_id": "ac-1",
+      "required_kinds": [
+        "design",
+        "requirement"
+      ],
+      "matches": {
+        "requirement": [
+          "req-1"
+        ],
+        "design": [
+          "design-1"
+        ]
+      },
+      "complete": true
+    }
+  ],
+  "diagnostics": [
+    {
+      "check_id": "check-80c8524fc15d55e65687c699",
+      "code": "orphan_node",
+      "path": "traceability/nodes",
+      "node": "test-1",
+      "edge": null,
+      "severity": "warn",
+      "suppressed": false
+    }
+  ],
+  "references": [
+    {
+      "reference": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/1",
+        "fragment": "non-scope"
+      },
+      "status": "human_asserted",
+      "digest": null
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "docs/design.md"
+      },
+      "status": "local_verified",
+      "digest": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2"
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "docs/requirements.md"
+      },
+      "status": "local_verified",
+      "digest": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2"
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "src/example.mjs"
+      },
+      "status": "local_verified",
+      "digest": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2"
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "tests/example.test.mjs"
+      },
+      "status": "local_verified",
+      "digest": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2"
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "tests/report.json"
+      },
+      "status": "local_verified",
+      "digest": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2"
+    },
+    {
+      "reference": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/1"
+      },
+      "status": "human_asserted",
+      "digest": null
+    }
+  ],
+  "checks": [
+    {
+      "check_id": "check-80c8524fc15d55e65687c699",
+      "boundary": "draft",
+      "result": "warn",
+      "references": [
+        {
+          "kind": "id",
+          "target": "test-1"
+        }
+      ],
+      "reason": "orphan_node"
+    }
+  ]
+}

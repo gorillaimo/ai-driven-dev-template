@@ -933,3 +933,84 @@ partial/blockedが必要確認に影響する場合は実装へ進まず、人�
 調査結果は文書更新案・後続Issue候補へつなぎ、対象アプリや採用構成を自動変更しません。
 既存plan/stateへの接続と中断・再開、statusの意味、同梱テストの保証範囲はガイドを参照してください。
 同梱例は`npm run test:brownfield --prefix tools/workflow-schema`で検証できます。
+
+## Golden Testの実行
+
+Golden Testは、ワークフローの検査プログラムを変更したときに、代表例の判定が意図せず変わっていないかを確かめるテストです。
+AIへ読ませる自然言語の規約とは別に、Node.jsで動くプログラムとして提供します。
+Python、Java、Go、Flutter等の開発でも、PCやCIにNode.js 22以上があれば使えます。対象アプリや本番環境への組み込みは不要です。
+
+repository rootで依存を導入します。初回はネットワークが必要です。各packageのlockfileを使用し、install scriptを無効化します。
+
+```sh
+npm ci --prefix tools/workflow-rules --ignore-scripts --no-audit --no-fund
+npm ci --prefix tools/workflow-check --ignore-scripts --no-audit --no-fund
+npm ci --prefix tools/workflow-trace --ignore-scripts --no-audit --no-fund
+npm ci --prefix tools/workflow-golden --ignore-scripts --no-audit --no-fund
+```
+
+導入後、同梱例のGolden Testとハーネス自身のテストはオフラインで実行できます。
+
+```sh
+node tools/workflow-golden/run.mjs
+node tools/workflow-golden/run.mjs --json
+npm test --prefix tools/workflow-golden
+```
+
+最初のコマンドはcaseごとの成否、`--json`は同じ判定の最小JSONを標準出力へ返します。ファイルへ自動保存しません。
+全必須case成功だけexit 0、それ以外はnonzeroです。`--update`や任意fixtureの実行path指定は提供しません。
+`npm test`は比較、禁止条件、入力境界、非変更、再現性、外部通信・command非実行、cold30秒目標も検証します。
+テストハーネス自身のテストでは一時directoryとNode.js子processを使いますが、fixture内のcommandは実行しません。
+
+### fixtureと正解見本の読み方
+
+`tests/workflow-golden/fixtures/cases.json`にcase IDを登録し、各directoryへ次を保存します。
+
+| ファイル | 内容 |
+| :--- | :--- |
+| `case.yaml` | format_version、id、目的、adapters、inputs、expected、signals、normalize、任意assets |
+| `input/` | 合成Issueの説明、rule metadata、計画候補、状態・previous、境界検査入力など |
+| `expected/` | 人間が差分レビューする固定した正解見本。実行中に再生成しない |
+| `forbidden.yaml` | format_versionとrules。起きてはならない実結果の値・構造・文字列 |
+
+JSON表記もYAML 1.2として読みます。Issue説明は人間の参照資料で、ツールが自然言語からfactsや計画を生成するわけではありません。
+`input/AGENTS.md`等は合成の本文例です。実repositoryのlegacy規約を置き換えません。
+実際のAGENTS.mdとdevelopment-rules.mdの読み込みは、別の接続テストで確認します。
+参照URL、actor、承認、Git commit、時刻は全て固定合成例であり、実作業の証拠として転用しません。
+
+adaptersはrules、plan、workflow、trace、brownfieldの固定集合です。inputsとexpectedは各adapterから相対ファイルへのmap、signalsは期待statusと診断code集合です。
+planにはplanとruleInput、workflowにはcheckWorkflowの入力一式、traceにはcheckTraceabilityの入力一式を渡します。
+rulesはresolverの入力、brownfieldは既存brownfield schema v1の成果物です。adapter実装をfixture側から差し替えられません。
+assetsは入力の補足資料を列挙する相対path配列です。case内の全fileをmanifestかassetsで宣言し、不要fileを残しません。
+
+例えばHigh Riskの承認不足は、checkerがblockedを返すのが正解です。そのとおりならcaseのテスト結果はpassedです。
+AC-testの対応漏れは非draft境界でcoverage_missing等によるblocked、draftではorphan_nodeによるwarnを見本にしています。
+未使用adapterのnot_evaluatedは「確認していない」という意味で、成功や承認の代わりにはなりません。
+
+禁止条件の記入例:
+
+```yaml
+format_version: 1
+rules:
+  - adapter: workflow
+    op: equals
+    path: /next_stage
+    value: implementation
+```
+
+この条件は、次候補がimplementationになったら失敗させます。opはequals、contains、textのみです。
+containsは指定pathの部分構造・配列要素、textはJSON表現内の文字列を調べます。存在しないpathは一致なし、未選択adapterの指定は失敗です。
+case.yamlのnormalizeは原則`[]`とし、表示専用の最上位`/duration_ms`だけを例外として許可します。
+時刻・digest・承認・revision等の重要差分を無視したり、履歴や工程の配列順を並べ替えたりしません。
+詳細な上限と契約はadaptive-workflow-design第10.4節に記載しています。
+
+### 期待結果の変更・失敗時の復旧
+
+1. case ID、理由code、adapter、比較pathまたは禁止条件indexを確認します。入力内容や実結果全文は診断へ出しません。
+2. 仕様変更か不具合かをIssueと共通設計に照らして確認します。差分を消すためだけに期待見本を変更しません。
+3. 仕様変更なら、承認された理由に対応する期待見本・signals・禁止条件を手動編集し、PRで差分をレビューします。
+4. 元のfixtureとtemplate commitを保持し、Golden Testと個別checkerの回帰を実行します。通らない場合は元データを残し、人間レビューへ戻します。
+
+既存schema/checkerの移行は不要です。失敗しても実作業のstate、承認、ソースを自動修正せず、個別checkerと従来のIssue・branch・PR運用を継続できます。
+保証範囲は同梱合成例の静的回帰です。自然言語の意味、承認者本人性、任意の秘密情報・Issue外変更の検出、調査の真実性を自動保証しません。
+実アプリのテスト実行、GitHub Actions接続、外部AI意味評価、v2 stable公開は別の作業です。

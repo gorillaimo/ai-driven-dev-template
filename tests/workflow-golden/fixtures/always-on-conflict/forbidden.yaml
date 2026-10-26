@@ -1,0 +1,17 @@
+{
+  "format_version": 1,
+  "rules": [
+    {
+      "adapter": "rules",
+      "op": "equals",
+      "path": "/status",
+      "value": "pass"
+    },
+    {
+      "adapter": "rules",
+      "op": "text",
+      "path": "",
+      "value": "SYNTHETIC_CANARY_ONLY"
+    }
+  ]
+}

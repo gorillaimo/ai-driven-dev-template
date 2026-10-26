@@ -1,0 +1,47 @@
+{
+  "format_version": 1,
+  "id": "brownfield-intake",
+  "purpose": "Initial Brownfield investigation is mandatory and incomplete; propose investigation, never implementation.",
+  "adapters": [
+    "rules",
+    "plan",
+    "workflow",
+    "brownfield"
+  ],
+  "inputs": {
+    "rules": "input/rules.yaml",
+    "plan": "input/plan.yaml",
+    "workflow": "input/workflow.yaml",
+    "brownfield": "input/brownfield.yaml"
+  },
+  "expected": {
+    "rules": "expected/rules.yaml",
+    "plan": "expected/plan.yaml",
+    "workflow": "expected/workflow.yaml",
+    "brownfield": "expected/brownfield.yaml"
+  },
+  "signals": {
+    "rules": {
+      "status": "pass",
+      "codes": []
+    },
+    "plan": {
+      "status": "pass",
+      "codes": []
+    },
+    "workflow": {
+      "status": "pass",
+      "codes": []
+    },
+    "brownfield": {
+      "status": "pass",
+      "codes": []
+    }
+  },
+  "normalize": [],
+  "assets": [
+    "input/AGENTS.md",
+    "input/development-rules.md",
+    "input/issue.md"
+  ]
+}

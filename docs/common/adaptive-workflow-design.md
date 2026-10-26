@@ -7,7 +7,7 @@
 - 状態: 設計承認済み（Issue #8、2026-08-06）
 - 承認記録: https://github.com/gorillaimo/ai-driven-dev-template/issues/8#issuecomment-5206128174
 - 適用開始: 後続実装Issueが完了し、この文書の各機構が有効化された時点
-- 現時点の扱い: Issue成果物のschema v1、YAMLテンプレート、同梱例のオフライン形式テスト、およびモジュール式ルールのmetadata・オフライン解決libraryを提供する。plan/stateの工程・履歴・再開候補を検査する静的checkerも提供する。フェーズ境界の追跡性checkerも提供する。Brownfieldの読み取り専用手順と深度別テンプレートも提供する。CLI、GitHub Actions統合は未実装
+- 現時点の扱い: Issue成果物のschema v1、YAMLテンプレート、同梱例のオフライン形式テスト、およびモジュール式ルールのmetadata・オフライン解決libraryを提供する。plan/stateの工程・履歴・再開候補を検査する静的checkerも提供する。フェーズ境界の追跡性checkerも提供する。Brownfieldの読み取り専用手順と深度別テンプレートも提供する。オフラインGolden Testハーネスと固定合成fixtureも提供する。CLI、GitHub Actions統合は未実装
 - 互換性方針: 既存利用者を壊さない追加方式とし、従来のIssueベース運用だけでも開発を継続できること
 
 設計承認前は、この文書を根拠として実装へ進んではならない。設計承認後も、対応する後続実装Issueの契約、assignee、`ready-for-ai`、変更リスクに応じた人間承認を確認してから着手する。初期リリースは共通仕様、テンプレート、オフライン静的チェック、GitHub Actionsを対象とし、統合CLIは利用実績を確認してから別Issueで判断する。
@@ -658,7 +658,7 @@ system-context/architectureは更新案にとどめ、対象コードや利用�
 
 ### 10.1 目的と構成
 
-Golden Testはアプリケーション機能ではなく、計画生成、ルール解決、状態遷移、境界検査の回帰を検出する。将来の実装では次の構成を標準とする。
+Golden Testはアプリケーション機能ではなく、計画生成、ルール解決、状態遷移、境界検査の回帰を検出する。実装では次の構成を標準とする。
 
 ```text
 tests/workflow-golden/
@@ -692,6 +692,34 @@ tests/workflow-golden/
 - AI評価にはモデル、prompt version、試行回数、tokenまたは費用上限、タイムアウトを設定する。
 - AI評価結果にはモデル、prompt version、試行回数、token、所要時間、推定費用、評価不能理由を記録する。
 - 外部送信するfixtureは合成データに限定し、機密リポジトリの内容を送信しない。
+
+### 10.4 実装済みのオフラインハーネス
+
+`tools/workflow-golden/`はNode.js 22以上で実行するread-onlyの開発ツール。
+対象アプリの言語とは独立し、計画を自然言語から生成せず、既存のresolveRules、projectPlan、checkWorkflow、checkTraceabilityを呼ぶ。
+Brownfield adapterは既存schema v1の形式だけを検査し、調査工程の必須化・次候補はworkflow checkerが検査する。
+fixture内のIssue文書、facts、Gate判定、承認・参照確認は固定した合成snapshotであり、自然言語の解釈や実承認の検証ではない。
+
+`tests/workflow-golden/fixtures/cases.json`がcase IDの登録正本。必須11観点のIDと必要adapterはハーネスでも確認し、draft warnを含む12caseを同梱する。
+各caseは`case.yaml`、`input/`、`expected/`、`forbidden.yaml`を持つ。`format_version: 1`はテスト専用契約であり、既存成果物schemaを変更しない。
+caseには目的、adapter一覧、入力・期待ファイル、期待statusと診断code集合、normalize、任意assetsを宣言する。
+未知field/version/adapter/operator、登録漏れ、欠落、重複、不要ファイル、絶対/親path、symlink、不正YAMLを拒否する。
+
+adapterはrules、plan、workflow、trace、brownfieldの固定集合。fixtureからコード、実行hook、shell、外部API、Git、AIを呼ばない。
+plan adapterは入力planへ再解決したrule結果を投影し、workflow adapterが工程・履歴・再開を検査する。
+実結果の全fieldをコミット済み見本と比較し、キー順だけを正規化する。配列・履歴・工程・診断順序は保持する。
+実行時刻や絶対pathを挿入しない。normalizeは表示用の最上位`/duration_ms`だけを許可し、実際に両方に数値fieldがある場合に限る。同梱caseは空配列。
+承認時刻、TTL、commit、digest、revision、参照、判定は比較対象から外さない。
+
+禁止条件はadapter、JSON Pointer path、op、valueの4項目。opはequals（完全一致）、contains（部分構造または配列要素）、text（JSON表現内の文字列）のみ。
+対象adapterが未選択なら失敗、pathが存在しない場合は一致なし。禁止条件は正規化前の実結果に適用する。
+実結果・入力全文、コマンド、禁止値を診断へ出さず、case ID、adapter、安定code、比較pathまたは禁止条件indexだけを記録する。
+期待するblock/warnを返すcaseはpassed。未使用adapterはnot_evaluatedで、失敗を成功へ変えない。全case成功だけexit 0。
+
+上限は通常file 1 MiB、1case 128file/5 MiB、directory深さ12、100case、JSON結果1 MiB。全必須caseのcold実行目標は30秒（依存取得除外）。
+元データも見本も自動変更せず、差分時は人間が原因と更新理由をレビューする。自動更新optionは設けない。
+合成canary・宣言済み非スコープ・不正承認の回帰を検査するが、任意の秘密情報検出や意味上のscope判定、本人認証を保証しない。
+実行・手動更新・fallbackはoperations-manualを参照。Actions統合、AI意味評価、統合CLIはこのハーネスには含めない。
 
 ## 11. GitHub Actions拡張方針
 

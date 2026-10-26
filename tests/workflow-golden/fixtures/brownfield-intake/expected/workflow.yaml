@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "checker_version": "1.0.0",
+  "input_digest": "de5a49df6249b4370bdf911d927eb9257e2bab8c09f55742671ac331bdcafe6b",
+  "status": "pass",
+  "checks": [
+    {
+      "check_id": "schema",
+      "status": "pass"
+    },
+    {
+      "check_id": "identity",
+      "status": "pass"
+    },
+    {
+      "check_id": "rules",
+      "status": "pass"
+    },
+    {
+      "check_id": "plan",
+      "status": "pass"
+    },
+    {
+      "check_id": "state",
+      "status": "pass"
+    },
+    {
+      "check_id": "append_only",
+      "status": "pass"
+    },
+    {
+      "check_id": "resume",
+      "status": "pass"
+    }
+  ],
+  "diagnostics": [],
+  "resume_decision": "candidate",
+  "next_stage": "brownfield"
+}
