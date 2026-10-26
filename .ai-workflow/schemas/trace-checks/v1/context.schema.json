@@ -1,0 +1,267 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:trace-checks:v1:context",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "work_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "work_source": {
+      "enum": [
+        "github_issue",
+        "external"
+      ]
+    },
+    "issue_ref": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/issueRef"
+    },
+    "project_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "feature_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "plan_revision": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+    },
+    "contract_ref": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+    },
+    "boundary": {
+      "enum": [
+        "draft",
+        "requirements_to_design",
+        "design_to_implementation",
+        "implementation_to_pr",
+        "completion"
+      ]
+    },
+    "evaluated_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "criteria": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "ref": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+          },
+          "required_kinds": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "requirement",
+                "design",
+                "api",
+                "test",
+                "change",
+                "validation"
+              ]
+            },
+            "uniqueItems": true
+          },
+          "exemptions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "requirement",
+                    "design",
+                    "api",
+                    "test",
+                    "change",
+                    "validation"
+                  ]
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "evidence": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+                  },
+                  "minItems": 1
+                },
+                "confirmation": {
+                  "$ref": "urn:ai-workflow:issue:v1:common#/$defs/approval"
+                }
+              },
+              "required": [
+                "kind",
+                "reason",
+                "evidence",
+                "confirmation"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "id",
+          "ref",
+          "required_kinds",
+          "exemptions"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "non_scope": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "ref": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+          }
+        },
+        "required": [
+          "id",
+          "ref"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "change_inventory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "node_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "path": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+          },
+          "operation": {
+            "enum": [
+              "added",
+              "modified",
+              "deleted"
+            ]
+          },
+          "base_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "required": [
+          "node_id",
+          "path",
+          "operation"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "operation": {
+                  "const": "deleted"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "base_digest": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "required": [
+                "base_digest"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "external_confirmations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "reference": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+          },
+          "confirmed_by": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+          },
+          "confirmed_at": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "reference",
+          "confirmed_by",
+          "confirmed_at",
+          "evidence"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "suppression_scopes": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:trace-checks:v1:suppression-scope"
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "work_id",
+    "work_source",
+    "plan_revision",
+    "contract_ref",
+    "boundary",
+    "evaluated_at",
+    "criteria",
+    "non_scope",
+    "change_inventory",
+    "external_confirmations",
+    "suppression_scopes"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "work_source": {
+            "const": "github_issue"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "issue_ref": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/issueRef"
+          }
+        },
+        "required": [
+          "issue_ref"
+        ]
+      }
+    }
+  ]
+}

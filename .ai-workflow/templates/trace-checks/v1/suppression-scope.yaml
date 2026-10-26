@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "check_id": "check-example",
+  "subject_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+  "plan_revision": 1,
+  "boundary": "draft",
+  "node": "ac-1",
+  "edge": null,
+  "path": "coverage/design"
+}

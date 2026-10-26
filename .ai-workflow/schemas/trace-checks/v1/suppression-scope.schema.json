@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:trace-checks:v1:suppression-scope",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "check_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "subject_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "plan_revision": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+    },
+    "boundary": {
+      "enum": [
+        "draft",
+        "requirements_to_design",
+        "design_to_implementation",
+        "implementation_to_pr",
+        "completion"
+      ]
+    },
+    "node": {
+      "anyOf": [
+        {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "edge": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "from": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+            },
+            "to": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+            },
+            "relation": {
+              "enum": [
+                "satisfies",
+                "implements",
+                "verifies",
+                "references",
+                "excludes",
+                "follows_up"
+              ]
+            }
+          },
+          "required": [
+            "from",
+            "to",
+            "relation"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "path": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "check_id",
+    "subject_digest",
+    "plan_revision",
+    "boundary",
+    "node",
+    "edge",
+    "path"
+  ],
+  "additionalProperties": false
+}

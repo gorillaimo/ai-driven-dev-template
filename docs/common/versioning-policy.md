@@ -186,3 +186,12 @@ context/result/state-extensionのschema v1は`.ai-workflow/schemas/checks/v1/`�
 core field・型・enum・必須性など受理集合の変更は新しいschema majorに追加します。
 checker_versionは検査計算規則、input_digestは提出された入力の識別用です。digestは署名・本人認証ではありません。
 移行時は元成果物を保存し、snapshot・履歴・scopeを人間が照合してから切り替えます。
+
+## 追跡性checker契約v1の互換性
+
+context/result/suppression-scopeを`.ai-workflow/schemas/trace-checks/v1/`へ独立追加します。
+既存traceabilityとplan/stateのv1受理集合を変更せず、新検査の台帳・scopeを別途検証します。
+core field・型・enum・必須性など受理集合を変更するときは新しいschema majorを追加します。
+checker_versionは検査規則、input_digestは全入力、subject_digestは抑制対象となる実質入力を識別します。
+どのdigestも署名や承認者本人性の証明ではありません。
+結果だけを保存して次回のpassとして使わず、元入力を再検査します。元成果物を保持した明示移行とmanual fallbackを維持します。

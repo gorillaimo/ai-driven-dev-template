@@ -21,7 +21,7 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 - release基準: `docs/common/versioning-policy.md`
 - v1からv2への移行: `docs/common/migration-v1-to-v2.md`
 
-v1はIssue、assignee、prompt、人間承認を中心とする軽量な文書駆動baselineです。v2はIssue #8のadaptive workflowとIssue #9のproject orchestrationを段階的に追加します。現在の`main`ではIssue成果物のschema v1、template、同梱例の形式テストとモジュール式ルールのオフライン解決libraryを提供します。計画・状態・再開候補の静的checkerも利用できます。工程自動実行・追跡性checker、Golden Test、Actions統合、Project統制は後続実装です。
+v1はIssue、assignee、prompt、人間承認を中心とする軽量な文書駆動baselineです。v2はIssue #8のadaptive workflowとIssue #9のproject orchestrationを段階的に追加します。現在の`main`ではIssue成果物のschema v1、template、同梱例の形式テストとモジュール式ルールのオフライン解決libraryを提供します。計画・状態・再開候補の静的checkerも利用できます。追跡性checkerも利用できます。Golden Test、Actions統合、Project統制は後続実装です。工程の自動実行は提供しません。
 
 template release versionと各成果物の`schema_version`は独立しています。template v2で最初に導入するschemaが`schema_version: 1`でも問題ありません。利用先projectでは、このrepositoryの`VERSION`をアプリケーションversionと混同しないでください。
 
@@ -44,6 +44,8 @@ template release versionと各成果物の`schema_version`は独立していま�
 - `.ai-workflow/schemas/issue/v1/`: 共通定義と4種類のIssue成果物schema
 - `.ai-workflow/templates/issue/v1/`: schemaに適合する合成YAML記入例
 - `tests/workflow-schema/`: schema適合テストの正常・異常fixtureとcase一覧
+- `.ai-workflow/schemas/trace-checks/v1/`と`.ai-workflow/templates/trace-checks/v1/`: 対応表検査の台帳・結果・抑制scope
+- `tools/workflow-trace/`と`tests/workflow-trace/`: 5境界の追跡性・参照・期限付き抑制の検査とテスト
 - `.ai-workflow/schemas/checks/v1/`と`.ai-workflow/templates/checks/v1/`: 検査context/result/state拡張の契約と例
 - `tools/workflow-check/`と`tests/workflow-check/`: 計画・履歴・再開候補のread-only検査とテスト
 - `.ai-workflow/schemas/rules/v1/`と`.ai-workflow/templates/rules/v1/`: rule/context/resolutionの契約と例
@@ -73,7 +75,7 @@ template release versionと各成果物の`schema_version`は独立していま�
 - `.github/workflows/issue-contract-check.yml`: issue契約チェック
 - `.github/workflows/pr-issue-link-check.yml`: PR本文チェック
 
-`docs/common/adaptive-workflow-design.md`の4.1～4.3が実装済みschemaの契約です。templateは実際のIDや状態へ置換して利用します。形式検証の成功は承認・工程完了・参照先の存在を保証しません。利用・検証コマンドは`docs/common/operations-manual.md`、移行・fallbackは`docs/common/versioning-policy.md`を参照してください。計画・状態・再開候補の意味検査は第5.4・6.4節のcheckerで提供します。Project統制と追跡性checkerは後続実装であり、従来のIssueベース運用を維持します。
+`docs/common/adaptive-workflow-design.md`の4.1～4.3が実装済みschemaの契約です。templateは実際のIDや状態へ置換して利用します。形式検証の成功は承認・工程完了・参照先の存在を保証しません。利用・検証コマンドは`docs/common/operations-manual.md`、移行・fallbackは`docs/common/versioning-policy.md`を参照してください。計画・状態・再開候補の意味検査は第5.4・6.4節のcheckerで提供します。対応表の網羅と参照は第7章の追跡性checkerで検査します。Project統制は後続実装であり、従来のIssueベース運用を維持します。
 
 Issue内部の工程選択と再開はadaptive workflow、プロジェクト全体の開発順序、担当割当、進捗集約、AI主導の次Issue提案はproject orchestrationの責務です。後者の初期標準はIssues-onlyと手動Coordinatorであり、GitHub Projects、Dispatcher、外部Agent Runnerを必須にしません。
 

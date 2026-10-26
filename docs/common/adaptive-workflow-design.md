@@ -7,7 +7,7 @@
 - 状態: 設計承認済み（Issue #8、2026-08-06）
 - 承認記録: https://github.com/gorillaimo/ai-driven-dev-template/issues/8#issuecomment-5206128174
 - 適用開始: 後続実装Issueが完了し、この文書の各機構が有効化された時点
-- 現時点の扱い: Issue成果物のschema v1、YAMLテンプレート、同梱例のオフライン形式テスト、およびモジュール式ルールのmetadata・オフライン解決libraryを提供する。plan/stateの工程・履歴・再開候補を検査する静的checkerも提供する。追跡性チェッカー、CLI、GitHub Actions統合は未実装
+- 現時点の扱い: Issue成果物のschema v1、YAMLテンプレート、同梱例のオフライン形式テスト、およびモジュール式ルールのmetadata・オフライン解決libraryを提供する。plan/stateの工程・履歴・再開候補を検査する静的checkerも提供する。フェーズ境界の追跡性checkerも提供する。CLI、GitHub Actions統合は未実装
 - 互換性方針: 既存利用者を壊さない追加方式とし、従来のIssueベース運用だけでも開発を継続できること
 
 設計承認前は、この文書を根拠として実装へ進んではならない。設計承認後も、対応する後続実装Issueの契約、assignee、`ready-for-ai`、変更リスクに応じた人間承認を確認してから着手する。初期リリースは共通仕様、テンプレート、オフライン静的チェック、GitHub Actionsを対象とし、統合CLIは利用実績を確認してから別Issueで判断する。
@@ -181,7 +181,7 @@ schemaは型、必須field、enum、形式、条件付き必須、未知fieldを
 
 同梱テストはschemaの妥当性、テンプレートとfixtureの成否、診断の決定性、入力が変更されないことを検証する。任意の利用先成果物を操作するCLIや、ワークフローのGolden Testではない。
 
-以下のうち工程・履歴・再開の構造検査は第5.4・6.4節のcheckerで提供する。追跡性の網羅や外部本人性・自然言語の意味は後続checkerと人間レビューの責務として残す。
+以下のうち工程・履歴・再開の構造検査は第5.4・6.4節のcheckerで提供する。宣言されたAC対応の網羅と参照は第7章のcheckerで検査する。外部本人性・自然言語の意味は人間レビューの責務として残す。
 
 - 参照先の存在、IDの意味上の一意性、featureやIssueとの一致。
 - 必須工程の網羅、依存循環、同時実行、状態遷移、現在地と履歴の一致。
@@ -423,6 +423,105 @@ previousがなければ追記性はnot_evaluatedであり、初期planned以外�
 | 完了時 | 全必須ステージとリンク、残課題の移送 | 不整合はblock |
 
 静的検査はスキーマ、ID、ファイル、参照の存在と状態から、欠落、孤立成果物、未承認状態を判定する。構造化された値の矛盾は静的にblockし、自然言語の意味上の矛盾は人間へ報告する。AIによる意味整合性評価は初期リリースでは任意かつinformationalとし、単独で承認やblock解除を行わない。偽陽性は抑制理由と期限を記録し、人間が承認する。
+
+### 7.3 実装済みの追跡性checkerと正本台帳
+
+`tools/workflow-trace/`はNode.js 22以上のread-only libraryであり、
+`checkTraceability({ traceability, workflowInput, context, references })`を提供する。
+既存traceability/plan/state/rule/checks schema v1を変更せず、追加schemaのcontext/result/suppression-scopeを
+`.ai-workflow/schemas/trace-checks/v1/`へ配置する。URNは`urn:ai-workflow:trace-checks:v1:<kind>`。
+
+contextの必須情報はwork_id/work_source、GitHub利用時のissue_ref、plan_revision、contract_ref、boundary、evaluated_at、
+criteria、non_scope、change_inventory、external_confirmations、suppression_scopesである。
+project_id/feature_idは任意。criteriaは空にできない。各ACにid/ref/required_kinds/exemptionsを記録する。
+required_kindsはrequirement/design/api/test/change/validationの追加要求であり、標準要求を減らさない。
+exemptionsはkind/reason/evidence/confirmationを持ち、planで省略済みの工程に限り非該当説明を裏付ける。
+confirmationのapproval_typeはnot-applicable。採用済み工程の要求を解除するためには使えない。
+
+non_scopeはid/refの配列。change_inventoryはnode_id/path/operation（added/modified/deleted）を持ち、deletedは
+base_digest（SHA-256）を必須にする。Git差分自体は呼出側が確認し、loaderはGit commandを実行しない。
+AC・非スコープ・変更の台帳とnodesを照合し、重複・記録漏れ・無関係な余分のAC・改訂不一致を検出する。
+台帳とIssue本文の意味上の一致、change_inventoryが真のGit差分かどうかは人間が確認する。
+
+workflowInputは第5.4節のcheckWorkflowへ渡す現在の入力であり、同checkerを必ず再実行する。
+schema/identity/rules/plan/stateのpassを前提とし、draft以外はpreviousを用いた追記性確認も必要とする。
+単なる実行中・承認待ちのresume停止と追跡グラフの破損を混同しないが、担当・Git・Issue・安全な再試行の
+確認失敗は境界検査もblockする。evaluated_atが提出されたplan/state/traceabilityより古い場合は拒否する。
+保存済みtraceability.checksのpassを信用せず、現在の入力から再検査する。
+
+### 7.4 型付きリンクと境界判定
+
+| relation | 向きと役割 |
+| :--- | :--- |
+| satisfies | requirement → acceptance_criterion |
+| implements | design → requirement、api → design、change → design/requirement/AC |
+| verifies | test → AC/requirement/design/api、validation → test/change/quality_gate |
+| references | 補助参照。AC網羅・実装・検証の経路を証明しない |
+| excludes | non_scope → requirement/design/api/test/change。除外対象の採用・完了を検出 |
+| follows_up | open_question/remaining_work → follow_up |
+
+未知端点、自己参照、重複、型・向きの不一致を検査する。
+要件・設計・API・テスト・変更・検証は、補助参照だけでなく型付き経路で正本ACへ到達する必要がある。
+not_applicableのnodeは網羅経路に使わない。理由に加え、除外対象または非該当説明との一致が必要。
+changeのimplementsは採用済みの設計・要件を飛び越せない。
+referencesの循環は一律禁止せず、訪問済み集合で検査を終了する。
+
+requirements_to_designは採用された要件のcompleteと設計対応先を要求し、次に作成する設計のpendingを許容する。
+設計開始前の予定ファイルの不存在を、必要な完了証跡の欠落とは混同しない。
+design_to_implementation以降は採用された設計/API、該当Gate、必要な承認を検査する。
+Highはdesign/quality承認、工程のapproval_required、選択ruleの実行前承認を当該scopeへ照合する。
+approval nodeの参照とreferences先はstate.approvals/approval_scopesの契約・revision・対象stageと一致させる。
+
+implementation_to_pr以降はACごとに採用されたテスト、変更一覧に対応する変更、検証を要求する。
+各test/changeはvalidationからverifiesで確認されていなければならない。
+validation nodeはstateの当該revision・validation工程にscopeされた記録へ結び付ける。
+同じ参照に複数の検証がある場合は日時、同時刻なら配列順で最新を選び、古い成功で新しい失敗を隠さない。
+completionは全採用工程の完了・省略記録、ACのcomplete、残課題のfollow_upへの引き継ぎを要求する。
+後続Issueリンクだけで必須ACや失敗検証を完了扱いしない。
+
+第7.2節に従い、draftのグラフ・対応・孤立・必要参照の不足はwarn、工程境界の必要不足はblock。
+schema/正本台帳/識別子/改訂/安全性/未承認・失敗検証/非スコープはdraftでもblockする。
+feature_idがある場合は同IDのfeature nodeとACへのreferencesを要求する。Project runtimeは更新しない。
+検査するのは宣言された対応であり、記載されていない意図やコードの意味を推測しない。
+
+### 7.5 参照確認と期限付き抑制
+
+referencesはloaderが返す確認snapshotである。純粋関数はI/Oせず、次を区別する。
+
+| status | 意味 |
+| :--- | :--- |
+| local_verified | root内の通常ファイルとdigest、対応fragment、または内部IDを確認 |
+| human_asserted | URLについて人間の確認記録がある。外部到達性を自動検証した意味ではない |
+| deleted_declared | 台帳に削除・base_digestがあり、現在のファイルがない。過去Git内容は人間確認 |
+| missing | 必要なファイル・対象が存在しない |
+| not_evaluated | 未対応fragmentや未確認URLなど、検証していない |
+
+external_confirmationsはreference/confirmed_by/confirmed_at/evidenceを持ち、未来の確認を受理しない。
+URLは取得せず、コマンドやテスト本体を実行しない。
+fileは既存readLocal境界（1 MiB、root内通常ファイル、symlink/親参照拒否）を維持する。
+JSON/YAMLのfragmentはJSON Pointer（例: /paths/~1profile/get）、Markdownは明示anchor（例: {#ac-1}）のみ対応。
+GitHubの自動見出しanchor、任意のテスト関数名等は未評価とする。
+安全な通常ファイルが存在するだけでは、テストが実行されたことや内容の正しさを保証しない。
+
+既存suppressionsはcheck_id/reason/expires_at/approvalを維持する。
+context.suppression_scopesはschema_version/check_id/subject_digest/plan_revision/boundary/node/edge/pathを持つ。
+check_idは診断code・対象・境界から作り、同じcodeでも別ACや別リンクを一括抑制しない。
+subject_digestは規則versionと実質入力から計算し、checks/suppressions/suppression_scopes/evaluated_atを除外して
+自己参照を避ける。input_digestは評価時刻と抑制も含めた全入力の識別用。
+日時だけの変更では承認対象を変えず、契約・plan/state・グラフ・参照snapshotの変更で古いscopeを拒否する。
+
+期限はevaluated_atと比較する。期限ちょうど、期限切れ、未来の承認、重複・未知check_id、古いscopeはblock。
+approval_type: suppression、人間login、同じ承認参照の人間確認記録を要求するが、本人性の証明ではない。
+schema/安全性/識別子/改訂/正本台帳/未承認・失敗検証/非スコープ/workflowのblockは抑制できない。
+適用済み抑制も元severityと診断を残してsuppressed表示し、全体warnとする。抑制だけでpassにしない。
+
+### 7.6 結果の扱いと保持
+
+結果はschema/checker version、input/subject digest、boundary、ACごとの対応、安定した診断、参照結果、
+traceability.checksへ転記できる候補を返す。入力を変更せず、自動保存・state更新・工程開始・承認をしない。
+判定はpass/warn/blocked。warnは未完成や承認済み例外を含むので、人間が内容を確認してから扱う。
+未確認や不正入力を都合よく補完せず、元成果物を保存して従来のIssue運用へ戻れる。
+外部本人性、自然言語の対応の正しさ、テスト本体の実行成功、実際のGit差分は人間または後続adapterで確認する。
 
 ## 8. モジュール式ルール
 

@@ -58,6 +58,8 @@ AIエージェントへ作業を依頼する前に、以下を確認してくだ
 
 テンプレート全体の開発フロー図は、`docs/common/template-guide.md` を参照してください。
 
+受け入れ条件と設計・テスト・検証の対応漏れを検査するlibraryは`tools/workflow-trace/`です。契約は`docs/common/adaptive-workflow-design.md`第7章、利用例は`docs/common/operations-manual.md`を参照してください。
+
 計画・状態・履歴・再開候補の静的検査は`tools/workflow-check/`で提供します。利用手順は`docs/common/operations-manual.md`、契約は`docs/common/adaptive-workflow-design.md`第5.4・6.4節を参照してください。
 
 モジュール式ルールのmetadata・オフライン解決libraryは`tools/workflow-rules/`にあります。適用条件、依存・競合、legacy維持、plan連携は`docs/common/adaptive-workflow-design.md`第8章、利用例は`docs/common/operations-manual.md`を参照してください。

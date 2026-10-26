@@ -236,7 +236,7 @@ gh repo create [owner]/[repository-name] --private --source=. --remote=origin --
 
 1つのIssue内部における、作業規模に応じた工程選択、中断からの再開、フェーズ境界の追跡性検査、ルールのモジュール化、Brownfield解析、ワークフローのGolden Testについては、`docs/common/adaptive-workflow-design.md` に共通設計を定義しています。
 
-この設計はIssue契約、assignee、`ready-for-ai`、変更リスク分類、Quality Gates、人間の承認を置き換えません。Issue成果物のschema v1とYAMLテンプレート、同梱例の形式テストが利用できます。計画・状態・再開候補の静的checkerも利用できます。工程自動実行と追跡性checkerは後続実装です。導入時は既存運用を維持し、機構ごとに追加方式で有効化します。
+この設計はIssue契約、assignee、`ready-for-ai`、変更リスク分類、Quality Gates、人間の承認を置き換えません。Issue成果物のschema v1とYAMLテンプレート、同梱例の形式テストが利用できます。計画・状態・再開候補の静的checkerも利用できます。追跡性checkerも利用できます。工程自動実行は提供しません。導入時は既存運用を維持し、機構ごとに追加方式で有効化します。
 
 ### Issue成果物テンプレートの利用
 
@@ -858,3 +858,61 @@ resume_decision: candidateの場合だけnext_stageが1つ提示されますが�
 blockedの場合は元ファイルを保持し、code/path/stage/eventから原因を確認してIssueへ記録します。
 中断・失敗時は未完了操作と安全な再実行を確認し、古い履歴や承認を消さず再計画・再承認します。
 terminalは完了または取消済みであり自動再開しません。
+
+## 要件・設計・テストの対応漏れを検査する
+
+traceabilityは、受け入れ条件と成果物の「対応表」です。workflow-traceはその対応表を読み、
+必要な設計やテストがない、参照先がない、未承認・失敗した検証が完了の根拠になっている、といった不足を返します。
+本文やコードの意味を自動理解したり、テストを実行したりする検査ではありません。
+
+```sh
+npm ci --prefix tools/workflow-rules --ignore-scripts --no-audit --no-fund
+npm ci --prefix tools/workflow-check --ignore-scripts --no-audit --no-fund
+npm ci --prefix tools/workflow-trace --ignore-scripts --no-audit --no-fund
+npm test --prefix tools/workflow-trace
+```
+
+依存導入後はオフラインで利用できます。workflow-checkのname/version/exportsを明示して内部file依存で再利用し、
+既存checkerの計算規則は変更していません。既存の回帰テストも引き続き実行します。
+
+repository rootで同梱の合成例を読み込む例:
+
+```js
+import { loadTraceability } from './tools/workflow-trace/load.mjs';
+import { checkTraceability } from './tools/workflow-trace/check.mjs';
+
+const input = loadTraceability(process.cwd(), {
+  traceability: 'tests/workflow-trace/fixtures/traceability.yaml',
+  context: 'tests/workflow-trace/fixtures/context.yaml',
+  workflow: {
+    plan: 'tests/workflow-trace/fixtures/plan.yaml',
+    state: 'tests/workflow-trace/fixtures/state.yaml',
+    context: 'tests/workflow-check/fixtures/context.yaml',
+    previous: {
+      plan: 'tests/workflow-trace/fixtures/plan.yaml',
+      state: 'tests/workflow-trace/fixtures/state.yaml',
+    },
+  },
+}, { schema_version: 1, risk: 'low', areas: [], technologies: [], data_types: [] });
+const result = checkTraceability(input);
+console.log(result.status, result.diagnostics);
+// result.checksは転記候補。人間の確認後に明示保存する。
+```
+
+例は実作業の承認記録ではありません。実作業ではIssueのAC/非スコープ台帳、変更一覧、最新のworkflow入力、
+本当のprevious、外部参照の確認者と時刻を準備します。trace用contextはworkflow用contextとは別ファイルです。
+非draft境界では追記性確認を必要とし、previousなしを確認済みとは扱いません。
+保存済みchecksのpassを渡しても、現在の入力から再検査します。
+
+まずdraftで警告を確認し、requirements_to_design、design_to_implementation、implementation_to_pr、completionで
+必要な対応と状態を確認します。Low Risk文書修正や調査では、planが省略した中間工程を無条件に要求しません。
+型付きリンクの方向、node型、境界条件の契約はadaptive-workflow-design第7.3～7.6節を参照してください。
+
+必要なfile参照と明示fragmentをloaderが確認し、URLは人間の確認記録として区別します。
+判定がblockedならcode/path/node/edgeから原因を確認し、元ファイルを保持してIssueへ記録します。
+原因を説明できない場合は人間レビューへ戻し、架空の参照や成功・承認を補いません。
+
+誤検知を例外扱いするときは、結果のcheck_id/subject_digest/node/edge/pathに加えて当該revisionとboundary、
+理由、期限、approval_type: suppressionの人間承認参照を記録します。scopeの構造例は
+.ai-workflow/templates/trace-checks/v1/suppression-scope.yamlです。この記入例単体で抑制が有効になるわけではありません。
+期限付き例外を適用しても警告と元の診断は残り、未承認・失敗検証等の重要な停止理由は解除できません。

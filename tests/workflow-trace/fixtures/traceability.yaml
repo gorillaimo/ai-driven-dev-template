@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "traceability",
+  "work_id": "issue-1",
+  "work_source": "github_issue",
+  "issue_ref": "https://github.com/example/project/issues/1",
+  "updated_at": "2026-10-23T00:00:00Z",
+  "updated_by": {
+    "actor_type": "human",
+    "actor_ref": "example-user"
+  },
+  "nodes": [
+    {
+      "id": "ac-1",
+      "kind": "acceptance_criterion",
+      "ref": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/1"
+      },
+      "status": "complete"
+    },
+    {
+      "id": "excluded-1",
+      "kind": "non_scope",
+      "ref": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/1",
+        "fragment": "non-scope"
+      },
+      "status": "complete"
+    },
+    {
+      "id": "change-1",
+      "kind": "change",
+      "ref": {
+        "kind": "file",
+        "target": "tests/workflow-trace/fixtures/changed.md"
+      },
+      "status": "complete"
+    },
+    {
+      "id": "validation-1",
+      "kind": "validation",
+      "ref": {
+        "kind": "file",
+        "target": "tests/workflow-trace/fixtures/report.json"
+      },
+      "status": "complete"
+    }
+  ],
+  "links": [
+    {
+      "from": "change-1",
+      "to": "ac-1",
+      "relation": "implements"
+    },
+    {
+      "from": "validation-1",
+      "to": "change-1",
+      "relation": "verifies"
+    }
+  ],
+  "checks": [],
+  "suppressions": []
+}

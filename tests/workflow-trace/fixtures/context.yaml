@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "work_id": "issue-1",
+  "work_source": "github_issue",
+  "issue_ref": "https://github.com/example/project/issues/1",
+  "plan_revision": 1,
+  "contract_ref": {
+    "kind": "url",
+    "target": "https://github.com/example/project/issues/1"
+  },
+  "boundary": "completion",
+  "evaluated_at": "2026-10-23T00:00:00Z",
+  "criteria": [
+    {
+      "id": "ac-1",
+      "ref": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/1"
+      },
+      "required_kinds": [],
+      "exemptions": []
+    }
+  ],
+  "non_scope": [
+    {
+      "id": "excluded-1",
+      "ref": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/1",
+        "fragment": "non-scope"
+      }
+    }
+  ],
+  "change_inventory": [
+    {
+      "node_id": "change-1",
+      "path": "tests/workflow-trace/fixtures/changed.md",
+      "operation": "modified"
+    }
+  ],
+  "external_confirmations": [
+    {
+      "reference": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/1"
+      },
+      "confirmed_by": "example-user",
+      "confirmed_at": "2026-10-23T00:00:00Z",
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ]
+    },
+    {
+      "reference": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/1",
+        "fragment": "non-scope"
+      },
+      "confirmed_by": "example-user",
+      "confirmed_at": "2026-10-23T00:00:00Z",
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ]
+    }
+  ],
+  "suppression_scopes": []
+}
