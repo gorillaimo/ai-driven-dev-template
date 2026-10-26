@@ -1,0 +1,83 @@
+# 合成の記入例。参照・ID・日時・基準commit・調査条件を実作業へ置換してください。
+# 形式適合は調査完了・安全性・承認者本人性を保証しません。commandは実行せず記録だけに使います。
+schema_version: 1
+artifact_kind: brownfield
+work_id: issue-1
+work_source: github_issue
+issue_ref: https://github.com/example/project/issues/1
+updated_at: "2026-10-26T00:00:00Z"
+updated_by:
+  actor_type: human
+  actor_ref: example-user
+depth: low
+status: complete
+scope:
+  - docs
+unanalysed: []
+components:
+  - component_id: documentation
+    area: other
+    location:
+      kind: file
+      target: docs/guide.md
+    responsibility: 合意scope内の手順書の所在確認だけを完了した合成例。
+    technologies:
+      - Markdown
+    depends_on: []
+commands:
+  - purpose: test
+    command: npm test --prefix packages/backend
+    status: documented
+    evidence:
+      - kind: file
+        target: docs/guide.md
+    side_effects: 手順書の記載確認だけ。実行検証は合意scope外であり実行していない。
+data_models: []
+flows: []
+settings: []
+documents:
+  - kind: file
+    target: docs/guide.md
+tests: []
+ci: []
+ownership: []
+constraints:
+  - 合成の記入例。実プロジェクトの調査結果や承認ではない。
+  - 読み取り専用。指定された調査成果物だけを明示保存する。
+  - 対象コード・依存・生成物・API・Infrastructureを変更しない。
+  - コマンドを実行せず、秘密値・個人情報・本番データを保存しない。
+  - 今回の範囲外はfrontend全体・本番環境・外部サービス。未解析欄は合意scope内の未完了を記す。
+  - completeは手順書の所在・記載確認という合意scope内だけ。テスト成功・全アプリ解析・実装許可を意味しない。
+prohibited_areas:
+  - .env
+  - secrets
+  - data/production
+  - packages/infra
+change_candidates: []
+risks: []
+unknowns: []
+document_updates: []
+follow_up: []
+extensions:
+  brownfield_review:
+    synthetic: true
+    mode: read_only
+    purpose: Issue関連領域を変更前に理解し、未確認と後続候補を残す。
+    baseline:
+      commit: "0000000000000000000000000000000000000000"
+      issue_updated_at: "2026-10-26T00:00:00Z"
+    limits:
+      timebox_minutes: 30
+      max_files: 25
+      max_depth: 3
+    approval:
+      status: not_required
+      approved_by: null
+      approved_at: null
+      reference: null
+    stop_conditions:
+      - 調査上限に達したら未解析範囲を残して止める。
+      - 承認・権限・安全性を確認できなければ止める。
+      - 秘密情報への接近、外部通信、副作用や費用の可能性があれば実行せず人間へ戻す。
+    command_policy: record_only
+    command_verifications: []

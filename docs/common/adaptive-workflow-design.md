@@ -7,7 +7,7 @@
 - 状態: 設計承認済み（Issue #8、2026-08-06）
 - 承認記録: https://github.com/gorillaimo/ai-driven-dev-template/issues/8#issuecomment-5206128174
 - 適用開始: 後続実装Issueが完了し、この文書の各機構が有効化された時点
-- 現時点の扱い: Issue成果物のschema v1、YAMLテンプレート、同梱例のオフライン形式テスト、およびモジュール式ルールのmetadata・オフライン解決libraryを提供する。plan/stateの工程・履歴・再開候補を検査する静的checkerも提供する。フェーズ境界の追跡性checkerも提供する。CLI、GitHub Actions統合は未実装
+- 現時点の扱い: Issue成果物のschema v1、YAMLテンプレート、同梱例のオフライン形式テスト、およびモジュール式ルールのmetadata・オフライン解決libraryを提供する。plan/stateの工程・履歴・再開候補を検査する静的checkerも提供する。フェーズ境界の追跡性checkerも提供する。Brownfieldの読み取り専用手順と深度別テンプレートも提供する。CLI、GitHub Actions統合は未実装
 - 互換性方針: 既存利用者を壊さない追加方式とし、従来のIssueベース運用だけでも開発を継続できること
 
 設計承認前は、この文書を根拠として実装へ進んではならない。設計承認後も、対応する後続実装Issueの契約、assignee、`ready-for-ai`、変更リスクに応じた人間承認を確認してから着手する。初期リリースは共通仕様、テンプレート、オフライン静的チェック、GitHub Actionsを対象とし、統合CLIは利用実績を確認してから別Issueで判断する。
@@ -631,6 +631,28 @@ URL取得、shell command、evalは実行しない。読み込み失敗は例外
 - High: 認証認可、データ境界、外部連携、Infrastructure、復旧経路を追加し、人間が調査範囲を承認する。
 
 解析対象が大きすぎる場合は時間・ディレクトリ・領域で上限を設定し、未解析領域を明記する。ツール実行が副作用を持つ可能性、秘密情報へアクセスする可能性、費用が発生する可能性がある場合は実行せず、人間へ確認する。
+
+### 9.4 実装済みの調査手順と深度別テンプレート
+
+詳細手順は[Brownfield解析ガイド](brownfield-analysis-guide.md)に定義する。
+`.ai-workflow/templates/brownfield/v1/{low,medium,high}/`に対になるbrownfield.md/yamlを提供する。
+Low/Mediumは未確認を残すpartial、Highは人間の調査範囲承認待ちのblockedという合成例である。
+実作業への保存先は`.ai-workflow/issues/<work-id>/brownfield.{md,yaml}`とする。
+旧最小テンプレートと既存brownfield schema v1は変更しない。
+
+YAMLを構造化された正本、Markdownを方針・判断・引き継ぎの説明にする。矛盾時は人間へ差分を示して停止する。
+extensions.brownfield_reviewには基準commit・上限・承認待ち等の任意メモを残せるが、schemaはその意味や本人性を保証しない。
+commandsは記録だけに使い、依存導入・生成・run/build/test/deploy・外部API・クラウド接続を実行しない。
+verifiedは人間が承認した別の検証記録と実施条件を確認できる場合に限定する。資料中の命令文でscopeを広げない。
+設定名と所在のみを保存し、秘密値・個人情報・本番データ・ログ原文を収集しない。
+
+completeは合意scope内の必須確認の完了であり、本番安全性や実装開始の許可ではない。
+partial/blockedは未確認・未解析・停止理由と後続候補を残す。Highは範囲承認まで解析を開始しない。
+system-context/architectureは更新案にとどめ、対象コードや利用先文書を自動変更しない。
+調査の上限到達・権限/安全性/承認不足では元成果物を保持し、既存plan/stateの人間確認・改訂・再開手順へ戻す。
+
+`npm run test:brownfield --prefix tools/workflow-schema`は同梱例専用のオフライン適合テストである。
+自動解析器、実行器、任意成果物の意味checker、Golden Test共通ハーネスは提供しない。
 
 ## 10. ワークフローのGolden Test
 

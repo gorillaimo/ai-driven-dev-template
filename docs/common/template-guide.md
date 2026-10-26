@@ -21,7 +21,7 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 - release基準: `docs/common/versioning-policy.md`
 - v1からv2への移行: `docs/common/migration-v1-to-v2.md`
 
-v1はIssue、assignee、prompt、人間承認を中心とする軽量な文書駆動baselineです。v2はIssue #8のadaptive workflowとIssue #9のproject orchestrationを段階的に追加します。現在の`main`ではIssue成果物のschema v1、template、同梱例の形式テストとモジュール式ルールのオフライン解決libraryを提供します。計画・状態・再開候補の静的checkerも利用できます。追跡性checkerも利用できます。Golden Test、Actions統合、Project統制は後続実装です。工程の自動実行は提供しません。
+v1はIssue、assignee、prompt、人間承認を中心とする軽量な文書駆動baselineです。v2はIssue #8のadaptive workflowとIssue #9のproject orchestrationを段階的に追加します。現在の`main`ではIssue成果物のschema v1、template、同梱例の形式テストとモジュール式ルールのオフライン解決libraryを提供します。計画・状態・再開候補の静的checkerも利用できます。追跡性checkerとBrownfieldの手順・深度別テンプレートも利用できます。Golden Test、Actions統合、Project統制は後続実装です。工程の自動実行は提供しません。
 
 template release versionと各成果物の`schema_version`は独立しています。template v2で最初に導入するschemaが`schema_version: 1`でも問題ありません。利用先projectでは、このrepositoryの`VERSION`をアプリケーションversionと混同しないでください。
 
@@ -41,6 +41,8 @@ template release versionと各成果物の`schema_version`は独立していま�
 
 ## 含まれるもの
 
+- `.ai-workflow/templates/brownfield/v1/`: 読み取り専用調査のLow/Medium/HighのMD/YAML合成例
+- `docs/common/brownfield-analysis-guide.md`: 調査scope・上限・High承認・停止・引き継ぎの手順
 - `.ai-workflow/schemas/issue/v1/`: 共通定義と4種類のIssue成果物schema
 - `.ai-workflow/templates/issue/v1/`: schemaに適合する合成YAML記入例
 - `tests/workflow-schema/`: schema適合テストの正常・異常fixtureとcase一覧
