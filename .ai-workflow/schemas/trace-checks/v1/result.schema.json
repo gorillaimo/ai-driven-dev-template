@@ -1,0 +1,292 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:trace-checks:v1:result",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "checker_version": {
+      "const": "1.0.0"
+    },
+    "input_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "subject_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "boundary": {
+      "enum": [
+        "draft",
+        "requirements_to_design",
+        "design_to_implementation",
+        "implementation_to_pr",
+        "completion"
+      ]
+    },
+    "status": {
+      "enum": [
+        "pass",
+        "warn",
+        "blocked"
+      ]
+    },
+    "coverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ac_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "required_kinds": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "requirement",
+                "design",
+                "api",
+                "test",
+                "change",
+                "validation"
+              ]
+            }
+          },
+          "matches": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+              }
+            }
+          },
+          "complete": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ac_id",
+          "required_kinds",
+          "matches",
+          "complete"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "check_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "code": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "path": {
+            "type": "string"
+          },
+          "node": {
+            "anyOf": [
+              {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "edge": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "from": {
+                    "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+                  },
+                  "to": {
+                    "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+                  },
+                  "relation": {
+                    "enum": [
+                      "satisfies",
+                      "implements",
+                      "verifies",
+                      "references",
+                      "excludes",
+                      "follows_up"
+                    ]
+                  }
+                },
+                "required": [
+                  "from",
+                  "to",
+                  "relation"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "severity": {
+            "enum": [
+              "warn",
+              "block"
+            ]
+          },
+          "suppressed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "check_id",
+          "code",
+          "path",
+          "node",
+          "edge",
+          "severity",
+          "suppressed"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "reference": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+          },
+          "status": {
+            "enum": [
+              "local_verified",
+              "human_asserted",
+              "deleted_declared",
+              "missing",
+              "not_evaluated"
+            ]
+          },
+          "digest": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "reference",
+          "status",
+          "digest"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "check_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "boundary": {
+            "enum": [
+              "draft",
+              "requirements_to_design",
+              "design_to_implementation",
+              "implementation_to_pr",
+              "completion"
+            ]
+          },
+          "result": {
+            "enum": [
+              "warn",
+              "block",
+              "pass"
+            ]
+          },
+          "references": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+            }
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        },
+        "required": [
+          "check_id",
+          "boundary",
+          "result",
+          "references",
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "checker_version",
+    "input_digest",
+    "subject_digest",
+    "boundary",
+    "status",
+    "coverage",
+    "diagnostics",
+    "references",
+    "checks"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "referenceResult": {
+      "type": "object",
+      "properties": {
+        "reference": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+        },
+        "status": {
+          "enum": [
+            "local_verified",
+            "human_asserted",
+            "deleted_declared",
+            "missing",
+            "not_evaluated"
+          ]
+        },
+        "digest": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "reference",
+        "status",
+        "digest"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

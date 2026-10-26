@@ -1,0 +1,8 @@
+[
+ {"id":"unknown-context-field","path":["context","typo"],"value":true,"code":"schema_invalid"},
+ {"id":"unsupported-context","path":["context","schema_version"],"value":2,"code":"schema_invalid"},
+ {"id":"empty-authority","path":["context","criteria"],"value":[],"code":"schema_invalid"},
+ {"id":"wrong-boundary","path":["context","boundary"],"value":"automatic","code":"schema_invalid"},
+ {"id":"unknown-node-status","path":["traceability","nodes",0,"status"],"value":"passed","code":"schema_invalid"},
+ {"id":"wrong-reference-status","path":["references",0,"status"],"value":"trusted","code":"schema_invalid"}
+]

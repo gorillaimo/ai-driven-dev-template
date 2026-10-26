@@ -7,7 +7,7 @@
 - v1 stable: `v1.0.0`
 - v2: development line
 - `v2.0.0`stable Release: 未公開
-- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。工程自動実行・追跡性checker、Golden Test、Actions統合、Project成果物は後続実装
+- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。追跡性checkerも利用できる。Golden Test、Actions統合、Project成果物は後続実装。工程は自動実行しない
 
 設計文書が存在するだけで、AIが状態管理、自動再開、次Issue選択、claim、複数人調整を自動実行できるとは扱わない。対応する後続実装Issueが完了した機構だけを有効化する。
 
@@ -68,7 +68,7 @@ v1運用が要件を満たす場合、移行は必須ではない。
 - `project_id`、`feature_id`、`actor_ref`、`on_behalf_of`、標準event。
 - schema validationと参照整合check。
 
-Issue成果物にはschema v1、テンプレート、同梱例の形式テストがあり、状態・履歴・再開候補は静的checkerで検査できる。全参照先の存在やAC追跡性の網羅を検査するcheckerは後続実装。`operations-manual.md`の「Issue成果物テンプレートの利用」に従い、形式と実際のIssue記録を分けて確認する。
+Issue成果物にはschema v1、テンプレート、同梱例の形式テストがあり、状態・履歴・再開候補は静的checkerで検査できる。宣言されたACの対応経路と対応するローカル参照は追跡性checkerで検査できる。外部到達性・自然言語・テスト成功の実証は人間の確認が必要。`operations-manual.md`の「Issue成果物テンプレートの利用」に従い、形式と実際のIssue記録を分けて確認する。
 
 最初のv2成果物schemaが`schema_version: 1`でも、template v2と矛盾しない。
 
@@ -167,3 +167,12 @@ plan schema v1を改変せず、詳細結果をextensions.rule_resolutionへ保�
 日時・actor・履歴を都合よく作り直してcheckerを通過させません。元の成果物・template commitを保存して
 Issue上の事実と人間が比較し、復元できない承認は再承認を受けます。
 unknown/nullは不要/falseではありません。候補を出せない場合も従来のIssue・branch・PR運用へ戻れます。
+
+## 追跡性checkerへの追加移行
+
+旧traceability schema v1は形式を変更しません。新しい意味検査にはIssueから確認したAC/非スコープ台帳と
+change_inventory、workflowInput、必要な外部参照の人間確認を追加し、型付きリンクの方向を第7章へ合わせます。
+既存checksのpassや補助referencesだけで工程通過済みにしません。元成果物とtemplate commitを保存して明示移行します。
+Markdownの自動見出しanchorなど初期未対応の参照は、明示anchorやJSON Pointerへ変更するか、未評価として人間へ戻します。
+既存抑制にも対象・改訂・境界・subject_digestのscopeが必要です。古い抑制を新しい入力へ自動移送しません。
+移行できない場合は元データを保持し、従来のIssue・branch・PRと人間レビューで開発を継続できます。

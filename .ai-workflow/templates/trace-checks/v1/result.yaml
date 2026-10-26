@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "checker_version": "1.0.0",
+  "input_digest": "1d1ccf80b6c81acf1025b2cee027a00f64cbd43f90acfc4779ab0b31727a24b4",
+  "subject_digest": "fbd808a0bd5339a43f2b0297a787241945aea87b91bfe83c37df339749c2f3fe",
+  "boundary": "completion",
+  "status": "pass",
+  "coverage": [
+    {
+      "ac_id": "ac-1",
+      "required_kinds": [
+        "change",
+        "validation"
+      ],
+      "matches": {
+        "change": [
+          "change-1"
+        ],
+        "validation": [
+          "validation-1"
+        ]
+      },
+      "complete": true
+    }
+  ],
+  "diagnostics": [],
+  "references": [
+    {
+      "reference": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/1",
+        "fragment": "non-scope"
+      },
+      "status": "human_asserted",
+      "digest": null
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "tests/workflow-trace/fixtures/changed.md"
+      },
+      "status": "local_verified",
+      "digest": "17897947704636613113d8abfc778e4757a7891c650d1e4f45743f7ac5aaf1b1"
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "tests/workflow-trace/fixtures/report.json"
+      },
+      "status": "local_verified",
+      "digest": "f474fb3bf76ec25023621b2c74105980e8df7dee65b77b19bd2d546cc640724b"
+    },
+    {
+      "reference": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/1"
+      },
+      "status": "human_asserted",
+      "digest": null
+    }
+  ],
+  "checks": [
+    {
+      "check_id": "traceability-pass",
+      "boundary": "completion",
+      "result": "pass",
+      "references": [],
+      "reason": "No structural finding"
+    }
+  ]
+}

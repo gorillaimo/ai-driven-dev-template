@@ -8,6 +8,8 @@ AI Driven Development Templateの利用者へ影響する変更を記録する�
 
 ### Added
 
+- フェーズ境界の追跡性checker、正本AC/変更台帳、型付き対応経路、参照確認、期限付き抑制、追加schemaとオフラインテスト。
+
 - 適応的計画・状態遷移・履歴改訂・再開候補を検査するオフラインlibrary、context/result/state拡張schema v1、合成fixtureと回帰テスト。
 
 - モジュール式ルールのmetadata/context/resolution schema v1、legacy always-on参照、オフライン解決・plan v1投影library、条件・依存・競合・循環・ファイル境界の回帰テスト。
@@ -20,12 +22,14 @@ AI Driven Development Templateの利用者へ影響する変更を記録する�
 ### Important
 
 - `VERSION`は`2.0.0-0.dev.0`だが、v2機構は設計・開発中であり、`v2.0.0`stable Releaseは未公開。
-- schema v1、template、モジュール式ルール解決libraryは利用可能。計画・状態・再開候補の静的checkerも利用可能。工程自動実行・追跡性checker、Golden Test、GitHub Actions統合は後続実装であり、運用は従来のIssue契約と人間承認を維持する。
+- schema v1、template、モジュール式ルール解決libraryは利用可能。計画・状態・再開候補の静的checkerも利用可能。追跡性checkerも利用可能。Golden Test、GitHub Actions統合は後続実装であり、運用は従来のIssue契約と人間承認を維持する。
 - GitHub Projects、中央Dispatcher、外部Agent Runnerはv2.0.0の必須条件ではなく、運用実績に応じたopt-in候補。
 
 ## [1.0.0] - 2026-08-07
 
 ### Added
+
+- フェーズ境界の追跡性checker、正本AC/変更台帳、型付き対応経路、参照確認、期限付き抑制、追加schemaとオフラインテスト。
 
 - 適応的計画・状態遷移・履歴改訂・再開候補を検査するオフラインlibrary、context/result/state拡張schema v1、合成fixtureと回帰テスト。
 
