@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test validate.mjs"
+    "test": "node --test validate.mjs",
+    "test:brownfield": "node brownfield.test.mjs"
   },
   "engines": {
     "node": ">=22"

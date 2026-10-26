@@ -1,0 +1,253 @@
+[
+  {
+    "id": "complete-example",
+    "file": "complete.yaml",
+    "valid": true
+  },
+  {
+    "id": "partial-example",
+    "file": "partial.yaml",
+    "valid": true
+  },
+  {
+    "id": "blocked-example",
+    "file": "blocked.yaml",
+    "valid": true
+  },
+  {
+    "id": "unknown-version",
+    "file": "complete.yaml",
+    "changes": [
+      {
+        "path": [
+          "schema_version"
+        ],
+        "value": 2
+      }
+    ],
+    "valid": false,
+    "error": "schema"
+  },
+  {
+    "id": "unknown-depth",
+    "file": "complete.yaml",
+    "changes": [
+      {
+        "path": [
+          "depth"
+        ],
+        "value": "deep"
+      }
+    ],
+    "valid": false,
+    "error": "schema"
+  },
+  {
+    "id": "unknown-status",
+    "file": "complete.yaml",
+    "changes": [
+      {
+        "path": [
+          "status"
+        ],
+        "value": "approved"
+      }
+    ],
+    "valid": false,
+    "error": "schema"
+  },
+  {
+    "id": "unknown-field",
+    "file": "complete.yaml",
+    "changes": [
+      {
+        "path": [
+          "typo"
+        ],
+        "value": true
+      }
+    ],
+    "valid": false,
+    "error": "schema"
+  },
+  {
+    "id": "setting-values-forbidden",
+    "file": "partial.yaml",
+    "changes": [
+      {
+        "path": [
+          "settings",
+          0,
+          "value"
+        ],
+        "value": "synthetic-forbidden"
+      }
+    ],
+    "valid": false,
+    "error": "schema"
+  },
+  {
+    "id": "unknown-component",
+    "file": "partial.yaml",
+    "changes": [
+      {
+        "path": [
+          "components",
+          0,
+          "depends_on"
+        ],
+        "value": [
+          "missing"
+        ]
+      }
+    ],
+    "valid": false,
+    "error": "component"
+  },
+  {
+    "id": "unknown-flow-member",
+    "file": "partial.yaml",
+    "changes": [
+      {
+        "path": [
+          "flows",
+          0,
+          "components"
+        ],
+        "value": [
+          "missing"
+        ]
+      }
+    ],
+    "valid": false,
+    "error": "component"
+  },
+  {
+    "id": "high-unapproved-complete",
+    "file": "blocked.yaml",
+    "changes": [
+      {
+        "path": [
+          "status"
+        ],
+        "value": "complete"
+      }
+    ],
+    "valid": false,
+    "error": "approval"
+  },
+  {
+    "id": "high-unapproved-analysis",
+    "file": "blocked.yaml",
+    "changes": [
+      {
+        "path": [
+          "components"
+        ],
+        "value": [
+          {
+            "component_id": "auth",
+            "area": "auth",
+            "location": {
+              "kind": "file",
+              "target": "src/auth"
+            },
+            "responsibility": "Synthetic",
+            "technologies": [],
+            "depends_on": []
+          }
+        ]
+      }
+    ],
+    "valid": false,
+    "error": "approval"
+  },
+  {
+    "id": "unknown-scope-complete",
+    "file": "partial.yaml",
+    "changes": [
+      {
+        "path": [
+          "status"
+        ],
+        "value": "complete"
+      }
+    ],
+    "valid": false,
+    "error": "complete"
+  },
+  {
+    "id": "unsubstantiated-verified",
+    "file": "complete.yaml",
+    "changes": [
+      {
+        "path": [
+          "commands",
+          0,
+          "status"
+        ],
+        "value": "verified"
+      }
+    ],
+    "valid": false,
+    "error": "verified"
+  },
+  {
+    "id": "duplicate-key",
+    "file": "duplicate-key.yaml",
+    "valid": false,
+    "error": "yaml"
+  },
+  {
+    "id": "alias",
+    "file": "alias.yaml",
+    "valid": false,
+    "error": "yaml"
+  },
+  {
+    "id": "custom-tag",
+    "file": "custom-tag.yaml",
+    "valid": false,
+    "error": "yaml"
+  },
+  {
+    "id": "multiple-documents",
+    "file": "multiple-documents.yaml",
+    "valid": false,
+    "error": "yaml"
+  },
+  {
+    "id": "zero-timebox",
+    "file": "complete.yaml",
+    "changes": [
+      {
+        "path": [
+          "extensions",
+          "brownfield_review",
+          "limits",
+          "timebox_minutes"
+        ],
+        "value": 0
+      }
+    ],
+    "valid": false,
+    "error": "limits"
+  },
+  {
+    "id": "unknown-approval-note",
+    "file": "blocked.yaml",
+    "changes": [
+      {
+        "path": [
+          "extensions",
+          "brownfield_review",
+          "approval",
+          "status"
+        ],
+        "value": "automatic"
+      }
+    ],
+    "valid": false,
+    "error": "approval"
+  }
+]

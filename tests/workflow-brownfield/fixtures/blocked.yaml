@@ -1,0 +1,78 @@
+# 合成の記入例。参照・ID・日時・基準commit・調査条件を実作業へ置換してください。
+# 形式適合は調査完了・安全性・承認者本人性を保証しません。commandは実行せず記録だけに使います。
+schema_version: 1
+artifact_kind: brownfield
+work_id: issue-1
+work_source: github_issue
+issue_ref: https://github.com/example/project/issues/1
+updated_at: "2026-10-26T00:00:00Z"
+updated_by:
+  actor_type: human
+  actor_ref: example-user
+depth: high
+status: blocked
+scope:
+  - packages
+  - docs
+  - .github/workflows
+unanalysed:
+  - High調査の全対象。人間の範囲承認待ちのため解析を開始していない。
+components: []
+commands: []
+data_models: []
+flows: []
+settings: []
+documents: []
+tests: []
+ci: []
+ownership: []
+constraints:
+  - 合成の記入例。実プロジェクトの調査結果や承認ではない。
+  - 読み取り専用。指定された調査成果物だけを明示保存する。
+  - 対象コード・依存・生成物・API・Infrastructureを変更しない。
+  - コマンドを実行せず、秘密値・個人情報・本番データを保存しない。
+  - 調査予定はAuth/認可、データ境界、外部連携、Infrastructure、復旧経路。人間の範囲承認前には開かない。
+prohibited_areas:
+  - .env
+  - secrets
+  - data/production
+change_candidates: []
+risks:
+  - risk_id: scope-approval-missing
+    severity: high
+    description: 調査範囲の承認がなく、機微情報・副作用・費用の可能性を評価できないため停止中。
+    evidence: []
+unknowns:
+  - 調査範囲・除外領域・時間/file上限に対する人間の承認。
+document_updates:
+  - target: docs/architecture.md
+    proposal: 承認後の読み取り専用調査で得た事実から更新案を作り、人間レビューへ戻す。
+follow_up:
+  - summary: High調査の目的・対象・除外・上限を人間へ提示して承認を受ける。
+    reason: 承認が得られるまで解析しない。
+    references:
+      - kind: url
+        target: https://github.com/example/project/issues/1
+extensions:
+  brownfield_review:
+    synthetic: true
+    mode: read_only
+    purpose: Issue関連領域を変更前に理解し、未確認と後続候補を残す。
+    baseline:
+      commit: "0000000000000000000000000000000000000000"
+      issue_updated_at: "2026-10-26T00:00:00Z"
+    limits:
+      timebox_minutes: 90
+      max_files: 100
+      max_depth: 5
+    approval:
+      status: pending
+      approved_by: null
+      approved_at: null
+      reference: null
+    stop_conditions:
+      - 調査上限に達したら未解析範囲を残して止める。
+      - 承認・権限・安全性を確認できなければ止める。
+      - 秘密情報への接近、外部通信、副作用や費用の可能性があれば実行せず人間へ戻す。
+    command_policy: record_only
+    command_verifications: []

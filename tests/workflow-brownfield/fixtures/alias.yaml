@@ -1,0 +1,2 @@
+item: &example value
+copy: *example

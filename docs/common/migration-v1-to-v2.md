@@ -7,7 +7,7 @@
 - v1 stable: `v1.0.0`
 - v2: development line
 - `v2.0.0`stable Release: 未公開
-- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。追跡性checkerも利用できる。Golden Test、Actions統合、Project成果物は後続実装。工程は自動実行しない
+- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。追跡性checkerとBrownfield手順・深度別テンプレートも利用できる。Golden Test、Actions統合、Project成果物は後続実装。工程は自動実行しない
 
 設計文書が存在するだけで、AIが状態管理、自動再開、次Issue選択、claim、複数人調整を自動実行できるとは扱わない。対応する後続実装Issueが完了した機構だけを有効化する。
 
@@ -176,3 +176,13 @@ change_inventory、workflowInput、必要な外部参照の人間確認を追加
 Markdownの自動見出しanchorなど初期未対応の参照は、明示anchorやJSON Pointerへ変更するか、未評価として人間へ戻します。
 既存抑制にも対象・改訂・境界・subject_digestのscopeが必要です。古い抑制を新しい入力へ自動移送しません。
 移行できない場合は元データを保持し、従来のIssue・branch・PRと人間レビューで開発を継続できます。
+
+## Brownfield深度別テンプレートの追加利用
+
+既存brownfield schema v1と旧最小例は引き続き利用できます。新規例への置換は強制しません。
+読み取り専用調査が必要な場合、brownfield-analysis-guide.mdに従い深度・scope・除外・上限を人間が合意し、
+必要なMD/YAMLを選んで実際のID・基準commit・参照へ明示置換します。
+Highの例は承認待ちであり、コピーしただけで調査開始は許可されません。
+元成果物を保存し、未確認や承認履歴を人間が比較してから利用を切り替えます。
+extensionsのメモや形式テストの成功だけで調査完了・安全性・実装許可を推測しません。
+移行できない場合も元データを保持し、従来の調査専用Issueと人間レビューを継続できます。
