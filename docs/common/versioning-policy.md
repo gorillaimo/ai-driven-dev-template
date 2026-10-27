@@ -155,7 +155,7 @@ alphaは試用版であり、schemaや運用が変更される可能性をReleas
 
 このrepositoryの`VERSION`はtemplate本体のversionであり、利用先アプリケーションのversionではない。テンプレートからrepositoryを作成した後、アプリ独自のversion管理を導入する場合は、両者を混同しない名前と場所へ分離する。
 
-利用開始時に参照したtemplate tagまたはcommitをプロジェクト文書へ記録することを推奨する。v2のproject schema実装後は、template origin versionの機械可読な記録場所を別Issueで定義する。
+利用開始時に参照したtemplate tagまたはcommitをプロジェクト文書へ記録することを推奨する。Project schema v1ではproject.yamlのtemplate_originへ導入元repositoryのHTTPS URL、SemVer version、40桁commitを明示記録する。利用先アプリのversionとは区別し、合成例のゼロcommitは置換する。
 
 ## 8. 参照
 
@@ -195,3 +195,16 @@ core field・型・enum・必須性など受理集合を変更するときは新
 checker_versionは検査規則、input_digestは全入力、subject_digestは抑制対象となる実質入力を識別します。
 どのdigestも署名や承認者本人性の証明ではありません。
 結果だけを保存して次回のpassとして使わず、元入力を再検査します。元成果物を保持した明示移行とmanual fallbackを維持します。
+
+## Project成果物schema v1の互換性
+
+Project schemaの正本は`.ai-workflow/schemas/project/v1/`で、project/delivery-plan/teamとcommonをローカル登録します。
+既存Issue共通定義のactor/reference/approval/ID等を参照し、既存Issue schema v1の受理集合は変更しません。
+Project schema_version:1、template release version、rule versionは別の責務です。
+core field/型/enum/必須性など受理集合を変える場合は、新しいmajor schemaを追加します。説明だけの修正と区別してください。
+初期v1はIssues-only/manualです。Projects/Dispatcherは別設計とschema version判断を経て追加し、extensionsで有効化しません。
+
+採用や移行は元台帳と導入元template commitを保存し、ID・由来・人間member・方針・参照を実際の案件に合わせて明示記入します。
+形式確認後も、ID/依存/権限/本人性/承認/履歴は別途レビューします。schemaに通るだけで作業を自動開始しません。
+非対応versionや破損では自動変換・承認補完をせず停止し、元データを保持して人間へ戻します。
+Projectを採用しない従来の単一Issue運用や、Issue/assignee/着手コメント/branch/PRによるfallbackを維持します。

@@ -46,6 +46,7 @@ jobs:
         id: regression
         run: |
           node tools/workflow-schema/validate.mjs
+          npm run test:project --prefix tools/workflow-schema
           npm run test:brownfield --prefix tools/workflow-schema
           npm test --prefix tools/workflow-rules
           npm test --prefix tools/workflow-check

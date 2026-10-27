@@ -1,0 +1,2816 @@
+[
+  {
+    "id": "project-base",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": true
+  },
+  {
+    "id": "project-missing-schema_version",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "schema_version"
+        ],
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "project-missing-artifact_kind",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "artifact_kind"
+        ],
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "project-missing-project_id",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "project_id"
+        ],
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "project-missing-revision",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "revision"
+        ],
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "project-missing-updated_at",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_at"
+        ],
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "project-missing-updated_by",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "project-unknown-version",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "schema_version"
+        ],
+        "value": 2
+      }
+    ]
+  },
+  {
+    "id": "project-wrong-kind",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "artifact_kind"
+        ],
+        "value": "state"
+      }
+    ]
+  },
+  {
+    "id": "project-unknown-core",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "unknown"
+        ],
+        "value": "SYNTHETIC_CANARY_ONLY"
+      }
+    ]
+  },
+  {
+    "id": "project-revision-zero",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "revision"
+        ],
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": "project-revision-fraction",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "revision"
+        ],
+        "value": 1.5
+      }
+    ]
+  },
+  {
+    "id": "project-bad-time",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_at"
+        ],
+        "value": "not-a-time"
+      }
+    ]
+  },
+  {
+    "id": "project-bad-project-id",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "project_id"
+        ],
+        "value": "UPPER_CASE"
+      }
+    ]
+  },
+  {
+    "id": "project-project-id-underscore",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "project_id"
+        ],
+        "value": "example_app"
+      }
+    ]
+  },
+  {
+    "id": "project-project-id-length",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "project_id"
+        ],
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ]
+  },
+  {
+    "id": "project-project-id-boundary",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "project_id"
+        ],
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ]
+  },
+  {
+    "id": "project-extension-data",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "extensions"
+        ],
+        "value": {
+          "note": "Synthetic extension; not authorization"
+        }
+      }
+    ]
+  },
+  {
+    "id": "project-bad-extensions",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "extensions"
+        ],
+        "value": "not-object"
+      }
+    ]
+  },
+  {
+    "id": "project-ai-without-human",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "value": {
+          "actor_type": "ai_agent",
+          "actor_ref": "synthetic-ai"
+        }
+      }
+    ]
+  },
+  {
+    "id": "project-bot-without-human",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "value": {
+          "actor_type": "bot",
+          "actor_ref": "synthetic-bot"
+        }
+      }
+    ]
+  },
+  {
+    "id": "project-ai-with-human",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "value": {
+          "actor_type": "ai_agent",
+          "actor_ref": "synthetic-ai",
+          "on_behalf_of": "example-user"
+        }
+      }
+    ]
+  },
+  {
+    "id": "project-bot-with-human",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "value": {
+          "actor_type": "bot",
+          "actor_ref": "synthetic-bot",
+          "on_behalf_of": "example-user"
+        }
+      }
+    ]
+  },
+  {
+    "id": "project-human-invalid-login",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "value": {
+          "actor_type": "human",
+          "actor_ref": "bad_login"
+        }
+      }
+    ]
+  },
+  {
+    "id": "delivery-plan-base",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": true
+  },
+  {
+    "id": "delivery-plan-missing-schema_version",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "schema_version"
+        ],
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "delivery-plan-missing-artifact_kind",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "artifact_kind"
+        ],
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "delivery-plan-missing-project_id",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "project_id"
+        ],
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "delivery-plan-missing-revision",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "revision"
+        ],
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "delivery-plan-missing-updated_at",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_at"
+        ],
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "delivery-plan-missing-updated_by",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "delivery-plan-unknown-version",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "schema_version"
+        ],
+        "value": 2
+      }
+    ]
+  },
+  {
+    "id": "delivery-plan-wrong-kind",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "artifact_kind"
+        ],
+        "value": "state"
+      }
+    ]
+  },
+  {
+    "id": "delivery-plan-unknown-core",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "unknown"
+        ],
+        "value": "SYNTHETIC_CANARY_ONLY"
+      }
+    ]
+  },
+  {
+    "id": "delivery-plan-revision-zero",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "revision"
+        ],
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": "delivery-plan-revision-fraction",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "revision"
+        ],
+        "value": 1.5
+      }
+    ]
+  },
+  {
+    "id": "delivery-plan-bad-time",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_at"
+        ],
+        "value": "not-a-time"
+      }
+    ]
+  },
+  {
+    "id": "delivery-plan-bad-project-id",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "project_id"
+        ],
+        "value": "UPPER_CASE"
+      }
+    ]
+  },
+  {
+    "id": "delivery-plan-project-id-underscore",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "project_id"
+        ],
+        "value": "example_app"
+      }
+    ]
+  },
+  {
+    "id": "delivery-plan-project-id-length",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "project_id"
+        ],
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ]
+  },
+  {
+    "id": "delivery-plan-project-id-boundary",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "project_id"
+        ],
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ]
+  },
+  {
+    "id": "delivery-plan-extension-data",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "extensions"
+        ],
+        "value": {
+          "note": "Synthetic extension; not authorization"
+        }
+      }
+    ]
+  },
+  {
+    "id": "delivery-plan-bad-extensions",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "extensions"
+        ],
+        "value": "not-object"
+      }
+    ]
+  },
+  {
+    "id": "delivery-plan-ai-without-human",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "value": {
+          "actor_type": "ai_agent",
+          "actor_ref": "synthetic-ai"
+        }
+      }
+    ]
+  },
+  {
+    "id": "delivery-plan-bot-without-human",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "value": {
+          "actor_type": "bot",
+          "actor_ref": "synthetic-bot"
+        }
+      }
+    ]
+  },
+  {
+    "id": "delivery-plan-ai-with-human",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "value": {
+          "actor_type": "ai_agent",
+          "actor_ref": "synthetic-ai",
+          "on_behalf_of": "example-user"
+        }
+      }
+    ]
+  },
+  {
+    "id": "delivery-plan-bot-with-human",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "value": {
+          "actor_type": "bot",
+          "actor_ref": "synthetic-bot",
+          "on_behalf_of": "example-user"
+        }
+      }
+    ]
+  },
+  {
+    "id": "delivery-plan-human-invalid-login",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "value": {
+          "actor_type": "human",
+          "actor_ref": "bad_login"
+        }
+      }
+    ]
+  },
+  {
+    "id": "team-base",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": true
+  },
+  {
+    "id": "team-missing-schema_version",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "schema_version"
+        ],
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "team-missing-artifact_kind",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "artifact_kind"
+        ],
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "team-missing-project_id",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "project_id"
+        ],
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "team-missing-revision",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "revision"
+        ],
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "team-missing-updated_at",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_at"
+        ],
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "team-missing-updated_by",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "remove": true
+      }
+    ],
+    "keyword": "required"
+  },
+  {
+    "id": "team-unknown-version",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "schema_version"
+        ],
+        "value": 2
+      }
+    ]
+  },
+  {
+    "id": "team-wrong-kind",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "artifact_kind"
+        ],
+        "value": "state"
+      }
+    ]
+  },
+  {
+    "id": "team-unknown-core",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "unknown"
+        ],
+        "value": "SYNTHETIC_CANARY_ONLY"
+      }
+    ]
+  },
+  {
+    "id": "team-revision-zero",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "revision"
+        ],
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": "team-revision-fraction",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "revision"
+        ],
+        "value": 1.5
+      }
+    ]
+  },
+  {
+    "id": "team-bad-time",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_at"
+        ],
+        "value": "not-a-time"
+      }
+    ]
+  },
+  {
+    "id": "team-bad-project-id",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "project_id"
+        ],
+        "value": "UPPER_CASE"
+      }
+    ]
+  },
+  {
+    "id": "team-project-id-underscore",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "project_id"
+        ],
+        "value": "example_app"
+      }
+    ]
+  },
+  {
+    "id": "team-project-id-length",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "project_id"
+        ],
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ]
+  },
+  {
+    "id": "team-project-id-boundary",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "project_id"
+        ],
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ]
+  },
+  {
+    "id": "team-extension-data",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "extensions"
+        ],
+        "value": {
+          "note": "Synthetic extension; not authorization"
+        }
+      }
+    ]
+  },
+  {
+    "id": "team-bad-extensions",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "extensions"
+        ],
+        "value": "not-object"
+      }
+    ]
+  },
+  {
+    "id": "team-ai-without-human",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "value": {
+          "actor_type": "ai_agent",
+          "actor_ref": "synthetic-ai"
+        }
+      }
+    ]
+  },
+  {
+    "id": "team-bot-without-human",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "value": {
+          "actor_type": "bot",
+          "actor_ref": "synthetic-bot"
+        }
+      }
+    ]
+  },
+  {
+    "id": "team-ai-with-human",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "value": {
+          "actor_type": "ai_agent",
+          "actor_ref": "synthetic-ai",
+          "on_behalf_of": "example-user"
+        }
+      }
+    ]
+  },
+  {
+    "id": "team-bot-with-human",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "value": {
+          "actor_type": "bot",
+          "actor_ref": "synthetic-bot",
+          "on_behalf_of": "example-user"
+        }
+      }
+    ]
+  },
+  {
+    "id": "team-human-invalid-login",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "updated_by"
+        ],
+        "value": {
+          "actor_type": "human",
+          "actor_ref": "bad_login"
+        }
+      }
+    ]
+  },
+  {
+    "id": "project-missing-repository",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "repository"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "project-missing-runtime_backend",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "runtime_backend"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "project-missing-coordination_mode",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "coordination_mode"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "project-missing-template_origin",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "template_origin"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "project-missing-coordinators",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "coordinators"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "project-missing-membership_source",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "membership_source"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "project-missing-required_repository_permission",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "required_repository_permission"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "project-missing-status_mapping",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "status_mapping"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "project-missing-claim_policy",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "claim_policy"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "project-missing-areas",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "areas"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "project-missing-sync_policy",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "sync_policy"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "project-future-projects",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "runtime_backend"
+        ],
+        "value": "projects"
+      }
+    ]
+  },
+  {
+    "id": "project-future-dispatcher",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "coordination_mode"
+        ],
+        "value": "dispatcher"
+      }
+    ]
+  },
+  {
+    "id": "project-credential-repository",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "repository"
+        ],
+        "value": "user:secret@example/project"
+      }
+    ]
+  },
+  {
+    "id": "project-bad-repository",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "repository"
+        ],
+        "value": "example/project/extra"
+      }
+    ]
+  },
+  {
+    "id": "project-origin-http",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "template_origin",
+          "repository"
+        ],
+        "value": "http://example.com/owner/repo"
+      }
+    ]
+  },
+  {
+    "id": "project-origin-credentials",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "template_origin",
+          "repository"
+        ],
+        "value": "https://user:secret@example.com/owner/repo"
+      }
+    ]
+  },
+  {
+    "id": "project-origin-query",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "template_origin",
+          "repository"
+        ],
+        "value": "https://github.com/example/project?secret=x"
+      }
+    ]
+  },
+  {
+    "id": "project-origin-bad-version",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "template_origin",
+          "version"
+        ],
+        "value": "v2.0"
+      }
+    ]
+  },
+  {
+    "id": "project-origin-invalid-prerelease",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "template_origin",
+          "version"
+        ],
+        "value": "2.0.0-01"
+      }
+    ]
+  },
+  {
+    "id": "project-origin-bad-commit",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "template_origin",
+          "commit"
+        ],
+        "value": "main"
+      }
+    ]
+  },
+  {
+    "id": "project-coordinator-empty",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "coordinators",
+          "assignments"
+        ],
+        "value": []
+      }
+    ]
+  },
+  {
+    "id": "project-project-coordinator-area",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "coordinators",
+          "assignments",
+          0,
+          "area_ids"
+        ],
+        "value": [
+          "backend"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "project-project-coordinator-multiple",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "coordinators",
+          "assignments"
+        ],
+        "value": [
+          {
+            "github_login": "example-user",
+            "area_ids": []
+          },
+          {
+            "github_login": "example-helper",
+            "area_ids": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "project-area-coordinator-empty-area",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "coordinators",
+          "scope"
+        ],
+        "value": "area"
+      }
+    ]
+  },
+  {
+    "id": "project-unknown-coordinator-scope",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "coordinators",
+          "scope"
+        ],
+        "value": "automatic"
+      }
+    ]
+  },
+  {
+    "id": "project-bad-permission",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "required_repository_permission"
+        ],
+        "value": "owner"
+      }
+    ]
+  },
+  {
+    "id": "project-unknown-membership-type",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "membership_source",
+          "type"
+        ],
+        "value": "bot"
+      }
+    ]
+  },
+  {
+    "id": "project-unknown-status",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "status_mapping",
+          "available-for-work"
+        ],
+        "value": "label"
+      }
+    ]
+  },
+  {
+    "id": "project-missing-status",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "status_mapping"
+        ],
+        "value": {
+          "completed": "done"
+        }
+      }
+    ]
+  },
+  {
+    "id": "project-empty-status-label",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "status_mapping",
+          "draft"
+        ],
+        "value": ""
+      }
+    ]
+  },
+  {
+    "id": "project-claim-zero",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "claim_policy",
+          "heartbeat_interval_seconds"
+        ],
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": "project-stale-negative",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "claim_policy",
+          "stale_after_seconds"
+        ],
+        "value": -1
+      }
+    ]
+  },
+  {
+    "id": "project-auto-release",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "claim_policy",
+          "release_policy"
+        ],
+        "value": "automatic"
+      }
+    ]
+  },
+  {
+    "id": "project-auto-steal",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "claim_policy",
+          "on_stale"
+        ],
+        "value": "steal"
+      }
+    ]
+  },
+  {
+    "id": "project-glob-path",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "areas",
+          0,
+          "paths"
+        ],
+        "value": [
+          "packages/**"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "project-traversal-path",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "areas",
+          0,
+          "paths"
+        ],
+        "value": [
+          "../outside"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "project-absolute-path",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "areas",
+          0,
+          "paths"
+        ],
+        "value": [
+          "/tmp/outside"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "project-shared-missing-owner",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "areas",
+          1,
+          "integration_owner"
+        ],
+        "value": null
+      }
+    ]
+  },
+  {
+    "id": "project-bad-owner",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "areas",
+          1,
+          "integration_owner"
+        ],
+        "value": "bad_login"
+      }
+    ]
+  },
+  {
+    "id": "project-unknown-area-policy",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "areas",
+          0,
+          "conflict_policy"
+        ],
+        "value": "ignore"
+      }
+    ]
+  },
+  {
+    "id": "project-bidirectional-sync",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "sync_policy",
+          "direction"
+        ],
+        "value": "bidirectional"
+      }
+    ]
+  },
+  {
+    "id": "project-actual-checkpoint",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "sync_policy",
+          "checkpoint"
+        ],
+        "value": "event-123"
+      }
+    ]
+  },
+  {
+    "id": "project-auto-fallback",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "sync_policy",
+          "on_failure"
+        ],
+        "value": "auto_claim"
+      }
+    ]
+  },
+  {
+    "id": "project-runtime-claims",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "claims"
+        ],
+        "value": []
+      }
+    ]
+  },
+  {
+    "id": "project-shared-state",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "state"
+        ],
+        "value": {
+          "status": "in_progress"
+        }
+      }
+    ]
+  },
+  {
+    "id": "project-secret-key",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "credential"
+        ],
+        "value": "SYNTHETIC_CANARY_ONLY"
+      }
+    ]
+  },
+  {
+    "id": "project-area-coordinator",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "coordinators"
+        ],
+        "value": {
+          "scope": "area",
+          "assignments": [
+            {
+              "github_login": "example-user",
+              "area_ids": [
+                "contracts"
+              ]
+            },
+            {
+              "github_login": "example-helper",
+              "area_ids": [
+                "backend"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "project-org-team",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "membership_source",
+          "organization_team"
+        ],
+        "value": {
+          "organization": "example-org",
+          "team_slug": "example-team"
+        }
+      }
+    ]
+  },
+  {
+    "id": "project-invalid-org-team",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "membership_source",
+          "organization_team"
+        ],
+        "value": {
+          "organization": "bad_org",
+          "team_slug": "team"
+        }
+      }
+    ]
+  },
+  {
+    "id": "project-semver-build",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "template_origin",
+          "version"
+        ],
+        "value": "2.0.0-rc.1+build.1"
+      }
+    ]
+  },
+  {
+    "id": "project-no-areas",
+    "kind": "project",
+    "file": "project.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "areas"
+        ],
+        "value": []
+      }
+    ]
+  },
+  {
+    "id": "delivery-missing-features",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "delivery-missing-revision_history",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "revision_history"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "delivery-feature-description",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features",
+          0,
+          "description"
+        ],
+        "value": "Duplicated requirement"
+      }
+    ]
+  },
+  {
+    "id": "delivery-source-wrong-file",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features",
+          0,
+          "source_ref",
+          "target"
+        ],
+        "value": "docs/other.md"
+      }
+    ]
+  },
+  {
+    "id": "delivery-source-not-file",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features",
+          0,
+          "source_ref",
+          "kind"
+        ],
+        "value": "url"
+      }
+    ]
+  },
+  {
+    "id": "delivery-empty-anchor",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features",
+          0,
+          "source_ref",
+          "fragment"
+        ],
+        "value": ""
+      }
+    ]
+  },
+  {
+    "id": "delivery-dependency-id-only",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features",
+          1,
+          "depends_on"
+        ],
+        "value": [
+          "foundation"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "delivery-dependency-empty-reason",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features",
+          1,
+          "depends_on",
+          0,
+          "reason"
+        ],
+        "value": ""
+      }
+    ]
+  },
+  {
+    "id": "delivery-feature-bad-id",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features",
+          0,
+          "feature_id"
+        ],
+        "value": "UPPER"
+      }
+    ]
+  },
+  {
+    "id": "delivery-priority-zero",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features",
+          0,
+          "planned_priority"
+        ],
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": "delivery-priority-string",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features",
+          0,
+          "planned_priority"
+        ],
+        "value": "high"
+      }
+    ]
+  },
+  {
+    "id": "delivery-priority-fraction",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features",
+          0,
+          "planned_priority"
+        ],
+        "value": 1.5
+      }
+    ]
+  },
+  {
+    "id": "delivery-invalid-constraint",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features",
+          1,
+          "constraints",
+          0,
+          "kind"
+        ],
+        "value": "automatic_approval"
+      }
+    ]
+  },
+  {
+    "id": "delivery-runtime-satisfied",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features",
+          1,
+          "constraints",
+          0,
+          "satisfied"
+        ],
+        "value": true
+      }
+    ]
+  },
+  {
+    "id": "delivery-bad-issue-url",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features",
+          1,
+          "issue_refs",
+          0,
+          "issue_ref"
+        ],
+        "value": "https://github.com/example/project/pull/1"
+      }
+    ]
+  },
+  {
+    "id": "delivery-bad-work-id",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features",
+          1,
+          "issue_refs",
+          0,
+          "work_id"
+        ],
+        "value": "work-one"
+      }
+    ]
+  },
+  {
+    "id": "delivery-required-string",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features",
+          1,
+          "issue_refs",
+          0,
+          "required"
+        ],
+        "value": "yes"
+      }
+    ]
+  },
+  {
+    "id": "delivery-runtime-status",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features",
+          0,
+          "status"
+        ],
+        "value": "completed"
+      }
+    ]
+  },
+  {
+    "id": "delivery-runtime-assignee",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features",
+          0,
+          "assignee"
+        ],
+        "value": "example-user"
+      }
+    ]
+  },
+  {
+    "id": "delivery-calculated-wave",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features",
+          0,
+          "wave"
+        ],
+        "value": 1
+      }
+    ]
+  },
+  {
+    "id": "delivery-missing-anchor",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features",
+          0,
+          "source_ref",
+          "fragment"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "delivery-missing-shared-area",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "features",
+          1,
+          "constraints",
+          0,
+          "area_id"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "delivery-no-features",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "features"
+        ],
+        "value": []
+      }
+    ]
+  },
+  {
+    "id": "delivery-approval-constraint",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "features",
+          0,
+          "constraints"
+        ],
+        "value": [
+          {
+            "kind": "approval",
+            "reference": {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1#issuecomment-1"
+            },
+            "reason": "Synthetic human review required"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "delivery-external-constraint",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "features",
+          0,
+          "constraints"
+        ],
+        "value": [
+          {
+            "kind": "external_dependency",
+            "reference": {
+              "kind": "url",
+              "target": "https://example.com/synthetic-contract"
+            },
+            "reason": "Synthetic external contract"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "delivery-revised-plan",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "revision"
+        ],
+        "value": 2
+      },
+      {
+        "path": [
+          "revision_history"
+        ],
+        "value": [
+          {
+            "revision": 2,
+            "reason": "Synthetic planning update",
+            "approval": {
+              "approval_type": "project-plan",
+              "approved_by": "example-user",
+              "reference": {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1#issuecomment-1"
+              },
+              "approved_at": "2026-10-27T00:00:00Z"
+            },
+            "affected_feature_ids": [
+              "profile"
+            ],
+            "invalidated_waves": [
+              1
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "delivery-history-missing-approval",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "revision_history"
+        ],
+        "value": [
+          {
+            "revision": 2,
+            "reason": "Synthetic planning update",
+            "affected_feature_ids": [
+              "profile"
+            ],
+            "invalidated_waves": [
+              1
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "delivery-history-runtime-state",
+    "kind": "delivery-plan",
+    "file": "delivery-plan.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "revision_history"
+        ],
+        "value": [
+          {
+            "revision": 2,
+            "reason": "Synthetic planning update",
+            "approval": {
+              "approval_type": "project-plan",
+              "approved_by": "example-user",
+              "reference": {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1#issuecomment-1"
+              },
+              "approved_at": "2026-10-27T00:00:00Z"
+            },
+            "affected_feature_ids": [
+              "profile"
+            ],
+            "invalidated_waves": [
+              1
+            ],
+            "active_claim": "claim-1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "team-missing-membership_source",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "membership_source"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "team-missing-members",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "members"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "team-member-missing-github_login",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "members",
+          0,
+          "github_login"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "team-member-missing-active",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "members",
+          0,
+          "active"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "team-member-missing-roles",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "members",
+          0,
+          "roles"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "team-member-missing-areas",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "members",
+          0,
+          "areas"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "team-member-missing-max_concurrent_issues",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "members",
+          0,
+          "max_concurrent_issues"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "team-member-missing-integration_owner",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "members",
+          0,
+          "integration_owner"
+        ],
+        "remove": true
+      }
+    ]
+  },
+  {
+    "id": "team-invalid-login",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "members",
+          0,
+          "github_login"
+        ],
+        "value": "bad_login"
+      }
+    ]
+  },
+  {
+    "id": "team-inactive-is-boolean",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "members",
+          0,
+          "active"
+        ],
+        "value": "false"
+      }
+    ]
+  },
+  {
+    "id": "team-unknown-role",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "members",
+          0,
+          "roles"
+        ],
+        "value": [
+          "bot"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "team-empty-role",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "members",
+          0,
+          "roles"
+        ],
+        "value": []
+      }
+    ]
+  },
+  {
+    "id": "team-zero-capacity",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "members",
+          0,
+          "max_concurrent_issues"
+        ],
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": "team-fraction-capacity",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "members",
+          0,
+          "max_concurrent_issues"
+        ],
+        "value": 1.5
+      }
+    ]
+  },
+  {
+    "id": "team-bad-area",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "members",
+          0,
+          "areas"
+        ],
+        "value": [
+          "BAD"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "team-bad-owner-area",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "members",
+          0,
+          "integration_owner"
+        ],
+        "value": [
+          "../bad"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "team-email",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "members",
+          0,
+          "email"
+        ],
+        "value": "synthetic@example.invalid"
+      }
+    ]
+  },
+  {
+    "id": "team-working-hours",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "members",
+          0,
+          "working_hours"
+        ],
+        "value": "SYNTHETIC_CANARY_ONLY"
+      }
+    ]
+  },
+  {
+    "id": "team-device",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "members",
+          0,
+          "device_id"
+        ],
+        "value": "synthetic-device"
+      }
+    ]
+  },
+  {
+    "id": "team-token",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "members",
+          0,
+          "token"
+        ],
+        "value": "SYNTHETIC_CANARY_ONLY"
+      }
+    ]
+  },
+  {
+    "id": "team-assigned-issues",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": false,
+    "changes": [
+      {
+        "path": [
+          "members",
+          0,
+          "assigned_issues"
+        ],
+        "value": []
+      }
+    ]
+  },
+  {
+    "id": "team-org-team",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "membership_source",
+          "organization_team"
+        ],
+        "value": {
+          "organization": "example-org",
+          "team_slug": "example-team"
+        }
+      }
+    ]
+  },
+  {
+    "id": "team-inactive-member",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "members",
+          0,
+          "active"
+        ],
+        "value": false
+      }
+    ]
+  },
+  {
+    "id": "team-no-members",
+    "kind": "team",
+    "file": "team.yaml",
+    "valid": true,
+    "changes": [
+      {
+        "path": [
+          "members"
+        ],
+        "value": []
+      }
+    ]
+  },
+  {
+    "id": "yaml-duplicate-key",
+    "kind": "project",
+    "file": "duplicate-key.yaml",
+    "valid": false,
+    "keyword": "yaml"
+  },
+  {
+    "id": "yaml-alias",
+    "kind": "project",
+    "file": "alias.yaml",
+    "valid": false,
+    "keyword": "yaml"
+  },
+  {
+    "id": "yaml-custom-tag",
+    "kind": "project",
+    "file": "custom-tag.yaml",
+    "valid": false,
+    "keyword": "yaml"
+  },
+  {
+    "id": "yaml-multiple-documents",
+    "kind": "project",
+    "file": "multiple-documents.yaml",
+    "valid": false,
+    "keyword": "yaml"
+  }
+]

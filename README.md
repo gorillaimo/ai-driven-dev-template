@@ -58,6 +58,8 @@ AIエージェントへ作業を依頼する前に、以下を確認してくだ
 
 テンプレート全体の開発フロー図は、`docs/common/template-guide.md` を参照してください。
 
+プロジェクト設定・機能の開発計画・メンバー台帳のschema v1と合成記入例は`.ai-workflow/schemas/project/v1/`と`.ai-workflow/templates/project/v1/`にあります。形式テストの成功は担当・権限・承認の確認ではありません。利用方法は`docs/common/operations-manual.md`を参照してください。
+
 PRの作成・更新時にはGitHub Actionsの`Workflow Validation`が、テンプレートの静的テスト・Golden Testと保存Issue YAMLの形式・参照を検査します。開発するアプリ自体のテストは別途用意します。詳しくは`docs/common/operations-manual.md`の「GitHub Actionsでのワークフロー検査」を参照してください。
 
 ワークフロー変更の回帰は`tools/workflow-golden/`のオフラインGolden Testで確認できます。開発対象の言語に関係なく、開発環境のNode.jsで動かします。実行方法と期待見本の更新手順は`docs/common/operations-manual.md`を参照してください。

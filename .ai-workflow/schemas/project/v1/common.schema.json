@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:project:v1:common",
+  "title": "Project configuration shared definitions v1",
+  "$defs": {
+    "projectId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "repositoryCoordinate": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 140,
+      "pattern": "^(?=[^/]{1,39}/)[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*/(?!\\.{1,2}$)[A-Za-z0-9_.-]{1,100}$"
+    },
+    "repositoryUrl": {
+      "type": "string",
+      "minLength": 1,
+      "format": "uri",
+      "pattern": "^https://[^/\\s?#@]+/(?=[^/]{1,39}/)[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*/(?!\\.{1,2}$)[A-Za-z0-9_.-]{1,100}$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+    },
+    "envelope": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "artifact_kind": {
+          "enum": [
+            "project",
+            "delivery_plan",
+            "team"
+          ]
+        },
+        "project_id": {
+          "$ref": "urn:ai-workflow:project:v1:common#/$defs/projectId"
+        },
+        "revision": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+        },
+        "updated_at": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+        },
+        "updated_by": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/actor"
+        },
+        "extensions": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/extensions"
+        }
+      },
+      "required": [
+        "schema_version",
+        "artifact_kind",
+        "project_id",
+        "revision",
+        "updated_at",
+        "updated_by"
+      ]
+    },
+    "idList": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+      },
+      "minItems": 0,
+      "uniqueItems": true
+    },
+    "membershipSource": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "repository"
+        },
+        "organization_team": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "organization": {
+                  "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+                },
+                "team_slug": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100,
+                  "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                }
+              },
+              "required": [
+                "organization",
+                "team_slug"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "sourceReference": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+        }
+      ],
+      "properties": {
+        "kind": {
+          "const": "file"
+        },
+        "target": {
+          "const": "docs/system-context.md"
+        },
+        "fragment": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "fragment"
+      ]
+    }
+  }
+}

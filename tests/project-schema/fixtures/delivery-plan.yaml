@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "delivery_plan",
+  "project_id": "example-app",
+  "revision": 1,
+  "updated_at": "2026-10-27T00:00:00Z",
+  "updated_by": {
+    "actor_type": "human",
+    "actor_ref": "example-user"
+  },
+  "features": [
+    {
+      "feature_id": "foundation",
+      "source_ref": {
+        "kind": "file",
+        "target": "docs/system-context.md",
+        "fragment": "feature-foundation"
+      },
+      "depends_on": [],
+      "area_ids": [
+        "contracts"
+      ],
+      "planned_priority": 1,
+      "constraints": [],
+      "issue_refs": []
+    },
+    {
+      "feature_id": "profile",
+      "source_ref": {
+        "kind": "file",
+        "target": "docs/system-context.md",
+        "fragment": "feature-profile"
+      },
+      "depends_on": [
+        {
+          "feature_id": "foundation",
+          "reason": "The shared API contract must be reviewed first."
+        }
+      ],
+      "area_ids": [
+        "backend",
+        "contracts"
+      ],
+      "planned_priority": 2,
+      "constraints": [
+        {
+          "kind": "shared_area",
+          "area_id": "contracts",
+          "reference": {
+            "kind": "url",
+            "target": "https://github.com/example/project/issues/1#issuecomment-1"
+          },
+          "reason": "Coordinator must review the shared contract scope."
+        }
+      ],
+      "issue_refs": [
+        {
+          "issue_ref": "https://github.com/example/project/issues/1",
+          "work_id": "issue-1",
+          "required": true
+        },
+        {
+          "issue_ref": "https://github.com/example/project/issues/2",
+          "work_id": "issue-2",
+          "required": false
+        }
+      ]
+    }
+  ],
+  "revision_history": []
+}

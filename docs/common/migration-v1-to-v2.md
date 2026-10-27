@@ -7,7 +7,7 @@
 - v1 stable: `v1.0.0`
 - v2: development line
 - `v2.0.0`stable Release: 未公開
-- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。追跡性checkerとBrownfield手順・深度別テンプレートも利用できる。Golden TestとIssue内部のActions統合も利用できる。Project成果物は後続実装。工程は自動実行しない
+- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。追跡性checkerとBrownfield手順・深度別テンプレートも利用できる。Golden TestとIssue内部のActions統合も利用できる。Projectの3成果物schema・合成記入例・形式テストも利用できる。Projectの意味検査・割当・集約は後続実装。工程は自動実行しない
 
 設計文書が存在するだけで、AIが状態管理、自動再開、次Issue選択、claim、複数人調整を自動実行できるとは扱わない。対応する後続実装Issueが完了した機構だけを有効化する。
 
@@ -210,3 +210,16 @@ CIのmerge commitと古い作業用Git snapshotを同一とみなさず、実作
 無効化する場合は新workflowだけを止め、個別検査とIssue/branch/PRの手動運用へ戻れます。
 required check設定を既に追加している場合は人間が設定を先に見直します。今回その設定は変更しません。
 新workflowのmergeはAI意味評価やv2 stable公開の承認を意味しません。
+
+## Project schema v1の追加導入
+
+既存Issue成果物を変更せず、必要な場合だけProject設定・delivery plan・team台帳を追加します。
+`.ai-workflow/templates/project/v1/`の合成例とREADME、`.ai-workflow/schemas/project/v1/`、既存Issue共通schemaをまとめて参照します。
+元ファイルとtemplate commitを保存し、project_id・template_origin・人間login・area・feature source・Issue・方針値を実案件へ明示置換します。
+初期対応はIssues-only/manualで、Project採用の強制や実行時状態の一括移送は行いません。
+
+`npm run test:project --prefix tools/workflow-schema`は同梱例の形式テストです。保存Projectファイルの意味検査や権限確認を実施する移行ツールではありません。
+形式に適合する自己依存や重複IDもあり得るため、人間が依存・一意性・member・area・capacity・承認を確認します。後続validatorで機械検査を追加します。
+GitHubの実status/assignee/claimを静的台帳へ複製せず、共有Project state.yamlを作りません。
+修復できないときは元台帳を保存し、従来のIssue/assignee/着手コメント/branch/PR運用へ戻れます。
+新schemaの追加はalpha/stable Releaseや、Projects/Dispatcher/Runnerの有効化を意味しません。

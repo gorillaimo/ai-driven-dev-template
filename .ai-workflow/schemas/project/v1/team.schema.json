@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:project:v1:team",
+  "title": "Static Project team schema v1",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "urn:ai-workflow:project:v1:common#/$defs/envelope"
+    }
+  ],
+  "properties": {
+    "artifact_kind": {
+      "const": "team"
+    },
+    "membership_source": {
+      "$ref": "urn:ai-workflow:project:v1:common#/$defs/membershipSource"
+    },
+    "members": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "github_login": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "coordinator",
+                "developer",
+                "reviewer"
+              ]
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "areas": {
+            "$ref": "urn:ai-workflow:project:v1:common#/$defs/idList"
+          },
+          "max_concurrent_issues": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "integration_owner": {
+            "$ref": "urn:ai-workflow:project:v1:common#/$defs/idList"
+          }
+        },
+        "required": [
+          "github_login",
+          "active",
+          "roles",
+          "areas",
+          "max_concurrent_issues",
+          "integration_owner"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    }
+  },
+  "required": [
+    "membership_source",
+    "members"
+  ],
+  "unevaluatedProperties": false
+}
