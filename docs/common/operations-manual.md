@@ -656,6 +656,7 @@ AIの出力やPRを確認するときは、以下をチェックします。
 - `.github/pull_request_template.md`: PR本文に対応issue、受け入れ条件、実行した検証、残課題を書かせる。
 - `.github/workflows/issue-contract-check.yml`: issue本文に必要項目があるか確認し、不足があれば `needs-info`、揃っていれば `ready-for-ai` を付ける。
 - `.github/workflows/pr-issue-link-check.yml`: PR本文に `Closes #123` 形式のissueリンクと `実行した検証` があるか確認する。
+- `.github/workflows/workflow-validation.yml`: Node.js 22/24でテンプレートの静的テスト・Golden Testと保存Issue YAMLの形式・参照を検査する。
 
 これにより、GitHub IssuesをAIへの作業指示の入口として使いやすくなります。ただし、GitHub Actionsは仕様の妥当性までは判断できません。受け入れ条件が本当に正しいか、issueのスコープが適切かは人間が確認します。
 
@@ -1013,4 +1014,62 @@ case.yamlのnormalizeは原則`[]`とし、表示専用の最上位`/duration_ms
 
 既存schema/checkerの移行は不要です。失敗しても実作業のstate、承認、ソースを自動修正せず、個別checkerと従来のIssue・branch・PR運用を継続できます。
 保証範囲は同梱合成例の静的回帰です。自然言語の意味、承認者本人性、任意の秘密情報・Issue外変更の検出、調査の真実性を自動保証しません。
-実アプリのテスト実行、GitHub Actions接続、外部AI意味評価、v2 stable公開は別の作業です。
+実アプリのテスト実行、外部AI意味評価、v2 stable公開は別の作業です。Actions接続は次節を参照してください。
+
+## GitHub Actionsでのワークフロー検査
+
+PRを作成・更新すると、Checksに`Workflow Validation (Node 22)`と`Workflow Validation (Node 24)`が表示されます。
+main更新と手動操作でも起動します。手動実行はworkflowをdefault branchへマージした後、Actions画面から選択します。
+これはテンプレートの開発管理機構の検査です。「ログインできるか」「APIが正しい結果を返すか」など開発対象アプリ自身のテストは、各言語の仕組みと別workflowで用意してください。
+
+実行内容:
+
+1. 専用6package（schema/rules/check/trace/golden/ci）のlockfileで依存取得。install scriptsは無効。
+2. 既存の静的テスト、Goldenハーネスのテスト、新CI検査・workflow契約テストを実行。
+3. Golden固定caseを実行。
+4. repositoryに保存したIssue成果物の形式・識別子・必要なローカル参照を検査。
+
+依存取得にはネットワークが必要です。検査は依存導入後オフラインで動き、外部AI・GitHub API・fixture内commandを呼びません。
+Ubuntuで検査するため、Windows/macOS固有の挙動やアプリの実行環境を保証するものではありません。
+
+### 保存Issue YAMLの扱い
+
+`.ai-workflow/issues/<work-id>/`にあるplan.yaml/state.yaml/traceability.yaml/brownfield.yamlのうち、存在するものを対象にします。
+従来どおりYAMLを保存しない場合は、対象0件で終了します。補助fileやproject領域を自動解釈しません。
+既存schema v1に適合し、folderと成果物間の識別子が一致する必要があります。
+
+完了済みstageのartifactとcomplete node、記録済み根拠に必要なローカル参照の欠落はエラーです。
+これから作るstage artifact、pending/not_applicable node、Brownfieldの変更・文書更新・後続提案は未評価として残します。
+planのstage完了は同directoryのstateで確認し、stateがなければ完了と推測しません。
+外部URL、本人性、未対応fragment、名前空間を確定できないIDも未評価です。
+trace node/check参照の既知IDとlink endpoint、明示Markdown anchorとJSON Pointerは検査できます。
+削除済みfileなど現checkoutだけでは存在を確認できない必要参照を自動承認しません。人間が現存する検証記録への参照を見直すか、既存のcontext付き境界checkerで個別にレビューしてください。
+
+ローカルで同じ検査を実行するには、Golden Test節の既存4packageに加えて次を導入します（schemaテストを実行する場合はworkflow-schemaの依存も導入）。
+
+```sh
+npm ci --prefix tools/workflow-ci --ignore-scripts --no-audit --no-fund
+npm test --prefix tools/workflow-ci
+node tools/workflow-ci/validate.mjs
+node tools/workflow-ci/validate.mjs --json
+```
+
+結果のartifact_countは対象数、excluded_countはIssue領域の補助file等の除外数、reference_countsはpass/block/not_evaluatedの件数です。
+全体passでもnot_evaluatedは未確認のままです。成功は仕様の意味、承認者本人性、工程完了、実装の正しさを保証しません。
+詳細な参照方針と上限はadaptive-workflow-design第11.2節を参照してください。自動修正や任意path指定・更新optionはありません。
+
+### 結果・停止・導入の見直し
+
+Checksから失敗したjobのstepとSummaryを確認します。Summaryには依存取得、既存回帰、CI契約、Golden、保存成果物検査のoutcomeを記録します。
+Goldenのcase成否と成果物検査の対象数・未評価理由は、それぞれのstepログで確認します。原文のartifact uploadは行いません。
+failure/skipped/cancelledと、起動していない検査を成功と読み替えないでください。cancel/runner停止でSummaryがなければActionsのstatusを確認します。
+
+新しいpushで同じPR/refの古い実行はcancelします。各jobは10分以内を目標とし、15分で停止します。
+fork PRの初回承認やActions利用制限により未実行となる場合は、保守者がGitHubの画面で状態を確認します。Secretsやwrite権限を与えて通す運用にはしません。
+このworkflowはcontents:readとcredential非保持で動き、PRコメント・ラベル・自動承認・merge・deployを行いません。
+
+導入時は新workflow、必要な6tool package、tests、.ai-workflow/schemas、共通文書を一緒に保持してください。
+branch protectionやrequired checksは自動変更しません。まず実行時間と誤検知を観測し、人間が必要性を判断してから必須化します。
+無効化する場合はGitHubのActions画面でこのworkflowだけを停止するか、レビュー済みPRで新workflowを取り除きます。required checkに設定済みなら、先に人間がその設定を見直します。
+失敗時は元成果物・見本を保存してIssueへ理由を記録し、個別checkerと従来のIssue・branch・PR運用で確認を続けられます。
+外部AI意味評価とv2 stable公開は今回の対応に含みません。

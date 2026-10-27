@@ -21,7 +21,7 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 - release基準: `docs/common/versioning-policy.md`
 - v1からv2への移行: `docs/common/migration-v1-to-v2.md`
 
-v1はIssue、assignee、prompt、人間承認を中心とする軽量な文書駆動baselineです。v2はIssue #8のadaptive workflowとIssue #9のproject orchestrationを段階的に追加します。現在の`main`ではIssue成果物のschema v1、template、同梱例の形式テストとモジュール式ルールのオフライン解決libraryを提供します。計画・状態・再開候補の静的checkerも利用できます。追跡性checkerとBrownfieldの手順・深度別テンプレートも利用できます。Golden Test、Actions統合、Project統制は後続実装です。工程の自動実行は提供しません。
+v1はIssue、assignee、prompt、人間承認を中心とする軽量な文書駆動baselineです。v2はIssue #8のadaptive workflowとIssue #9のproject orchestrationを段階的に追加します。現在の`main`ではIssue成果物のschema v1、template、同梱例の形式テストとモジュール式ルールのオフライン解決libraryを提供します。計画・状態・再開候補の静的checkerも利用できます。追跡性checkerとBrownfieldの手順・深度別テンプレートも利用できます。オフラインGolden TestとIssue内部のActions統合も利用できます。Project統制は後続実装です。工程の自動実行は提供しません。
 
 template release versionと各成果物の`schema_version`は独立しています。template v2で最初に導入するschemaが`schema_version: 1`でも問題ありません。利用先projectでは、このrepositoryの`VERSION`をアプリケーションversionと混同しないでください。
 
@@ -236,4 +236,12 @@ MIT License
 利用時は`.ai-workflow/schemas/`、既存の`tools/workflow-{rules,check,trace}/`、新しい`tools/workflow-golden/`と`tests/workflow-golden/`をまとめて保持します。
 既存checkerと新パッケージそれぞれの依存を導入した後、テスト中の外部通信はありません。
 セットアップ、実行、fixture契約、見本の手動更新、失敗時の扱いは[運用マニュアル](operations-manual.md#golden-testの実行)を参照してください。
-Golden Testの成功は同梱例の回帰確認であり、利用先Issueの承認・完了・安全性の証明ではありません。GitHub Actions接続とAI意味評価は後続実装です。
+Golden Testの成功は同梱例の回帰確認であり、利用先Issueの承認・完了・安全性の証明ではありません。GitHub Actions接続は利用可能で、AI意味評価は後続実装です。
+
+## GitHub Actionsへの接続
+
+`Workflow Validation`は全PR/main更新/手動操作でテンプレートの静的テスト・Golden Testと保存Issue成果物を検査します。
+既存2workflowとは独立し、UbuntuのNode.js 22/24、contents:read、credential非保持で動きます。
+必要な6tool package（schema/rules/check/trace/golden/ci）、tests、.ai-workflow/schemas、workflowをまとめて保持してください。
+アプリ自身のテストは別途用意します。Secrets/自動承認/merge/deploy/AI評価は追加しません。
+導入・結果の見方・未評価・無効化・required checkの段階導入は運用マニュアルの「GitHub Actionsでのワークフロー検査」を参照してください。
