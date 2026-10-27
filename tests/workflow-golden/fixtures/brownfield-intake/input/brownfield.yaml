@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "brownfield",
+  "work_id": "issue-1",
+  "work_source": "github_issue",
+  "issue_ref": "https://github.com/example/project/issues/1",
+  "updated_at": "2026-10-26T00:00:00Z",
+  "updated_by": {
+    "actor_type": "human",
+    "actor_ref": "example-user"
+  },
+  "depth": "medium",
+  "status": "partial",
+  "scope": [
+    "packages",
+    "docs",
+    ".github/workflows"
+  ],
+  "unanalysed": [
+    "合意scope内のCIからdeployへの接続条件。file limitに達して未確認。"
+  ],
+  "components": [
+    {
+      "component_id": "web",
+      "area": "frontend",
+      "location": {
+        "kind": "file",
+        "target": "packages/frontend-next/package.json"
+      },
+      "responsibility": "利用者の画面とAPI呼出の入口（合成例）。",
+      "technologies": [
+        "Next.js"
+      ],
+      "depends_on": [
+        "service"
+      ]
+    },
+    {
+      "component_id": "service",
+      "area": "backend",
+      "location": {
+        "kind": "file",
+        "target": "packages/backend/package.json"
+      },
+      "responsibility": "APIのリクエスト処理（合成例）。",
+      "technologies": [
+        "TypeScript",
+        "Hono"
+      ],
+      "depends_on": [
+        "storage"
+      ]
+    },
+    {
+      "component_id": "storage",
+      "area": "data_store",
+      "location": {
+        "kind": "file",
+        "target": "docs/data-model.md"
+      },
+      "responsibility": "プロフィールモデルの永続化境界（文書で確認した合成例）。",
+      "technologies": [
+        "documented-store"
+      ],
+      "depends_on": []
+    }
+  ],
+  "commands": [
+    {
+      "purpose": "run",
+      "command": "npm run dev --prefix packages/frontend-next",
+      "status": "documented",
+      "evidence": [
+        {
+          "kind": "file",
+          "target": "packages/frontend-next/package.json"
+        }
+      ],
+      "side_effects": "サーバー起動・ネットワーク接続・生成物更新の可能性があるため未実行。"
+    },
+    {
+      "purpose": "build",
+      "command": "npm run build --prefix packages/backend",
+      "status": "documented",
+      "evidence": [
+        {
+          "kind": "file",
+          "target": "packages/backend/package.json"
+        }
+      ],
+      "side_effects": "生成・依存scriptの可能性があるため未実行。"
+    },
+    {
+      "purpose": "test",
+      "command": "npm test --prefix packages/backend",
+      "status": "not_verified",
+      "evidence": [
+        {
+          "kind": "file",
+          "target": "packages/backend/package.json"
+        }
+      ],
+      "side_effects": "実行環境と副作用が不明なため未実行。"
+    },
+    {
+      "purpose": "deploy",
+      "command": "npm run deploy --prefix packages/infra",
+      "status": "not_verified",
+      "evidence": [
+        {
+          "kind": "file",
+          "target": ".github/workflows/deploy.yml"
+        }
+      ],
+      "side_effects": "クラウド更新・権限・費用が関わる可能性。記録のみで実行しない。"
+    }
+  ],
+  "data_models": [
+    {
+      "model_id": "profile",
+      "description": "プロフィールの構造と型だけを参照した合成例。実データは読んでいない。",
+      "reference": {
+        "kind": "file",
+        "target": "docs/data-model.md"
+      }
+    }
+  ],
+  "flows": [
+    {
+      "flow_id": "profile-request",
+      "description": "画面からserviceを経由してstorageへ至る合成フロー。",
+      "components": [
+        "web",
+        "service",
+        "storage"
+      ],
+      "evidence": [
+        {
+          "kind": "file",
+          "target": "docs/request-flow.md"
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "name": "EXAMPLE_API_ENDPOINT",
+      "location": {
+        "kind": "file",
+        "target": ".env.example"
+      }
+    }
+  ],
+  "documents": [
+    {
+      "kind": "file",
+      "target": "README.md"
+    },
+    {
+      "kind": "file",
+      "target": "docs/data-model.md"
+    },
+    {
+      "kind": "file",
+      "target": "docs/request-flow.md"
+    }
+  ],
+  "tests": [
+    {
+      "kind": "file",
+      "target": "packages/backend/tests/profile.test.ts"
+    }
+  ],
+  "ci": [
+    {
+      "kind": "file",
+      "target": ".github/workflows/test.yml"
+    },
+    {
+      "kind": "file",
+      "target": ".github/workflows/deploy.yml"
+    }
+  ],
+  "ownership": [
+    {
+      "area": "backend",
+      "owner_ref": "example-user",
+      "evidence": [
+        {
+          "kind": "file",
+          "target": "CODEOWNERS"
+        }
+      ]
+    }
+  ],
+  "constraints": [
+    "合成の記入例。実プロジェクトの調査結果や承認ではない。",
+    "読み取り専用。指定された調査成果物だけを明示保存する。",
+    "対象コード・依存・生成物・API・Infrastructureを変更しない。",
+    "コマンドを実行せず、秘密値・個人情報・本番データを保存しない。",
+    "Auth詳細・本番データ・復旧の実行検証は範囲外。必要ならHigh調査を別途承認する。"
+  ],
+  "prohibited_areas": [
+    ".env",
+    "secrets",
+    "data/production"
+  ],
+  "change_candidates": [
+    {
+      "kind": "file",
+      "target": "packages/backend"
+    },
+    {
+      "kind": "file",
+      "target": "docs/architecture.md"
+    }
+  ],
+  "risks": [
+    {
+      "risk_id": "deploy-not-reviewed",
+      "severity": "high",
+      "description": "deployの副作用と承認条件を確認できていない。安全性を推測しない。",
+      "evidence": [
+        {
+          "kind": "file",
+          "target": ".github/workflows/deploy.yml"
+        }
+      ]
+    }
+  ],
+  "unknowns": [
+    "CIからdeployへの承認条件、対象環境、権限と失敗時の復旧。"
+  ],
+  "document_updates": [
+    {
+      "target": "docs/system-context.md",
+      "proposal": "合成の主要componentと用語を整理し、実案件では人間へ更新案を提示する。"
+    },
+    {
+      "target": "docs/architecture.md",
+      "proposal": "結合点と未確認のdeploy境界を明示する案を提示する。"
+    }
+  ],
+  "follow_up": [
+    {
+      "summary": "CI/deploy境界の追加調査Issueを作成する。",
+      "reason": "file limitに達したため。調査範囲と承認条件を確認し、deployを実行しない。",
+      "references": [
+        {
+          "kind": "file",
+          "target": ".github/workflows/deploy.yml"
+        }
+      ]
+    }
+  ],
+  "extensions": {
+    "brownfield_review": {
+      "synthetic": true,
+      "mode": "read_only",
+      "purpose": "Issue関連領域を変更前に理解し、未確認と後続候補を残す。",
+      "baseline": {
+        "commit": "0000000000000000000000000000000000000000",
+        "issue_updated_at": "2026-10-26T00:00:00Z"
+      },
+      "limits": {
+        "timebox_minutes": 60,
+        "max_files": 60,
+        "max_depth": 5
+      },
+      "approval": {
+        "status": "not_required",
+        "approved_by": null,
+        "approved_at": null,
+        "reference": null
+      },
+      "stop_conditions": [
+        "調査上限に達したら未解析範囲を残して止める。",
+        "承認・権限・安全性を確認できなければ止める。",
+        "秘密情報への接近、外部通信、副作用や費用の可能性があれば実行せず人間へ戻す。"
+      ],
+      "command_policy": "record_only",
+      "command_verifications": []
+    }
+  }
+}

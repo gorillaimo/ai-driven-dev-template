@@ -1,0 +1,1977 @@
+{
+  "traceability": {
+    "schema_version": 1,
+    "artifact_kind": "traceability",
+    "work_id": "issue-1",
+    "work_source": "github_issue",
+    "issue_ref": "https://github.com/example/project/issues/1",
+    "updated_at": "2026-10-23T00:00:00Z",
+    "updated_by": {
+      "actor_type": "human",
+      "actor_ref": "example-user"
+    },
+    "nodes": [
+      {
+        "id": "ac-1",
+        "kind": "acceptance_criterion",
+        "ref": {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        },
+        "status": "complete"
+      },
+      {
+        "id": "excluded-1",
+        "kind": "non_scope",
+        "ref": {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1",
+          "fragment": "non-scope"
+        },
+        "status": "complete"
+      },
+      {
+        "id": "req-1",
+        "kind": "requirement",
+        "ref": {
+          "kind": "file",
+          "target": "docs/requirements.md"
+        },
+        "status": "complete"
+      },
+      {
+        "id": "design-1",
+        "kind": "design",
+        "ref": {
+          "kind": "file",
+          "target": "docs/design.md"
+        },
+        "status": "complete"
+      },
+      {
+        "id": "test-1",
+        "kind": "test",
+        "ref": {
+          "kind": "file",
+          "target": "tests/example.test.mjs"
+        },
+        "status": "complete"
+      },
+      {
+        "id": "change-1",
+        "kind": "change",
+        "ref": {
+          "kind": "file",
+          "target": "src/example.mjs"
+        },
+        "status": "complete"
+      },
+      {
+        "id": "validation-1",
+        "kind": "validation",
+        "ref": {
+          "kind": "file",
+          "target": "tests/report.json"
+        },
+        "status": "complete"
+      }
+    ],
+    "links": [
+      {
+        "from": "req-1",
+        "to": "ac-1",
+        "relation": "satisfies"
+      },
+      {
+        "from": "design-1",
+        "to": "req-1",
+        "relation": "implements"
+      },
+      {
+        "from": "test-1",
+        "to": "ac-1",
+        "relation": "verifies"
+      },
+      {
+        "from": "change-1",
+        "to": "design-1",
+        "relation": "implements"
+      },
+      {
+        "from": "validation-1",
+        "to": "change-1",
+        "relation": "verifies"
+      },
+      {
+        "from": "validation-1",
+        "to": "test-1",
+        "relation": "verifies"
+      },
+      {
+        "from": "excluded-1",
+        "to": "change-1",
+        "relation": "excludes"
+      }
+    ],
+    "checks": [],
+    "suppressions": []
+  },
+  "workflowInput": {
+    "plan": {
+      "schema_version": 1,
+      "artifact_kind": "plan",
+      "work_id": "issue-1",
+      "work_source": "github_issue",
+      "issue_ref": "https://github.com/example/project/issues/1",
+      "updated_at": "2026-10-12T00:00:00Z",
+      "updated_by": {
+        "actor_type": "human",
+        "actor_ref": "example-user"
+      },
+      "revision": 1,
+      "risk": "medium",
+      "context": [
+        {
+          "kind": "file",
+          "target": "docs/common/development-rules.md"
+        }
+      ],
+      "resolved_rules": [
+        {
+          "rule_id": "legacy",
+          "version": "1.0.0",
+          "reference": {
+            "kind": "file",
+            "target": "docs/common/rules/legacy/rule.yaml"
+          }
+        }
+      ],
+      "stages": [
+        {
+          "stage_id": "intake",
+          "selection": "required",
+          "reason": "Synthetic decision",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ],
+          "decided_by": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "depends_on": [],
+          "artifacts": [],
+          "approval_required": false,
+          "validation_methods": [
+            "Synthetic review"
+          ]
+        },
+        {
+          "stage_id": "context",
+          "selection": "required",
+          "reason": "Synthetic decision",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ],
+          "decided_by": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "depends_on": [],
+          "artifacts": [],
+          "approval_required": false,
+          "validation_methods": [
+            "Synthetic review"
+          ]
+        },
+        {
+          "stage_id": "brownfield",
+          "selection": "skipped",
+          "reason": "Synthetic decision",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ],
+          "decided_by": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "depends_on": [],
+          "artifacts": [],
+          "approval_required": false,
+          "validation_methods": [
+            "Synthetic review"
+          ]
+        },
+        {
+          "stage_id": "prototype",
+          "selection": "skipped",
+          "reason": "Synthetic decision",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ],
+          "decided_by": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "depends_on": [],
+          "artifacts": [],
+          "approval_required": false,
+          "validation_methods": [
+            "Synthetic review"
+          ]
+        },
+        {
+          "stage_id": "requirements",
+          "selection": "required",
+          "reason": "Synthetic decision",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ],
+          "decided_by": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "depends_on": [],
+          "artifacts": [],
+          "approval_required": false,
+          "validation_methods": [
+            "Synthetic review"
+          ]
+        },
+        {
+          "stage_id": "design",
+          "selection": "required",
+          "reason": "Synthetic decision",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ],
+          "decided_by": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "depends_on": [],
+          "artifacts": [],
+          "approval_required": false,
+          "validation_methods": [
+            "Synthetic review"
+          ]
+        },
+        {
+          "stage_id": "api",
+          "selection": "skipped",
+          "reason": "Synthetic decision",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ],
+          "decided_by": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "depends_on": [],
+          "artifacts": [],
+          "approval_required": false,
+          "validation_methods": [
+            "Synthetic review"
+          ]
+        },
+        {
+          "stage_id": "quality",
+          "selection": "skipped",
+          "reason": "Synthetic decision",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ],
+          "decided_by": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "depends_on": [],
+          "artifacts": [],
+          "approval_required": false,
+          "validation_methods": [
+            "Synthetic review"
+          ]
+        },
+        {
+          "stage_id": "tests",
+          "selection": "required",
+          "reason": "Synthetic decision",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ],
+          "decided_by": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "depends_on": [],
+          "artifacts": [],
+          "approval_required": false,
+          "validation_methods": [
+            "Synthetic review"
+          ]
+        },
+        {
+          "stage_id": "implementation",
+          "selection": "required",
+          "reason": "Synthetic decision",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ],
+          "decided_by": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "depends_on": [],
+          "artifacts": [],
+          "approval_required": false,
+          "validation_methods": [
+            "Synthetic review"
+          ]
+        },
+        {
+          "stage_id": "validation",
+          "selection": "required",
+          "reason": "Synthetic decision",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ],
+          "decided_by": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "depends_on": [],
+          "artifacts": [],
+          "approval_required": false,
+          "validation_methods": [
+            "Synthetic review"
+          ]
+        },
+        {
+          "stage_id": "handoff",
+          "selection": "required",
+          "reason": "Synthetic decision",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ],
+          "decided_by": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "depends_on": [],
+          "artifacts": [],
+          "approval_required": false,
+          "validation_methods": [
+            "Synthetic review"
+          ]
+        }
+      ],
+      "extensions": {
+        "rule_resolution": {
+          "schema_version": 1,
+          "resolver_version": "1.0.0",
+          "status": "pass",
+          "context": {
+            "schema_version": 1,
+            "risk": "medium",
+            "areas": [],
+            "technologies": [],
+            "data_types": []
+          },
+          "opt_ins": [],
+          "input_digest": "d90597df7d6ba1214d0c647ebb873e88f419603c794bfc8e144cf8fd65a7bf88",
+          "source_digests": {
+            "AGENTS.md": "1c2ba169529d04a462b30dee45867d1672e17ca8d30397f05b86933d56148ff9",
+            "docs/common/development-rules.md": "1c2ba169529d04a462b30dee45867d1672e17ca8d30397f05b86933d56148ff9"
+          },
+          "rules": [
+            {
+              "rule_id": "legacy",
+              "version": "1.0.0",
+              "reference": {
+                "kind": "file",
+                "target": "docs/common/rules/legacy/rule.yaml"
+              },
+              "status": "selected",
+              "reasons": [
+                "always_on"
+              ]
+            }
+          ],
+          "order": [
+            "legacy"
+          ],
+          "diagnostics": []
+        }
+      }
+    },
+    "state": {
+      "schema_version": 1,
+      "artifact_kind": "state",
+      "work_id": "issue-1",
+      "work_source": "github_issue",
+      "issue_ref": "https://github.com/example/project/issues/1",
+      "updated_at": "2026-10-23T00:00:00Z",
+      "updated_by": {
+        "actor_type": "human",
+        "actor_ref": "example-user"
+      },
+      "plan_revision": 1,
+      "status": "in_progress",
+      "current_stage": null,
+      "last_completed_stage": "validation",
+      "next_stage": "handoff",
+      "git": {
+        "commit": "0000000000000000000000000000000000000000",
+        "branch": "feature/1-example"
+      },
+      "issue_updated_at": "2026-10-23T00:00:00Z",
+      "stages": [
+        {
+          "stage_id": "intake",
+          "status": "completed"
+        },
+        {
+          "stage_id": "context",
+          "status": "completed"
+        },
+        {
+          "stage_id": "brownfield",
+          "status": "skipped"
+        },
+        {
+          "stage_id": "prototype",
+          "status": "skipped"
+        },
+        {
+          "stage_id": "requirements",
+          "status": "completed"
+        },
+        {
+          "stage_id": "design",
+          "status": "completed"
+        },
+        {
+          "stage_id": "api",
+          "status": "skipped"
+        },
+        {
+          "stage_id": "quality",
+          "status": "skipped"
+        },
+        {
+          "stage_id": "tests",
+          "status": "completed"
+        },
+        {
+          "stage_id": "implementation",
+          "status": "completed"
+        },
+        {
+          "stage_id": "validation",
+          "status": "completed"
+        },
+        {
+          "stage_id": "handoff",
+          "status": "pending"
+        }
+      ],
+      "validations": [
+        {
+          "validation_id": "run-1",
+          "status": "passed",
+          "reference": {
+            "kind": "file",
+            "target": "tests/report.json"
+          },
+          "executed_at": "2026-10-23T00:00:00Z"
+        }
+      ],
+      "approvals": [],
+      "blockers": [],
+      "failure_reason": null,
+      "resume": {
+        "instructions": "Issue契約とassigneeを確認し、intakeから開始する。",
+        "pending_operations": [],
+        "safe_to_retry": true
+      },
+      "history": [
+        {
+          "event_id": "event-1",
+          "event_type": "work_planned",
+          "occurred_at": "2026-10-12T00:00:00Z",
+          "actor": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "stage": null,
+          "before": null,
+          "after": "planned",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        {
+          "event_id": "event-2",
+          "event_type": "stage_started",
+          "occurred_at": "2026-10-23T00:00:00Z",
+          "actor": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "stage": "intake",
+          "before": "pending",
+          "after": "in_progress",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        {
+          "event_id": "event-3",
+          "event_type": "stage_completed",
+          "occurred_at": "2026-10-23T00:00:00Z",
+          "actor": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "stage": "intake",
+          "before": "in_progress",
+          "after": "completed",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        {
+          "event_id": "event-4",
+          "event_type": "stage_started",
+          "occurred_at": "2026-10-23T00:00:00Z",
+          "actor": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "stage": "context",
+          "before": "pending",
+          "after": "in_progress",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        {
+          "event_id": "event-5",
+          "event_type": "stage_completed",
+          "occurred_at": "2026-10-23T00:00:00Z",
+          "actor": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "stage": "context",
+          "before": "in_progress",
+          "after": "completed",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        {
+          "event_id": "event-6",
+          "event_type": "stage_started",
+          "occurred_at": "2026-10-23T00:00:00Z",
+          "actor": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "stage": "requirements",
+          "before": "pending",
+          "after": "in_progress",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        {
+          "event_id": "event-7",
+          "event_type": "stage_completed",
+          "occurred_at": "2026-10-23T00:00:00Z",
+          "actor": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "stage": "requirements",
+          "before": "in_progress",
+          "after": "completed",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        {
+          "event_id": "event-8",
+          "event_type": "stage_skipped",
+          "occurred_at": "2026-10-23T00:00:00Z",
+          "actor": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "stage": "brownfield",
+          "before": "pending",
+          "after": "skipped",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        {
+          "event_id": "event-9",
+          "event_type": "stage_skipped",
+          "occurred_at": "2026-10-23T00:00:00Z",
+          "actor": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "stage": "prototype",
+          "before": "pending",
+          "after": "skipped",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        {
+          "event_id": "event-10",
+          "event_type": "stage_skipped",
+          "occurred_at": "2026-10-23T00:00:00Z",
+          "actor": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "stage": "api",
+          "before": "pending",
+          "after": "skipped",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        {
+          "event_id": "event-11",
+          "event_type": "stage_skipped",
+          "occurred_at": "2026-10-23T00:00:00Z",
+          "actor": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "stage": "quality",
+          "before": "pending",
+          "after": "skipped",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        {
+          "event_id": "event-12",
+          "event_type": "stage_started",
+          "occurred_at": "2026-10-23T00:00:00Z",
+          "actor": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "stage": "design",
+          "before": "pending",
+          "after": "in_progress",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        {
+          "event_id": "event-13",
+          "event_type": "stage_completed",
+          "occurred_at": "2026-10-23T00:00:00Z",
+          "actor": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "stage": "design",
+          "before": "in_progress",
+          "after": "completed",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        {
+          "event_id": "event-14",
+          "event_type": "stage_started",
+          "occurred_at": "2026-10-23T00:00:00Z",
+          "actor": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "stage": "tests",
+          "before": "pending",
+          "after": "in_progress",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        {
+          "event_id": "event-15",
+          "event_type": "stage_completed",
+          "occurred_at": "2026-10-23T00:00:00Z",
+          "actor": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "stage": "tests",
+          "before": "in_progress",
+          "after": "completed",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        {
+          "event_id": "event-16",
+          "event_type": "stage_started",
+          "occurred_at": "2026-10-23T00:00:00Z",
+          "actor": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "stage": "implementation",
+          "before": "pending",
+          "after": "in_progress",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        {
+          "event_id": "event-17",
+          "event_type": "stage_completed",
+          "occurred_at": "2026-10-23T00:00:00Z",
+          "actor": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "stage": "implementation",
+          "before": "in_progress",
+          "after": "completed",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        {
+          "event_id": "event-18",
+          "event_type": "stage_started",
+          "occurred_at": "2026-10-23T00:00:00Z",
+          "actor": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "stage": "validation",
+          "before": "pending",
+          "after": "in_progress",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        {
+          "event_id": "event-19",
+          "event_type": "stage_completed",
+          "occurred_at": "2026-10-23T00:00:00Z",
+          "actor": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "stage": "validation",
+          "before": "in_progress",
+          "after": "completed",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        }
+      ],
+      "extensions": {
+        "workflow_check": {
+          "schema_version": 1,
+          "approval_scopes": [],
+          "validation_scopes": [
+            {
+              "validation_id": "run-1",
+              "plan_revision": 1,
+              "stage": "validation"
+            }
+          ],
+          "revisions": []
+        }
+      }
+    },
+    "context": {
+      "schema_version": 1,
+      "work_id": "issue-1",
+      "work_source": "github_issue",
+      "issue_ref": "https://github.com/example/project/issues/1",
+      "risk": "medium",
+      "contract_ref": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/1"
+      },
+      "assignee": "example-user",
+      "ready_for_ai": true,
+      "issue_updated_at": "2026-10-23T00:00:00Z",
+      "conflicts": false,
+      "git": {
+        "commit": "0000000000000000000000000000000000000000",
+        "branch": "feature/1-example",
+        "clean": true,
+        "remote_matches": true
+      },
+      "facts": {
+        "needs_brownfield": {
+          "value": false,
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        "needs_prototype": {
+          "value": false,
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        "changes_spec": {
+          "value": true,
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        "minor_change": {
+          "value": false,
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        "changes_api": {
+          "value": false,
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        "changes_implementation": {
+          "value": true,
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        }
+      },
+      "gates": {
+        "nfr": {
+          "applicable": false,
+          "reason": "Synthetic assessment",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        "security": {
+          "applicable": false,
+          "reason": "Synthetic assessment",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        },
+        "resiliency": {
+          "applicable": false,
+          "reason": "Synthetic assessment",
+          "evidence": [
+            {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1"
+            }
+          ]
+        }
+      },
+      "required_stages": [],
+      "approval_stages": [],
+      "skip_overrides": [],
+      "retry_review": {
+        "confirmed": true,
+        "evidence": [
+          {
+            "kind": "url",
+            "target": "https://github.com/example/project/issues/1"
+          }
+        ]
+      }
+    },
+    "ruleInput": {
+      "rules": [
+        {
+          "schema_version": 1,
+          "rule_id": "legacy",
+          "version": "1.0.0",
+          "level": "always-on",
+          "category": [
+            "governance"
+          ],
+          "applies_when": [],
+          "requires": [],
+          "conflicts_with": [],
+          "after": [],
+          "severity": "block",
+          "purpose": "既存のIssue契約・承認・開発規約を常時維持する。",
+          "inputs": [
+            "Issue契約",
+            "人間の指示"
+          ],
+          "expected_outputs": [
+            "既存規約に従った作業"
+          ],
+          "on_failure": "作業を停止し、Issueへ理由を記録して人間へ確認する。",
+          "approval_required": false,
+          "body_refs": [
+            {
+              "kind": "file",
+              "target": "AGENTS.md"
+            },
+            {
+              "kind": "file",
+              "target": "docs/common/development-rules.md"
+            }
+          ]
+        }
+      ],
+      "sourceDigests": {
+        "AGENTS.md": "1c2ba169529d04a462b30dee45867d1672e17ca8d30397f05b86933d56148ff9",
+        "docs/common/development-rules.md": "1c2ba169529d04a462b30dee45867d1672e17ca8d30397f05b86933d56148ff9"
+      },
+      "ruleSources": {
+        "legacy": "docs/common/rules/legacy/rule.yaml"
+      },
+      "context": {
+        "schema_version": 1,
+        "risk": "medium",
+        "areas": [],
+        "technologies": [],
+        "data_types": []
+      },
+      "optIns": []
+    },
+    "revisionPlans": [],
+    "previous": {
+      "plan": {
+        "schema_version": 1,
+        "artifact_kind": "plan",
+        "work_id": "issue-1",
+        "work_source": "github_issue",
+        "issue_ref": "https://github.com/example/project/issues/1",
+        "updated_at": "2026-10-12T00:00:00Z",
+        "updated_by": {
+          "actor_type": "human",
+          "actor_ref": "example-user"
+        },
+        "revision": 1,
+        "risk": "medium",
+        "context": [
+          {
+            "kind": "file",
+            "target": "docs/common/development-rules.md"
+          }
+        ],
+        "resolved_rules": [
+          {
+            "rule_id": "legacy",
+            "version": "1.0.0",
+            "reference": {
+              "kind": "file",
+              "target": "docs/common/rules/legacy/rule.yaml"
+            }
+          }
+        ],
+        "stages": [
+          {
+            "stage_id": "intake",
+            "selection": "required",
+            "reason": "Synthetic decision",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ],
+            "decided_by": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "depends_on": [],
+            "artifacts": [],
+            "approval_required": false,
+            "validation_methods": [
+              "Synthetic review"
+            ]
+          },
+          {
+            "stage_id": "context",
+            "selection": "required",
+            "reason": "Synthetic decision",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ],
+            "decided_by": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "depends_on": [],
+            "artifacts": [],
+            "approval_required": false,
+            "validation_methods": [
+              "Synthetic review"
+            ]
+          },
+          {
+            "stage_id": "brownfield",
+            "selection": "skipped",
+            "reason": "Synthetic decision",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ],
+            "decided_by": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "depends_on": [],
+            "artifacts": [],
+            "approval_required": false,
+            "validation_methods": [
+              "Synthetic review"
+            ]
+          },
+          {
+            "stage_id": "prototype",
+            "selection": "skipped",
+            "reason": "Synthetic decision",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ],
+            "decided_by": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "depends_on": [],
+            "artifacts": [],
+            "approval_required": false,
+            "validation_methods": [
+              "Synthetic review"
+            ]
+          },
+          {
+            "stage_id": "requirements",
+            "selection": "required",
+            "reason": "Synthetic decision",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ],
+            "decided_by": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "depends_on": [],
+            "artifacts": [],
+            "approval_required": false,
+            "validation_methods": [
+              "Synthetic review"
+            ]
+          },
+          {
+            "stage_id": "design",
+            "selection": "required",
+            "reason": "Synthetic decision",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ],
+            "decided_by": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "depends_on": [],
+            "artifacts": [],
+            "approval_required": false,
+            "validation_methods": [
+              "Synthetic review"
+            ]
+          },
+          {
+            "stage_id": "api",
+            "selection": "skipped",
+            "reason": "Synthetic decision",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ],
+            "decided_by": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "depends_on": [],
+            "artifacts": [],
+            "approval_required": false,
+            "validation_methods": [
+              "Synthetic review"
+            ]
+          },
+          {
+            "stage_id": "quality",
+            "selection": "skipped",
+            "reason": "Synthetic decision",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ],
+            "decided_by": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "depends_on": [],
+            "artifacts": [],
+            "approval_required": false,
+            "validation_methods": [
+              "Synthetic review"
+            ]
+          },
+          {
+            "stage_id": "tests",
+            "selection": "required",
+            "reason": "Synthetic decision",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ],
+            "decided_by": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "depends_on": [],
+            "artifacts": [],
+            "approval_required": false,
+            "validation_methods": [
+              "Synthetic review"
+            ]
+          },
+          {
+            "stage_id": "implementation",
+            "selection": "required",
+            "reason": "Synthetic decision",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ],
+            "decided_by": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "depends_on": [],
+            "artifacts": [],
+            "approval_required": false,
+            "validation_methods": [
+              "Synthetic review"
+            ]
+          },
+          {
+            "stage_id": "validation",
+            "selection": "required",
+            "reason": "Synthetic decision",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ],
+            "decided_by": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "depends_on": [],
+            "artifacts": [],
+            "approval_required": false,
+            "validation_methods": [
+              "Synthetic review"
+            ]
+          },
+          {
+            "stage_id": "handoff",
+            "selection": "required",
+            "reason": "Synthetic decision",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ],
+            "decided_by": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "depends_on": [],
+            "artifacts": [],
+            "approval_required": false,
+            "validation_methods": [
+              "Synthetic review"
+            ]
+          }
+        ],
+        "extensions": {
+          "rule_resolution": {
+            "schema_version": 1,
+            "resolver_version": "1.0.0",
+            "status": "pass",
+            "context": {
+              "schema_version": 1,
+              "risk": "medium",
+              "areas": [],
+              "technologies": [],
+              "data_types": []
+            },
+            "opt_ins": [],
+            "input_digest": "d90597df7d6ba1214d0c647ebb873e88f419603c794bfc8e144cf8fd65a7bf88",
+            "source_digests": {
+              "AGENTS.md": "1c2ba169529d04a462b30dee45867d1672e17ca8d30397f05b86933d56148ff9",
+              "docs/common/development-rules.md": "1c2ba169529d04a462b30dee45867d1672e17ca8d30397f05b86933d56148ff9"
+            },
+            "rules": [
+              {
+                "rule_id": "legacy",
+                "version": "1.0.0",
+                "reference": {
+                  "kind": "file",
+                  "target": "docs/common/rules/legacy/rule.yaml"
+                },
+                "status": "selected",
+                "reasons": [
+                  "always_on"
+                ]
+              }
+            ],
+            "order": [
+              "legacy"
+            ],
+            "diagnostics": []
+          }
+        }
+      },
+      "state": {
+        "schema_version": 1,
+        "artifact_kind": "state",
+        "work_id": "issue-1",
+        "work_source": "github_issue",
+        "issue_ref": "https://github.com/example/project/issues/1",
+        "updated_at": "2026-10-23T00:00:00Z",
+        "updated_by": {
+          "actor_type": "human",
+          "actor_ref": "example-user"
+        },
+        "plan_revision": 1,
+        "status": "in_progress",
+        "current_stage": null,
+        "last_completed_stage": "validation",
+        "next_stage": "handoff",
+        "git": {
+          "commit": "0000000000000000000000000000000000000000",
+          "branch": "feature/1-example"
+        },
+        "issue_updated_at": "2026-10-23T00:00:00Z",
+        "stages": [
+          {
+            "stage_id": "intake",
+            "status": "completed"
+          },
+          {
+            "stage_id": "context",
+            "status": "completed"
+          },
+          {
+            "stage_id": "brownfield",
+            "status": "skipped"
+          },
+          {
+            "stage_id": "prototype",
+            "status": "skipped"
+          },
+          {
+            "stage_id": "requirements",
+            "status": "completed"
+          },
+          {
+            "stage_id": "design",
+            "status": "completed"
+          },
+          {
+            "stage_id": "api",
+            "status": "skipped"
+          },
+          {
+            "stage_id": "quality",
+            "status": "skipped"
+          },
+          {
+            "stage_id": "tests",
+            "status": "completed"
+          },
+          {
+            "stage_id": "implementation",
+            "status": "completed"
+          },
+          {
+            "stage_id": "validation",
+            "status": "completed"
+          },
+          {
+            "stage_id": "handoff",
+            "status": "pending"
+          }
+        ],
+        "validations": [
+          {
+            "validation_id": "run-1",
+            "status": "passed",
+            "reference": {
+              "kind": "file",
+              "target": "tests/report.json"
+            },
+            "executed_at": "2026-10-23T00:00:00Z"
+          }
+        ],
+        "approvals": [],
+        "blockers": [],
+        "failure_reason": null,
+        "resume": {
+          "instructions": "Issue契約とassigneeを確認し、intakeから開始する。",
+          "pending_operations": [],
+          "safe_to_retry": true
+        },
+        "history": [
+          {
+            "event_id": "event-1",
+            "event_type": "work_planned",
+            "occurred_at": "2026-10-12T00:00:00Z",
+            "actor": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "stage": null,
+            "before": null,
+            "after": "planned",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ]
+          },
+          {
+            "event_id": "event-2",
+            "event_type": "stage_started",
+            "occurred_at": "2026-10-23T00:00:00Z",
+            "actor": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "stage": "intake",
+            "before": "pending",
+            "after": "in_progress",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ]
+          },
+          {
+            "event_id": "event-3",
+            "event_type": "stage_completed",
+            "occurred_at": "2026-10-23T00:00:00Z",
+            "actor": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "stage": "intake",
+            "before": "in_progress",
+            "after": "completed",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ]
+          },
+          {
+            "event_id": "event-4",
+            "event_type": "stage_started",
+            "occurred_at": "2026-10-23T00:00:00Z",
+            "actor": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "stage": "context",
+            "before": "pending",
+            "after": "in_progress",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ]
+          },
+          {
+            "event_id": "event-5",
+            "event_type": "stage_completed",
+            "occurred_at": "2026-10-23T00:00:00Z",
+            "actor": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "stage": "context",
+            "before": "in_progress",
+            "after": "completed",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ]
+          },
+          {
+            "event_id": "event-6",
+            "event_type": "stage_started",
+            "occurred_at": "2026-10-23T00:00:00Z",
+            "actor": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "stage": "requirements",
+            "before": "pending",
+            "after": "in_progress",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ]
+          },
+          {
+            "event_id": "event-7",
+            "event_type": "stage_completed",
+            "occurred_at": "2026-10-23T00:00:00Z",
+            "actor": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "stage": "requirements",
+            "before": "in_progress",
+            "after": "completed",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ]
+          },
+          {
+            "event_id": "event-8",
+            "event_type": "stage_skipped",
+            "occurred_at": "2026-10-23T00:00:00Z",
+            "actor": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "stage": "brownfield",
+            "before": "pending",
+            "after": "skipped",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ]
+          },
+          {
+            "event_id": "event-9",
+            "event_type": "stage_skipped",
+            "occurred_at": "2026-10-23T00:00:00Z",
+            "actor": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "stage": "prototype",
+            "before": "pending",
+            "after": "skipped",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ]
+          },
+          {
+            "event_id": "event-10",
+            "event_type": "stage_skipped",
+            "occurred_at": "2026-10-23T00:00:00Z",
+            "actor": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "stage": "api",
+            "before": "pending",
+            "after": "skipped",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ]
+          },
+          {
+            "event_id": "event-11",
+            "event_type": "stage_skipped",
+            "occurred_at": "2026-10-23T00:00:00Z",
+            "actor": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "stage": "quality",
+            "before": "pending",
+            "after": "skipped",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ]
+          },
+          {
+            "event_id": "event-12",
+            "event_type": "stage_started",
+            "occurred_at": "2026-10-23T00:00:00Z",
+            "actor": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "stage": "design",
+            "before": "pending",
+            "after": "in_progress",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ]
+          },
+          {
+            "event_id": "event-13",
+            "event_type": "stage_completed",
+            "occurred_at": "2026-10-23T00:00:00Z",
+            "actor": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "stage": "design",
+            "before": "in_progress",
+            "after": "completed",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ]
+          },
+          {
+            "event_id": "event-14",
+            "event_type": "stage_started",
+            "occurred_at": "2026-10-23T00:00:00Z",
+            "actor": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "stage": "tests",
+            "before": "pending",
+            "after": "in_progress",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ]
+          },
+          {
+            "event_id": "event-15",
+            "event_type": "stage_completed",
+            "occurred_at": "2026-10-23T00:00:00Z",
+            "actor": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "stage": "tests",
+            "before": "in_progress",
+            "after": "completed",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ]
+          },
+          {
+            "event_id": "event-16",
+            "event_type": "stage_started",
+            "occurred_at": "2026-10-23T00:00:00Z",
+            "actor": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "stage": "implementation",
+            "before": "pending",
+            "after": "in_progress",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ]
+          },
+          {
+            "event_id": "event-17",
+            "event_type": "stage_completed",
+            "occurred_at": "2026-10-23T00:00:00Z",
+            "actor": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "stage": "implementation",
+            "before": "in_progress",
+            "after": "completed",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ]
+          },
+          {
+            "event_id": "event-18",
+            "event_type": "stage_started",
+            "occurred_at": "2026-10-23T00:00:00Z",
+            "actor": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "stage": "validation",
+            "before": "pending",
+            "after": "in_progress",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ]
+          },
+          {
+            "event_id": "event-19",
+            "event_type": "stage_completed",
+            "occurred_at": "2026-10-23T00:00:00Z",
+            "actor": {
+              "actor_type": "human",
+              "actor_ref": "example-user"
+            },
+            "stage": "validation",
+            "before": "in_progress",
+            "after": "completed",
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ]
+          }
+        ],
+        "extensions": {
+          "workflow_check": {
+            "schema_version": 1,
+            "approval_scopes": [],
+            "validation_scopes": [
+              {
+                "validation_id": "run-1",
+                "plan_revision": 1,
+                "stage": "validation"
+              }
+            ],
+            "revisions": []
+          }
+        }
+      }
+    }
+  },
+  "context": {
+    "schema_version": 1,
+    "work_id": "issue-1",
+    "work_source": "github_issue",
+    "issue_ref": "https://github.com/example/project/issues/1",
+    "plan_revision": 1,
+    "contract_ref": {
+      "kind": "url",
+      "target": "https://github.com/example/project/issues/1"
+    },
+    "boundary": "implementation_to_pr",
+    "evaluated_at": "2026-10-23T00:00:00Z",
+    "criteria": [
+      {
+        "id": "ac-1",
+        "ref": {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        },
+        "required_kinds": [],
+        "exemptions": []
+      }
+    ],
+    "non_scope": [
+      {
+        "id": "excluded-1",
+        "ref": {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1",
+          "fragment": "non-scope"
+        }
+      }
+    ],
+    "change_inventory": [
+      {
+        "node_id": "change-1",
+        "path": "src/example.mjs",
+        "operation": "modified"
+      },
+      {
+        "node_id": "outside-change",
+        "path": "src/outside.mjs",
+        "operation": "added"
+      }
+    ],
+    "external_confirmations": [
+      {
+        "reference": {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        },
+        "confirmed_by": "example-user",
+        "confirmed_at": "2026-10-23T00:00:00Z",
+        "evidence": [
+          {
+            "kind": "url",
+            "target": "https://github.com/example/project/issues/1"
+          }
+        ]
+      },
+      {
+        "reference": {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1",
+          "fragment": "non-scope"
+        },
+        "confirmed_by": "example-user",
+        "confirmed_at": "2026-10-23T00:00:00Z",
+        "evidence": [
+          {
+            "kind": "url",
+            "target": "https://github.com/example/project/issues/1"
+          }
+        ]
+      }
+    ],
+    "suppression_scopes": []
+  },
+  "references": [
+    {
+      "reference": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/1"
+      },
+      "status": "human_asserted",
+      "digest": null
+    },
+    {
+      "reference": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/1",
+        "fragment": "non-scope"
+      },
+      "status": "human_asserted",
+      "digest": null
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "docs/requirements.md"
+      },
+      "status": "local_verified",
+      "digest": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2"
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "docs/design.md"
+      },
+      "status": "local_verified",
+      "digest": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2"
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "tests/example.test.mjs"
+      },
+      "status": "local_verified",
+      "digest": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2"
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "src/example.mjs"
+      },
+      "status": "local_verified",
+      "digest": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2"
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "tests/report.json"
+      },
+      "status": "local_verified",
+      "digest": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2"
+    }
+  ]
+}

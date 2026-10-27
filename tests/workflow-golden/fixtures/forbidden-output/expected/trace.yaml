@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "checker_version": "1.0.0",
+  "input_digest": "78c955f25c5e48e0b47f054ef69fe1ee1bba2f500c56d965f9e309b4dee2831c",
+  "subject_digest": "2af51ad0e5a6f03472e34fcbf1df790a9d0dae16c9219564d44b419221c2fd2f",
+  "boundary": "implementation_to_pr",
+  "status": "blocked",
+  "coverage": [
+    {
+      "ac_id": "ac-1",
+      "required_kinds": [
+        "change",
+        "design",
+        "requirement",
+        "test",
+        "validation"
+      ],
+      "matches": {
+        "requirement": [
+          "req-1"
+        ],
+        "design": [
+          "design-1"
+        ],
+        "test": [
+          "test-1"
+        ],
+        "change": [
+          "change-1"
+        ],
+        "validation": [
+          "validation-1"
+        ]
+      },
+      "complete": true
+    }
+  ],
+  "diagnostics": [
+    {
+      "check_id": "check-37d8a3cb6fea12d61b294815",
+      "code": "inventory_mismatch",
+      "path": "context/change_inventory",
+      "node": "outside-change",
+      "edge": null,
+      "severity": "block",
+      "suppressed": false
+    },
+    {
+      "check_id": "check-ece20a782852f8a60b5c0648",
+      "code": "non_scope_violation",
+      "path": "traceability/links",
+      "node": "change-1",
+      "edge": {
+        "from": "excluded-1",
+        "to": "change-1",
+        "relation": "excludes"
+      },
+      "severity": "block",
+      "suppressed": false
+    }
+  ],
+  "references": [
+    {
+      "reference": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/1",
+        "fragment": "non-scope"
+      },
+      "status": "human_asserted",
+      "digest": null
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "docs/design.md"
+      },
+      "status": "local_verified",
+      "digest": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2"
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "docs/requirements.md"
+      },
+      "status": "local_verified",
+      "digest": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2"
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "src/example.mjs"
+      },
+      "status": "local_verified",
+      "digest": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2"
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "tests/example.test.mjs"
+      },
+      "status": "local_verified",
+      "digest": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2"
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "tests/report.json"
+      },
+      "status": "local_verified",
+      "digest": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2"
+    },
+    {
+      "reference": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/1"
+      },
+      "status": "human_asserted",
+      "digest": null
+    }
+  ],
+  "checks": [
+    {
+      "check_id": "check-37d8a3cb6fea12d61b294815",
+      "boundary": "implementation_to_pr",
+      "result": "block",
+      "references": [
+        {
+          "kind": "id",
+          "target": "outside-change"
+        }
+      ],
+      "reason": "inventory_mismatch"
+    },
+    {
+      "check_id": "check-ece20a782852f8a60b5c0648",
+      "boundary": "implementation_to_pr",
+      "result": "block",
+      "references": [
+        {
+          "kind": "id",
+          "target": "change-1"
+        }
+      ],
+      "reason": "non_scope_violation"
+    }
+  ]
+}

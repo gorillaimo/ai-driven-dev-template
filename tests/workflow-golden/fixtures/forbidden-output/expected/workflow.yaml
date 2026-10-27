@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "checker_version": "1.0.0",
+  "input_digest": "6c779987df1f8e4bb25f7b31935ef3212b532fd83e038b141dac2b33c3c35a99",
+  "status": "blocked",
+  "checks": [
+    {
+      "check_id": "schema",
+      "status": "pass"
+    },
+    {
+      "check_id": "identity",
+      "status": "pass"
+    },
+    {
+      "check_id": "rules",
+      "status": "pass"
+    },
+    {
+      "check_id": "plan",
+      "status": "pass"
+    },
+    {
+      "check_id": "state",
+      "status": "block"
+    },
+    {
+      "check_id": "append_only",
+      "status": "pass"
+    },
+    {
+      "check_id": "resume",
+      "status": "block"
+    }
+  ],
+  "diagnostics": [
+    {
+      "code": "approval_invalid",
+      "path": "previous/state/approvals",
+      "stage": "design",
+      "event": "event-16"
+    },
+    {
+      "code": "approval_invalid",
+      "path": "previous/state/history/15",
+      "stage": null,
+      "event": "event-16"
+    },
+    {
+      "code": "approval_invalid",
+      "path": "state/approvals",
+      "stage": "design",
+      "event": "event-16"
+    },
+    {
+      "code": "approval_invalid",
+      "path": "state/history/15",
+      "stage": null,
+      "event": "event-16"
+    },
+    {
+      "code": "approval_missing",
+      "path": "state/approvals",
+      "stage": "tests",
+      "event": null
+    }
+  ],
+  "resume_decision": "blocked",
+  "next_stage": null
+}

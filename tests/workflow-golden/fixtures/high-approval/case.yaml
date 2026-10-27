@@ -1,0 +1,42 @@
+{
+  "format_version": 1,
+  "id": "high-approval",
+  "purpose": "High change stops before tests/implementation until design and Quality Gates approvals exist.",
+  "adapters": [
+    "rules",
+    "plan",
+    "workflow"
+  ],
+  "inputs": {
+    "rules": "input/rules.yaml",
+    "plan": "input/plan.yaml",
+    "workflow": "input/workflow.yaml"
+  },
+  "expected": {
+    "rules": "expected/rules.yaml",
+    "plan": "expected/plan.yaml",
+    "workflow": "expected/workflow.yaml"
+  },
+  "signals": {
+    "rules": {
+      "status": "pass",
+      "codes": []
+    },
+    "plan": {
+      "status": "pass",
+      "codes": []
+    },
+    "workflow": {
+      "status": "blocked",
+      "codes": [
+        "approval_missing"
+      ]
+    }
+  },
+  "normalize": [],
+  "assets": [
+    "input/AGENTS.md",
+    "input/development-rules.md",
+    "input/issue.md"
+  ]
+}

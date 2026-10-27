@@ -1,0 +1,40 @@
+{
+  "format_version": 1,
+  "id": "high-infra",
+  "purpose": "High infrastructure change selects infrastructure, security and resiliency conditional rules.",
+  "adapters": [
+    "rules",
+    "plan",
+    "workflow"
+  ],
+  "inputs": {
+    "rules": "input/rules.yaml",
+    "plan": "input/plan.yaml",
+    "workflow": "input/workflow.yaml"
+  },
+  "expected": {
+    "rules": "expected/rules.yaml",
+    "plan": "expected/plan.yaml",
+    "workflow": "expected/workflow.yaml"
+  },
+  "signals": {
+    "rules": {
+      "status": "pass",
+      "codes": []
+    },
+    "plan": {
+      "status": "pass",
+      "codes": []
+    },
+    "workflow": {
+      "status": "pass",
+      "codes": []
+    }
+  },
+  "normalize": [],
+  "assets": [
+    "input/AGENTS.md",
+    "input/development-rules.md",
+    "input/issue.md"
+  ]
+}

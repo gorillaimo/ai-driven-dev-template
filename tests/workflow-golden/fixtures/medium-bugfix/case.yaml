@@ -1,0 +1,40 @@
+{
+  "format_version": 1,
+  "id": "medium-bugfix",
+  "purpose": "Medium bugfix uses the existing specification and regression tests, skipping new API design.",
+  "adapters": [
+    "rules",
+    "plan",
+    "workflow"
+  ],
+  "inputs": {
+    "rules": "input/rules.yaml",
+    "plan": "input/plan.yaml",
+    "workflow": "input/workflow.yaml"
+  },
+  "expected": {
+    "rules": "expected/rules.yaml",
+    "plan": "expected/plan.yaml",
+    "workflow": "expected/workflow.yaml"
+  },
+  "signals": {
+    "rules": {
+      "status": "pass",
+      "codes": []
+    },
+    "plan": {
+      "status": "pass",
+      "codes": []
+    },
+    "workflow": {
+      "status": "pass",
+      "codes": []
+    }
+  },
+  "normalize": [],
+  "assets": [
+    "input/AGENTS.md",
+    "input/development-rules.md",
+    "input/issue.md"
+  ]
+}

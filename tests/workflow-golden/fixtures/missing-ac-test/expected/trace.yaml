@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "checker_version": "1.0.0",
+  "input_digest": "46262c19de891e526ede3c545eef6a0c010ebe9d90207dc54db296845d798f93",
+  "subject_digest": "fde3ba6c8966f191d5af36e76d5ab5ce5b6f75dbdf4add7becbcd7bec5915251",
+  "boundary": "implementation_to_pr",
+  "status": "blocked",
+  "coverage": [
+    {
+      "ac_id": "ac-1",
+      "required_kinds": [
+        "change",
+        "design",
+        "requirement",
+        "test",
+        "validation"
+      ],
+      "matches": {
+        "requirement": [
+          "req-1"
+        ],
+        "design": [
+          "design-1"
+        ],
+        "test": [],
+        "change": [
+          "change-1"
+        ],
+        "validation": [
+          "validation-1"
+        ]
+      },
+      "complete": false
+    }
+  ],
+  "diagnostics": [
+    {
+      "check_id": "check-87d86d0f42ef130c9a4b3dba",
+      "code": "orphan_node",
+      "path": "traceability/nodes",
+      "node": "test-1",
+      "edge": null,
+      "severity": "block",
+      "suppressed": false
+    },
+    {
+      "check_id": "check-d080641d15258a383ff62acf",
+      "code": "coverage_missing",
+      "path": "coverage/test",
+      "node": "ac-1",
+      "edge": null,
+      "severity": "block",
+      "suppressed": false
+    }
+  ],
+  "references": [
+    {
+      "reference": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/1",
+        "fragment": "non-scope"
+      },
+      "status": "human_asserted",
+      "digest": null
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "docs/design.md"
+      },
+      "status": "local_verified",
+      "digest": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2"
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "docs/requirements.md"
+      },
+      "status": "local_verified",
+      "digest": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2"
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "src/example.mjs"
+      },
+      "status": "local_verified",
+      "digest": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2"
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "tests/example.test.mjs"
+      },
+      "status": "local_verified",
+      "digest": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2"
+    },
+    {
+      "reference": {
+        "kind": "file",
+        "target": "tests/report.json"
+      },
+      "status": "local_verified",
+      "digest": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2"
+    },
+    {
+      "reference": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/1"
+      },
+      "status": "human_asserted",
+      "digest": null
+    }
+  ],
+  "checks": [
+    {
+      "check_id": "check-87d86d0f42ef130c9a4b3dba",
+      "boundary": "implementation_to_pr",
+      "result": "block",
+      "references": [
+        {
+          "kind": "id",
+          "target": "test-1"
+        }
+      ],
+      "reason": "orphan_node"
+    },
+    {
+      "check_id": "check-d080641d15258a383ff62acf",
+      "boundary": "implementation_to_pr",
+      "result": "block",
+      "references": [
+        {
+          "kind": "id",
+          "target": "ac-1"
+        }
+      ],
+      "reason": "coverage_missing"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "format_version": 1,
+  "id": "missing-ac-test",
+  "purpose": "Missing AC-to-test verification link yields blocked at implementation_to_pr.",
+  "adapters": [
+    "trace"
+  ],
+  "inputs": {
+    "trace": "input/trace.yaml"
+  },
+  "expected": {
+    "trace": "expected/trace.yaml"
+  },
+  "signals": {
+    "trace": {
+      "status": "blocked",
+      "codes": [
+        "coverage_missing",
+        "orphan_node"
+      ]
+    }
+  },
+  "normalize": [],
+  "assets": [
+    "input/AGENTS.md",
+    "input/development-rules.md",
+    "input/issue.md"
+  ]
+}

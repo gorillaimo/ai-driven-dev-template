@@ -1,0 +1,39 @@
+{
+  "format_version": 1,
+  "id": "forbidden-output",
+  "purpose": "Reject declared out-of-scope/unlisted changes and AI-authored approval evidence; never expose synthetic sensitive text.",
+  "adapters": [
+    "workflow",
+    "trace"
+  ],
+  "inputs": {
+    "workflow": "input/workflow.yaml",
+    "trace": "input/trace.yaml"
+  },
+  "expected": {
+    "workflow": "expected/workflow.yaml",
+    "trace": "expected/trace.yaml"
+  },
+  "signals": {
+    "workflow": {
+      "status": "blocked",
+      "codes": [
+        "approval_invalid",
+        "approval_missing"
+      ]
+    },
+    "trace": {
+      "status": "blocked",
+      "codes": [
+        "inventory_mismatch",
+        "non_scope_violation"
+      ]
+    }
+  },
+  "normalize": [],
+  "assets": [
+    "input/AGENTS.md",
+    "input/development-rules.md",
+    "input/issue.md"
+  ]
+}

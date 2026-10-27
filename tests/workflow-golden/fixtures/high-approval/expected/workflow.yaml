@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "checker_version": "1.0.0",
+  "input_digest": "7c5ec0bb58e9391f3fac6acb5625bd22fee289a9c3437d62b9b27c1f23b28bb5",
+  "status": "blocked",
+  "checks": [
+    {
+      "check_id": "schema",
+      "status": "pass"
+    },
+    {
+      "check_id": "identity",
+      "status": "pass"
+    },
+    {
+      "check_id": "rules",
+      "status": "pass"
+    },
+    {
+      "check_id": "plan",
+      "status": "pass"
+    },
+    {
+      "check_id": "state",
+      "status": "pass"
+    },
+    {
+      "check_id": "append_only",
+      "status": "pass"
+    },
+    {
+      "check_id": "resume",
+      "status": "block"
+    }
+  ],
+  "diagnostics": [
+    {
+      "code": "approval_missing",
+      "path": "state/approvals",
+      "stage": "tests",
+      "event": null
+    }
+  ],
+  "resume_decision": "blocked",
+  "next_stage": null
+}

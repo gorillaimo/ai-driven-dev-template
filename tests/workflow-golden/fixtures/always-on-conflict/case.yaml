@@ -1,0 +1,28 @@
+{
+  "format_version": 1,
+  "id": "always-on-conflict",
+  "purpose": "Opt-in cannot override legacy always-on; conflict blocks execution without changing source rules.",
+  "adapters": [
+    "rules"
+  ],
+  "inputs": {
+    "rules": "input/rules.yaml"
+  },
+  "expected": {
+    "rules": "expected/rules.yaml"
+  },
+  "signals": {
+    "rules": {
+      "status": "blocked",
+      "codes": [
+        "rule_conflict"
+      ]
+    }
+  },
+  "normalize": [],
+  "assets": [
+    "input/AGENTS.md",
+    "input/development-rules.md",
+    "input/issue.md"
+  ]
+}

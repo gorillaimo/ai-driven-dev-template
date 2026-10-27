@@ -1,0 +1,99 @@
+{
+  "rules": [
+    {
+      "schema_version": 1,
+      "rule_id": "legacy",
+      "version": "1.0.0",
+      "level": "always-on",
+      "category": [
+        "governance"
+      ],
+      "applies_when": [],
+      "requires": [],
+      "conflicts_with": [],
+      "after": [],
+      "severity": "block",
+      "purpose": "既存のIssue契約・承認・開発規約を常時維持する。",
+      "inputs": [
+        "Issue契約",
+        "人間の指示"
+      ],
+      "expected_outputs": [
+        "既存規約に従った作業"
+      ],
+      "on_failure": "作業を停止し、Issueへ理由を記録して人間へ確認する。",
+      "approval_required": false,
+      "body_refs": [
+        {
+          "kind": "file",
+          "target": "AGENTS.md"
+        },
+        {
+          "kind": "file",
+          "target": "docs/common/development-rules.md"
+        }
+      ]
+    },
+    {
+      "schema_version": 1,
+      "rule_id": "bypass",
+      "version": "1.0.0",
+      "level": "opt-in",
+      "category": [
+        "governance"
+      ],
+      "applies_when": [],
+      "requires": [],
+      "conflicts_with": [
+        "legacy"
+      ],
+      "after": [],
+      "severity": "block",
+      "purpose": "既存のIssue契約・承認・開発規約を常時維持する。",
+      "inputs": [
+        "Issue契約",
+        "人間の指示"
+      ],
+      "expected_outputs": [
+        "既存規約に従った作業"
+      ],
+      "on_failure": "作業を停止し、Issueへ理由を記録して人間へ確認する。",
+      "approval_required": false,
+      "body_refs": [
+        {
+          "kind": "file",
+          "target": "docs/common/rules/bypass/rule.md"
+        }
+      ]
+    }
+  ],
+  "sourceDigests": {
+    "AGENTS.md": "1c2ba169529d04a462b30dee45867d1672e17ca8d30397f05b86933d56148ff9",
+    "docs/common/development-rules.md": "1c2ba169529d04a462b30dee45867d1672e17ca8d30397f05b86933d56148ff9"
+  },
+  "ruleSources": {
+    "legacy": "docs/common/rules/legacy/rule.yaml"
+  },
+  "context": {
+    "schema_version": 1,
+    "risk": "low",
+    "areas": [],
+    "technologies": [],
+    "data_types": []
+  },
+  "optIns": [
+    {
+      "rule_id": "bypass",
+      "version": "1.0.0",
+      "approval": {
+        "approval_type": "opt-in",
+        "approved_by": "example-user",
+        "reference": {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        },
+        "approved_at": "2026-10-23T00:00:00Z"
+      }
+    }
+  ]
+}

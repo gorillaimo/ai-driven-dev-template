@@ -1,0 +1,17 @@
+{
+  "format_version": 1,
+  "cases": [
+    "low-docs",
+    "medium-feature",
+    "medium-bugfix",
+    "high-approval",
+    "high-infra",
+    "brownfield-intake",
+    "safe-resume",
+    "missing-ac-test",
+    "missing-ac-test-draft",
+    "implementation-before-tests",
+    "always-on-conflict",
+    "forbidden-output"
+  ]
+}
