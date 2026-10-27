@@ -1,0 +1,84 @@
+name: Workflow Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: workflow-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Workflow Validation (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - name: Checkout tested revision
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install locked development tools
+        id: install
+        run: |
+          npm ci --prefix tools/workflow-rules --ignore-scripts --no-audit --no-fund
+          npm ci --prefix tools/workflow-check --ignore-scripts --no-audit --no-fund
+          npm ci --prefix tools/workflow-trace --ignore-scripts --no-audit --no-fund
+          npm ci --prefix tools/workflow-schema --ignore-scripts --no-audit --no-fund
+          npm ci --prefix tools/workflow-golden --ignore-scripts --no-audit --no-fund
+          npm ci --prefix tools/workflow-ci --ignore-scripts --no-audit --no-fund
+      - name: Existing schema and checker tests
+        id: regression
+        run: |
+          node tools/workflow-schema/validate.mjs
+          npm run test:brownfield --prefix tools/workflow-schema
+          npm test --prefix tools/workflow-rules
+          npm test --prefix tools/workflow-check
+          npm test --prefix tools/workflow-trace
+          npm test --prefix tools/workflow-golden
+      - name: CI runner and workflow contract tests
+        id: contracts
+        run: npm test --prefix tools/workflow-ci
+      - name: Golden cases
+        id: golden
+        run: node tools/workflow-golden/run.mjs --json
+      - name: Inspect committed Issue artifacts
+        id: artifacts
+        run: node tools/workflow-ci/validate.mjs --json
+      - name: Validation summary
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+          INSTALL_OUTCOME: ${{ steps.install.outcome }}
+          REGRESSION_OUTCOME: ${{ steps.regression.outcome }}
+          CONTRACT_OUTCOME: ${{ steps.contracts.outcome }}
+          GOLDEN_OUTCOME: ${{ steps.golden.outcome }}
+          CI_OUTCOME: ${{ steps.artifacts.outcome }}
+        run: |
+          {
+            printf '## Workflow Validation\n\n'
+            printf 'Job status: %s\n\n' "$JOB_STATUS"
+            printf '| Check | Outcome |\n| --- | --- |\n'
+            printf '| Dependency installation | %s |\n' "$INSTALL_OUTCOME"
+            printf '| Existing regression suites | %s |\n' "$REGRESSION_OUTCOME"
+            printf '| CI runner and workflow contract | %s |\n' "$CONTRACT_OUTCOME"
+            printf '| Golden cases | %s |\n' "$GOLDEN_OUTCOME"
+            printf '| Committed Issue artifacts | %s |\n' "$CI_OUTCOME"
+            printf '\nSee the Golden cases and Issue artifact step logs for case results, counts and not_evaluated reasons.\n'
+            printf 'success is not human approval; skipped/cancelled/empty outcomes are not verification.\n'
+          } >> "$GITHUB_STEP_SUMMARY"

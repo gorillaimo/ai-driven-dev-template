@@ -7,7 +7,7 @@
 - 状態: 設計承認済み（Issue #8、2026-08-06）
 - 承認記録: https://github.com/gorillaimo/ai-driven-dev-template/issues/8#issuecomment-5206128174
 - 適用開始: 後続実装Issueが完了し、この文書の各機構が有効化された時点
-- 現時点の扱い: Issue成果物のschema v1、YAMLテンプレート、同梱例のオフライン形式テスト、およびモジュール式ルールのmetadata・オフライン解決libraryを提供する。plan/stateの工程・履歴・再開候補を検査する静的checkerも提供する。フェーズ境界の追跡性checkerも提供する。Brownfieldの読み取り専用手順と深度別テンプレートも提供する。オフラインGolden Testハーネスと固定合成fixtureも提供する。CLI、GitHub Actions統合は未実装
+- 現時点の扱い: Issue成果物のschema v1、YAMLテンプレート、同梱例のオフライン形式テスト、およびモジュール式ルールのmetadata・オフライン解決libraryを提供する。plan/stateの工程・履歴・再開候補を検査する静的checkerも提供する。フェーズ境界の追跡性checkerも提供する。Brownfieldの読み取り専用手順と深度別テンプレートも提供する。オフラインGolden Testハーネスと固定合成fixtureも提供する。Issue内部ワークフローのGitHub Actions統合も提供する。統合CLIは未実装
 - 互換性方針: 既存利用者を壊さない追加方式とし、従来のIssueベース運用だけでも開発を継続できること
 
 設計承認前は、この文書を根拠として実装へ進んではならない。設計承認後も、対応する後続実装Issueの契約、assignee、`ready-for-ai`、変更リスクに応じた人間承認を確認してから着手する。初期リリースは共通仕様、テンプレート、オフライン静的チェック、GitHub Actionsを対象とし、統合CLIは利用実績を確認してから別Issueで判断する。
@@ -730,6 +730,41 @@ plan adapterは入力planへ再解決したrule結果を投影し、workflow ada
 - AI評価ジョブは手動または明示opt-inとし、権限を最小化し、fork PRでは秘密情報を渡さない。
 - Actionsは仕様の妥当性、人間の承認者本人性、意味上の完全性を自動決定しない。
 - 必須チェック化は誤検知率と実行時間を計測した後、リポジトリ設定で段階的に行う。
+
+### 11.1 実装済みのWorkflow Validation
+
+`.github/workflows/workflow-validation.yml`は既存2workflowと独立し、全PRのopened/synchronize/reopened/ready_for_review、main push、手動で起動する。
+pathsフィルターを使わず、UbuntuのNode.js 22/24で既存のschema/rules/workflow/trace/Brownfield/Goldenテスト、新CIテスト、Golden固定case、保存Issue成果物検査を実行する。
+対象はテンプレートの開発管理機構で、アプリケーション自身のbuild/test/deployは実行しない。
+6つの専用packageをlockfileに従いinstall scripts無効で導入し、依存取得後の検査はオフラインで動く。
+公式checkout/setup-nodeを確認したcommit SHAへ固定し、contents:read、persist-credentials:false、fetch-depth:1を使う。PRでは既定のmerge commitを検査する。
+Secrets、write権限、OIDC、pull_request_target、キャッシュ、原文artifact upload、外部AI、PR本文のshell展開を使わない。
+Node matrixはfail-fast:false、同一PR/refの古い実行だけをcancelし、各jobの目標10分/timeout15分を設定する。
+summary stepはalways()で結果を記録する。cancelやrunner停止によりsummaryが残らない場合はActions自体のstatusを確認し、未実行を成功へ変えない。
+
+### 11.2 保存Issue成果物のCI入口
+
+`tools/workflow-ci/validate.mjs`はrepository rootを読み取る限定runner。reportのformat_version:1は成果物schemaとは別契約。
+`.ai-workflow/issues/<work-id>/{plan,state,traceability,brownfield}.yaml`に存在する既知fileだけを対象とする。
+4種類の一律保存は不要。directoryがなければ対象0件でpass。同梱template/fixtureは既存テストの責務で、補助fileとproject領域はこのrunnerの対象外。
+未知の補助fileは実行・解釈せず、Issue directory内では除外件数を報告する。work directory名は既存ID形式を要求する。
+既存schema v1をローカル登録し、形式/filename-kind、directoryのwork_id、GitHub Issue番号、同directory内の識別子を確認する。
+複数成果物ではwork_id/work_source/issue_ref/project_id/feature_idの一致を確認するが、実GitHubやGit snapshotの照会・本人認証・工程の再開判定はしない。
+
+参照はschemaに適合したcore領域だけを読み、extensionsを解釈しない。fileはroot内・symlinkなし・通常file/directoryを確認する。
+fragmentなしでは存在/型/サイズだけを確認し、原文を読み出さない。fragment付き通常fileでは既存inspectReferenceの明示Markdown anchor/JSON Pointer判定を再利用する。
+URL、名前空間不明のID、未対応fragmentはnot_evaluated。traceのnodes/refとchecks/references内のIDだけをnode名前空間で照合し、node/link重複と未知endpointを検出する。
+plan.stagesのartifactsは同directoryのstateで当該stageが一意にcompletedのとき必要参照とする。stateなし/未完了/skipはfutureとして未評価。
+traceのpending/not_applicable node、Brownfieldのchange_candidates/follow_up/document_updatesはfutureとして未評価。futureでも不正path・symlink・サイズ超過を許可しない。
+complete node、完了stageのartifact、その他の記録済み根拠に必要な参照がなければblockする。削除済みfileの証跡は現checkoutだけでは確認できず、必要参照のmissingを自動承認しない。現存する検証記録への参照を人間が見直すか、context付き境界checkerで個別にレビューする。
+
+reportは対象/除外件数、schema/identity/reference結果、参照のpass/block/not_evaluated件数、安定codeと成果物path/構造上のlocationを出力する。
+参照先URL/秘密値/コマンド/本文/expected actualを診断へ転載しない。表示文言はmessages.mjsに集約する。
+参照が未評価でも形式・必要ローカル参照に問題がなければ全体passとなるが、未評価件数と理由を保持し、承認・完了・意味上の安全性を表さない。
+形式不正/識別子不一致/必要参照欠落/不正path/例外/上限超過はnonzero。元ファイルを変更せず、復旧は人間が行う。
+上限は1 MiB/file、100成果物、100work directory、読み取り合計20 MiB、JSON結果1 MiB。fragment検査で読むfileも合計へ算入する。100個の小さい合成成果物の処理目標は5秒。
+意味・承認・追記履歴・境界検査は引き続き、明示context/previousを渡した既存checkerと人間レビューで行う。
+required check設定は変更せず、実行時間と誤検知を観測した後に人間が別途判断する。
 
 ## 12. Security、Privacy、Cost
 

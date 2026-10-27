@@ -8,6 +8,8 @@ AI Driven Development Templateの利用者へ影響する変更を記録する�
 
 ### Added
 
+- Node.js 22/24でテンプレートの静的テスト・Golden Testを自動実行するread-only GitHub Actionsと、保存Issue成果物の形式・参照検査、CI契約テスト。
+
 - ワークフローのオフラインGolden Testハーネス、必須11観点の固定合成fixture、期待・禁止結果の比較、入力境界と非実行・非変更のテスト。
 
 - Brownfield解析の読み取り専用ガイド、Low/Medium/HighのMD/YAML記入例、同梱例のオフライン適合テスト。
@@ -26,7 +28,7 @@ AI Driven Development Templateの利用者へ影響する変更を記録する�
 ### Important
 
 - `VERSION`は`2.0.0-0.dev.0`だが、v2機構は設計・開発中であり、`v2.0.0`stable Releaseは未公開。
-- schema v1、template、モジュール式ルール解決libraryは利用可能。計画・状態・再開候補の静的checkerも利用可能。追跡性checkerとBrownfield手順・深度別テンプレートも利用可能。オフラインGolden Testも利用可能。GitHub Actions統合は後続実装であり、運用は従来のIssue契約と人間承認を維持する。
+- schema v1、template、モジュール式ルール解決libraryは利用可能。計画・状態・再開候補の静的checkerも利用可能。追跡性checkerとBrownfield手順・深度別テンプレートも利用可能。オフラインGolden Testも利用可能。Issue内部ワークフローのGitHub Actions統合も利用可能であり、運用は従来のIssue契約と人間承認を維持する。
 - GitHub Projects、中央Dispatcher、外部Agent Runnerはv2.0.0の必須条件ではなく、運用実績に応じたopt-in候補。
 
 ## [1.0.0] - 2026-08-07

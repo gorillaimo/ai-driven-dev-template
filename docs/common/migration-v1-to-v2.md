@@ -7,7 +7,7 @@
 - v1 stable: `v1.0.0`
 - v2: development line
 - `v2.0.0`stable Release: 未公開
-- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。追跡性checkerとBrownfield手順・深度別テンプレートも利用できる。Golden Test、Actions統合、Project成果物は後続実装。工程は自動実行しない
+- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。追跡性checkerとBrownfield手順・深度別テンプレートも利用できる。Golden TestとIssue内部のActions統合も利用できる。Project成果物は後続実装。工程は自動実行しない
 
 設計文書が存在するだけで、AIが状態管理、自動再開、次Issue選択、claim、複数人調整を自動実行できるとは扱わない。対応する後続実装Issueが完了した機構だけを有効化する。
 
@@ -197,4 +197,16 @@ fixtureの`format_version: 1`は実作業の`schema_version`、template release 
 期待見本や禁止条件を移すときは、元のtemplate commitとfixtureを保存し、新しい判定の理由をIssue・PRでレビューします。
 不明なversion、壊れた入力、予期しない差分は失敗です。実結果で見本を自動上書きせず、失敗したcase IDと比較pathから原因を確認します。
 合成の承認・検証履歴を実作業へコピーしません。移行できない場合も元データを保持し、個別checkerと従来のIssue・branch・PR運用を継続できます。
-Golden Testの追加だけでActions自動実行やv2 stable公開を有効にはしません。
+Golden Test単体ではActionsを起動しません。Actions接続は以下の追加導入で有効にします。v2 stable公開は別の承認事項です。
+
+## Issue内部ワークフローのActions追加導入
+
+新workflow-validation.yml、workflow-ci packageと対応tests、既存5tool package/tests、schemaを揃え、既存2workflowを残して追加します。
+既存schema/checker/規約/VERSIONとアプリ構成は変更しません。新reportのformat_version:1は既存成果物のschema_versionと別管理です。
+YAML保存を採用していなければ成果物検査は対象0件となり、従来運用を継続できます。
+保存済み成果物はschema/識別子と必要参照を人間が見直し、未来成果物や外部URLが未評価になることを確認します。
+CIのmerge commitと古い作業用Git snapshotを同一とみなさず、実作業の承認・履歴・再開の意味検査は既存checkerで個別に行います。
+参照欠落等で移行できない場合は元データを保持し、診断のcode/path/locationから人間が原因を確認します。
+無効化する場合は新workflowだけを止め、個別検査とIssue/branch/PRの手動運用へ戻れます。
+required check設定を既に追加している場合は人間が設定を先に見直します。今回その設定は変更しません。
+新workflowのmergeはAI意味評価やv2 stable公開の承認を意味しません。
