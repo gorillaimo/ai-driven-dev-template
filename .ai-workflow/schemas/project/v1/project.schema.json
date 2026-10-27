@@ -1,0 +1,325 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:project:v1:project",
+  "title": "Static Project project schema v1",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "urn:ai-workflow:project:v1:common#/$defs/envelope"
+    }
+  ],
+  "properties": {
+    "artifact_kind": {
+      "const": "project"
+    },
+    "repository": {
+      "$ref": "urn:ai-workflow:project:v1:common#/$defs/repositoryCoordinate"
+    },
+    "runtime_backend": {
+      "const": "issues"
+    },
+    "coordination_mode": {
+      "const": "manual"
+    },
+    "template_origin": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "$ref": "urn:ai-workflow:project:v1:common#/$defs/repositoryUrl"
+        },
+        "version": {
+          "$ref": "urn:ai-workflow:project:v1:common#/$defs/semver"
+        },
+        "commit": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-fA-F0-9]{40}$"
+        }
+      },
+      "required": [
+        "repository",
+        "version",
+        "commit"
+      ],
+      "additionalProperties": false
+    },
+    "coordinators": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "const": "project"
+            },
+            "assignments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "github_login": {
+                    "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+                  },
+                  "area_ids": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+                    },
+                    "minItems": 0,
+                    "uniqueItems": true,
+                    "maxItems": 0
+                  }
+                },
+                "required": [
+                  "github_login",
+                  "area_ids"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1,
+              "maxItems": 1
+            }
+          },
+          "required": [
+            "scope",
+            "assignments"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "const": "area"
+            },
+            "assignments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "github_login": {
+                    "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+                  },
+                  "area_ids": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                  }
+                },
+                "required": [
+                  "github_login",
+                  "area_ids"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "scope",
+            "assignments"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "membership_source": {
+      "$ref": "urn:ai-workflow:project:v1:common#/$defs/membershipSource"
+    },
+    "required_repository_permission": {
+      "enum": [
+        "read",
+        "triage",
+        "write",
+        "maintain",
+        "admin"
+      ]
+    },
+    "status_mapping": {
+      "type": "object",
+      "properties": {
+        "draft": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "available_for_work": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "assigned": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "in_progress": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "blocked": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "in_review": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "completed": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "cancelled": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "draft",
+        "available_for_work",
+        "assigned",
+        "in_progress",
+        "blocked",
+        "in_review",
+        "completed",
+        "cancelled"
+      ],
+      "additionalProperties": false
+    },
+    "claim_policy": {
+      "type": "object",
+      "properties": {
+        "heartbeat_interval_seconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "stale_after_seconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "on_stale": {
+          "const": "warn"
+        },
+        "release_policy": {
+          "const": "manual"
+        }
+      },
+      "required": [
+        "heartbeat_interval_seconds",
+        "stale_after_seconds",
+        "on_stale",
+        "release_policy"
+      ],
+      "additionalProperties": false
+    },
+    "areas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "area_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "paths": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "shared": {
+            "type": "boolean"
+          },
+          "integration_owner": {
+            "anyOf": [
+              {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "conflict_policy": {
+            "enum": [
+              "serialize",
+              "disjoint_scopes"
+            ]
+          }
+        },
+        "required": [
+          "area_id",
+          "paths",
+          "shared",
+          "integration_owner",
+          "conflict_policy"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "shared": {
+                  "const": true
+                }
+              },
+              "required": [
+                "shared"
+              ]
+            },
+            "then": {
+              "properties": {
+                "integration_owner": {
+                  "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "minItems": 0
+    },
+    "sync_policy": {
+      "type": "object",
+      "properties": {
+        "direction": {
+          "const": "github_to_snapshot"
+        },
+        "checkpoint_key": {
+          "const": "event_id"
+        },
+        "on_failure": {
+          "const": "manual_review"
+        }
+      },
+      "required": [
+        "direction",
+        "checkpoint_key",
+        "on_failure"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "repository",
+    "runtime_backend",
+    "coordination_mode",
+    "template_origin",
+    "coordinators",
+    "membership_source",
+    "required_repository_permission",
+    "status_mapping",
+    "claim_policy",
+    "areas",
+    "sync_policy"
+  ],
+  "unevaluatedProperties": false
+}

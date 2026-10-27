@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "test": "node --test validate.mjs",
-    "test:brownfield": "node brownfield.test.mjs"
+    "test:brownfield": "node brownfield.test.mjs",
+    "test:project": "node project.test.mjs"
   },
   "engines": {
     "node": ">=22"

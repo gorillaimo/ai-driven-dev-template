@@ -1,0 +1,34 @@
+# 合成の記入例。ID・参照・人間login・日時・方針・template_originを実際の案件へ置換してください。
+# 形式適合は、権限・担当・承認・着手・完了の証明ではありません。自動操作は行いません。
+schema_version: 1
+artifact_kind: team
+project_id: example-app
+revision: 1
+updated_at: 2026-10-27T00:00:00Z
+updated_by:
+  actor_type: human
+  actor_ref: example-user
+membership_source:
+  type: repository
+  organization_team: null
+members:
+  - github_login: example-user
+    active: true
+    roles:
+      - coordinator
+      - developer
+      - reviewer
+    areas:
+      - backend
+      - contracts
+    max_concurrent_issues: 1
+    integration_owner:
+      - contracts
+  - github_login: example-helper
+    active: false
+    roles:
+      - reviewer
+    areas:
+      - backend
+    max_concurrent_issues: 1
+    integration_owner: []

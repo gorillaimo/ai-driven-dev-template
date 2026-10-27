@@ -7,7 +7,7 @@
 - 状態: 設計承認済み（Issue #9、2026-08-07）
 - 承認記録: https://github.com/gorillaimo/ai-driven-dev-template/issues/9#issuecomment-5207242159
 - 適用開始: 人間による設計承認後、対応する後続実装Issueが完了した機構から段階的に有効化する
-- 現時点の扱い: データ契約、責務境界、手動運用、自動化境界の設計。schema、チェッカー、Dispatcher、GitHub Actionsは未実装
+- 現時点の扱い: データ契約、責務境界、手動運用、自動化境界の設計。Project成果物schema v1・記入例・同梱例の形式テストは利用可能。DAG/member等の意味validator、Coordinator/集約/推薦、Project Golden Test、Dispatcherは未実装。形式テストは既存IssueワークフローCIで実行する
 - 初期標準: GitHub Issuesを使う手動Coordinator方式
 - 任意拡張: GitHub Projects、中央Dispatcher、外部Agent Runner
 - 互換性: 1人開発、単一Issue、従来のprompt運用を壊さない追加方式
@@ -94,7 +94,7 @@ AIの提案は上位の契約、承認、割当、依存を緩和できない。
 
 ## 5. Project成果物
 
-将来の実装では次の配置を標準とする。
+利用先では次の配置を標準とする。合成記入例は`.ai-workflow/templates/project/v1/`にあり、公開元に利用先の実設定は作らない。
 
 ```text
 .ai-workflow/
@@ -143,7 +143,7 @@ featureの目的と詳細要件は`docs/system-context.md`を正本とし、`del
 
 ### 5.3 `team.yaml`
 
-最低限、次を持つ。
+次は運用属性の概略であり、完全なschema v1記入例ではない。実際のheader・方針は`.ai-workflow/templates/project/v1/team.yaml`を参照する。
 
 ```yaml
 schema_version: 1
@@ -171,6 +171,41 @@ members:
 ### 5.4 共有project stateを作らない
 
 全エージェントが更新する`.ai-workflow/project/state.yaml`は作らない。project状態はGitHubから取得し、必要な集約結果はCI artifact、ローカル一時ファイル、生成Markdownとして作成する。生成物をコミットする場合も手編集を禁止し、入力revisionと生成時刻を持たせる。
+
+### 5.5 実装済みのProject schema v1
+
+`.ai-workflow/schemas/project/v1/{common,project,delivery-plan,team}.schema.json`を正本とする。
+URNは`urn:ai-workflow:project:v1:<name>`。Draft2020-12をローカル登録し、既存`urn:ai-workflow:issue:v1:common`のactor/login/timestamp/reference/approval/IDを参照する。
+Issue用envelope自体を流用せず、Project headerにはschema_version、artifact_kind、project_id、revision、updated_at、updated_byを持つ。
+artifact_kindはproject/delivery_plan/team。project_idは小文字英数字とhyphen、1〜128文字で、feature/area IDは既存commonの形式を使う。
+既存Issue schemaは変更せず、Project参照のない従来の単一Issueも維持する。schema_versionとtemplate release versionは独立。
+
+初期の受理集合はruntime_backend:issues、coordination_mode:manualに限定する。第5.1節のProjects/Dispatcherは将来設計であり、v1では有効化・受理しない。
+project.yamlはrepository（owner/name）、template_origin（HTTPS repository URL/SemVer/40桁commit）、coordinators、membership_source、required_repository_permission、status_mapping、claim_policy、areas、sync_policyを持つ。
+coordinators.scopeはproject/area。project全体ならassignment1人・area_ids空、area別なら各assignmentにarea IDを1件以上指定する。
+membership_source.typeはrepositoryで、Organization Teamはnull/省略またはorganization/team_slug。required_repository_permissionはread/triage/write/maintain/adminの方針値。
+status_mappingは第7.1節の8値からlabel名へ対応させる。ready-for-aiと別であり、実ラベルの存在は確認・作成しない。
+claim_policyはheartbeat_interval_seconds/stale_after_secondsの正整数、on_stale:warn、release_policy:manual。秒数の相互関係や実claimの状態は後続検査。
+areasはarea_id/paths/shared/integration_owner/conflict_policyを持ち、shared:trueならowner login必須。pathsは相対path/prefix、conflict_policyはserialize/disjoint_scopesで、glob解釈は行わない。
+sync_policyはgithub_to_snapshot/event_id/manual_reviewの静的方針であり、実checkpointは保存しない。
+
+各featureにはfeature_id/source_ref/depends_on/area_ids/planned_priority/constraints/issue_refsが必要。
+source_refはdocs/system-context.mdと明示fragment。depends_onはfeature_idとreasonのobject配列。planned_priorityは正整数で小さいほど先とする。
+constraintsはkind/reference/reasonを持ち、kindはapproval/external_dependency/shared_area。shared_areaだけはarea_idも必須。
+issue_refsはissue_ref/work_id/requiredのobject配列。未作成なら空、1featureに複数Issueを許可する。
+delivery planのrevision_historyはrevision/reason/既存approval/affected_feature_ids/invalidated_wavesを持ち、初回は空。
+実行時priority/status/assignee/claim、計算済みwaveや要件本文を静的台帳へ複製しない。
+
+team.yamlは共通header、membership_source、members。memberはgithub_login/active/roles/areas/max_concurrent_issues/integration_ownerを持つ。
+rolesはcoordinator/developer/reviewer、capacityは整数1以上、integration_ownerはarea ID配列。メール・勤務情報・端末・token等のcore追加は禁止する。
+空のfeature/member/area一覧は初期記入として受理するが、割当可能や計画完成を表さない。coreの未知fieldは拒否し、独自メモはtop-level extensionsだけに置く。
+
+`npm run test:project --prefix tools/workflow-schema`は同梱schema/記入例/fixtureの形式検査。既存依存だけを使い、既存Workflow ValidationのNode22/24で実行する。
+正常・異常case、厳密YAML、決定性、入力非変更、外部呼出し/command非実行、cold5秒目標を確認する。診断はkind/instancePath/schemaPath/keywordで、値を転載しない。
+意味validatorやProject Golden Testではなく、利用先の保存Projectファイルを走査するruntime checkerも提供しない。
+形式適合はDAG/一意性/横断ID/member照合/権限/本人性/capacity/承認/履歴連続性/参照実在を保証しない。後続validator・人間レビューで確認する。
+記入例の同一project/area/member対応はサンプル整合としてテストするが、任意入力の横断検査ではない。
+未知version・破損時は元データを保持し、従来のIssue/assignee/着手コメント/branch/PR運用へ戻す。
 
 ## 6. 識別子と追跡性
 

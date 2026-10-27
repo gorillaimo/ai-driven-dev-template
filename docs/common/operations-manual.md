@@ -262,7 +262,7 @@ npm test --prefix tools/workflow-schema
 
 `docs/common/project-orchestration-design.md`は、`docs/system-context.md`で分割したfeatureの依存順序、工程進捗、開発メンバー、担当・claim、共有領域の競合防止を定義します。初期標準はGitHub Issuesと人間のCoordinatorを使う方式で、GitHub Projects、中央Dispatcher、外部Agent Runnerは任意の後続拡張です。
 
-この機構も後続実装Issueが完了するまでは設計参照のみです。現時点では、AIへ「開発を続けてください」と指示しても、AIが未割当Issueを自動claimしたり、複数人の作業を自動調整したりできるとは扱わないでください。従来どおり、人間がassignee、着手コメント、変更範囲、既存PRを確認します。
+Project設定・開発計画・メンバー台帳のschema v1と合成記入例は利用できます。依存順序・member・割当等の意味検査と実行は後続実装です。現時点では、AIへ「開発を続けてください」と指示しても、AIが未割当Issueを自動claimしたり、複数人の作業を自動調整したりできるとは扱わないでください。従来どおり、人間がassignee、着手コメント、変更範囲、既存PRを確認します。
 
 ## 3. issueの粒度
 
@@ -1073,3 +1073,36 @@ branch protectionやrequired checksは自動変更しません。まず実行時
 無効化する場合はGitHubのActions画面でこのworkflowだけを停止するか、レビュー済みPRで新workflowを取り除きます。required checkに設定済みなら、先に人間がその設定を見直します。
 失敗時は元成果物・見本を保存してIssueへ理由を記録し、個別checkerと従来のIssue・branch・PR運用で確認を続けられます。
 外部AI意味評価とv2 stable公開は今回の対応に含みません。
+
+## Project設定・開発計画・メンバー台帳の記入
+
+3つの台帳を使う場合は、人間が採用範囲を決め、`.ai-workflow/templates/project/v1/`のREADMEとYAMLを参照します。
+
+| 台帳 | 記録するもの |
+| :--- | :--- |
+| project.yaml | 管理担当、共有領域、membership・状態・claim・同期方針、template由来 |
+| delivery-plan.yaml | 機能の参照、依存理由、計画上の優先順位、制約、関連Issue、計画改訂 |
+| team.yaml | 人間のメンバー、role、担当可能領域、同時担当上限、統合責任 |
+
+必要なYAMLだけを実際の`.ai-workflow/project/`へ明示コピーし、合成ID・login・参照・日時・Git commit・方針を置換します。
+各台帳のproject_idを揃え、featureの目的・詳細要件・ACは利用先のdocs/system-context.mdへ記録します。
+未作成Issueはissue_refsを空にし、架空の番号を作りません。例のtemplate_originのゼロcommitは必ず実際の導入元commitへ置換します。
+初期対応はIssues-only/manualです。Projects/Dispatcherの設定はこのschemaでは受理しません。
+status_mappingは静的な対応表で、ラベル作成や状態変更を実行しません。active:falseでも既存claimを自動解放しません。
+YAMLが正本で、delivery-plan.mdは将来の生成表示です。共有Project state.yamlや別の手編集状態台帳は作りません。
+
+同梱例の形式テストは、repository rootから実行します。初回の依存取得は通信し、導入後のテストはオフラインです。
+
+```sh
+npm ci --prefix tools/workflow-schema --ignore-scripts --no-audit --no-fund
+npm run test:project --prefix tools/workflow-schema
+```
+
+これは同梱のschema・記入例・fixtureのテストです。コピーした利用先Projectファイルを自動走査するコマンドではありません。
+CIでも同じテストを実行しますが、保存Projectファイルを既存Issue YAML runnerの検査対象へ追加する対応は行っていません。
+利用先の台帳はschemaを参照して記入し、人間がID/依存/area/member/権限/参照元/承認をレビューしてください。意味validatorは後続実装です。
+
+テスト成功は担当確定・割当可能・承認・着手・完了を意味しません。schemaだけでは循環、重複ID、実在、実権限、承認者本人性を確認できません。
+GitHub Issues/PRが実行時のstatus/assignee/claimの正本、台帳は静的方針と承認済み計画です。両者を自動で相互上書きしません。
+移行や修正では元ファイルとtemplate commitを保存し、差分を人間がレビューします。不明な承認や改訂履歴を補って通しません。
+Project機構を採用しない場合や復旧できない場合も、従来のIssue/assignee/着手コメント/branch/PR運用を継続できます。
