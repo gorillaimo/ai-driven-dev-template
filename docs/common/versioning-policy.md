@@ -208,3 +208,12 @@ core field/型/enum/必須性など受理集合を変える場合は、新しい
 形式確認後も、ID/依存/権限/本人性/承認/履歴は別途レビューします。schemaに通るだけで作業を自動開始しません。
 非対応versionや破損では自動変換・承認補完をせず停止し、元データを保持して人間へ戻します。
 Projectを採用しない従来の単一Issue運用や、Issue/assignee/着手コメント/branch/PRによるfallbackを維持します。
+
+## Project plan checker v1の互換性
+
+依存DAG・wave・改訂validatorのcontext/resultは`.ai-workflow/schemas/project-plan-checks/v1/`に独立配置します。
+既存Project/Issue schema v1の受理集合を変更しません。形式適合する計画も、新しい意味検査ではblockされ得ます。
+coreのfield/型/enum/必須性など受理集合の変更は新しいschema majorへ追加します。checker_versionは計算規則、canonical digestは入力識別を表し、承認・本人性を認証しません。
+元台帳・導入commit・直前snapshotを保持し、ID/依存/改訂と確認記録を人間が照合して明示導入します。
+初期revisionは1、history空。改訂は2から昇順で追記し、直前との照合と必要なactive判断を記録します。過去履歴が不明なら捏造せず停止します。
+結果は元入力から再計算し、非対応versionや破損を暗黙変換しません。導入しない場合も単一Issue運用と手動Coordinatorへのfallbackを維持します。

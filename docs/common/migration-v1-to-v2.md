@@ -7,7 +7,7 @@
 - v1 stable: `v1.0.0`
 - v2: development line
 - `v2.0.0`stable Release: 未公開
-- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。追跡性checkerとBrownfield手順・深度別テンプレートも利用できる。Golden TestとIssue内部のActions統合も利用できる。Projectの3成果物schema・合成記入例・形式テストも利用できる。Projectの意味検査・割当・集約は後続実装。工程は自動実行しない
+- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。追跡性checkerとBrownfield手順・深度別テンプレートも利用できる。Golden TestとIssue内部のActions統合も利用できる。Projectの3成果物schema・合成記入例・形式テストも利用できる。Projectの依存DAG・wave・計画改訂validatorも利用できる。member/ownership・割当・集約は後続実装。工程は自動実行しない
 
 設計文書が存在するだけで、AIが状態管理、自動再開、次Issue選択、claim、複数人調整を自動実行できるとは扱わない。対応する後続実装Issueが完了した機構だけを有効化する。
 
@@ -219,7 +219,18 @@ required check設定を既に追加している場合は人間が設定を先に
 初期対応はIssues-only/manualで、Project採用の強制や実行時状態の一括移送は行いません。
 
 `npm run test:project --prefix tools/workflow-schema`は同梱例の形式テストです。保存Projectファイルの意味検査や権限確認を実施する移行ツールではありません。
-形式に適合する自己依存や重複IDもあり得るため、人間が依存・一意性・member・area・capacity・承認を確認します。後続validatorで機械検査を追加します。
+形式に適合する自己依存や重複IDもあり得るため、人間が依存・一意性・member・area・capacity・承認を確認します。依存DAG・wave・改訂は後掲のvalidatorで追加検査できます。member/ownership等は後続対応です。
 GitHubの実status/assignee/claimを静的台帳へ複製せず、共有Project state.yamlを作りません。
 修復できないときは元台帳を保存し、従来のIssue/assignee/着手コメント/branch/PR運用へ戻れます。
 新schemaの追加はalpha/stable Releaseや、Projects/Dispatcher/Runnerの有効化を意味しません。
+
+## Projectの依存・wave・改訂validatorの追加導入
+
+既存Project/Issue schemaを保持し、`tools/workflow-project/`と対応tests、`.ai-workflow/schemas/project-plan-checks/v1/`を追加します。
+既存workflow-rulesの安全loader・canonical/digestを再利用します。新packageのlockfileに従って依存を導入し、CIへは固定install/testコマンドだけを追加します。
+同梱のcontextは合成例です。実作業の状態や承認としてコピーせず、対象台帳のrevision/digestと、人間が確認した状態・条件・evidenceを一時snapshotへ記録します。
+初期revisionは1/history空。改訂は理由・approval・影響ID・旧waveを追記し、直前snapshotを保持します。既存履歴が不明なら初回承認や過去改訂を捏造しません。
+形式適合する循環・重複ID・古い確認記録等が意味検査でblockされる場合、人間が元データと差分を照合します。unknown条件を推測でsatisfiedへ変更しません。
+waveとdependency_candidatesは担当・claim・着手権を確定せず、進行中作業を自動移動しません。member/ownership/実権限/capacity/実在/本人性/全過去原本は別途確認します。
+導入手順と実行例は運用マニュアルの「機能の依存関係と開発順序を検査する」、計算規則と上限はproject-orchestration-design第8.4節を参照してください。
+保存Project自動走査、Project Golden、割当・集約は後続対応です。修復不能なら元台帳を保持し、個別Issueと手動Coordinatorへ戻せます。Releaseは別の承認事項です。

@@ -7,7 +7,7 @@
 - 状態: 設計承認済み（Issue #9、2026-08-07）
 - 承認記録: https://github.com/gorillaimo/ai-driven-dev-template/issues/9#issuecomment-5207242159
 - 適用開始: 人間による設計承認後、対応する後続実装Issueが完了した機構から段階的に有効化する
-- 現時点の扱い: データ契約、責務境界、手動運用、自動化境界の設計。Project成果物schema v1・記入例・同梱例の形式テストは利用可能。DAG/member等の意味validator、Coordinator/集約/推薦、Project Golden Test、Dispatcherは未実装。形式テストは既存IssueワークフローCIで実行する
+- 現時点の扱い: Project成果物schema v1・記入例・形式テストと、依存DAG・wave・計画改訂の読み取り専用validatorは利用可能。member/ownership、Coordinator/集約/推薦、Project Golden Test、Dispatcherは後続実装。形式テストとvalidatorのテストを既存ワークフローCIで実行する
 - 初期標準: GitHub Issuesを使う手動Coordinator方式
 - 任意拡張: GitHub Projects、中央Dispatcher、外部Agent Runner
 - 互換性: 1人開発、単一Issue、従来のprompt運用を壊さない追加方式
@@ -295,6 +295,52 @@ waveは計画上の並列可能性であり、自動着手命令ではない。C
 ### 8.3 再計画
 
 依存、priority、scope、area、feature追加・取消が変わった場合はplan revisionを増やし、変更理由、承認者、影響feature、無効になったwaveを記録する。進行中Issueを黙って別waveへ移動せず、継続、pause、cancelの判断を人間へ求める。
+
+### 8.4 実装済みの依存・wave・改訂validator
+
+`tools/workflow-project/`の`checkProjectPlan({project, deliveryPlan, context, previous?})`はJSONデータを受ける読み取り専用関数。
+`loadProjectPlan(root, paths)`は明示したcurrent/previousのproject・deliveryPlan・contextだけを厳密YAML/JSONとして読む。
+既存Project schema v1とIssue共通定義を変更せず再利用する。context/resultの正本は`.ai-workflow/schemas/project-plan-checks/v1/`、URNは`urn:ai-workflow:project-plan-checks:v1:<name>`。
+自動探索・Git/GitHub照会・clock・外部AI・入力commandの実行・書込みは行わない。
+
+contextはproject_id、project_revision、plan_revision、project_digest、plan_digest、observed_at、recorded_by、source、feature_facts、constraint_facts、replan_decisionsを持つ。
+digestは原文ではなく、コメント除去後のJSONデータを既存canonical関数で直列化したSHA-256。署名ではなく、確認記録と対象入力の一致を識別する。
+feature_factsには各featureをちょうど1件記録し、stateはplanned/active/completed/blocked/cancelled/unknown。
+active/completed/blocked/cancelledはevidence必須。constraint_factsはfeature_idと0始まりconstraint_indexで対象を指定し、satisfied/pending/unknown。satisfiedはevidence必須、省略はunknown。
+recorded_byは既存actor形式で、AI/botには人間のon_behalf_ofが必要。これらは提出者の確認記録であり、本人性・実権限・参照実在・完了の自動集約・鮮度を認証しない。
+
+検査順は入力上限→schema→識別とdigest→全featureのDAG→確認記録→history→改訂影響→wave。
+重複feature/area/依存/Issue、未知ID、自己依存、空白の理由、循環、共有constraintとareaの不一致をblockする。
+Issue URLはgithub.comのproject.repositoryに属し、番号とwork_idが一致する必要がある。未作成の空配列は許可するが、実Issueの存在を保証しない。
+循環経路は反復式DFSで決定的に示す。完了・取消featureも構造検査から除外しない。
+
+waveはplanned_priority昇順→feature_idのASCII順で、各回の依存を満たす候補を安定して詰める。
+planned依存は先行waveへ置く。completedは再投入しない。active/cancelledは別表示し、blocked/unknown/未解決constraint/activeとのarea競合とその下流は待機する。
+areaの同一/祖先子孫pathが重なる変更は、非sharedでも保守的に直列化する。src/apiとsrc/api2は重複しない。
+disjoint_scopesの証拠は未評価で、指定だけから並列許可を作らない。serializationには後回しにした理由の代表となる競合feature/areaを記録する。
+dependency_candidatesは最初のwave内で全先行featureがcompletedのものだけ。Issueの割当・着手候補を自動確定しない。
+空計画は形式適合しても候補なし・empty_plan未評価。進行中featureを新waveへ移動しない。
+
+初期revisionは1、historyは空。以後のhistoryは2から現revisionまで昇順で追記する。
+revision>1には直前snapshotが必要。同revisionの再検査は同じ計画原本の場合だけ許可し、確認snapshotだけの更新を許す。
+改訂は直前plan revisionから+1。project変更にはproject revisionの増加、area変更にはplan revisionの増加も必要。
+previous自体の形式・識別・DAG・facts・historyを検査し、旧waveを再計算する。古い結果JSONを根拠にしない。
+変更feature、旧新グラフの下流、競合areaのpeerとその下流を影響集合へ含める。priority変更は全featureへ保守的に広げる。
+最新historyは影響IDと旧waveを包含し、余分な既知ID/waveの無効化は許可する。削除featureは旧IDのまま記録し、過去historyを改変しない。
+影響する旧/現activeにはreplan_decisionsのcontinue/pause/cancelと既存approvalを要求する。記録があっても実状態を変更せず、旧activeをplannedへ戻した再配置はblockする。
+直前より古い原本の真正性や削除ID再利用の完全監査は保証しない。
+
+結果はschema_version、checker_version、input_digest、対象revision/digest、observed_at、status、checks、diagnostics、waves、dependency_candidates、waiting、active/completed/cancelled、serialization、revision_impact、not_evaluatedを持つ。
+status:passは提出入力の検査成功だけ。待機featureがあっても無関係な計画可能featureを表示できる。構造等がblockedならwaves/candidatesは空。
+diagnosticsは安定code・構造path・安全なID・閉じた循環経路だけ。自由記述理由、evidence本文、extensionsを転載しない。文言はmessages.mjsへ集約する。
+not_evaluatedは権限/member/capacity、参照実在、承認本人性、snapshot鮮度、feature完了集約、全過去原本、非重複scopeを常に明示する。
+結果は呼出元が一時snapshot/CI artifactへ保存できるが、共有Project stateとして手編集せず、次回も元入力から再検査する。
+
+上限は1file 1 MiB、current/previous合計5 MiB、JSON深さ32/200000node。
+各snapshotはfeature1000、area200、依存辺/constraint/Issue参照/featureのarea参照/areaのpath各総数10000、history100、history内影響ID/wave各総数10000。
+diagnostic1000・結果1 MiB。診断の蓄積にもbyte予算を設け、超過は打切りblock。1000feature/10000edgeのcold実行目標5秒（依存取得除外）を合成例で検証する。
+schema、決定性、非変更、通信/command非実行、境界、改訂・待機を専用テストで確認する。これは後続のProject Golden Testや実プロジェクト導入試験の代替ではない。
+結果のpassや候補はassignee/claim/承認/着手の代替ではない。member、ownership、capacity、実参照、全過去原本の監査は別途確認する。
 
 ## 9. メンバー確認と割当可能性
 
