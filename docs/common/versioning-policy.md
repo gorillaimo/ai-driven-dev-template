@@ -217,3 +217,12 @@ coreのfield/型/enum/必須性など受理集合の変更は新しいschema maj
 元台帳・導入commit・直前snapshotを保持し、ID/依存/改訂と確認記録を人間が照合して明示導入します。
 初期revisionは1、history空。改訂は2から昇順で追記し、直前との照合と必要なactive判断を記録します。過去履歴が不明なら捏造せず停止します。
 結果は元入力から再計算し、非対応versionや破損を暗黙変換しません。導入しない場合も単一Issue運用と手動Coordinatorへのfallbackを維持します。
+
+## Project member checker v1の互換性
+
+member/ownership/capacity用context/resultは`.ai-workflow/schemas/project-member-checks/v1/`に独立配置し、既存Project/Issue schema・計画checkerの受理集合や判定規則を変更しません。
+schema_versionはtemplate version・checker_versionと別管理。core field/型/enum/必須性など受理集合の変更は新しいschema majorへ追加します。
+canonical digestは対象台帳と入力の識別、checker_versionは計算規則であり、証拠や人間本人性の認証ではありません。
+利用開始時は元台帳/導入commitを保存し、login・area・所有・権限・active claim inventoryと明示評価時刻を人間が確認します。
+大小文字違いの重複、不足・古い確認、未対応custom permission等により形式適合する旧台帳もblockされ得ます。元データを保持し、自動補修や代理依頼・承認の捏造をしません。
+古い結果を流用せず、入力から再検査します。導入しない場合や復旧不能時も従来Issue/assignee/着手コメント/branch/PRと手動Coordinatorへ戻れます。

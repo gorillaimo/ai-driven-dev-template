@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "project",
+  "project_id": "example-app",
+  "revision": 1,
+  "updated_at": "2026-10-27T00:00:00Z",
+  "updated_by": {
+    "actor_type": "human",
+    "actor_ref": "example-user"
+  },
+  "repository": "example/project",
+  "runtime_backend": "issues",
+  "coordination_mode": "manual",
+  "template_origin": {
+    "repository": "https://github.com/gorillaimo/ai-driven-dev-template",
+    "version": "2.0.0-0.dev.0",
+    "commit": "0000000000000000000000000000000000000000"
+  },
+  "coordinators": {
+    "scope": "project",
+    "assignments": [
+      {
+        "github_login": "coord",
+        "area_ids": []
+      }
+    ]
+  },
+  "membership_source": {
+    "type": "repository",
+    "organization_team": null
+  },
+  "required_repository_permission": "write",
+  "status_mapping": {
+    "draft": "project:draft",
+    "available_for_work": "project:available-for-work",
+    "assigned": "project:assigned",
+    "in_progress": "project:in-progress",
+    "blocked": "project:blocked",
+    "in_review": "project:in-review",
+    "completed": "project:completed",
+    "cancelled": "project:cancelled"
+  },
+  "claim_policy": {
+    "heartbeat_interval_seconds": 14400,
+    "stale_after_seconds": 86400,
+    "on_stale": "warn",
+    "release_policy": "manual"
+  },
+  "areas": [
+    {
+      "area_id": "backend",
+      "paths": [
+        "packages/backend"
+      ],
+      "shared": false,
+      "integration_owner": null,
+      "conflict_policy": "disjoint_scopes"
+    },
+    {
+      "area_id": "contracts",
+      "paths": [
+        "docs/api",
+        "docs/architecture.md"
+      ],
+      "shared": true,
+      "integration_owner": "owner",
+      "conflict_policy": "serialize"
+    }
+  ],
+  "sync_policy": {
+    "direction": "github_to_snapshot",
+    "checkpoint_key": "event_id",
+    "on_failure": "manual_review"
+  }
+}

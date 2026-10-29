@@ -7,7 +7,7 @@
 - 状態: 設計承認済み（Issue #9、2026-08-07）
 - 承認記録: https://github.com/gorillaimo/ai-driven-dev-template/issues/9#issuecomment-5207242159
 - 適用開始: 人間による設計承認後、対応する後続実装Issueが完了した機構から段階的に有効化する
-- 現時点の扱い: Project成果物schema v1・記入例・形式テストと、依存DAG・wave・計画改訂の読み取り専用validatorは利用可能。member/ownership、Coordinator/集約/推薦、Project Golden Test、Dispatcherは後続実装。形式テストとvalidatorのテストを既存ワークフローCIで実行する
+- 現時点の扱い: Project成果物schema v1・記入例・形式テスト、依存DAG・wave・計画改訂とmember/ownership/capacityの読み取り専用validatorは利用可能。Coordinator運用template/集約/推薦、Project Golden Test、Dispatcherは後続実装。形式テストとvalidatorのテストを既存ワークフローCIで実行する
 - 初期標準: GitHub Issuesを使う手動Coordinator方式
 - 任意拡張: GitHub Projects、中央Dispatcher、外部Agent Runner
 - 互換性: 1人開発、単一Issue、従来のprompt運用を壊さない追加方式
@@ -369,6 +369,69 @@ AIは作業開始時に、利用中のGitHub認証からloginを取得し、次�
 ### 9.3 割当候補
 
 候補者は、active membership、role、area、capacity、既存claim、休止状態、integration owner制約を満たす必要がある。AIは候補と根拠を提示できるが、初期標準ではCoordinatorがassigneeを確定する。
+
+### 9.4 実装済みのmember・ownership・capacity検査
+
+`tools/workflow-project/members.mjs`の`checkProjectMembers({project, team, context})`は、指定人間1人について提出snapshotと台帳の整合を読み取り専用で検査する。
+`loadProjectMembers(root, paths)`はproject/team/contextの明示pathだけを厳密YAML/JSONとして読む。
+新しいcontext/resultは`.ai-workflow/schemas/project-member-checks/v1/`、URNは`urn:ai-workflow:project-member-checks:v1:<name>`。
+既存Project/Issue schemaと計画checkerは変更しない。canonical/digest/JSON境界・area重複の規則を既存libraryから再利用する。
+Git/GitHub・clock・環境変数・外部AI・入力commandの実行・書込み・自動探索は行わない。
+
+contextは次を持つ。すべてデータの申告であり、実認証やGitHubの実状態の保証ではない。
+
+| 項目 | 契約 |
+| :--- | :--- |
+| project_id/repository、project_revision/team_revision、project_digest/team_digest | 対象台帳との一致。digestはコメントを除いたJSONデータのcanonical SHA-256で署名ではない |
+| observed_at/evaluated_at/freshness_limit_seconds | 呼出元の明示時刻で比較。制限は1～86400秒、デフォルトなし。未来・期限超過・台帳更新前の確認は停止 |
+| recorded_by/source | 既存actor/reference。ai_agent/botはon_behalf_of必須 |
+| principal | credential_kind、authenticated_login、on_behalf_of、evidence、delegation（confirmed/denied/unknownとevidence） |
+| request | mode、issue_ref/work_id/human_owner、area_ids、assignees、responsibility_confirmation、owner_overrides |
+| member_facts | github_login、account_type（human/bot/unknown）、evidence、repository_access、organization_team |
+| claims_inventory_status/active_claims | complete/partial/unknownと、claim_id/issue_ref/work_id/human_owner/evidenceの最小投影 |
+
+GitHub login・repository・Organization名はASCII小文字化して照合し、大小文字違いの重複を別人にしない。台帳は書き換えない。
+membership_sourceのTeam省略/nullは同等。それ以外はproject/teamのorganization/team_slug一致が必要。area IDは既存の安定IDをそのまま使う。
+全area参照、member/area/factの重複・未知ID、Coordinatorの登録/active/coordinator role、既定integration ownerの双方向宣言を検査する。
+area scopeのCoordinatorは全areaを一意に覆い、member.areasにも対象を持つこと。別Coordinatorの同一/祖先子孫path重複は停止する。
+project scopeのCoordinatorは調整役なのでmember.areasの全域化を要求しない。
+既定ownerはactive memberで対象areaをmember.areasとintegration_ownerに持つ必要がある。sharedで必須、非sharedの指定も照合する。
+inactive memberは保持できるが、新規担当から除外する。Coordinator/既定ownerのinactiveは設定の見直しが必要。
+
+対象人間・要求areaに必要なCoordinator・有効な統合責任者の外部factsを評価する。無関係なmemberのfactsを全件取得することは要求しない。
+repository_accessはstate（confirmed/denied/unknown）とpermission、肯定時evidence。read < triage < write < maintain < adminの明示順を使い、未知custom permissionを推測しない。
+Organization Team採用時はstate:memberと設定のorganization/team_slug、evidenceが必要。not_memberとunknownを区別し、Team未採用なら所属を要求しない。
+APIが使えない場合は人間の確認コメント等の参照を記入できるが、それもなければunknownで停止する。evidenceやfact自体の真正性は検査しない。
+
+human credentialではauthenticated_loginとrequest.human_ownerが一致すること。botは別の認証主体として記録し、on_behalf_ofと確認された代理依頼参照を要求する。
+botのauthenticated_loginを人間のteam memberとして兼用しない。責任者不明・代理拒否・確認不足を診断で区別する。
+対象人間はactiveな登録human、developer role、要求する全areaを担当できることが必要。role名から実権限を補わない。
+candidate modeはその人の新規担当条件を検査するだけで、他人の選択・順位付けを行わない。既存の別assigneeを無視しない。
+assigned_owner modeはprimary human_ownerがassigneesに含まれ、責任・依頼関係のconfirmed参照が必要。追加assigneeを別のprimaryとして数えない。
+Issue URLはgithub.comの対象repository、work_idはissue-Nとして一致させるが、実在を取得しない。要求areaは1件以上。
+
+Issue別の所有上書きはrequest.owner_overridesへ一元化し、area_id/github_login/issue_ref/work_id/approvalを持つ。
+対象Issue/work/要求areaとの一致、二重指定なし、当該areaのactive Coordinatorがapproved_byであること、approval_type:integration_owner_override、観測時点より未来でない承認時刻を要求する。
+上書き先もactiveな人間で、対象areaとmembership/permission/必要Teamの条件を満たすこと。既定team宣言は変更せず、そのIssueの有効ownerとして返す。
+承認者の宣言は照合するが、コメント本人性・実承認・実権限の認証は行わない。
+
+capacityはcompleteと申告されたactive claim inventoryだけから計算し、partial/unknownなら空配列でも上限内としない。
+claim/Issue/work IDの重複、別repository、未登録ownerを拒否し、重複を黙って捨てない。inactive・stale・paused・blockedでも解放が確認されるまではinventoryへ残す。
+新規担当は本人の現在active数+1がmax_concurrent_issues以下。assigned_ownerで同じIssueの本人claimがあれば追加0。別人のclaimは停止する。
+candidateで対象Issueにclaimがあれば本人分でも新規候補にせず、再開は既存Issue checker/人間へ戻す。Coordinator/統合責任という役割だけでは担当数を加算しない。
+呼出しによってclaimや担当数を書き換えず、繰り返しても枠を消費・解放しない。
+
+結果はschema_version/checker_version、input_digest、対象revision/digest、観測/評価時刻、status/checks、subject、coordinators、integration_owners、capacity、diagnostics、not_evaluated。
+status:passとsubject.qualification:eligibleは必要な全検査がpassの場合だけ。必要事実がunknownまたは入力不正ならunknown、既知の不足だけならineligible。いずれも担当確定・着手権ではない。
+capacityはactive_count/additional_count/limit。入力不正やinventory不明では計算を推測せずnullにする。
+診断はcode/kind/構造path/安全なlogin・area IDだけで、evidence本文やextensions・秘密値を転載しない。文言はmember-messages.mjsへ集約する。
+not_evaluatedはGitHub/証拠真正性、実時刻/inventory全量の真正性、契約/ready-for-ai/工程承認、DAG/依存、実scope競合、原子的claim、実作業を明示する。
+出力を次回のpassの証拠として再利用せず、元入力から再検査する。共有Project stateを新設しない。
+
+上限は1file 1 MiB、合計5 MiB、JSON深さ32/200000node、member/fact/Coordinator登録1000、area/要求area/override200、active claim10000。
+area path/member-area/member-owner/Coordinator-area各参照総数10000、診断1000/結果1 MiB。過大な診断も打切りblockする。
+1000member/200area/10000claimの直接API用合成fixtureでcold5秒目標（依存取得除外）を検証する。file loaderの1file上限は別途適用する。
+Node22/24の専用テストは既存Workflow Validationへ接続する。Project全体Golden、実案件の認証・membership取得・割当運用は後続対応である。
 
 ## 10. Coordinator、claim、競合防止
 

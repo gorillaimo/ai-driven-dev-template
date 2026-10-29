@@ -1,0 +1,15 @@
+# 合成のmember検査snapshot
+
+project.json、team.json、context.jsonは同じ合成projectの初期入力です。
+project.yamlはテスト入力を作るための元の形式例です。いずれも利用先の実設定ではありません。
+aliceは指定開発者、coordはproject Coordinator、ownerはcontracts areaの既定integration ownerという例です。
+時刻・Issue URL・人間login・template_originのゼロcommit・権限等は実在や承認の証拠ではありません。
+
+contextは台帳データのcanonical SHA-256とrevisionに結び付き、15分前に観測したという申告を1時間の鮮度制限で検査します。
+checkerはその時刻・権限・claim inventoryの全量やevidenceの真正性を取得・認証しません。
+candidateのpassは、指定した人間の条件が提出snapshot内で整合したという意味で、Issueの選択・担当確定・claim開始ではありません。
+
+owner_overridesはrequest内の1か所だけに置き、Issue/work/areaと承認を宣言します。
+APIの呼出し方と移行・fallbackはoperations-manual、項目の正本はproject-member-checks/v1/context.schema.jsonです。
+ほかの正常/異常/所有/担当数fixtureはhelpersとtest内、最大1000member/200area/10000claimはlarge.mjsで構築します。
+最大fixtureは直接API用です。file loaderは各file1 MiBの上限を別途適用します。

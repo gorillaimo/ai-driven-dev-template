@@ -62,6 +62,8 @@ AIエージェントへ作業を依頼する前に、以下を確認してくだ
 
 機能の依存関係・共有領域・計画改訂は`tools/workflow-project/`で読み取り専用検査できます。開発順序と待機理由を返します。担当割当や作業開始の操作は行いません。
 
+指定した人間のメンバー・担当領域・権限の確認記録と同時担当数も、同packageのmember検査で確認できます。実GitHubの認証・権限変更・担当確定は人間が行います。
+
 PRの作成・更新時にはGitHub Actionsの`Workflow Validation`が、テンプレートの静的テスト・Golden Testと保存Issue YAMLの形式・参照を検査します。開発するアプリ自体のテストは別途用意します。詳しくは`docs/common/operations-manual.md`の「GitHub Actionsでのワークフロー検査」を参照してください。
 
 ワークフロー変更の回帰は`tools/workflow-golden/`のオフラインGolden Testで確認できます。開発対象の言語に関係なく、開発環境のNode.jsで動かします。実行方法と期待見本の更新手順は`docs/common/operations-manual.md`を参照してください。
