@@ -64,6 +64,8 @@ AIエージェントへ作業を依頼する前に、以下を確認してくだ
 
 指定した人間のメンバー・担当領域・権限の確認記録と同時担当数も、同packageのmember検査で確認できます。実GitHubの認証・権限変更・担当確定は人間が行います。
 
+人間が担当割当・着手記録・解除・引き継ぎを行う手順は[手動Coordinator運用](docs/common/manual-coordinator.md)、Issueコメント用の様式は[project-manual/v1](.ai-workflow/templates/project-manual/v1/README.md)にあります。任意導入で、自動割当や自動解放は行いません。
+
 PRの作成・更新時にはGitHub Actionsの`Workflow Validation`が、テンプレートの静的テスト・Golden Testと保存Issue YAMLの形式・参照を検査します。開発するアプリ自体のテストは別途用意します。詳しくは`docs/common/operations-manual.md`の「GitHub Actionsでのワークフロー検査」を参照してください。
 
 ワークフロー変更の回帰は`tools/workflow-golden/`のオフラインGolden Testで確認できます。開発対象の言語に関係なく、開発環境のNode.jsで動かします。実行方法と期待見本の更新手順は`docs/common/operations-manual.md`を参照してください。
