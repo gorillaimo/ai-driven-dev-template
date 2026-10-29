@@ -1,0 +1,460 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:project-member-checks:v1:context",
+  "title": "Project member checker context v1",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "project_id": {
+      "$ref": "urn:ai-workflow:project:v1:common#/$defs/projectId"
+    },
+    "repository": {
+      "$ref": "urn:ai-workflow:project:v1:common#/$defs/repositoryCoordinate"
+    },
+    "project_revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "team_revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "project_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "team_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "observed_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "evaluated_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "freshness_limit_seconds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 86400
+    },
+    "recorded_by": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/actor"
+    },
+    "source": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+    },
+    "principal": {
+      "type": "object",
+      "properties": {
+        "credential_kind": {
+          "enum": [
+            "human",
+            "bot",
+            "unknown"
+          ]
+        },
+        "authenticated_login": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*(?:\\[bot\\])?$",
+              "maxLength": 44
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "on_behalf_of": {
+          "anyOf": [
+            {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evidence": {
+          "anyOf": [
+            {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "delegation": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "enum": [
+                "confirmed",
+                "denied",
+                "unknown"
+              ]
+            },
+            "evidence": {
+              "anyOf": [
+                {
+                  "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "state",
+            "evidence"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "credential_kind",
+        "authenticated_login",
+        "on_behalf_of",
+        "evidence",
+        "delegation"
+      ],
+      "additionalProperties": false
+    },
+    "request": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": [
+            "candidate",
+            "assigned_owner"
+          ]
+        },
+        "issue_ref": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/issueRef"
+        },
+        "work_id": {
+          "type": "string",
+          "pattern": "^issue-[1-9][0-9]*$",
+          "maxLength": 128
+        },
+        "human_owner": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+        },
+        "area_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "maxItems": 200,
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "assignees": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+          },
+          "maxItems": 1000,
+          "minItems": 0
+        },
+        "responsibility_confirmation": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "enum": [
+                "confirmed",
+                "denied",
+                "unknown"
+              ]
+            },
+            "evidence": {
+              "anyOf": [
+                {
+                  "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "state",
+            "evidence"
+          ],
+          "additionalProperties": false
+        },
+        "owner_overrides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "area_id": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+              },
+              "github_login": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+              },
+              "issue_ref": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/issueRef"
+              },
+              "work_id": {
+                "type": "string",
+                "pattern": "^issue-[1-9][0-9]*$",
+                "maxLength": 128
+              },
+              "approval": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/approval"
+              }
+            },
+            "required": [
+              "area_id",
+              "github_login",
+              "issue_ref",
+              "work_id",
+              "approval"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 200,
+          "minItems": 0
+        }
+      },
+      "required": [
+        "mode",
+        "issue_ref",
+        "work_id",
+        "human_owner",
+        "area_ids",
+        "assignees",
+        "responsibility_confirmation",
+        "owner_overrides"
+      ],
+      "additionalProperties": false
+    },
+    "member_facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "github_login": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+          },
+          "account_type": {
+            "enum": [
+              "human",
+              "bot",
+              "unknown"
+            ]
+          },
+          "evidence": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+          },
+          "repository_access": {
+            "type": "object",
+            "properties": {
+              "state": {
+                "enum": [
+                  "confirmed",
+                  "denied",
+                  "unknown"
+                ]
+              },
+              "permission": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "evidence": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+              }
+            },
+            "required": [
+              "state",
+              "permission"
+            ],
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "state": {
+                      "const": "confirmed"
+                    }
+                  },
+                  "required": [
+                    "state"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "evidence": {
+                      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+                    }
+                  },
+                  "required": [
+                    "evidence"
+                  ]
+                }
+              }
+            ]
+          },
+          "organization_team": {
+            "type": "object",
+            "properties": {
+              "state": {
+                "enum": [
+                  "member",
+                  "not_member",
+                  "unknown",
+                  "not_applicable"
+                ]
+              },
+              "organization": {
+                "anyOf": [
+                  {
+                    "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "team_slug": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+                    "maxLength": 100
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "evidence": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+              }
+            },
+            "required": [
+              "state",
+              "organization",
+              "team_slug"
+            ],
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "state": {
+                      "const": "member"
+                    }
+                  },
+                  "required": [
+                    "state"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "evidence": {
+                      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+                    }
+                  },
+                  "required": [
+                    "evidence"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "required": [
+          "github_login",
+          "account_type",
+          "evidence",
+          "repository_access",
+          "organization_team"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 1000,
+      "minItems": 0
+    },
+    "claims_inventory_status": {
+      "enum": [
+        "complete",
+        "partial",
+        "unknown"
+      ]
+    },
+    "active_claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "claim_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "issue_ref": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/issueRef"
+          },
+          "work_id": {
+            "type": "string",
+            "pattern": "^issue-[1-9][0-9]*$",
+            "maxLength": 128
+          },
+          "human_owner": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+          },
+          "evidence": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+          }
+        },
+        "required": [
+          "claim_id",
+          "issue_ref",
+          "work_id",
+          "human_owner",
+          "evidence"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 10000,
+      "minItems": 0
+    }
+  },
+  "required": [
+    "schema_version",
+    "project_id",
+    "repository",
+    "project_revision",
+    "team_revision",
+    "project_digest",
+    "team_digest",
+    "observed_at",
+    "evaluated_at",
+    "freshness_limit_seconds",
+    "recorded_by",
+    "source",
+    "principal",
+    "request",
+    "member_facts",
+    "claims_inventory_status",
+    "active_claims"
+  ],
+  "additionalProperties": false
+}

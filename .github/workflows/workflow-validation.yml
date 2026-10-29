@@ -49,6 +49,7 @@ jobs:
           node tools/workflow-schema/validate.mjs
           npm run test:project --prefix tools/workflow-schema
           npm test --prefix tools/workflow-project
+          npm run test:members --prefix tools/workflow-project
           npm run test:brownfield --prefix tools/workflow-schema
           npm test --prefix tools/workflow-rules
           npm test --prefix tools/workflow-check

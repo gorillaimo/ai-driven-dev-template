@@ -7,7 +7,7 @@
 - v1 stable: `v1.0.0`
 - v2: development line
 - `v2.0.0`stable Release: 未公開
-- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。追跡性checkerとBrownfield手順・深度別テンプレートも利用できる。Golden TestとIssue内部のActions統合も利用できる。Projectの3成果物schema・合成記入例・形式テストも利用できる。Projectの依存DAG・wave・計画改訂validatorも利用できる。member/ownership・割当・集約は後続実装。工程は自動実行しない
+- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。追跡性checkerとBrownfield手順・深度別テンプレートも利用できる。Golden TestとIssue内部のActions統合も利用できる。Projectの3成果物schema・合成記入例・形式テストも利用できる。Projectの依存DAG・wave・計画改訂validatorも利用できる。member/ownership/capacityのsnapshot検査も利用できる。割当・集約は後続実装。工程は自動実行しない
 
 設計文書が存在するだけで、AIが状態管理、自動再開、次Issue選択、claim、複数人調整を自動実行できるとは扱わない。対応する後続実装Issueが完了した機構だけを有効化する。
 
@@ -219,7 +219,7 @@ required check設定を既に追加している場合は人間が設定を先に
 初期対応はIssues-only/manualで、Project採用の強制や実行時状態の一括移送は行いません。
 
 `npm run test:project --prefix tools/workflow-schema`は同梱例の形式テストです。保存Projectファイルの意味検査や権限確認を実施する移行ツールではありません。
-形式に適合する自己依存や重複IDもあり得るため、人間が依存・一意性・member・area・capacity・承認を確認します。依存DAG・wave・改訂は後掲のvalidatorで追加検査できます。member/ownership等は後続対応です。
+形式に適合する自己依存や重複IDもあり得るため、人間が依存・一意性・member・area・capacity・承認を確認します。依存DAG・wave・改訂は後掲のvalidatorで追加検査できます。member/ownership/capacityは後掲のsnapshot検査で追加確認できます。
 GitHubの実status/assignee/claimを静的台帳へ複製せず、共有Project state.yamlを作りません。
 修復できないときは元台帳を保存し、従来のIssue/assignee/着手コメント/branch/PR運用へ戻れます。
 新schemaの追加はalpha/stable Releaseや、Projects/Dispatcher/Runnerの有効化を意味しません。
@@ -234,3 +234,14 @@ GitHubの実status/assignee/claimを静的台帳へ複製せず、共有Project 
 waveとdependency_candidatesは担当・claim・着手権を確定せず、進行中作業を自動移動しません。member/ownership/実権限/capacity/実在/本人性/全過去原本は別途確認します。
 導入手順と実行例は運用マニュアルの「機能の依存関係と開発順序を検査する」、計算規則と上限はproject-orchestration-design第8.4節を参照してください。
 保存Project自動走査、Project Golden、割当・集約は後続対応です。修復不能なら元台帳を保持し、個別Issueと手動Coordinatorへ戻せます。Releaseは別の承認事項です。
+
+## member・ownership・capacity検査の追加導入
+
+既存Project/Issue schemaと計画checkerを保持し、project packageのmember用modules/exports/test:members、対応tests、project-member-checks/v1のcontext/resultを追加します。
+新しい依存やlockfile更新は不要です。CIへは固定のtest:membersコマンドだけを追加します。
+元台帳/導入commitを保存し、人間がloginの重複・area・管理担当・既定統合責任者の双方向宣言を照合します。未解決の所有や権限を推測で補完しません。
+contextの合成例は実際の権限・本人性・claimの証拠にせず、実案件の確認記録へ置換します。revision/digestと明示観測/評価時刻、証拠参照、active claim全量の確認が必要です。
+Issue単位のowner上書きはrequest.owner_overridesのIssue/work/areaとCoordinator approvalに限定し、静的なteamの既定所有を変更しません。
+新検査でblockされても、古いresultの流用・不明な承認の作成・stale claimの自動解放は行いません。元入力を保持して人間が確認し、再実行します。
+eligibleは提出された条件適合だけで、担当変更・claim開始・実認証を意味しません。従来のIssue/assignee/着手コメント/branch/PRと手動Coordinatorへfallbackできます。
+実行例と結果は運用マニュアル、計算規則・上限・未評価はproject-orchestration-design第9.4節を参照してください。Release、Project全体Golden、実API collectorは別途対応です。

@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-29T00:00:00Z",
+  "evaluated_at": "2026-10-29T00:15:00Z",
+  "freshness_limit_seconds": 3600,
+  "recorded_by": {
+    "actor_type": "human",
+    "actor_ref": "alice"
+  },
+  "source": {
+    "kind": "url",
+    "target": "https://github.com/example/project/issues/42#issuecomment-1"
+  },
+  "principal": {
+    "credential_kind": "human",
+    "authenticated_login": "alice",
+    "on_behalf_of": null,
+    "evidence": {
+      "kind": "url",
+      "target": "https://github.com/example/project/issues/42#issuecomment-1"
+    },
+    "delegation": {
+      "state": "unknown",
+      "evidence": null
+    }
+  },
+  "request": {
+    "mode": "candidate",
+    "issue_ref": "https://github.com/example/project/issues/42",
+    "work_id": "issue-42",
+    "human_owner": "alice",
+    "area_ids": [
+      "backend"
+    ],
+    "assignees": [],
+    "responsibility_confirmation": {
+      "state": "unknown",
+      "evidence": null
+    },
+    "owner_overrides": []
+  },
+  "member_facts": [
+    {
+      "github_login": "alice",
+      "account_type": "human",
+      "evidence": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/42#issuecomment-1"
+      },
+      "repository_access": {
+        "state": "confirmed",
+        "permission": "write",
+        "evidence": {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/42#issuecomment-1"
+        }
+      },
+      "organization_team": {
+        "state": "not_applicable",
+        "organization": null,
+        "team_slug": null
+      }
+    },
+    {
+      "github_login": "coord",
+      "account_type": "human",
+      "evidence": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/42#issuecomment-1"
+      },
+      "repository_access": {
+        "state": "confirmed",
+        "permission": "write",
+        "evidence": {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/42#issuecomment-1"
+        }
+      },
+      "organization_team": {
+        "state": "not_applicable",
+        "organization": null,
+        "team_slug": null
+      }
+    },
+    {
+      "github_login": "owner",
+      "account_type": "human",
+      "evidence": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/42#issuecomment-1"
+      },
+      "repository_access": {
+        "state": "confirmed",
+        "permission": "write",
+        "evidence": {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/42#issuecomment-1"
+        }
+      },
+      "organization_team": {
+        "state": "not_applicable",
+        "organization": null,
+        "team_slug": null
+      }
+    }
+  ],
+  "claims_inventory_status": "complete",
+  "active_claims": [],
+  "project_id": "example-app",
+  "repository": "example/project",
+  "project_revision": 1,
+  "team_revision": 1,
+  "project_digest": "8b491802160e60ec6d98dddade498ad3e7f7f7eb0e0afbfa15c91934980e8847",
+  "team_digest": "bd983bce2afc183b6e9e761b332a9ed1e824ada42af3aa68e7c5058083c008db"
+}

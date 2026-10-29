@@ -262,7 +262,7 @@ npm test --prefix tools/workflow-schema
 
 `docs/common/project-orchestration-design.md`は、`docs/system-context.md`で分割したfeatureの依存順序、工程進捗、開発メンバー、担当・claim、共有領域の競合防止を定義します。初期標準はGitHub Issuesと人間のCoordinatorを使う方式で、GitHub Projects、中央Dispatcher、外部Agent Runnerは任意の後続拡張です。
 
-Project設定・開発計画・メンバー台帳のschema v1と合成記入例、依存DAG・wave・計画改訂の読み取り専用validatorは利用できます。member/ownership、割当・集約等は後続実装です。現時点では、AIへ「開発を続けてください」と指示しても、AIが未割当Issueを自動claimしたり、複数人の作業を自動調整したりできるとは扱わないでください。従来どおり、人間がassignee、着手コメント、変更範囲、既存PRを確認します。
+Project設定・開発計画・メンバー台帳のschema v1と合成記入例、依存DAG・wave・計画改訂とmember/ownership/capacityの読み取り専用validatorは利用できます。割当・集約等は後続実装です。現時点では、AIへ「開発を続けてください」と指示しても、AIが未割当Issueを自動claimしたり、複数人の作業を自動調整したりできるとは扱わないでください。従来どおり、人間がassignee、着手コメント、変更範囲、既存PRを確認します。
 
 ## 3. issueの粒度
 
@@ -1100,7 +1100,7 @@ npm run test:project --prefix tools/workflow-schema
 
 これは同梱のschema・記入例・fixtureのテストです。コピーした利用先Projectファイルを自動走査するコマンドではありません。
 CIでも同じテストを実行しますが、保存Projectファイルを既存Issue YAML runnerの検査対象へ追加する対応は行っていません。
-利用先の台帳はschemaを参照して記入し、人間がID/依存/area/member/権限/参照元/承認をレビューしてください。依存DAG・wave・改訂は次のvalidatorで追加検査できます。member/ownership等は後続実装です。
+利用先の台帳はschemaを参照して記入し、人間がID/依存/area/member/権限/参照元/承認をレビューしてください。依存DAG・wave・改訂とmember/ownership/capacityは後掲のvalidatorで追加検査できます。
 
 テスト成功は担当確定・割当可能・承認・着手・完了を意味しません。schemaだけでは循環、重複ID、実在、実権限、承認者本人性を確認できません。
 GitHub Issues/PRが実行時のstatus/assignee/claimの正本、台帳は静的方針と承認済み計画です。両者を自動で相互上書きしません。
@@ -1166,3 +1166,61 @@ JSONもYAMLも読めますが、contextを共有Project stateとして手編集�
 新テストは既存CIのNode22/24で実行します。保存Project成果物の自動走査や、Project全体Goldenは後続対応です。
 上限と計算規則は`project-orchestration-design.md`第8.4節を参照してください。失敗時はcode/path/IDから人間が原因を確認し、データや承認を自動補完して通しません。
 古い結果JSONを次回のpassとして使わず、元入力を再検査します。復旧できなければ元台帳を保持し、従来のIssue/assignee/着手コメント/branch/PRの手動運用へ戻します。
+
+## 指定した人間の担当条件を検査する
+
+member検査は「この人が、このIssueと領域を担当する条件を、提出した確認記録上で満たすか」を確認します。
+役割・担当領域・repository権限・任意のOrganization Team・統合責任者・同時担当数を検査します。開発対象アプリ自身のテストや、GitHubへの実認証・担当設定を行うツールではありません。
+
+Node.js 22以上を用意し、repository rootで次を実行します。既存依存だけを再利用し、新規の外部サービスやSecretsは不要です。
+
+```sh
+npm ci --prefix tools/workflow-rules --ignore-scripts --no-audit --no-fund
+npm ci --prefix tools/workflow-project --ignore-scripts --no-audit --no-fund
+npm run test:members --prefix tools/workflow-project
+```
+
+最後のコマンドは同梱の合成入力に対する専用テストです。実際の台帳は明示pathでlibraryへ渡します。以下は合成例を読む実行可能な例です。
+
+```sh
+node --input-type=module <<'NODE'
+import { loadProjectMembers } from './tools/workflow-project/member-load.mjs';
+import { checkProjectMembers } from './tools/workflow-project/members.mjs';
+const dir = 'tests/workflow-members/fixtures/';
+const input = loadProjectMembers(process.cwd(), {
+  project: dir + 'project.json',
+  team: dir + 'team.json',
+  context: dir + 'context.json',
+});
+console.log(JSON.stringify(checkProjectMembers(input), null, 2));
+NODE
+```
+
+実案件ではproject/teamのpathを承認済み台帳へ置換し、contextを一時的な確認snapshotとして用意します。項目の正本は`.ai-workflow/schemas/project-member-checks/v1/context.schema.json`、記入例は上のfixturesです。
+
+1. 人間がGitHub等でメンバー・人間アカウント・権限・必要Teamを確認し、member_factsに結果とevidence参照を記録します。APIが使えない場合は人間の確認コメントを参照でき、それもなければunknownで停止します。
+2. project/teamのrevisionと、`digest(canonical(parsedData))`で計算したproject_digest/team_digestを記録します。関数は既存`tools/workflow-rules/resolve.mjs`を使います。digest更新だけで承認や権限が得られるわけではありません。
+3. observed_at、evaluated_at、freshness_limit_secondsを明示します。鮮度制限は最大24時間で、デフォルト値はありません。例は1時間です。評価時刻や元の事実の正しさ自体は呼出元が確認します。
+4. principalに人間credentialのlogin、またはbotのloginとon_behalf_of・代理依頼の確認を記録します。request.human_ownerは責任を持つ人間1人です。botを人間のメンバーとして登録しません。
+5. requestのcandidateは新規担当条件の検査、assigned_ownerは既に割り当てられた人間との一致検査です。後者にはassigneesと責任・依頼関係の確認参照が必要です。
+6. active_claimsへproject全体のactive claimを投影し、全量確認できた場合だけclaims_inventory_status:completeとします。partial/unknownや空配列を「誰も担当していない」と推測しません。
+
+同時担当数は既存active Issue数+新規1です。assigned_ownerで同じIssueの本人claimがあれば追加0、別人のclaimは停止します。candidateで同じIssueにclaimがあれば本人分でも再取得せず、人間へ戻します。
+長時間経過・休止・blocked・inactiveでもclaim解放を確認するまではinventoryへ残します。検査は枠や担当を自動で消費・解放しません。
+
+統合責任者は既定ownerと台帳の宣言を照合します。Issueだけで別の責任者を使う場合は、request.owner_overridesへIssue/work/area/loginと、そのareaのCoordinatorによるapprovalを記録します。
+approval_typeはintegration_owner_override。対象外のIssue/area、二重指定、別の承認者、未来の承認は通しません。実承認や本人性の認証ではなく、申告された対応の検査です。
+
+| 結果 | 意味 |
+| :--- | :--- |
+| status: pass / qualification: eligible | 今回の提出記録内で必要条件をすべて満たす。担当確定・claim開始・作業許可ではない |
+| qualification: ineligible | 既知の権限不足・担当不一致・上限超過などがある |
+| qualification: unknown | 確認不足、古いsnapshot、入力不正などがあり判断できない |
+| capacity | active_count/additional_count/limit。計算不能ならnull |
+| diagnostics | 安定code・kind・構造path・login/area ID。evidence本文や自由記述を転載しない |
+| not_evaluated | GitHubや証拠の真正性、実時刻/全量の真正性、契約/ready-for-ai/工程承認、依存、実scope競合、原子的claim、実作業 |
+
+失敗時は台帳と確認記録を保持し、診断から人間が修正・再確認します。古い出力をpassの証拠として再利用せず、元入力から再検査します。
+既存の計画checkerと併用しても、自動的にIssueを選択・割当・着手しません。手動Coordinatorが契約・承認・現在の担当と競合を確認してください。
+上限と計算規則はproject-orchestration-design第9.4節を参照します。最大1000member/200area/10000claimは直接API用fixtureで、file loaderには各file1 MiBの上限もあります。
+CIはこの専用テストをNode22/24で実行します。保存Projectの自動走査とProject全体Goldenは後続対応。復旧できない場合も従来のIssue/assignee/着手コメント/branch/PR運用へ戻れます。

@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "team",
+  "project_id": "example-app",
+  "revision": 1,
+  "updated_at": "2026-10-29T00:00:00Z",
+  "updated_by": {
+    "actor_type": "human",
+    "actor_ref": "alice"
+  },
+  "membership_source": {
+    "type": "repository",
+    "organization_team": null
+  },
+  "members": [
+    {
+      "github_login": "alice",
+      "active": true,
+      "roles": [
+        "developer"
+      ],
+      "areas": [
+        "backend",
+        "contracts"
+      ],
+      "max_concurrent_issues": 1,
+      "integration_owner": []
+    },
+    {
+      "github_login": "coord",
+      "active": true,
+      "roles": [
+        "coordinator"
+      ],
+      "areas": [],
+      "max_concurrent_issues": 1,
+      "integration_owner": []
+    },
+    {
+      "github_login": "owner",
+      "active": true,
+      "roles": [
+        "reviewer"
+      ],
+      "areas": [
+        "contracts"
+      ],
+      "max_concurrent_issues": 1,
+      "integration_owner": [
+        "contracts"
+      ]
+    }
+  ]
+}
