@@ -8,6 +8,8 @@ AI Driven Development Templateの利用者へ影響する変更を記録する�
 
 ### Added
 
+- Issues-onlyの手動Coordinator運用手順、担当割当・claim・進捗・解除・交代・不整合照合の6種類のMarkdownコメント様式、正常/復旧の机上検証例。自動操作・原子的排他・自動stale解放は提供しない。
+
 - 指定人間のmember・ownership・capacityを確認snapshotから検査するオフラインlibrary、独立context/result schema v1、明示path loader、合成例と専用テスト・最小CI接続。実認証・権限付与・担当/claim操作は行わない。
 
 - feature依存DAG・共有領域の保守的なwave・計画改訂を検査するオフラインlibrary、明示path loader、独立context/result schema v1、テストと最小CI接続。割当・claim操作は行わない。

@@ -226,3 +226,10 @@ canonical digestは対象台帳と入力の識別、checker_versionは計算規�
 利用開始時は元台帳/導入commitを保存し、login・area・所有・権限・active claim inventoryと明示評価時刻を人間が確認します。
 大小文字違いの重複、不足・古い確認、未対応custom permission等により形式適合する旧台帳もblockされ得ます。元データを保持し、自動補修や代理依頼・承認の捏造をしません。
 古い結果を流用せず、入力から再検査します。導入しない場合や復旧不能時も従来Issue/assignee/着手コメント/branch/PRと手動Coordinatorへ戻れます。
+
+## 手動Coordinatorコメント様式の互換性
+
+`.ai-workflow/templates/project-manual/v1/`のv1は人間が記入するMarkdown様式の版です。schema_version、checker_version、template本体のVERSIONとは独立し、既存schemaのfield/enumや判定規則を変更しません。
+コメントparser/reducer用の機械契約ではありません。将来の機械処理は別Issueで契約・互換性・既存コメントの扱いを設計し、暗黙に自動解釈しません。
+様式や手順を更新するときも既存claimの記録・ID・終了/引継履歴を保持し、導入元commitと実案件への明示採用を記録します。様式をコピーしただけではProject運用や自動処理は有効になりません。
+導入/fallbackは[manual-coordinator.md](manual-coordinator.md)とmigration guideに従います。単一Issue運用・legacy always-on規約を維持し、この追加だけでalpha/stable Releaseを公開しません。

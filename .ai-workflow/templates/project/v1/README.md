@@ -7,6 +7,8 @@
 project_id、repository、template_origin、login、source_ref、Issue、時刻、area、方針値を実案件へ置換してください。
 公開元には利用先の実設定を作りません。Project採用を必要としない単一Issue運用も継続できます。
 
+担当確定・claim・heartbeat・解除・引き継ぎのコメントは[project-manual/v1](../../project-manual/v1/README.md)、実操作は[手動Coordinator運用](../../../../docs/common/manual-coordinator.md)を参照します。コメント様式のv1はこのYAML schemaの版とは別です。実claim/statusをこのdirectoryの台帳へ書き戻しません。
+
 | ファイル | 正本として保存する内容 | 保存しないもの |
 | :--- | :--- | :--- |
 | project.yaml | 管理担当の設定、共有area、membership/status/claim/syncの静的方針、template由来 | active claim一覧、GitHub runtime状態、実checkpoint |

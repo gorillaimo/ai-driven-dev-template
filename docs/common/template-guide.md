@@ -21,7 +21,7 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 - release基準: `docs/common/versioning-policy.md`
 - v1からv2への移行: `docs/common/migration-v1-to-v2.md`
 
-v1はIssue、assignee、prompt、人間承認を中心とする軽量な文書駆動baselineです。v2はIssue #8のadaptive workflowとIssue #9のproject orchestrationを段階的に追加します。現在の`main`ではIssue成果物のschema v1、template、同梱例の形式テストとモジュール式ルールのオフライン解決libraryを提供します。計画・状態・再開候補の静的checkerも利用できます。追跡性checkerとBrownfieldの手順・深度別テンプレートも利用できます。オフラインGolden TestとIssue内部のActions統合も利用できます。Projectの3成果物schema・合成記入例・形式テストも利用できます。依存DAG・wave・計画改訂の読み取り専用validatorも利用できます。member/ownership/capacityのsnapshot検査も利用できます。割当・集約は後続実装です。工程の自動実行は提供しません。
+v1はIssue、assignee、prompt、人間承認を中心とする軽量な文書駆動baselineです。v2はIssue #8のadaptive workflowとIssue #9のproject orchestrationを段階的に追加します。現在の`main`ではIssue成果物のschema v1、template、同梱例の形式テストとモジュール式ルールのオフライン解決libraryを提供します。計画・状態・再開候補の静的checkerも利用できます。追跡性checkerとBrownfieldの手順・深度別テンプレートも利用できます。オフラインGolden TestとIssue内部のActions統合も利用できます。Projectの3成果物schema・合成記入例・形式テストも利用できます。依存DAG・wave・計画改訂の読み取り専用validatorも利用できます。member/ownership/capacityのsnapshot検査も利用できます。手動Coordinatorの手順・コメント様式・机上例も利用できます。集約・推薦は後続実装です。工程の自動実行は提供しません。
 
 template release versionと各成果物の`schema_version`は独立しています。template v2で最初に導入するschemaが`schema_version: 1`でも問題ありません。利用先projectでは、このrepositoryの`VERSION`をアプリケーションversionと混同しないでください。
 
@@ -269,3 +269,11 @@ Project設定・開発計画・人間のメンバー台帳の記入例は`.ai-wo
 `loadProjectMembers`はproject/team/contextの明示pathだけを読みます。確認snapshotは対象台帳のrevision/digestに結び付けますが、実API取得・本人認証・権限付与・担当/claim変更は行いません。
 `npm run test:members --prefix tools/workflow-project`は専用の合成テストで、既存CIのNode22/24でも実行します。Project全体Goldenや保存Projectの自動走査とは区別します。
 実案件への明示導入、candidate/assigned_owner、bot代理・所有上書き・capacity・結果の見方は運用マニュアルの「指定した人間の担当条件を検査する」、契約と上限はproject-orchestration-design第9.4節を参照してください。
+
+## 手動Coordinator運用を追加する
+
+[手順](manual-coordinator.md)、[コメント様式v1](../../.ai-workflow/templates/project-manual/v1/README.md)、[机上例](../examples/project-manual/walkthrough.md)をまとめて参照します。
+担当割当、着手記録、進捗、解除/再割当、Coordinator交代、部分失敗の照合を、人間がGitHub Issue上で記録します。
+status_mappingとheartbeat/stale方針は導入時に合意し、操作の実状を読み戻します。stale/blocked/inactiveでも自動解放しません。
+任意導入で、従来の単一Issue運用は継続できます。様式v1は人間向けMarkdownの版であり、既存schema/checker/CIに新しい機械契約を追加しません。
+自動割当・原子的claim・集約/recommender・Project全体Goldenは含みません。実案件の同時操作やAPI障害復旧は机上確認の保証範囲外です。

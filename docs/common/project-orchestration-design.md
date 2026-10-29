@@ -7,7 +7,7 @@
 - 状態: 設計承認済み（Issue #9、2026-08-07）
 - 承認記録: https://github.com/gorillaimo/ai-driven-dev-template/issues/9#issuecomment-5207242159
 - 適用開始: 人間による設計承認後、対応する後続実装Issueが完了した機構から段階的に有効化する
-- 現時点の扱い: Project成果物schema v1・記入例・形式テスト、依存DAG・wave・計画改訂とmember/ownership/capacityの読み取り専用validatorは利用可能。Coordinator運用template/集約/推薦、Project Golden Test、Dispatcherは後続実装。形式テストとvalidatorのテストを既存ワークフローCIで実行する
+- 現時点の扱い: Project成果物schema v1・記入例・形式テスト、依存DAG・wave・計画改訂とmember/ownership/capacityの読み取り専用validator、手動Coordinatorの手順・コメント様式・机上例は利用可能。集約/推薦、Project Golden Test、Dispatcherは後続実装。形式テストとvalidatorのテストを既存ワークフローCIで実行する
 - 初期標準: GitHub Issuesを使う手動Coordinator方式
 - 任意拡張: GitHub Projects、中央Dispatcher、外部Agent Runner
 - 互換性: 1人開発、単一Issue、従来のprompt運用を壊さない追加方式
@@ -431,7 +431,7 @@ not_evaluatedはGitHub/証拠真正性、実時刻/inventory全量の真正性�
 上限は1file 1 MiB、合計5 MiB、JSON深さ32/200000node、member/fact/Coordinator登録1000、area/要求area/override200、active claim10000。
 area path/member-area/member-owner/Coordinator-area各参照総数10000、診断1000/結果1 MiB。過大な診断も打切りblockする。
 1000member/200area/10000claimの直接API用合成fixtureでcold5秒目標（依存取得除外）を検証する。file loaderの1file上限は別途適用する。
-Node22/24の専用テストは既存Workflow Validationへ接続する。Project全体Golden、実案件の認証・membership取得・割当運用は後続対応である。
+Node22/24の専用テストは既存Workflow Validationへ接続する。Project全体Golden、実案件の認証・membership取得の自動化、自動割当は後続対応である。手動割当は第10.6節の手順を参照する。
 
 ## 10. Coordinator、claim、競合防止
 
@@ -472,7 +472,7 @@ GitHub Issueコメントを標準記録場所とする。再割当時は旧claim
 
 ### 10.3 stale claim
 
-初期標準では、project設定の`stale_after`超過は警告であり、自動解放しない。Coordinatorは担当者、branch、PR、直近eventを確認し、次のいずれかを記録する。
+初期標準では、project設定の`claim_policy.stale_after_seconds`超過は警告であり、自動解放しない。Coordinatorは担当者、branch、PR、直近eventを確認し、次のいずれかを記録する。
 
 - heartbeatを更新して継続する。
 - `paused`または`blocked`として保持する。
@@ -495,6 +495,17 @@ GitHub Issueコメントを標準記録場所とする。再割当時は旧claim
 ### 10.5 1つのIssueを複数AIで扱う場合
 
 Issue内部の並列化は既存のマルチエージェント規約に従い、人間の承認、primary agent、担当scope、変更可能ファイル、非担当領域を必須とする。project CoordinatorはIssueを1つの割当単位として扱い、内部sub-agentを別メンバーや別assigneeとして数えない。
+
+### 10.6 利用可能な手動運用手順とコメント様式
+
+実操作は[manual-coordinator.md](manual-coordinator.md)、6種のMarkdownは[project-manual/v1](../../.ai-workflow/templates/project-manual/v1/README.md)、机上検証は[walkthrough](../examples/project-manual/walkthrough.md)を参照する。
+割当、claim開始、heartbeat/pause/block/resume/review、解除、Coordinator交代、部分失敗の照合を人間が追記する。
+着手と解除は準備/依頼と確定を区別する。旧作業の停止・未push/引継確認と旧解除確定前に新claimを開始しない。
+paused/blocked/in_review/inactive/staleでも解除確定までcapacityへ含め、無関係なコメントやPR更新をheartbeatへ補完しない。
+8statusはstatus_mapping先labelで手動表示し、ready-for-ai/assignee/内部stage/open・closedとは区別する。label不整合や部分失敗では新規割当・着手を保留し、元操作IDと現状を人間が照合する。
+同Issue/共有areaの操作担当は1人。複数areaでは関係Coordinatorが合意し、交代は旧担当停止・引継受領・設定PR反映を確認して切り替える。
+コメント様式v1は人間向けの版でschema_versionではなく、parser/reducerや自動冪等性・原子的claim・自動stale解放を提供しない。
+机上確認はライブ同時操作やAPI障害復旧の実証ではない。集約/reconciliationの自動実装、推薦、Project全体Goldenは後続Issueとする。
 
 ## 11. AI主導の次タスク提案
 

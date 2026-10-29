@@ -7,7 +7,7 @@
 - v1 stable: `v1.0.0`
 - v2: development line
 - `v2.0.0`stable Release: 未公開
-- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。追跡性checkerとBrownfield手順・深度別テンプレートも利用できる。Golden TestとIssue内部のActions統合も利用できる。Projectの3成果物schema・合成記入例・形式テストも利用できる。Projectの依存DAG・wave・計画改訂validatorも利用できる。member/ownership/capacityのsnapshot検査も利用できる。割当・集約は後続実装。工程は自動実行しない
+- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。追跡性checkerとBrownfield手順・深度別テンプレートも利用できる。Golden TestとIssue内部のActions統合も利用できる。Projectの3成果物schema・合成記入例・形式テストも利用できる。Projectの依存DAG・wave・計画改訂validatorも利用できる。member/ownership/capacityのsnapshot検査も利用できる。手動Coordinatorの手順・コメント様式・机上例も利用できる。集約・推薦は後続実装。工程は自動実行しない
 
 設計文書が存在するだけで、AIが状態管理、自動再開、次Issue選択、claim、複数人調整を自動実行できるとは扱わない。対応する後続実装Issueが完了した機構だけを有効化する。
 
@@ -233,7 +233,7 @@ GitHubの実status/assignee/claimを静的台帳へ複製せず、共有Project 
 形式適合する循環・重複ID・古い確認記録等が意味検査でblockされる場合、人間が元データと差分を照合します。unknown条件を推測でsatisfiedへ変更しません。
 waveとdependency_candidatesは担当・claim・着手権を確定せず、進行中作業を自動移動しません。member/ownership/実権限/capacity/実在/本人性/全過去原本は別途確認します。
 導入手順と実行例は運用マニュアルの「機能の依存関係と開発順序を検査する」、計算規則と上限はproject-orchestration-design第8.4節を参照してください。
-保存Project自動走査、Project Golden、割当・集約は後続対応です。修復不能なら元台帳を保持し、個別Issueと手動Coordinatorへ戻せます。Releaseは別の承認事項です。
+保存Project自動走査、Project Golden、自動割当・集約は後続対応です。修復不能なら元台帳を保持し、個別Issueと手動Coordinatorへ戻せます。Releaseは別の承認事項です。
 
 ## member・ownership・capacity検査の追加導入
 
@@ -245,3 +245,13 @@ Issue単位のowner上書きはrequest.owner_overridesのIssue/work/areaとCoord
 新検査でblockされても、古いresultの流用・不明な承認の作成・stale claimの自動解放は行いません。元入力を保持して人間が確認し、再実行します。
 eligibleは提出された条件適合だけで、担当変更・claim開始・実認証を意味しません。従来のIssue/assignee/着手コメント/branch/PRと手動Coordinatorへfallbackできます。
 実行例と結果は運用マニュアル、計算規則・上限・未評価はproject-orchestration-design第9.4節を参照してください。Release、Project全体Golden、実API collectorは別途対応です。
+
+## 手動Coordinator様式の追加導入
+
+移行Issue/branchで元台帳・template commit・既存claim/PR/未push作業を保存し、人間が導入範囲を承認します。
+[手順](manual-coordinator.md)、[様式](../../.ai-workflow/templates/project-manual/v1/README.md)、[机上例](../examples/project-manual/walkthrough.md)を参照し、active Coordinator、status_mappingの8label、heartbeat/stale値を確認してください。
+様式をGitHub Issueへ明示コピーし、実番号/人間login/根拠/時刻/branchへ置換します。公開元や利用先でlabelを自動作成する仕組みはありません。
+既存着手記録を新しいclaimとして二重登録せず、所有・変更scope・作業と元記録を照合して関連参照を追記します。既存schemaや結果を暗黙変換しません。
+コメント様式v1はschema_versionとは別です。既存Project/Issue schema、checker、CI、always-on規約、VERSIONを変更しません。
+確認不能や部分失敗では新規割当を保留し、元記録を残して従来のIssue/assignee/着手コメント/branch/PRへ人間判断で戻します。未解消claimは消さず個別に照合します。
+机上確認は実案件の排他・GitHub障害の試験ではありません。自動集約・推薦・Project全体Golden、alpha/stable公開は別途対応です。

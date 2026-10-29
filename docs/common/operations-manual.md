@@ -1167,6 +1167,19 @@ JSONもYAMLも読めますが、contextを共有Project stateとして手編集�
 上限と計算規則は`project-orchestration-design.md`第8.4節を参照してください。失敗時はcode/path/IDから人間が原因を確認し、データや承認を自動補完して通しません。
 古い結果JSONを次回のpassとして使わず、元入力を再検査します。復旧できなければ元台帳を保持し、従来のIssue/assignee/着手コメント/branch/PRの手動運用へ戻します。
 
+## 手動で担当割当・着手・引き継ぎを行う
+
+[手動Coordinator運用](manual-coordinator.md)に、status mapping、担当確定、claim（着手記録）、heartbeat（明示的な進捗確認）、stale警告、解除・再割当・交代と部分失敗の復旧をまとめています。
+[6種類のコメント様式](../../.ai-workflow/templates/project-manual/v1/README.md)を実Issueへコピーし、人間が確認して追記します。最初に[机上検証例](../examples/project-manual/walkthrough.md)を辿ってください。
+
+1. 人間のCoordinatorが契約・承認・依存・担当条件・全量active claim・実scope競合を確認し、人間owner1人と引受を確定します。
+2. claim準備、Issue branch、直前再確認、claim確定、status更新を順に行い、実状一致を読み戻した後に作業を始めます。
+3. 中断・レビュー・staleでもclaimの枠は保持します。解除依頼だけで枠を空けず、旧作業停止・未push/引継を確認して人間Coordinatorが解除を確定します。
+4. 部分失敗や不明点があれば新規割当を止め、同じ操作IDと現状を人間が照合します。旧記録を削除せず追記します。
+
+任意導入です。様式v1は人間向けの版で、新schema・自動操作・原子的排他の仕組みではありません。既存の単一Issue運用も継続できます。
+計画/member validatorのpassだけでは担当やclaimを確定しません。実GitHubと人間の確認が必要な範囲は次節も参照してください。
+
 ## 指定した人間の担当条件を検査する
 
 member検査は「この人が、このIssueと領域を担当する条件を、提出した確認記録上で満たすか」を確認します。
