@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "delivery_plan",
+  "project_id": "example-app",
+  "revision": 1,
+  "updated_at": "2026-10-27T00:00:00Z",
+  "updated_by": {
+    "actor_type": "human",
+    "actor_ref": "example-user"
+  },
+  "features": [
+    {
+      "feature_id": "a",
+      "source_ref": {
+        "kind": "file",
+        "target": "docs/system-context.md",
+        "fragment": "feature-a"
+      },
+      "depends_on": [],
+      "area_ids": [],
+      "planned_priority": 1,
+      "constraints": [],
+      "issue_refs": []
+    }
+  ],
+  "revision_history": []
+}

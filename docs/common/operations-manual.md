@@ -262,7 +262,7 @@ npm test --prefix tools/workflow-schema
 
 `docs/common/project-orchestration-design.md`は、`docs/system-context.md`で分割したfeatureの依存順序、工程進捗、開発メンバー、担当・claim、共有領域の競合防止を定義します。初期標準はGitHub Issuesと人間のCoordinatorを使う方式で、GitHub Projects、中央Dispatcher、外部Agent Runnerは任意の後続拡張です。
 
-Project設定・開発計画・メンバー台帳のschema v1と合成記入例は利用できます。依存順序・member・割当等の意味検査と実行は後続実装です。現時点では、AIへ「開発を続けてください」と指示しても、AIが未割当Issueを自動claimしたり、複数人の作業を自動調整したりできるとは扱わないでください。従来どおり、人間がassignee、着手コメント、変更範囲、既存PRを確認します。
+Project設定・開発計画・メンバー台帳のschema v1と合成記入例、依存DAG・wave・計画改訂の読み取り専用validatorは利用できます。member/ownership、割当・集約等は後続実装です。現時点では、AIへ「開発を続けてください」と指示しても、AIが未割当Issueを自動claimしたり、複数人の作業を自動調整したりできるとは扱わないでください。従来どおり、人間がassignee、着手コメント、変更範囲、既存PRを確認します。
 
 ## 3. issueの粒度
 
@@ -1024,7 +1024,7 @@ main更新と手動操作でも起動します。手動実行はworkflowをdefau
 
 実行内容:
 
-1. 専用6package（schema/rules/check/trace/golden/ci）のlockfileで依存取得。install scriptsは無効。
+1. 専用7package（schema/rules/check/trace/golden/ci/project）のlockfileで依存取得。install scriptsは無効。
 2. 既存の静的テスト、Goldenハーネスのテスト、新CI検査・workflow契約テストを実行。
 3. Golden固定caseを実行。
 4. repositoryに保存したIssue成果物の形式・識別子・必要なローカル参照を検査。
@@ -1100,9 +1100,69 @@ npm run test:project --prefix tools/workflow-schema
 
 これは同梱のschema・記入例・fixtureのテストです。コピーした利用先Projectファイルを自動走査するコマンドではありません。
 CIでも同じテストを実行しますが、保存Projectファイルを既存Issue YAML runnerの検査対象へ追加する対応は行っていません。
-利用先の台帳はschemaを参照して記入し、人間がID/依存/area/member/権限/参照元/承認をレビューしてください。意味validatorは後続実装です。
+利用先の台帳はschemaを参照して記入し、人間がID/依存/area/member/権限/参照元/承認をレビューしてください。依存DAG・wave・改訂は次のvalidatorで追加検査できます。member/ownership等は後続実装です。
 
 テスト成功は担当確定・割当可能・承認・着手・完了を意味しません。schemaだけでは循環、重複ID、実在、実権限、承認者本人性を確認できません。
 GitHub Issues/PRが実行時のstatus/assignee/claimの正本、台帳は静的方針と承認済み計画です。両者を自動で相互上書きしません。
 移行や修正では元ファイルとtemplate commitを保存し、差分を人間がレビューします。不明な承認や改訂履歴を補って通しません。
 Project機構を採用しない場合や復旧できない場合も、従来のIssue/assignee/着手コメント/branch/PR運用を継続できます。
+
+## 機能の依存関係と開発順序を検査する
+
+`tools/workflow-project/`は、機能間の依存関係、同時変更する領域、計画の改訂を検査します。
+waveとは、計画上同時に進められる機能のまとまりです。たとえば「共通APIの確定→画面とBackendの実装」の順序を表せます。
+同じファイル領域を変更する機能は順番を分け、確認不足や承認待ちの機能とその下流は待機にします。
+これはアプリ自身の動作テストではなく、開発管理の検査です。開発対象の言語に関係なくNode.js 22以上で使います。
+
+初回はrepository rootで依存を取得します。既存rulesを先に導入します。
+
+```sh
+npm ci --prefix tools/workflow-rules --ignore-scripts --no-audit --no-fund
+npm ci --prefix tools/workflow-project --ignore-scripts --no-audit --no-fund
+npm test --prefix tools/workflow-project
+```
+
+最後のコマンドは同梱のvalidatorテストです。実際の計画は、次のように明示指定してlibraryへ渡します。
+以下は合成例を読む実行可能な例です。`source_ref`の実ファイルが公開元にないことも未評価として表示し、利用先設定・Issue・承認の実在証明には使いません。
+
+```sh
+node --input-type=module <<'NODE'
+import { loadProjectPlan } from './tools/workflow-project/load.mjs';
+import { checkProjectPlan } from './tools/workflow-project/check.mjs';
+const dir = 'tests/workflow-project/fixtures/';
+const input = loadProjectPlan(process.cwd(), {
+  project: dir + 'project.yaml',
+  deliveryPlan: dir + 'delivery-plan.json',
+  context: dir + 'context.json',
+});
+const result = checkProjectPlan(input);
+console.log(JSON.stringify(result, null, 2));
+NODE
+```
+
+実案件ではproject/deliveryPlanを承認済み台帳のpathへ置換し、contextは作業用の一時snapshotとして用意します。
+contextの記入例は`tests/workflow-project/fixtures/context.json`、正本は`.ai-workflow/schemas/project-plan-checks/v1/context.schema.json`。
+JSONもYAMLも読めますが、contextを共有Project stateとして手編集・正本化しません。実状態の正本はGitHubです。
+
+1. 人間がfeature状態と条件を確認し、observed_at、recorded_by、sourceとevidence参照を記録します。feature_factsは各featureを1件ずつ記入し、不明ならunknownにします。
+2. constraint_factsは対象featureと0始まりconstraint_indexで対応させます。省略・unknown・pendingでは条件未成立として待機し、satisfiedには確認のevidenceが必要です。
+3. project_revision/plan_revisionとcanonical digestを対象に合わせます。digestは`tools/workflow-rules/resolve.mjs`の`digest(canonical(parsedData))`で計算します。原文のコメントや改行のhashではありません。digest更新は承認操作ではなく、先に人間が内容を確認します。
+4. revision 1はhistory空。改訂時はplan revisionを1増やし、historyに理由・approval・影響feature ID・無効化する旧waveを追記します。previousへ直前のproject/deliveryPlan/contextのpathを明示します。古い原本と確認snapshotを保持してください。
+5. 影響する進行中featureにはcontinue/pause/cancelの判断とapprovalを記録します。checkerは実状態を変更せず、旧activeをplannedへ戻した再配置も拒否します。
+
+結果の読み方:
+
+| 項目 | 意味 |
+| :--- | :--- |
+| status: blocked | 形式・ID・DAG・改訂等に問題があり、wavesと候補は空 |
+| status: pass | 提出入力の検査成功。待機機能が残っていても、無関係な機能の計画を表示できる |
+| waves | 計画上の順序と保守的な並列グループ。完了済み・進行中・未確認条件の機能は再投入しない |
+| dependency_candidates | 最初のwave内で、先行機能がすべて完了している機能。担当やclaimの許可ではない |
+| waiting / serialization | 待機理由と、領域の重複により後回しにした代表的な根拠 |
+| revision_impact | 旧新入力から計算した変更・影響featureと無効化する旧wave |
+| not_evaluated | member/権限/capacity、実参照、承認者本人性、鮮度、完了集約、全過去原本、scope非重複などの未確認事項 |
+
+共有areaのdisjoint_scopes指定だけでは並列にしません。Issue未作成の機能も計画できますが、Issueを作成・選択・claimしません。
+新テストは既存CIのNode22/24で実行します。保存Project成果物の自動走査や、Project全体Goldenは後続対応です。
+上限と計算規則は`project-orchestration-design.md`第8.4節を参照してください。失敗時はcode/path/IDから人間が原因を確認し、データや承認を自動補完して通しません。
+古い結果JSONを次回のpassとして使わず、元入力を再検査します。復旧できなければ元台帳を保持し、従来のIssue/assignee/着手コメント/branch/PRの手動運用へ戻します。

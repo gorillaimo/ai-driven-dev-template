@@ -42,11 +42,13 @@ jobs:
           npm ci --prefix tools/workflow-schema --ignore-scripts --no-audit --no-fund
           npm ci --prefix tools/workflow-golden --ignore-scripts --no-audit --no-fund
           npm ci --prefix tools/workflow-ci --ignore-scripts --no-audit --no-fund
+          npm ci --prefix tools/workflow-project --ignore-scripts --no-audit --no-fund
       - name: Existing schema and checker tests
         id: regression
         run: |
           node tools/workflow-schema/validate.mjs
           npm run test:project --prefix tools/workflow-schema
+          npm test --prefix tools/workflow-project
           npm run test:brownfield --prefix tools/workflow-schema
           npm test --prefix tools/workflow-rules
           npm test --prefix tools/workflow-check

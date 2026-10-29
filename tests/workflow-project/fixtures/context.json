@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-27T00:00:00Z",
+  "recorded_by": {
+    "actor_type": "human",
+    "actor_ref": "example-user"
+  },
+  "source": {
+    "kind": "url",
+    "target": "https://github.com/example/project/issues/1#issuecomment-1"
+  },
+  "feature_facts": [
+    {
+      "feature_id": "a",
+      "state": "planned"
+    }
+  ],
+  "constraint_facts": [],
+  "replan_decisions": [],
+  "project_id": "example-app",
+  "project_revision": 1,
+  "plan_revision": 1,
+  "project_digest": "aaf63234e9b9af669a47a8d5e04af1768e5134c84b953226e4143ad0eb68b539",
+  "plan_digest": "2c9eadbf3ca1b95372805932698eaee6842ebe4f7fcc262a1cfea81903d88822"
+}

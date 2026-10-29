@@ -8,6 +8,8 @@ AI Driven Development Templateの利用者へ影響する変更を記録する�
 
 ### Added
 
+- feature依存DAG・共有領域の保守的なwave・計画改訂を検査するオフラインlibrary、明示path loader、独立context/result schema v1、テストと最小CI接続。割当・claim操作は行わない。
+
 - Project設定・静的delivery plan・人間のteam台帳のschema v1、Issues-only/manualの合成YAML記入例、既存共通定義を再利用するオフライン形式テストと最小CI接続。
 
 - Node.js 22/24でテンプレートの静的テスト・Golden Testを自動実行するread-only GitHub Actionsと、保存Issue成果物の形式・参照検査、CI契約テスト。
