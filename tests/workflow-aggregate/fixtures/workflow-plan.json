@@ -1,0 +1,326 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "plan",
+  "work_id": "issue-1",
+  "work_source": "github_issue",
+  "issue_ref": "https://github.com/example/project/issues/1",
+  "updated_at": "2026-10-12T00:00:00Z",
+  "updated_by": {
+    "actor_type": "human",
+    "actor_ref": "example-user"
+  },
+  "revision": 1,
+  "risk": "low",
+  "context": [
+    {
+      "kind": "file",
+      "target": "docs/common/development-rules.md"
+    }
+  ],
+  "resolved_rules": [
+    {
+      "rule_id": "legacy",
+      "version": "1.0.0",
+      "reference": {
+        "kind": "file",
+        "target": "docs/common/rules/legacy/rule.yaml"
+      }
+    }
+  ],
+  "stages": [
+    {
+      "stage_id": "intake",
+      "selection": "required",
+      "reason": "Synthetic decision",
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ],
+      "decided_by": {
+        "actor_type": "human",
+        "actor_ref": "example-user"
+      },
+      "depends_on": [],
+      "artifacts": [],
+      "approval_required": false,
+      "validation_methods": [
+        "Synthetic review"
+      ]
+    },
+    {
+      "stage_id": "context",
+      "selection": "required",
+      "reason": "Synthetic decision",
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ],
+      "decided_by": {
+        "actor_type": "human",
+        "actor_ref": "example-user"
+      },
+      "depends_on": [],
+      "artifacts": [],
+      "approval_required": false,
+      "validation_methods": [
+        "Synthetic review"
+      ]
+    },
+    {
+      "stage_id": "brownfield",
+      "selection": "skipped",
+      "reason": "Synthetic decision",
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ],
+      "decided_by": {
+        "actor_type": "human",
+        "actor_ref": "example-user"
+      },
+      "depends_on": [],
+      "artifacts": [],
+      "approval_required": false,
+      "validation_methods": [
+        "Synthetic review"
+      ]
+    },
+    {
+      "stage_id": "prototype",
+      "selection": "skipped",
+      "reason": "Synthetic decision",
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ],
+      "decided_by": {
+        "actor_type": "human",
+        "actor_ref": "example-user"
+      },
+      "depends_on": [],
+      "artifacts": [],
+      "approval_required": false,
+      "validation_methods": [
+        "Synthetic review"
+      ]
+    },
+    {
+      "stage_id": "requirements",
+      "selection": "skipped",
+      "reason": "Synthetic decision",
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ],
+      "decided_by": {
+        "actor_type": "human",
+        "actor_ref": "example-user"
+      },
+      "depends_on": [],
+      "artifacts": [],
+      "approval_required": false,
+      "validation_methods": [
+        "Synthetic review"
+      ]
+    },
+    {
+      "stage_id": "design",
+      "selection": "skipped",
+      "reason": "Synthetic decision",
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ],
+      "decided_by": {
+        "actor_type": "human",
+        "actor_ref": "example-user"
+      },
+      "depends_on": [],
+      "artifacts": [],
+      "approval_required": false,
+      "validation_methods": [
+        "Synthetic review"
+      ]
+    },
+    {
+      "stage_id": "api",
+      "selection": "skipped",
+      "reason": "Synthetic decision",
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ],
+      "decided_by": {
+        "actor_type": "human",
+        "actor_ref": "example-user"
+      },
+      "depends_on": [],
+      "artifacts": [],
+      "approval_required": false,
+      "validation_methods": [
+        "Synthetic review"
+      ]
+    },
+    {
+      "stage_id": "quality",
+      "selection": "skipped",
+      "reason": "Synthetic decision",
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ],
+      "decided_by": {
+        "actor_type": "human",
+        "actor_ref": "example-user"
+      },
+      "depends_on": [],
+      "artifacts": [],
+      "approval_required": false,
+      "validation_methods": [
+        "Synthetic review"
+      ]
+    },
+    {
+      "stage_id": "tests",
+      "selection": "skipped",
+      "reason": "Synthetic decision",
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ],
+      "decided_by": {
+        "actor_type": "human",
+        "actor_ref": "example-user"
+      },
+      "depends_on": [],
+      "artifacts": [],
+      "approval_required": false,
+      "validation_methods": [
+        "Synthetic review"
+      ]
+    },
+    {
+      "stage_id": "implementation",
+      "selection": "skipped",
+      "reason": "Synthetic decision",
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ],
+      "decided_by": {
+        "actor_type": "human",
+        "actor_ref": "example-user"
+      },
+      "depends_on": [],
+      "artifacts": [],
+      "approval_required": false,
+      "validation_methods": [
+        "Synthetic review"
+      ]
+    },
+    {
+      "stage_id": "validation",
+      "selection": "required",
+      "reason": "Synthetic decision",
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ],
+      "decided_by": {
+        "actor_type": "human",
+        "actor_ref": "example-user"
+      },
+      "depends_on": [],
+      "artifacts": [],
+      "approval_required": false,
+      "validation_methods": [
+        "Synthetic review"
+      ]
+    },
+    {
+      "stage_id": "handoff",
+      "selection": "required",
+      "reason": "Synthetic decision",
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ],
+      "decided_by": {
+        "actor_type": "human",
+        "actor_ref": "example-user"
+      },
+      "depends_on": [],
+      "artifacts": [],
+      "approval_required": false,
+      "validation_methods": [
+        "Synthetic review"
+      ]
+    }
+  ],
+  "extensions": {
+    "rule_resolution": {
+      "schema_version": 1,
+      "resolver_version": "1.0.0",
+      "status": "pass",
+      "context": {
+        "schema_version": 1,
+        "risk": "low",
+        "areas": [],
+        "technologies": [],
+        "data_types": []
+      },
+      "opt_ins": [],
+      "input_digest": "8b2a965cd28a4faeeb270fa9b35fb6c6ed27c177d9872d97760379be6749cd40",
+      "source_digests": {
+        "docs/common/rules/legacy/rule.yaml": "bebcb36dc81b0cff2835d2959b5980ba91d73395ce52bc97525c2dc7ff04b23b",
+        "docs/common/rules/legacy/rule.md": "56252e68e6d1dc0eff5da78829bff35f5e9d0dd25ce0cb08f176f1dfad3000ed",
+        "AGENTS.md": "127cfce6b9d8461a5eb6e626bc7b3b556eacc5df67ec8fb9dbac1b97ea64db82",
+        "docs/common/development-rules.md": "717a1f47bd08651f8c2cfce433ca3a888acb3cb2a49f87ef364a4ed186e5047a"
+      },
+      "rules": [
+        {
+          "rule_id": "legacy",
+          "version": "1.0.0",
+          "reference": {
+            "kind": "file",
+            "target": "docs/common/rules/legacy/rule.yaml"
+          },
+          "status": "selected",
+          "reasons": [
+            "always_on"
+          ]
+        }
+      ],
+      "order": [
+        "legacy"
+      ],
+      "diagnostics": []
+    }
+  },
+  "project_id": "example-app",
+  "feature_id": "a"
+}

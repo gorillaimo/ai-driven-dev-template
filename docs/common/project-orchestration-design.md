@@ -7,7 +7,7 @@
 - 状態: 設計承認済み（Issue #9、2026-08-07）
 - 承認記録: https://github.com/gorillaimo/ai-driven-dev-template/issues/9#issuecomment-5207242159
 - 適用開始: 人間による設計承認後、対応する後続実装Issueが完了した機構から段階的に有効化する
-- 現時点の扱い: Project成果物schema v1・記入例・形式テスト、依存DAG・wave・計画改訂とmember/ownership/capacityの読み取り専用validator、手動Coordinatorの手順・コメント様式・机上例は利用可能。集約/推薦、Project Golden Test、Dispatcherは後続実装。形式テストとvalidatorのテストを既存ワークフローCIで実行する
+- 現時点の扱い: Project成果物schema v1・記入例・形式テスト、依存DAG・wave・計画改訂とmember/ownership/capacityの読み取り専用validator、手動Coordinatorの手順・コメント様式・机上例は利用可能。明示snapshotの進捗集約・不整合検出も利用可能。実GitHubの自動取得/推薦、Project Golden Test、Dispatcherは後続実装。形式テストとvalidatorのテストを既存ワークフローCIで実行する
 - 初期標準: GitHub Issuesを使う手動Coordinator方式
 - 任意拡張: GitHub Projects、中央Dispatcher、外部Agent Runner
 - 互換性: 1人開発、単一Issue、従来のprompt運用を壊さない追加方式
@@ -584,6 +584,15 @@ RunnerはDispatcherが確定したclaimだけを受け取り、指定Issue、bra
 初期リリースではRunnerを含めない。導入には権限、sandbox、secret、費用、timeout、停止方法、監査、同時実行上限の別設計と明示承認を必要とする。
 
 ## 13. 同期と復旧
+
+### 13.0 読み取り専用集約の契約
+
+`aggregateProject({project,deliveryPlan,context,workflows,checkpoint?})`は、明示されたGitHub確認snapshotと既存Issue checkerの元入力を集約する。`loadProjectAggregate(root,paths)`は列挙pathだけを読む。通信・Git/command・状態更新・自動保存を行わない。
+独立した`project-aggregate/v1`のcontext/checkpoint/resultを使い、既存schema・checkWorkflow・ProjectのDAG検査を再利用する。人間向けMarkdown様式を機械契約へ変換しない。
+観測値と照合結果を区別し、欠損・古い/partialな取得・未知事実を完了へ昇格しない。必須Issueとfeature ACの人間受け入れ、依存・制約・optional作業を考慮してfeatureを集約する。
+managed Issueは既存checkWorkflowを再実行する。通常のresume停止を履歴破損と混同しない。legacyの内部工程は未評価とする。
+checkpointはIssue/workごとの履歴順event ID/digestの生成記録であり、再読込の二重計上を防ぐ。履歴prefix改変/短縮や別revisionへの暗黙移行を拒否し、元入力の再検査を省略しない。実GitHubやcheckpointの真正性は未評価。
+詳細な利用・記入はoperations-manualのProject集約節、全フィールドはproject-aggregate/v1のschemaと合成fixtureを参照する。入力5 MiB、1file1 MiB、深さ32/200000node、100Issue、履歴計10000、診断1000/結果1 MiBを上限とし、100Issue代表fixtureでcold5秒を目標に検証する。
 
 ### 13.1 同期
 

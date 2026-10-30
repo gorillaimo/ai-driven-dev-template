@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "work_id": "issue-1",
+  "work_source": "github_issue",
+  "issue_ref": "https://github.com/example/project/issues/1",
+  "risk": "low",
+  "contract_ref": {
+    "kind": "url",
+    "target": "https://github.com/example/project/issues/1"
+  },
+  "assignee": "example-user",
+  "ready_for_ai": true,
+  "issue_updated_at": "2026-10-23T00:00:00Z",
+  "conflicts": false,
+  "git": {
+    "commit": "0000000000000000000000000000000000000000",
+    "branch": "feature/1-example",
+    "clean": true,
+    "remote_matches": true
+  },
+  "facts": {
+    "needs_brownfield": {
+      "value": false,
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ]
+    },
+    "needs_prototype": {
+      "value": false,
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ]
+    },
+    "changes_spec": {
+      "value": false,
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ]
+    },
+    "minor_change": {
+      "value": true,
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ]
+    },
+    "changes_api": {
+      "value": false,
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ]
+    },
+    "changes_implementation": {
+      "value": false,
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ]
+    }
+  },
+  "gates": {
+    "nfr": {
+      "applicable": false,
+      "reason": "Synthetic assessment",
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ]
+    },
+    "security": {
+      "applicable": false,
+      "reason": "Synthetic assessment",
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ]
+    },
+    "resiliency": {
+      "applicable": false,
+      "reason": "Synthetic assessment",
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ]
+    }
+  },
+  "required_stages": [],
+  "approval_stages": [],
+  "skip_overrides": [],
+  "retry_review": {
+    "confirmed": true,
+    "evidence": [
+      {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/1"
+      }
+    ]
+  },
+  "project_id": "example-app",
+  "feature_id": "a"
+}

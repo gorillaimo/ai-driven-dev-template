@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "state",
+  "work_id": "issue-1",
+  "work_source": "github_issue",
+  "issue_ref": "https://github.com/example/project/issues/1",
+  "updated_at": "2026-10-23T00:00:00Z",
+  "updated_by": {
+    "actor_type": "human",
+    "actor_ref": "example-user"
+  },
+  "plan_revision": 1,
+  "status": "planned",
+  "current_stage": null,
+  "last_completed_stage": null,
+  "next_stage": "intake",
+  "git": {
+    "commit": "0000000000000000000000000000000000000000",
+    "branch": "feature/1-example"
+  },
+  "issue_updated_at": "2026-10-23T00:00:00Z",
+  "stages": [
+    {
+      "stage_id": "intake",
+      "status": "pending"
+    },
+    {
+      "stage_id": "context",
+      "status": "pending"
+    },
+    {
+      "stage_id": "brownfield",
+      "status": "pending"
+    },
+    {
+      "stage_id": "prototype",
+      "status": "pending"
+    },
+    {
+      "stage_id": "requirements",
+      "status": "pending"
+    },
+    {
+      "stage_id": "design",
+      "status": "pending"
+    },
+    {
+      "stage_id": "api",
+      "status": "pending"
+    },
+    {
+      "stage_id": "quality",
+      "status": "pending"
+    },
+    {
+      "stage_id": "tests",
+      "status": "pending"
+    },
+    {
+      "stage_id": "implementation",
+      "status": "pending"
+    },
+    {
+      "stage_id": "validation",
+      "status": "pending"
+    },
+    {
+      "stage_id": "handoff",
+      "status": "pending"
+    }
+  ],
+  "validations": [],
+  "approvals": [],
+  "blockers": [],
+  "failure_reason": null,
+  "resume": {
+    "instructions": "Issue契約とassigneeを確認し、intakeから開始する。",
+    "pending_operations": [],
+    "safe_to_retry": true
+  },
+  "history": [
+    {
+      "event_id": "event-1",
+      "event_type": "work_planned",
+      "occurred_at": "2026-10-12T00:00:00Z",
+      "actor": {
+        "actor_type": "human",
+        "actor_ref": "example-user"
+      },
+      "stage": null,
+      "before": null,
+      "after": "planned",
+      "evidence": [
+        {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1"
+        }
+      ]
+    }
+  ],
+  "extensions": {
+    "workflow_check": {
+      "schema_version": 1,
+      "approval_scopes": [],
+      "validation_scopes": [],
+      "revisions": []
+    }
+  },
+  "project_id": "example-app",
+  "feature_id": "a"
+}

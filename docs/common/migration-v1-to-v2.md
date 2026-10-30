@@ -7,7 +7,7 @@
 - v1 stable: `v1.0.0`
 - v2: development line
 - `v2.0.0`stable Release: 未公開
-- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。追跡性checkerとBrownfield手順・深度別テンプレートも利用できる。Golden TestとIssue内部のActions統合も利用できる。Projectの3成果物schema・合成記入例・形式テストも利用できる。Projectの依存DAG・wave・計画改訂validatorも利用できる。member/ownership/capacityのsnapshot検査も利用できる。手動Coordinatorの手順・コメント様式・机上例も利用できる。集約・推薦は後続実装。工程は自動実行しない
+- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。追跡性checkerとBrownfield手順・深度別テンプレートも利用できる。Golden TestとIssue内部のActions統合も利用できる。Projectの3成果物schema・合成記入例・形式テストも利用できる。Projectの依存DAG・wave・計画改訂validatorも利用できる。member/ownership/capacityのsnapshot検査も利用できる。手動Coordinatorの手順・コメント様式・机上例も利用できる。明示snapshotの進捗集約・不整合検出も利用できる。実GitHubの自動取得・推薦は後続実装。工程は自動実行しない
 
 設計文書が存在するだけで、AIが状態管理、自動再開、次Issue選択、claim、複数人調整を自動実行できるとは扱わない。対応する後続実装Issueが完了した機構だけを有効化する。
 
@@ -255,3 +255,12 @@ eligibleは提出された条件適合だけで、担当変更・claim開始・�
 コメント様式v1はschema_versionとは別です。既存Project/Issue schema、checker、CI、always-on規約、VERSIONを変更しません。
 確認不能や部分失敗では新規割当を保留し、元記録を残して従来のIssue/assignee/着手コメント/branch/PRへ人間判断で戻します。未解消claimは消さず個別に照合します。
 机上確認は実案件の排他・GitHub障害の試験ではありません。自動集約・推薦・Project全体Golden、alpha/stable公開は別途対応です。
+
+## Project進捗集約の追加導入
+
+必要な場合だけ、既存rules/check/projectのpackageとschema一式、projectのaggregate用modules、project-aggregate/v1、合成例を追加参照します。既存依存/lockfile・schema・規約・VERSIONは変更しません。
+人間がGitHub記録とIssue元成果物を取得・確認し、対象ID/revision/digest・観測時刻・全量取得範囲を明示したsnapshotへ投影します。取得そのものやMarkdown様式の解析は行いません。
+managed/legacyを明示し、未採用の内部工程を無理に補完しません。チェック結果だけで担当・claim・承認・完了を確定せず、人間が実状を確認します。
+checkpointは元データとともに保持し、取得不能や入力不整合で既確認Issueを削除しません。計画revision/digest変更時は人間が元履歴を保持し、checkpointなしで全量再集約する判断を明示します。
+実際の入力方法、出力の未評価範囲・上限・停止/復旧は[運用マニュアル](operations-manual.md)を参照してください。復旧不能なら手動Coordinator/従来Issue運用へ戻します。
+実GitHubの自動取得・自動修復/解放・推薦/Project全体Golden・Releaseは別途対応です。

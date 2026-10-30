@@ -1,0 +1,14 @@
+{
+  "workflows": [
+    {
+      "issue_ref": "https://github.com/example/project/issues/1",
+      "plan": "workflow-plan.json",
+      "state": "workflow-state.json",
+      "context": "workflow-context.json",
+      "ruleInput": "workflow-ruleInput.json"
+    }
+  ],
+  "project": "project.json",
+  "deliveryPlan": "deliveryPlan.json",
+  "context": "context.json"
+}
