@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "engines": { "node": ">=22" },
-  "exports": { "./check": "./check.mjs", "./load": "./load.mjs", "./members": "./members.mjs", "./member-load": "./member-load.mjs" },
-  "scripts": { "test": "node ../../tests/workflow-project/run.mjs", "test:members": "node ../../tests/workflow-members/run.mjs" },
+  "exports": { "./check": "./check.mjs", "./load": "./load.mjs", "./members": "./members.mjs", "./member-load": "./member-load.mjs", "./aggregate": "./aggregate.mjs", "./aggregate-load": "./aggregate-load.mjs" },
+  "scripts": { "test": "node ../../tests/workflow-project/run.mjs", "test:members": "node ../../tests/workflow-members/run.mjs", "test:aggregate": "node ../../tests/workflow-aggregate/run.mjs" },
   "dependencies": {
     "workflow-rules": "file:../workflow-rules",
     "ajv": "^8.17.1",

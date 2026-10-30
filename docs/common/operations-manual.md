@@ -1237,3 +1237,78 @@ approval_typeはintegration_owner_override。対象外のIssue/area、二重指�
 既存の計画checkerと併用しても、自動的にIssueを選択・割当・着手しません。手動Coordinatorが契約・承認・現在の担当と競合を確認してください。
 上限と計算規則はproject-orchestration-design第9.4節を参照します。最大1000member/200area/10000claimは直接API用fixtureで、file loaderには各file1 MiBの上限もあります。
 CIはこの専用テストをNode22/24で実行します。保存Projectの自動走査とProject全体Goldenは後続対応。復旧できない場合も従来のIssue/assignee/着手コメント/branch/PR運用へ戻れます。
+
+## 複数Issueの進捗と不整合を読み取り専用で集約する
+
+`aggregateProject`は確認snapshotとIssue内部の元入力から、担当・claim・branch・PR・工程とfeatureの状態をまとめます。
+「GitHubは完了だが内部は未完」「二重claim」「古い確認」などを返します。GitHub APIの取得・状態更新・claim解放・次Issue推薦は行いません。
+開発対象の言語に関係なくNode.js 22以上で使います。初回の依存導入後はオフラインで動きます。
+
+```sh
+npm ci --prefix tools/workflow-rules --ignore-scripts --no-audit --no-fund
+npm ci --prefix tools/workflow-check --ignore-scripts --no-audit --no-fund
+npm ci --prefix tools/workflow-project --ignore-scripts --no-audit --no-fund
+npm run test:aggregate --prefix tools/workflow-project
+```
+
+最後のコマンドは同梱合成テストで、保存Projectの自動検査ではありません。次は合成入力を明示して集約する実行例です。
+
+```sh
+node --input-type=module <<'NODE'
+import { readFileSync } from 'node:fs';
+import { loadProjectAggregate } from './tools/workflow-project/aggregate-load.mjs';
+import { aggregateProject } from './tools/workflow-project/aggregate.mjs';
+const root = process.cwd() + '/tests/workflow-aggregate/fixtures';
+const paths = JSON.parse(readFileSync(root + '/paths.json', 'utf8'));
+const input = loadProjectAggregate(root, paths);
+console.log(JSON.stringify(aggregateProject(input), null, 2));
+NODE
+```
+
+実案件では必要な対象を人間が取得・確認し、contextへ投影します。項目の正本は`.ai-workflow/schemas/project-aggregate/v1/context.schema.json`、記入例は上のfixturesです。
+raw API response、Issue本文やログ全文を入れず、必要なIDと属性、確認時刻・根拠参照だけを記録します。
+
+1. project/delivery-planの承認済み原本とrevision、`digest(canonical(parsedData))`を記録します。Issue参照のoptionalも含め、全対象の取得範囲を確認します。partial/unknownは完了や空きと推測しません。
+2. observed_at/evaluated_at/freshness_limit_secondsを明示します。制限は最大24時間・暗黙defaultなし。各Issueにも観測時刻、実Issue更新時刻、sourceを記録します。時計・全量性の真正性は呼出元が確認します。
+3. 実labels/assignees、人間owner1人、準備・完了・取消・reviewの確認、claim/branch/PR、未push/未完了操作を投影します。inventory_status:completeは各一覧を全量確認できた場合だけです。ready-for-aiはproject statusと別です。
+4. released claimは解除approval（approval_type:claim_release、関係する人間Coordinator）、実解除時刻、旧停止・未push/引継確認の参照を持ちます。欠ければ枠を保持します。staleは警告であり自動解除しません。
+5. workflow_mode:managedのIssueにはplan/state/context/ruleInput、必要なprevious/revisionPlansを明示指定します。既存checkWorkflowを再実行し、通常のresume停止とschema/履歴破損を区別します。legacyは内部stage未評価を明示し、人間の完了確認を内部checker成功と読み替えません。
+6. feature_confirmationsには各featureのAC受け入れ確認と任意の取消判断を記録します。constraint_factsはfeature/0始まりindexで計画制約へ対応させ、成立時にevidenceを付けます。
+
+| 出力 | 読み方 |
+| :--- | :--- |
+| status:pass | 提出snapshotの必要な整合確認が成立。作業・割当や承認の許可ではない |
+| status:blocked | 不正・不足・古い確認・不整合・上限違反がある。診断から人間が確認する |
+| issues[].observed_project_status | 元のGitHub labelから解決した値。黙って修正しない |
+| reconciliation_status | consistent / blocked / unknown。業務上blockedでも記録が整合する場合はconsistentになり得る |
+| workflow | 既存checkerで再生したwork status/current stage、resumeとappend-onlyの確認範囲。legacyや破損ではnull |
+| features / counts | 必須/optional・依存・制約・人間受け入れを考慮した状態、一意な計画参照から再計算した件数 |
+| checkpoint / new_event_count | 既確認event prefixと今回の追加数。再読込で進捗を二重加算しない。自動保存しない |
+| diagnostics | 安定code・kind・構造path・既知ID・手動復旧先code。自由文やエラーstackを転載しない |
+| not_evaluated | 実GitHub/時計/全量・証拠本人性、自然言語AC、権限/capacity、実scope競合、原子的claim、計画改訂監査、実作業等 |
+
+診断のrecoveryは人間が次に確認する先です。自動操作の命令ではありません。
+
+| recovery | 確認先 |
+| :--- | :--- |
+| review_input | schema・台帳・元snapshotの形式/上限を確認する |
+| confirm_facts | 観測時刻・取得範囲・根拠・本人の確認を取り直す |
+| reconcile | 手動Coordinatorのreconciliation様式へ実状と差分を追記する |
+| claim_update | stale等の警告を確認し、claim-update様式で継続/保留を記録する |
+
+feature完了には必須Issueが1件以上・全件完了、人間によるfeature ACの受け入れ、関連作業/未解消操作なしが必要です。
+optionalの未着手だけでは必須完了を否定しませんが、optionalのactive claimや不整合を隠しません。依存の取消/unknownや空計画を完了と扱いません。
+不整合のある行とその下流をready/completedへ昇格せず、確認できた元の状態は一覧へ残します。致命的形式/上限違反では安全な空結果にします。
+
+### checkpointの再利用と復旧
+
+初回は全量再計算します。返されたcheckpointを呼出元が確認・保存し、次回は`paths.checkpoint`へそのファイルを明示指定します。
+Issue/workごとに前回のevent ID/digest列が現在履歴の完全prefixであることを検査し、同じsnapshotの再読込ではnew_event_countが0になります。
+別Issueの同event IDは別として扱い、同Issueの重複や改変・短縮・順序変更は拒否します。未確認/不整合Issueのcheckpointを進めたり、欠損Issueを削除済みとみなしたりしません。
+checkpointがあっても元入力からのchecker再実行は省略しません。checkpoint自体の真正性やevent以外の全履歴は保証しません。必要なapproval/validationの追記性にはworkflow.previousの原本を使います。
+台帳revision/digestが変わった場合は暗黙変換せず停止し、元記録を保存したうえで、人間が承認済み計画に対するcheckpointなしの全量再集約を明示します。
+
+失敗時は元snapshot/台帳/checkpointを保持し、[手動Coordinator](manual-coordinator.md)の照合記録へ戻ります。結果でGitHub/stateを書き換えず、古いpass結果の流用や承認の捏造はしません。
+非対応・破損を解消できなければ新規割当を保留し、従来のIssue/assignee/着手コメント/branch/PRへ戻せます。
+上限は第13.0節を参照してください。100Issueの直接API用fixtureと、loaderの各file1 MiBは独立した制限です。
+専用テストは既存CIのNode22/24へ接続します。実GitHub自動取得やMarkdown parser、保存Project走査、Project全体Goldenは含みません。

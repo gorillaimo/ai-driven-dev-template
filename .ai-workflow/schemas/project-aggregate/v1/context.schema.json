@@ -1,0 +1,572 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:project-aggregate:v1:context",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "project_id": {
+      "$ref": "urn:ai-workflow:project:v1:common#/$defs/projectId"
+    },
+    "repository": {
+      "$ref": "urn:ai-workflow:project:v1:common#/$defs/repositoryCoordinate"
+    },
+    "project_revision": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+    },
+    "plan_revision": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+    },
+    "project_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "plan_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "observed_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "evaluated_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "freshness_limit_seconds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 86400
+    },
+    "recorded_by": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/actor"
+    },
+    "source": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+    },
+    "collection_status": {
+      "enum": [
+        "complete",
+        "partial",
+        "unknown"
+      ]
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "issue_ref": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/issueRef"
+          },
+          "work_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "feature_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "observed_at": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+          },
+          "issue_updated_at": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+          },
+          "source": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+          },
+          "github_state": {
+            "enum": [
+              "open",
+              "closed",
+              "unknown"
+            ]
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256,
+              "pattern": "^[^\\u0000-\\u001f\\u007f]*$"
+            },
+            "maxItems": 100
+          },
+          "assignees": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+            },
+            "maxItems": 100
+          },
+          "human_owner": {
+            "anyOf": [
+              {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ready_for_ai": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "inventory_status": {
+            "enum": [
+              "complete",
+              "partial",
+              "unknown"
+            ]
+          },
+          "preconditions": {
+            "type": "object",
+            "properties": {
+              "state": {
+                "enum": [
+                  "confirmed",
+                  "denied",
+                  "unknown"
+                ]
+              },
+              "evidence": {
+                "anyOf": [
+                  {
+                    "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "state",
+              "evidence"
+            ],
+            "additionalProperties": false
+          },
+          "completion": {
+            "type": "object",
+            "properties": {
+              "state": {
+                "enum": [
+                  "confirmed",
+                  "denied",
+                  "unknown"
+                ]
+              },
+              "evidence": {
+                "anyOf": [
+                  {
+                    "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "state",
+              "evidence"
+            ],
+            "additionalProperties": false
+          },
+          "cancellation": {
+            "anyOf": [
+              {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/approval"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "review": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "design",
+                  "pr",
+                  "none",
+                  "unknown"
+                ]
+              },
+              "reference": {
+                "anyOf": [
+                  {
+                    "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "reference"
+            ],
+            "additionalProperties": false
+          },
+          "blockers": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+            },
+            "maxItems": 100
+          },
+          "pending_operations": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+            },
+            "maxItems": 100
+          },
+          "unpushed": {
+            "type": "object",
+            "properties": {
+              "state": {
+                "enum": [
+                  "clear",
+                  "saved",
+                  "unknown"
+                ]
+              },
+              "evidence": {
+                "anyOf": [
+                  {
+                    "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "state",
+              "evidence"
+            ],
+            "additionalProperties": false
+          },
+          "claims": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "claim_id": {
+                  "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+                },
+                "human_owner": {
+                  "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+                },
+                "branch": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                },
+                "phase": {
+                  "enum": [
+                    "prepared",
+                    "active",
+                    "released",
+                    "unknown"
+                  ]
+                },
+                "claimed_at": {
+                  "anyOf": [
+                    {
+                      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "last_heartbeat_at": {
+                  "anyOf": [
+                    {
+                      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "evidence": {
+                  "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+                },
+                "release": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "approval": {
+                          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/approval"
+                        },
+                        "released_at": {
+                          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+                        },
+                        "stopped": {
+                          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+                        },
+                        "handoff": {
+                          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+                        },
+                        "unpushed": {
+                          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+                        }
+                      },
+                      "required": [
+                        "approval",
+                        "released_at",
+                        "stopped",
+                        "handoff",
+                        "unpushed"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "claim_id",
+                "human_owner",
+                "branch",
+                "phase",
+                "claimed_at",
+                "last_heartbeat_at",
+                "evidence",
+                "release"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "branches": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                },
+                "head_commit": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "existence": {
+                  "enum": [
+                    "confirmed",
+                    "absent",
+                    "unknown"
+                  ]
+                },
+                "evidence": {
+                  "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+                }
+              },
+              "required": [
+                "name",
+                "head_commit",
+                "existence",
+                "evidence"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "prs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "number": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "head_branch": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                },
+                "head_commit": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "base_branch": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                },
+                "state": {
+                  "enum": [
+                    "open",
+                    "closed",
+                    "merged",
+                    "unknown"
+                  ]
+                },
+                "evidence": {
+                  "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+                }
+              },
+              "required": [
+                "number",
+                "head_branch",
+                "head_commit",
+                "base_branch",
+                "state",
+                "evidence"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "workflow_mode": {
+            "enum": [
+              "managed",
+              "legacy"
+            ]
+          }
+        },
+        "required": [
+          "issue_ref",
+          "work_id",
+          "feature_id",
+          "observed_at",
+          "issue_updated_at",
+          "source",
+          "github_state",
+          "labels",
+          "assignees",
+          "human_owner",
+          "ready_for_ai",
+          "inventory_status",
+          "preconditions",
+          "completion",
+          "cancellation",
+          "review",
+          "blockers",
+          "pending_operations",
+          "unpushed",
+          "claims",
+          "branches",
+          "prs",
+          "workflow_mode"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 100
+    },
+    "feature_confirmations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "feature_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "acceptance": {
+            "type": "object",
+            "properties": {
+              "state": {
+                "enum": [
+                  "confirmed",
+                  "denied",
+                  "unknown"
+                ]
+              },
+              "evidence": {
+                "anyOf": [
+                  {
+                    "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "state",
+              "evidence"
+            ],
+            "additionalProperties": false
+          },
+          "cancellation": {
+            "anyOf": [
+              {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/approval"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "feature_id",
+          "acceptance",
+          "cancellation"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 1000
+    },
+    "constraint_facts": {
+      "$ref": "urn:ai-workflow:project-plan-checks:v1:context#/properties/constraint_facts"
+    }
+  },
+  "required": [
+    "schema_version",
+    "project_id",
+    "repository",
+    "project_revision",
+    "plan_revision",
+    "project_digest",
+    "plan_digest",
+    "observed_at",
+    "evaluated_at",
+    "freshness_limit_seconds",
+    "recorded_by",
+    "source",
+    "collection_status",
+    "issues",
+    "feature_confirmations",
+    "constraint_facts"
+  ],
+  "additionalProperties": false
+}

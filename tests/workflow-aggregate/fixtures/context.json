@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-30T00:00:00Z",
+  "evaluated_at": "2026-10-30T00:00:00Z",
+  "freshness_limit_seconds": 3600,
+  "recorded_by": {
+    "actor_type": "human",
+    "actor_ref": "example-user"
+  },
+  "source": {
+    "kind": "url",
+    "target": "https://github.com/example/project/issues/1#issuecomment-1"
+  },
+  "collection_status": "complete",
+  "issues": [
+    {
+      "issue_ref": "https://github.com/example/project/issues/1",
+      "work_id": "issue-1",
+      "feature_id": "a",
+      "observed_at": "2026-10-30T00:00:00Z",
+      "issue_updated_at": "2026-10-23T00:00:00Z",
+      "source": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/1#issuecomment-1"
+      },
+      "github_state": "open",
+      "labels": [
+        "project:assigned"
+      ],
+      "assignees": [
+        "example-user"
+      ],
+      "human_owner": "example-user",
+      "ready_for_ai": true,
+      "inventory_status": "complete",
+      "preconditions": {
+        "state": "confirmed",
+        "evidence": {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1#issuecomment-1"
+        }
+      },
+      "completion": {
+        "state": "unknown",
+        "evidence": null
+      },
+      "cancellation": null,
+      "review": {
+        "kind": "none",
+        "reference": null
+      },
+      "blockers": [],
+      "pending_operations": [],
+      "unpushed": {
+        "state": "clear",
+        "evidence": {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1#issuecomment-1"
+        }
+      },
+      "claims": [],
+      "branches": [],
+      "prs": [],
+      "workflow_mode": "managed"
+    }
+  ],
+  "feature_confirmations": [
+    {
+      "feature_id": "a",
+      "acceptance": {
+        "state": "unknown",
+        "evidence": null
+      },
+      "cancellation": null
+    }
+  ],
+  "constraint_facts": [],
+  "project_id": "example-app",
+  "repository": "example/project",
+  "project_revision": 1,
+  "plan_revision": 1,
+  "project_digest": "aaf63234e9b9af669a47a8d5e04af1768e5134c84b953226e4143ad0eb68b539",
+  "plan_digest": "747bf80ffb35ae55ed3a518366b486081cc4ce8b8639f7fdb1bd86505151f227"
+}

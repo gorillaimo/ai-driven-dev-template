@@ -125,6 +125,7 @@ assigneeだけが変わっていれば同claimのownerを書き換えず停止�
 ## 6. 部分失敗と不整合の復旧
 
 [reconciliation](../../.ai-workflow/templates/project-manual/v1/reconciliation.md)は「期待と実状を人間が照合する記録」です。集約器や自動修復処理ではありません。
+不整合を見つける補助として、[運用マニュアル](operations-manual.md)のProject集約libraryへ確認snapshotとIssue内部の元入力を渡せます。Markdown様式は自動解析せず、人間が記録を確認して投影します。検出結果でlabel/claimを修正せず、この手順へ戻って判断します。
 元operation_id、全関連record、期待した更新と観測時刻・実状態、成功/失敗/不明、停止範囲、枠の扱いを分けて追記します。
 応答不明は未実行とは限りません。再送前に同じrecord/operationの実コメントとassignee/全status label/claim/branch/PRを読み戻します。
 人間が不足操作のみの補完・継続・取消・保留を決め、別record_idで判断と最終読み戻しを記録します。
@@ -158,4 +159,4 @@ Quality Gatesの確認範囲は次のとおりです。
 - Resiliency: 重複/部分失敗、stale、停止/引継、Coordinator交代とfallbackの机上確認。原子的claim・自動冪等処理・実API障害復旧の保証なし。
 
 机上例の確認と既存テストの成功は、実案件の同時操作・本人引受・未push作業・GitHub障害復旧を実証しません。
-保存Project自動走査、read-only集約/差分検出、次Issue推薦、Project全体Goldenは後続Issueです。
+明示snapshotのread-only集約/差分検出は追加利用できます。実GitHubの自動取得、保存Project自動走査、次Issue推薦、Project全体Goldenは後続Issueです。

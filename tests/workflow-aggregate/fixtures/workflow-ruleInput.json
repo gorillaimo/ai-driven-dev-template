@@ -1,0 +1,55 @@
+{
+  "rules": [
+    {
+      "schema_version": 1,
+      "rule_id": "legacy",
+      "version": "1.0.0",
+      "level": "always-on",
+      "category": [
+        "governance"
+      ],
+      "applies_when": [],
+      "requires": [],
+      "conflicts_with": [],
+      "after": [],
+      "severity": "block",
+      "purpose": "既存のIssue契約・承認・開発規約を常時維持する。",
+      "inputs": [
+        "Issue契約",
+        "人間の指示"
+      ],
+      "expected_outputs": [
+        "既存規約に従った作業"
+      ],
+      "on_failure": "作業を停止し、Issueへ理由を記録して人間へ確認する。",
+      "approval_required": false,
+      "body_refs": [
+        {
+          "kind": "file",
+          "target": "AGENTS.md"
+        },
+        {
+          "kind": "file",
+          "target": "docs/common/development-rules.md"
+        }
+      ]
+    }
+  ],
+  "sourceDigests": {
+    "docs/common/rules/legacy/rule.yaml": "bebcb36dc81b0cff2835d2959b5980ba91d73395ce52bc97525c2dc7ff04b23b",
+    "docs/common/rules/legacy/rule.md": "56252e68e6d1dc0eff5da78829bff35f5e9d0dd25ce0cb08f176f1dfad3000ed",
+    "AGENTS.md": "127cfce6b9d8461a5eb6e626bc7b3b556eacc5df67ec8fb9dbac1b97ea64db82",
+    "docs/common/development-rules.md": "717a1f47bd08651f8c2cfce433ca3a888acb3cb2a49f87ef364a4ed186e5047a"
+  },
+  "ruleSources": {
+    "legacy": "docs/common/rules/legacy/rule.yaml"
+  },
+  "context": {
+    "schema_version": 1,
+    "risk": "low",
+    "areas": [],
+    "technologies": [],
+    "data_types": []
+  },
+  "optIns": []
+}

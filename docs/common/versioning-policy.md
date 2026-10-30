@@ -233,3 +233,11 @@ canonical digestは対象台帳と入力の識別、checker_versionは計算規�
 コメントparser/reducer用の機械契約ではありません。将来の機械処理は別Issueで契約・互換性・既存コメントの扱いを設計し、暗黙に自動解釈しません。
 様式や手順を更新するときも既存claimの記録・ID・終了/引継履歴を保持し、導入元commitと実案件への明示採用を記録します。様式をコピーしただけではProject運用や自動処理は有効になりません。
 導入/fallbackは[manual-coordinator.md](manual-coordinator.md)とmigration guideに従います。単一Issue運用・legacy always-on規約を維持し、この追加だけでalpha/stable Releaseを公開しません。
+
+## Project aggregate v1の互換性
+
+context/checkpoint/resultは`.ai-workflow/schemas/project-aggregate/v1/`へ独立配置します。既存Project/Issue/checkerのschema v1や計算規則を変更しません。
+新schema_version:1はtemplate VERSION・aggregator_version・Markdown様式v1とは別です。coreのfield/enum/型/必須性など受理集合の変更は新schema majorへ追加します。
+入力digestは内容の識別、checkpointはevent prefix照合用であり、実GitHubや承認者・生成者の認証ではありません。人間向けコメントを自動解釈する契約にもなりません。
+元台帳/Issue成果物/導入commitを保持して明示導入し、非対応/破損/改訂時は暗黙変換しません。詳細はoperations-manualの集約手順を参照します。
+導入しない単一Issue運用、legacy always-on規約、手動Coordinatorへのfallbackを維持します。この追加でalpha/stable Releaseを公開しません。
