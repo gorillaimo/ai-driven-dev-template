@@ -85,7 +85,7 @@ NODE
 ```
 
 `intake`は次に確認する工程です。`ask_coordinator`は担当の相談候補で、Issue取得・claim・branch作成は実行しません。
-fixture内のURL・本人・承認・時刻は合成です。計画/member/集約を個別に試す入口は[運用マニュアル](../../common/operations-manual.md)を参照してください。
+fixture内のURL・本人・承認・時刻は合成です。計画/member/集約を個別に試す入口は[検査ツールの利用詳細](../../common/workflow-tools-guide.md)を参照してください。
 
 ## 3. v1と利用先独自変更を保持して段階導入する
 
