@@ -262,7 +262,7 @@ npm test --prefix tools/workflow-schema
 
 `docs/common/project-orchestration-design.md`は、`docs/system-context.md`で分割したfeatureの依存順序、工程進捗、開発メンバー、担当・claim、共有領域の競合防止を定義します。初期標準はGitHub Issuesと人間のCoordinatorを使う方式で、GitHub Projects、中央Dispatcher、外部Agent Runnerは任意の後続拡張です。
 
-Project設定・開発計画・メンバー台帳のschema v1と合成記入例、依存DAG・wave・計画改訂とmember/ownership/capacityの読み取り専用validatorは利用できます。割当・集約等は後続実装です。現時点では、AIへ「開発を続けてください」と指示しても、AIが未割当Issueを自動claimしたり、複数人の作業を自動調整したりできるとは扱わないでください。従来どおり、人間がassignee、着手コメント、変更範囲、既存PRを確認します。
+Project設定・開発計画・メンバー台帳のschema v1と合成記入例、依存DAG・wave・計画改訂とmember/ownership/capacityの読み取り専用validatorは利用できます。読み取り専用の集約・推薦も利用できます。実GitHub取得・割当操作等は後続対応です。現時点では、AIへ「開発を続けてください」と指示しても、AIが未割当Issueを自動claimしたり、複数人の作業を自動調整したりできるとは扱わないでください。従来どおり、人間がassignee、着手コメント、変更範囲、既存PRを確認します。
 
 ## 3. issueの粒度
 
@@ -1312,3 +1312,86 @@ checkpointがあっても元入力からのchecker再実行は省略しません
 非対応・破損を解消できなければ新規割当を保留し、従来のIssue/assignee/着手コメント/branch/PRへ戻せます。
 上限は第13.0節を参照してください。100Issueの直接API用fixtureと、loaderの各file1 MiBは独立した制限です。
 専用テストは既存CIのNode22/24へ接続します。実GitHub自動取得やMarkdown parser、保存Project走査、Project全体Goldenは含みません。
+
+## 安全な次作業を読み取り専用で提案する
+
+`recommendNextWork`は、本人の既存作業を優先し、次に確認する1作業を返します。担当がなければ、未割当IssueからCoordinatorへ相談する候補を返します。
+確認済みsnapshotを検査するNode.js 22以上のlibraryです。開発対象の言語には依存せず、依存導入後はオフラインで動きます。
+
+```sh
+npm ci --prefix tools/workflow-rules --ignore-scripts --no-audit --no-fund
+npm ci --prefix tools/workflow-check --ignore-scripts --no-audit --no-fund
+npm ci --prefix tools/workflow-project --ignore-scripts --no-audit --no-fund
+npm run test:recommend --prefix tools/workflow-project
+```
+
+最後は同梱テストの実行です。保存Projectの自動走査ではありません。合成例は次のように明示して読みます。
+
+```sh
+node --input-type=module <<'NODE'
+import { readFileSync } from 'node:fs';
+import { loadProjectRecommendation } from './tools/workflow-project/recommend-load.mjs';
+import { recommendNextWork } from './tools/workflow-project/recommend.mjs';
+import { recommendMessages } from './tools/workflow-project/recommend-messages.mjs';
+const root = process.cwd() + '/tests/workflow-recommend/fixtures';
+const paths = JSON.parse(readFileSync(root + '/paths.json', 'utf8'));
+const result = recommendNextWork(loadProjectRecommendation(root, paths));
+console.log(JSON.stringify(result, null, 2));
+for (const diagnostic of result.diagnostics) console.log(recommendMessages[diagnostic.code]);
+NODE
+```
+
+この合成例は`decision:coordinator_candidates`、`kind:ask_coordinator`を返します。Issue #1の取得・割当・claim・branch作成は行いません。
+実案件では以下を人間または既存接続ツールが取得・確認し、根拠参照付きの入力へ投影します。Markdownコメントの自動解析や自然言語指示の解釈は行いません。
+
+| 入力 | 記録するもの |
+| :--- | :--- |
+| project / deliveryPlan / team | 承認済みの静的台帳原本。全checkerへ同じ値を渡す |
+| aggregate.context / workflows / checkpoint? | 前節の集約用確認snapshotと、managed Issueの元plan/state/context/ruleInput、必要なprevious/revisionPlans、任意checkpoint |
+| planning.replan_decisions / previous? | 人間によるcontinue/pause/cancel判断、改訂検査に必要な過去のproject/deliveryPlan/context原本 |
+| context | 推薦対象の人間・AI、本人/代理・権限・全量claim・最新指示・Issue補足確認 |
+
+推薦contextの正本は[context schema](../../.ai-workflow/schemas/project-recommend/v1/context.schema.json)です。
+project/plan/teamの各revisionと`digest(canonical(parsedData))`、repository、observed_at/evaluated_at/freshness_limit_seconds（1〜86400、暗黙defaultなし）を原本へ結び付けます。時刻とTTLはaggregate.contextと一致させ、teamの更新後に確認します。
+`human_owner`は人間login1人、`agent_ref`は今回のAI識別子です。principal/member_factsは既存member検査の形式を使い、役割名から実repository permissionや必要Teamを推測しません。AI/bot記録者は同じagent_refと人間のon_behalf_ofを持ちます。
+
+`claims_inventory_status:complete`と`active_claims`はProject全体の確認です。集約中の未解除claimとID/Issue/work/ownerを照合し、計画外claimも無視しません。準備中・不明なclaimがある場合も存在を隠さず照合し、推薦を停止します。準備記録を確定claimへ昇格する処理はありません。stale/pause/review/inactiveや解除依頼だけで枠を空けません。
+`instruction`は呼出元が確認した人間の最新指示をproceed/stop/pause/replan_requiredと根拠に正規化します。停止や計画変更の要求で提案を止めます。自然文から新priorityを作りません。
+`requested_issue_ref`を指定するとその実Issueだけを評価します。条件不足でも別Issueへ移らず、指定だけで担当や承認は成立しません。
+
+各計画Issueに一意の`issue_facts`を記録します。登録feature内のarea_ids、area内の安全な相対file_scope/non_scope、契約のacceptance/non_scope、現在工程のapproval、責任引受、Issue限定owner_overrides、scope_check、execution_confirmationを持ちます。
+確認はconfirmed/denied/unknownとevidenceで表し、scope_checkはclear/conflict/unknownです。完了済み・他人担当に不要な確認をconfirmedへ補いません。
+既存claimの実行依頼にはclaim_id・agent_ref・根拠を一致させ、必要な引継ぎを確認します。同じ人間の別AIのclaimを自由取得しません。
+
+### 提案の順序と結果
+
+既存aggregateProject→checkProjectPlan→対象ごとのcheckProjectMembers→既存claimのcheckWorkflowを元入力で再実行します。保存済みpass/eligibleや前回推薦を許可の根拠にしません。
+集約blockedは全体停止です。本人の進行中claim→割当済みIssue→本人の阻害・レビュー・未確定操作の待機→未割当Coordinator候補の順に扱います。最上位が止まったら下位のIssueへ移りません。
+候補順は承認済みpriority昇順→既存checkerのwave昇順→実Issue番号の数値昇順→feature/workのASCII順です。active featureで未計算のwaveはnullとし、同priorityの番号付きwaveの後へ置きます。nullを着手許可へ読み替えません。
+
+| decision | 次に人間が確認すること |
+| :--- | :--- |
+| resume | 元Issue checkerが全体passかつcandidateとして返した次工程を、実行直前に再確認する |
+| claim_request | 割当済みmanaged Issueの着手・claim/branch確定を既存の手動手順で確認する |
+| coordinator_candidates | 上位1〜10候補から先頭Issueの担当割当をCoordinatorへ相談する |
+| wait | 人間指示・古いclaim・レビュー・既存checkerの停止・legacyの工程確認などを解消する |
+| blocked | 不明・不足・不整合・古いsnapshot・上限を診断から確認する |
+| none | 確認済みの準備状況や適格性から、現在提案できる対象がない |
+
+`status:pass`は入力に基づく結果、`pass+wait`は通常の待機です。推薦の自動実行や承認ではありません。
+`current_work`は待機中の対象・工程・claim、`selected_action`は最大1件、`coordinator_candidates`は相談候補、`excluded`は対象ごとの除外codeです。`diagnostics.source/source_code`は既存checkerの停止理由を示します。日本語説明はrecommend-messages.mjsへ集約しています。
+実行中stage、承認待ち、unsafe retry、過去原本不足を推薦側で緩和せず、next_stageを推測しません。legacyの既存/割当済みはmanual_reviewへ戻し、未割当は必要確認が揃えば相談候補にできます。従来の手動開発は継続できます。
+
+全依存completed・全constraint satisfied、feature自体の停止/終了と人間のpause/cancel判断、本人/代理・実権限・所有・同時担当を再確認します。既存自己claimは追加0、新規は+1です。
+他の未解除claim/open PRとfeature/area pathが同一・祖先子孫で重なれば保守的に除外し、disjoint_scopes、同wave、clearの申告だけで解除しません。本人の同claim/branchのみ自己競合から除外します。
+
+### 上限・保証範囲と復旧
+
+loaderは列挙したpathだけを読み、元ファイルと入力を変更しません。paths.aggregate.workflowsは各Issueのissue_ref/plan/state/context/ruleInputと任意previous/revisionPlansを列挙します。planning.previousも3原本のpathを列挙します。参照先は自動取得しません。
+全入力5 MiB（previous等も合算）、各file1 MiB、深さ32/200000node、100Issue/workflow、feature1000/area200/member・fact1000/active_claim10000、scope・参照等の各合計10000、既存の履歴上限を維持します。明示file数は最大10620、累計読込byteも5 MiBです。
+診断と除外理由は計1000件、結果1 MiB、途中のbyte予算も制限します。超過時は候補と選択を空にして停止します。直接APIの100Issue合成fixtureでcold10秒以内を目標に測定し、file上限とは独立に確認します。
+
+`not_evaluated`には実GitHub・本人/権限/証拠/全量/時刻の真正性、自然言語AC/指示、実ファイル競合/未pushの全証明、原子的claim、snapshot後の変更、実作業を残します。snapshotの申告だけで実認証や排他は成立しません。
+人間確認が必要な相談/claim依頼を自動実行せず、resumeも既存承認を超える権限を作りません。全提案で実Issue/担当/依頼/claim/branch/PR/未push/承認/競合を実行前に再確認します。
+未知version・破損・不整合を解消できなければ元台帳/snapshot/履歴を保持し、[手動Coordinator](manual-coordinator.md)の照合へ戻します。修復・自動解放・再割当・共有state更新は行いません。
+専用テストはCIのNode22/24で動きます。保存Project走査・Project全体Golden・実GitHub連携・Projects/Dispatcher/Runnerは別の後続対応です。

@@ -285,3 +285,9 @@ status_mappingとheartbeat/stale方針は導入時に合意し、操作の実状
 `loadProjectAggregate`は列挙pathだけを読みます。人間向けコメントを解析せず、通信・Git・自動保存・担当/状態変更は行いません。
 `npm run test:aggregate --prefix tools/workflow-project`は同梱合成テストです。実案件の取得方法や本人性を証明するものではありません。
 実行例・元入力・checkpoint/復旧は[運用マニュアル](operations-manual.md)、契約はproject-orchestration-design第13.0節を参照します。任意導入で、単一Issue運用も継続できます。
+
+## 安全な次作業の提案を追加する
+
+`tools/workflow-project/recommend.mjs`は確認済み元入力を既存checkerで再検査し、本人の既存作業またはCoordinatorへ相談する候補を決定的に返します。担当・claim・工程を自動実行しません。
+`recommend-load.mjs`と`project-recommend/v1`の独立context/result、[合成入力](../../tests/workflow-recommend/fixtures/README.md)を任意で導入します。初回依存導入後はオフラインのNode.js 22以上で動き、開発対象の言語には依存しません。
+利用方法・確認項目・停止/復旧・上限・not_evaluatedは[運用マニュアル](operations-manual.md)を参照してください。専用合成テストは`npm run test:recommend --prefix tools/workflow-project`で実行し、CIのNode22/24でも検証します。保存Project走査・Project全体Goldenは別途対応です。

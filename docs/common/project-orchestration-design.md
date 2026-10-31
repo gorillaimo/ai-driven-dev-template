@@ -7,7 +7,7 @@
 - 状態: 設計承認済み（Issue #9、2026-08-07）
 - 承認記録: https://github.com/gorillaimo/ai-driven-dev-template/issues/9#issuecomment-5207242159
 - 適用開始: 人間による設計承認後、対応する後続実装Issueが完了した機構から段階的に有効化する
-- 現時点の扱い: Project成果物schema v1・記入例・形式テスト、依存DAG・wave・計画改訂とmember/ownership/capacityの読み取り専用validator、手動Coordinatorの手順・コメント様式・机上例は利用可能。明示snapshotの進捗集約・不整合検出も利用可能。実GitHubの自動取得/推薦、Project Golden Test、Dispatcherは後続実装。形式テストとvalidatorのテストを既存ワークフローCIで実行する
+- 現時点の扱い: Project成果物schema v1・記入例・形式テスト、依存DAG・wave・計画改訂とmember/ownership/capacityの読み取り専用validator、手動Coordinatorの手順・コメント様式・机上例は利用可能。明示snapshotの進捗集約・不整合検出と決定的な次作業推薦も利用可能。実GitHubの自動取得/更新、Project Golden Test、Dispatcherは後続実装。形式テストとvalidatorのテストを既存ワークフローCIで実行する
 - 初期標準: GitHub Issuesを使う手動Coordinator方式
 - 任意拡張: GitHub Projects、中央Dispatcher、外部Agent Runner
 - 互換性: 1人開発、単一Issue、従来のprompt運用を壊さない追加方式
@@ -505,7 +505,7 @@ paused/blocked/in_review/inactive/staleでも解除確定までcapacityへ含め
 8statusはstatus_mapping先labelで手動表示し、ready-for-ai/assignee/内部stage/open・closedとは区別する。label不整合や部分失敗では新規割当・着手を保留し、元操作IDと現状を人間が照合する。
 同Issue/共有areaの操作担当は1人。複数areaでは関係Coordinatorが合意し、交代は旧担当停止・引継受領・設定PR反映を確認して切り替える。
 コメント様式v1は人間向けの版でschema_versionではなく、parser/reducerや自動冪等性・原子的claim・自動stale解放を提供しない。
-机上確認はライブ同時操作やAPI障害復旧の実証ではない。集約/reconciliationの自動実装、推薦、Project全体Goldenは後続Issueとする。
+机上確認はライブ同時操作やAPI障害復旧の実証ではない。実GitHubの同期・自動修復、Project全体Goldenは後続Issueとする。読み取り専用の集約・推薦は第13.0・11.1節を参照する。
 
 ## 11. AI主導の次タスク提案
 
@@ -559,6 +559,24 @@ AIは次を短く提示する。
 - 人間が停止、pause、priority変更を指示した。
 
 停止時は、理由、影響、確認先、再開条件を提示する。
+
+### 11.1 オフライン推薦APIの契約
+
+`recommendNextWork({project,deliveryPlan,team,aggregate,planning,context})`は、確認済み原本から次の1作業を計算する読み取り専用関数とする。`aggregate`は集約context/workflowsと任意checkpoint、`planning`はreplan_decisionsと任意previous（project/deliveryPlan/context）を持つ。保存済みのpassやeligibleは入力にしない。
+
+推薦context v1はproject/plan/teamのrevision/digest、共通の観測・評価時刻と明示TTL、人間owner、agent_ref、既存member形式のprincipal/member_facts/全量active_claims、最新人間指示、任意の指定Issue、candidate_limit（1〜10）、全計画Issueを覆うissue_factsを持つ。issue_factsはarea_ids、file_scope/non_scope、契約のACと非スコープ確認、現段階承認、責任確認、owner override、scope確認、claim/agentへ束縛した実行依頼確認を記録する。確認はstate/evidenceでunknownを保持する。
+
+既存の集約・計画・member・Issue checkerを元入力で再実行する。集約blockedは全体停止、stale claimは再確認待ち。feature事実は集約結果から導出し、ready/plannedをplannedへ写し、既存DAG/改訂規則を使う。無候補でも既存member configuration/facts/evaluateMemberで本人を確認し、架空Issueを作らない。全量inventoryと集約中の未解除claimのID/Issue/work/ownerを照合し、計画外claim・partial・不足を停止する。
+
+指定Issueがなければ本人の進行中claim→本人assigned→本人blocked/review/未確定操作の待機→未割当Coordinator候補の順とする。最上位の不足で別Issueへ移らない。指定時は対象だけを評価する。追加assigneeを主ownerとして扱わない。managed claimの再開には既存checkWorkflow全体pass、resume_decision:candidateと一意next_stageが必要。実行中stage/承認待ち/unsafe retryを緩和しない。legacyの既存作業はmanual_review、未割当は確認が揃えばCoordinator候補にできる。
+
+契約/ready-for-ai/AC/承認、本人・代理・agent依頼、役割/実権限/Team、area/所有、capacity（自己既存+0、新規+1）、全依存completed・全constraint satisfiedを検査する。feature自体のblocked/unknown/終了や人間のpause/cancel判断も候補を止める。他の未解除claim/open PRとarea pathが同一・祖先子孫で重なる場合は保守的に除外する。同wave/disjoint_scopes/clear確認だけで解除しない。自己の同claim/branchのみ自己競合から除外する。priority昇順→既存checkerのwave昇順→実Issue番号の数値昇順→feature/work ASCII順とする。active featureの未計算waveはnullとし、同priorityの番号付きwaveの後に置く。nullを許可の根拠にしない。
+
+result v1はinput_digest、revision/digest/時刻、人間/agent、status:pass|blocked、decision:resume|claim_request|coordinator_candidates|wait|blocked|none、current_work、selected_action最大1件、候補、除外code、diagnostics、not_evaluatedを持つ。通常の待機はpass+wait、不明/古い/partial/不整合はblockedで選択なし。resume以外のnext_stageはnull。claim依頼/Coordinator相談は人間確認必須、全提案は実行前の最新再確認が必要で、割当/claim/branch/成果物を作成しない。日本語説明は専用message moduleへ集約する。
+
+`loadProjectRecommendation(root,paths)`は明示pathだけを安全に読み、参照追跡・走査・通信・command・書込みをしない。新schemaはproject-recommend/v1/context,result、既存契約とlegacy always-onルールは維持。全入力5 MiB/file1 MiB/深さ32/200000node、100Issue、feature1000/area200/member1000/active_claim10000、scope等総数10000、既存履歴制限、診断・除外理由計1000/結果1 MiB。合成100Issueのcold10秒を目標とする。
+
+実GitHub・本人/権限/証拠/全量性/実時刻の真正性、自然言語指示/ACの意味、実ファイル競合/未pushの全証明、原子的claim、snapshot後の変更、実作業は保証しない。未知version/破損時は元記録を保ち、手動Coordinatorへ戻る。Project全体Golden/自動割当/Projects/Dispatcher/Runnerは別の後続Issueで扱う。
 
 ## 12. 自動DispatcherとAgent Runner
 
