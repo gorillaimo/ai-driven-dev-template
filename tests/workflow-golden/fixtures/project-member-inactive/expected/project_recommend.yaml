@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "recommender_version": "1.0.0",
+  "input_digest": "fbadaed80d15e65b2de379f7a0721fe0fad22189a1d33ec9d7694e58a1e8f85d",
+  "project_id": "example-app",
+  "project_revision": 1,
+  "plan_revision": 1,
+  "team_revision": 1,
+  "project_digest": "b99fec635b04426e5be31f9ee755cdeb45ad1ce32cf82f8e581068e6d4b2f648",
+  "plan_digest": "53c8b4edf59eb250b9860ddfaffbd7b87f4985d59aa42bb69cadfabe6170ca50",
+  "team_digest": "43598d8fdbb6cfa767099b3fb61acbbb15aa436a9f3227b03b864f9657c16209",
+  "observed_at": "2026-10-30T00:00:00Z",
+  "evaluated_at": "2026-10-30T00:00:00Z",
+  "human_owner": "example-user",
+  "agent_ref": "codex-a",
+  "status": "blocked",
+  "decision": "blocked",
+  "current_work": null,
+  "selected_action": null,
+  "coordinator_candidates": [],
+  "excluded": [],
+  "diagnostics": [
+    {
+      "code": "member_invalid",
+      "kind": "invalid",
+      "work_id": null,
+      "source": "member",
+      "source_code": "member_inactive"
+    }
+  ],
+  "not_evaluated": [
+    "live_github_authenticity",
+    "principal_and_permission_authenticity",
+    "reference_and_approval_authenticity",
+    "actual_time_and_inventory_completeness",
+    "natural_language_contract_and_instruction",
+    "actual_unpushed_and_scope_proof",
+    "atomic_claim",
+    "changes_after_snapshot",
+    "actual_work_execution"
+  ]
+}

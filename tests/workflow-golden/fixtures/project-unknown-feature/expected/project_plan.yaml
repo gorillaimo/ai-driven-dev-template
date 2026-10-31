@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "checker_version": "1.0.0",
+  "input_digest": "f5ab25be8d30dd0684017bba52577675c8d2a23d5729a7ca5d4e55475c269d07",
+  "project_id": "example-app",
+  "project_revision": 1,
+  "plan_revision": 1,
+  "project_digest": "dee809c58a1b0214011cbb0ce2c1aa7148f2154fa14c803b7df4ce5f7b110e3e",
+  "plan_digest": "765285db9508e1493c5607256d0f3e0a8b1f407438280ceb6ad8592638d85fb0",
+  "observed_at": "2026-10-30T00:00:00Z",
+  "status": "blocked",
+  "checks": [
+    {
+      "check_id": "input",
+      "status": "pass"
+    },
+    {
+      "check_id": "schema",
+      "status": "pass"
+    },
+    {
+      "check_id": "identity",
+      "status": "pass"
+    },
+    {
+      "check_id": "dag",
+      "status": "block"
+    },
+    {
+      "check_id": "facts",
+      "status": "pass"
+    },
+    {
+      "check_id": "history",
+      "status": "pass"
+    }
+  ],
+  "diagnostics": [
+    {
+      "code": "unknown_dependency",
+      "path": "deliveryPlan/features/0/depends_on/0",
+      "feature_id": "a",
+      "related": [
+        "missing"
+      ]
+    }
+  ],
+  "waves": [],
+  "dependency_candidates": [],
+  "waiting": [],
+  "active": [],
+  "completed": [],
+  "cancelled": [],
+  "serialization": [],
+  "revision_impact": {
+    "changed_feature_ids": [],
+    "affected_feature_ids": [],
+    "invalidated_waves": [],
+    "active_decisions": []
+  },
+  "not_evaluated": [
+    "approval_authenticity",
+    "disjoint_scope_proof",
+    "feature_completion_aggregation",
+    "full_history_provenance",
+    "membership_permission_capacity",
+    "reference_existence",
+    "snapshot_freshness"
+  ]
+}

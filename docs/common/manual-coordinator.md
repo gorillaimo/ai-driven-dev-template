@@ -159,7 +159,7 @@ Quality Gatesの確認範囲は次のとおりです。
 - Resiliency: 重複/部分失敗、stale、停止/引継、Coordinator交代とfallbackの机上確認。原子的claim・自動冪等処理・実API障害復旧の保証なし。
 
 机上例の確認と既存テストの成功は、実案件の同時操作・本人引受・未push作業・GitHub障害復旧を実証しません。
-明示snapshotのread-only集約/差分検出は追加利用できます。実GitHubの自動取得、保存Project自動走査、次Issue推薦、Project全体Goldenは後続Issueです。
+明示snapshotのread-only集約/差分検出は追加利用できます。読み取り専用の推薦・Project Goldenも任意利用できます。実GitHubの自動取得と保存Project自動走査は後続Issueです。
 
 ## 8. オフライン推薦を補助に使う
 
@@ -167,3 +167,10 @@ Quality Gatesの確認範囲は次のとおりです。
 本人の既存作業を先に確認し、待機があれば別Issueへ移りません。未割当の候補は割当相談であり、担当・claim確定ではありません。Coordinatorは第3章の直前確認と操作手順を行います。
 legacyの既存工程はmanual_review、古いclaimは継続/停止/引継ぎの確認へ戻します。結果からstage完了・heartbeat・解除・承認を補いません。
 実行直前の実状と依頼を再確認し、不整合なら第6章の照合記録へ戻します。推薦libraryはGitHub取得・操作・排他・実作業を行わず、従来運用も継続できます。
+
+## 9. Project Golden Testで運用例を確認する
+
+[固定例の説明](../examples/project-golden/README.md)から、正常・停止・二重claim・stale・checkpoint再読込・手動fallbackの25合成caseを確認できます。既存12caseと同じGolden命令・CIで動きます。
+2つの依頼は確定前には両方が候補を見られます。人間が1 ownerを確定した後に他方を除外し、二重activeの記録を拒否する静的検証です。ライブ排他は保証しません。
+Dispatcher停止も人間pauseと実状確認後の手動復帰のsnapshotで表し、実障害の検知・復旧は未評価です。テスト成功だけで実claim・引継・承認・Releaseを確定しません。
+差分時は元入力・見本・履歴を保存し、人間レビューと本手順の照合へ戻します。

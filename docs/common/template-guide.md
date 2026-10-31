@@ -291,3 +291,9 @@ status_mappingとheartbeat/stale方針は導入時に合意し、操作の実状
 `tools/workflow-project/recommend.mjs`は確認済み元入力を既存checkerで再検査し、本人の既存作業またはCoordinatorへ相談する候補を決定的に返します。担当・claim・工程を自動実行しません。
 `recommend-load.mjs`と`project-recommend/v1`の独立context/result、[合成入力](../../tests/workflow-recommend/fixtures/README.md)を任意で導入します。初回依存導入後はオフラインのNode.js 22以上で動き、開発対象の言語には依存しません。
 利用方法・確認項目・停止/復旧・上限・not_evaluatedは[運用マニュアル](operations-manual.md)を参照してください。専用合成テストは`npm run test:recommend --prefix tools/workflow-project`で実行し、CIのNode22/24でも検証します。保存Project走査・Project全体Goldenは別途対応です。
+
+## Projectの統合Golden Test
+
+計画・member・集約・推薦の固定運用例も既存Goldenハーネスで検証します。既存12caseと新25caseの計37caseが対象で、既存Workflow ValidationのNode22/24でも同じ命令を実行します。
+新しいProject adapterを読み込むため、Golden利用時に既存workflow-projectの依存も導入します。tool/fixtureは同じtemplate commitの一式を保持し、25必須caseを落としたsuiteを成功としません。利用先Projectの設定・成果物保存を強制するものではありません。
+[運用マニュアル](operations-manual.md)と[固定例](../examples/project-golden/README.md)に導入、比較/禁止条件、手動見本更新、停止時の復旧、第16章14観点との対応・保証境界を記載しています。実GitHub操作・原子的claim・実Dispatcher障害やアプリ自身のテストは含みません。

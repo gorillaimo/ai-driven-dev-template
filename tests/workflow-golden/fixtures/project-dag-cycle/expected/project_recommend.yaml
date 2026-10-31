@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "recommender_version": "1.0.0",
+  "input_digest": "134144792397667d6f44cdd670a8f138f57712382703de30ceeb2c9ed471b072",
+  "project_id": "example-app",
+  "project_revision": 1,
+  "plan_revision": 1,
+  "team_revision": 1,
+  "project_digest": "dee809c58a1b0214011cbb0ce2c1aa7148f2154fa14c803b7df4ce5f7b110e3e",
+  "plan_digest": "bd8cc6d65dd1ef5beb59e6b3a56155b7f88938945325519b63275caa5fdec914",
+  "team_digest": "d40c2d02f204e2ce39062e93460310234bb7db2fea4c1602f196dde9bb5b2d4c",
+  "observed_at": "2026-10-30T00:00:00Z",
+  "evaluated_at": "2026-10-30T00:00:00Z",
+  "human_owner": "example-user",
+  "agent_ref": "codex-a",
+  "status": "blocked",
+  "decision": "blocked",
+  "current_work": null,
+  "selected_action": null,
+  "coordinator_candidates": [],
+  "excluded": [],
+  "diagnostics": [
+    {
+      "code": "aggregate_blocked",
+      "kind": "invalid",
+      "work_id": null,
+      "source": "aggregate",
+      "source_code": "dependency_cycle"
+    },
+    {
+      "code": "aggregate_blocked",
+      "kind": "invalid",
+      "work_id": null,
+      "source": null,
+      "source_code": null
+    }
+  ],
+  "not_evaluated": [
+    "live_github_authenticity",
+    "principal_and_permission_authenticity",
+    "reference_and_approval_authenticity",
+    "actual_time_and_inventory_completeness",
+    "natural_language_contract_and_instruction",
+    "actual_unpushed_and_scope_proof",
+    "atomic_claim",
+    "changes_after_snapshot",
+    "actual_work_execution"
+  ]
+}

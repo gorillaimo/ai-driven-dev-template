@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "checker_version": "1.0.0",
+  "input_digest": "860efb830c451f4c97db1e116a4c5475168f15ade53f0d91af62035f5245d92a",
+  "project_id": "example-app",
+  "project_revision": 1,
+  "team_revision": 1,
+  "project_digest": "dee809c58a1b0214011cbb0ce2c1aa7148f2154fa14c803b7df4ce5f7b110e3e",
+  "team_digest": "1f6d1fd58798bdc67d8556f0b47438def7766ce6433b53c2038307c0d3e1035a",
+  "observed_at": "2026-10-30T00:00:00Z",
+  "evaluated_at": "2026-10-30T00:00:00Z",
+  "status": "blocked",
+  "checks": [
+    {
+      "check_id": "input",
+      "status": "pass"
+    },
+    {
+      "check_id": "schema",
+      "status": "pass"
+    },
+    {
+      "check_id": "identity",
+      "status": "pass"
+    },
+    {
+      "check_id": "configuration",
+      "status": "pass"
+    },
+    {
+      "check_id": "facts",
+      "status": "pass"
+    },
+    {
+      "check_id": "principal",
+      "status": "block"
+    },
+    {
+      "check_id": "subject",
+      "status": "pass"
+    },
+    {
+      "check_id": "ownership",
+      "status": "pass"
+    },
+    {
+      "check_id": "capacity",
+      "status": "block"
+    }
+  ],
+  "subject": {
+    "github_login": "second-user",
+    "mode": "candidate",
+    "qualification": "ineligible",
+    "reasons": [
+      "assignee_mismatch",
+      "claim_owner_mismatch",
+      "issue_already_claimed"
+    ]
+  },
+  "coordinators": [
+    {
+      "github_login": "example-user",
+      "area_ids": [
+        "backend"
+      ],
+      "status": "pass"
+    }
+  ],
+  "integration_owners": [],
+  "capacity": {
+    "active_count": 0,
+    "additional_count": 1,
+    "limit": 1
+  },
+  "diagnostics": [
+    {
+      "code": "assignee_mismatch",
+      "kind": "ineligible",
+      "path": "context/request/assignees",
+      "github_login": "second-user",
+      "area_id": null
+    },
+    {
+      "code": "claim_owner_mismatch",
+      "kind": "ineligible",
+      "path": "context/active_claims",
+      "github_login": "second-user",
+      "area_id": null
+    },
+    {
+      "code": "issue_already_claimed",
+      "kind": "ineligible",
+      "path": "context/active_claims",
+      "github_login": "second-user",
+      "area_id": null
+    }
+  ],
+  "not_evaluated": [
+    "live_github_and_evidence_authenticity",
+    "actual_time_and_inventory_completeness",
+    "issue_contract_and_ready_for_ai",
+    "workflow_approvals",
+    "plan_dependencies",
+    "actual_scope_conflicts",
+    "atomic_claim",
+    "actual_work_execution"
+  ]
+}

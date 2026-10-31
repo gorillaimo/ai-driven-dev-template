@@ -1,0 +1,41 @@
+{
+  "format_version": 1,
+  "id": "project-unknown-feature",
+  "purpose": "Static Project contract: project-unknown-feature. Synthetic inputs only; live identity, atomic claim and Dispatcher operation remain unverified.",
+  "adapters": [
+    "project_plan",
+    "project_aggregate",
+    "project_recommend"
+  ],
+  "inputs": {
+    "project_plan": "input/project_plan.yaml",
+    "project_aggregate": "input/project_aggregate.yaml",
+    "project_recommend": "input/project_recommend.yaml"
+  },
+  "expected": {
+    "project_plan": "expected/project_plan.yaml",
+    "project_aggregate": "expected/project_aggregate.yaml",
+    "project_recommend": "expected/project_recommend.yaml"
+  },
+  "signals": {
+    "project_plan": {
+      "status": "blocked",
+      "codes": [
+        "unknown_dependency"
+      ]
+    },
+    "project_aggregate": {
+      "status": "blocked",
+      "codes": [
+        "unknown_dependency"
+      ]
+    },
+    "project_recommend": {
+      "status": "blocked",
+      "codes": [
+        "aggregate_blocked"
+      ]
+    }
+  },
+  "normalize": []
+}

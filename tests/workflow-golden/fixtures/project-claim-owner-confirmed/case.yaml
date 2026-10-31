@@ -1,0 +1,45 @@
+{
+  "format_version": 1,
+  "id": "project-claim-owner-confirmed",
+  "purpose": "Static Project contract: project-claim-owner-confirmed. Synthetic inputs only; live identity, atomic claim and Dispatcher operation remain unverified.",
+  "adapters": [
+    "project_members",
+    "project_aggregate",
+    "project_recommend"
+  ],
+  "inputs": {
+    "project_members": "input/project_members.yaml",
+    "project_aggregate": "input/project_aggregate.yaml",
+    "project_recommend": "input/project_recommend.yaml"
+  },
+  "expected": {
+    "project_members": "expected/project_members.yaml",
+    "project_aggregate": "expected/project_aggregate.yaml",
+    "project_recommend": "expected/project_recommend.yaml"
+  },
+  "signals": {
+    "project_members": {
+      "status": "blocked",
+      "codes": [
+        "assignee_mismatch",
+        "claim_owner_mismatch",
+        "issue_already_claimed"
+      ]
+    },
+    "project_aggregate": {
+      "status": "pass",
+      "codes": []
+    },
+    "project_recommend": {
+      "status": "pass",
+      "codes": []
+    }
+  },
+  "normalize": [],
+  "assets": [
+    "input/docs/common/rules/legacy/rule.yaml",
+    "input/docs/common/rules/legacy/rule.md",
+    "input/AGENTS.md",
+    "input/docs/common/development-rules.md"
+  ]
+}

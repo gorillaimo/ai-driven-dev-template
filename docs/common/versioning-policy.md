@@ -248,3 +248,10 @@ project-recommend/v1/context・resultは任意追加の独立契約です。temp
 contextは原本revision/digestと観測条件へ束縛し、未知core/versionは拒否します。resultは元入力から再計算する提案であり、担当/claim/承認の正本や次回の許可として流用しません。
 新規相談/claim依頼には人間確認、すべての提案には実行前再確認が必要です。既存checkerの停止条件とlegacy always-onルールを維持します。破損時は元記録を保ち手動Coordinatorへ戻します。
 保証範囲・上限・利用例は[運用マニュアル](operations-manual.md)を参照してください。Project全体Golden・実運用確認は後続対応で、alpha/stable Releaseは作成しません。
+
+## Project Goldenの互換性
+
+Golden専用format_version:1へproject_plan/project_members/project_aggregate/project_recommendの固定adapterと25必須caseを追加します。既存5adapter・12caseの入力/期待見本、比較・禁止・normalize規則は保持します。未選択adapterのnot_evaluated行は新4種類の分だけreportにも加わります。
+新toolで既存12caseだけのsuiteを検証すると、必須Project case不足で失敗します。同じtemplate commitのtool/fixtures/testsを一式で導入し、Golden利用時は既存workflow-projectの依存も導入してください。利用先の実Project設定は必須にしません。
+成果物schema/checker・always-on規約・外部依存lock・VERSIONは変更しません。差分で見本を自動更新せず、人間が仕様とIssueに照らしてレビューします。元の一式を保持し、復旧不能なら個別checker/手動Coordinatorへ戻します。
+37caseの成功は静的な合成運用の回帰確認です。実認証・原子的claim・実Dispatcher障害・Release条件の完了を保証せず、alpha/stable公開を承認しません。[固定例の保証境界](../examples/project-golden/README.md)を参照してください。

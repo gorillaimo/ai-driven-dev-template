@@ -1,0 +1,38 @@
+{
+  "format_version": 1,
+  "id": "project-stale-claim",
+  "purpose": "Static Project contract: project-stale-claim. Synthetic inputs only; live identity, atomic claim and Dispatcher operation remain unverified.",
+  "adapters": [
+    "project_aggregate",
+    "project_recommend"
+  ],
+  "inputs": {
+    "project_aggregate": "input/project_aggregate.yaml",
+    "project_recommend": "input/project_recommend.yaml"
+  },
+  "expected": {
+    "project_aggregate": "expected/project_aggregate.yaml",
+    "project_recommend": "expected/project_recommend.yaml"
+  },
+  "signals": {
+    "project_aggregate": {
+      "status": "pass",
+      "codes": [
+        "claim_stale"
+      ]
+    },
+    "project_recommend": {
+      "status": "pass",
+      "codes": [
+        "claim_stale"
+      ]
+    }
+  },
+  "normalize": [],
+  "assets": [
+    "input/docs/common/rules/legacy/rule.yaml",
+    "input/docs/common/rules/legacy/rule.md",
+    "input/AGENTS.md",
+    "input/docs/common/development-rules.md"
+  ]
+}

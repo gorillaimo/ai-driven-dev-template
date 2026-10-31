@@ -1,0 +1,35 @@
+{
+  "format_version": 1,
+  "id": "project-claim-request-b",
+  "purpose": "Static Project contract: project-claim-request-b. Synthetic inputs only; live identity, atomic claim and Dispatcher operation remain unverified.",
+  "adapters": [
+    "project_members",
+    "project_aggregate",
+    "project_recommend"
+  ],
+  "inputs": {
+    "project_members": "input/project_members.yaml",
+    "project_aggregate": "input/project_aggregate.yaml",
+    "project_recommend": "input/project_recommend.yaml"
+  },
+  "expected": {
+    "project_members": "expected/project_members.yaml",
+    "project_aggregate": "expected/project_aggregate.yaml",
+    "project_recommend": "expected/project_recommend.yaml"
+  },
+  "signals": {
+    "project_members": {
+      "status": "pass",
+      "codes": []
+    },
+    "project_aggregate": {
+      "status": "pass",
+      "codes": []
+    },
+    "project_recommend": {
+      "status": "pass",
+      "codes": []
+    }
+  },
+  "normalize": []
+}

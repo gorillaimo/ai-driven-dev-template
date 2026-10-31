@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "aggregator_version": "1.0.0",
+  "input_digest": "d016726ee52b4f7d1ef1c4ab6ded71fe5b67509775bdf69da0c663257e13ffe3",
+  "project_id": "example-app",
+  "project_revision": 1,
+  "plan_revision": 1,
+  "project_digest": "dee809c58a1b0214011cbb0ce2c1aa7148f2154fa14c803b7df4ce5f7b110e3e",
+  "plan_digest": "53c8b4edf59eb250b9860ddfaffbd7b87f4985d59aa42bb69cadfabe6170ca50",
+  "observed_at": "2026-10-30T00:00:00Z",
+  "evaluated_at": "2026-10-30T00:00:00Z",
+  "status": "blocked",
+  "checks": [
+    {
+      "check_id": "input",
+      "status": "pass"
+    },
+    {
+      "check_id": "schema",
+      "status": "pass"
+    },
+    {
+      "check_id": "binding",
+      "status": "pass"
+    },
+    {
+      "check_id": "dag",
+      "status": "pass"
+    },
+    {
+      "check_id": "inventory",
+      "status": "pass"
+    },
+    {
+      "check_id": "issues",
+      "status": "block"
+    },
+    {
+      "check_id": "features",
+      "status": "pass"
+    }
+  ],
+  "issues": [
+    {
+      "issue_ref": "https://github.com/example/project/issues/1",
+      "work_id": "issue-1",
+      "feature_id": "a",
+      "observed_project_status": "in_progress",
+      "reconciliation_status": "blocked",
+      "human_owner": "example-user",
+      "active_claim_count": 2,
+      "prepared_claim_count": 0,
+      "workflow": {
+        "status": "planned",
+        "current_stage": null,
+        "resume_decision": "candidate",
+        "append_only": "not_evaluated",
+        "checks": [
+          {
+            "check_id": "schema",
+            "status": "pass"
+          },
+          {
+            "check_id": "identity",
+            "status": "pass"
+          },
+          {
+            "check_id": "rules",
+            "status": "pass"
+          },
+          {
+            "check_id": "plan",
+            "status": "pass"
+          },
+          {
+            "check_id": "state",
+            "status": "pass"
+          },
+          {
+            "check_id": "append_only",
+            "status": "not_evaluated"
+          },
+          {
+            "check_id": "resume",
+            "status": "pass"
+          }
+        ]
+      },
+      "new_event_count": 0,
+      "branch_refs": [
+        "feature/1-example"
+      ],
+      "pr_numbers": []
+    }
+  ],
+  "features": [
+    {
+      "feature_id": "a",
+      "status": "blocked",
+      "required_issue_count": 1,
+      "completed_required_count": 0
+    }
+  ],
+  "counts": {
+    "issue_count": 1,
+    "feature_count": 1,
+    "issue_statuses": {
+      "draft": 0,
+      "available_for_work": 0,
+      "assigned": 0,
+      "in_progress": 1,
+      "in_review": 0,
+      "blocked": 0,
+      "completed": 0,
+      "cancelled": 0,
+      "unknown": 0
+    },
+    "feature_statuses": {
+      "planned": 0,
+      "ready": 0,
+      "active": 0,
+      "blocked": 1,
+      "completed": 0,
+      "cancelled": 0,
+      "unknown": 0
+    }
+  },
+  "checkpoint": {
+    "schema_version": 1,
+    "project_id": "example-app",
+    "repository": "example/project",
+    "project_revision": 1,
+    "plan_revision": 1,
+    "project_digest": "dee809c58a1b0214011cbb0ce2c1aa7148f2154fa14c803b7df4ce5f7b110e3e",
+    "plan_digest": "53c8b4edf59eb250b9860ddfaffbd7b87f4985d59aa42bb69cadfabe6170ca50",
+    "source_input_digest": "d016726ee52b4f7d1ef1c4ab6ded71fe5b67509775bdf69da0c663257e13ffe3",
+    "observed_at": "2026-10-30T00:00:00Z",
+    "issues": []
+  },
+  "diagnostics": [
+    {
+      "code": "claim_conflict",
+      "kind": "mismatch",
+      "path": "issues",
+      "work_id": "issue-1",
+      "feature_id": "a",
+      "recovery": "reconcile"
+    }
+  ],
+  "not_evaluated": [
+    "actual_scope_conflicts",
+    "actual_time_and_inventory_completeness",
+    "actual_work_execution",
+    "atomic_claim",
+    "checkpoint_authenticity",
+    "live_github_authenticity",
+    "membership_permission_capacity",
+    "natural_language_acceptance",
+    "plan_revision_audit",
+    "reference_and_approval_authenticity",
+    "workflow_append_only"
+  ]
+}

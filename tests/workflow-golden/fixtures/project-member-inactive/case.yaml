@@ -1,0 +1,32 @@
+{
+  "format_version": 1,
+  "id": "project-member-inactive",
+  "purpose": "Static Project contract: project-member-inactive. Synthetic inputs only; live identity, atomic claim and Dispatcher operation remain unverified.",
+  "adapters": [
+    "project_members",
+    "project_recommend"
+  ],
+  "inputs": {
+    "project_members": "input/project_members.yaml",
+    "project_recommend": "input/project_recommend.yaml"
+  },
+  "expected": {
+    "project_members": "expected/project_members.yaml",
+    "project_recommend": "expected/project_recommend.yaml"
+  },
+  "signals": {
+    "project_members": {
+      "status": "blocked",
+      "codes": [
+        "member_inactive"
+      ]
+    },
+    "project_recommend": {
+      "status": "blocked",
+      "codes": [
+        "member_invalid"
+      ]
+    }
+  },
+  "normalize": []
+}

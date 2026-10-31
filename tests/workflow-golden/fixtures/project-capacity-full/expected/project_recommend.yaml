@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "recommender_version": "1.0.0",
+  "input_digest": "9addb18a498c16d2b8102811bca76efc42b14820cdeb77d884d84d3cf34cb933",
+  "project_id": "example-app",
+  "project_revision": 1,
+  "plan_revision": 1,
+  "team_revision": 1,
+  "project_digest": "dee809c58a1b0214011cbb0ce2c1aa7148f2154fa14c803b7df4ce5f7b110e3e",
+  "plan_digest": "fb9dfeb334be8938317559ff6c4443b9e41142e81ed7b8761edf7e3a4b6b1d82",
+  "team_digest": "d40c2d02f204e2ce39062e93460310234bb7db2fea4c1602f196dde9bb5b2d4c",
+  "observed_at": "2026-10-30T00:00:00Z",
+  "evaluated_at": "2026-10-30T00:00:00Z",
+  "human_owner": "example-user",
+  "agent_ref": "codex-a",
+  "status": "pass",
+  "decision": "none",
+  "current_work": {
+    "issue_ref": "https://github.com/example/project/issues/2",
+    "work_id": "issue-2",
+    "feature_id": "b",
+    "human_owner": null,
+    "project_status": "available_for_work",
+    "current_stage": null,
+    "claim_id": null,
+    "reasons": []
+  },
+  "selected_action": null,
+  "coordinator_candidates": [],
+  "excluded": [
+    {
+      "issue_ref": "https://github.com/example/project/issues/2",
+      "work_id": "issue-2",
+      "feature_id": "b",
+      "reasons": [
+        "member_ineligible"
+      ]
+    }
+  ],
+  "diagnostics": [
+    {
+      "code": "member_ineligible",
+      "kind": "ineligible",
+      "work_id": "issue-2",
+      "source": "member",
+      "source_code": "capacity_exceeded"
+    }
+  ],
+  "not_evaluated": [
+    "live_github_authenticity",
+    "principal_and_permission_authenticity",
+    "reference_and_approval_authenticity",
+    "actual_time_and_inventory_completeness",
+    "natural_language_contract_and_instruction",
+    "actual_unpushed_and_scope_proof",
+    "atomic_claim",
+    "changes_after_snapshot",
+    "actual_work_execution"
+  ]
+}

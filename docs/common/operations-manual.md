@@ -948,6 +948,7 @@ npm ci --prefix tools/workflow-rules --ignore-scripts --no-audit --no-fund
 npm ci --prefix tools/workflow-check --ignore-scripts --no-audit --no-fund
 npm ci --prefix tools/workflow-trace --ignore-scripts --no-audit --no-fund
 npm ci --prefix tools/workflow-golden --ignore-scripts --no-audit --no-fund
+npm ci --prefix tools/workflow-project --ignore-scripts --no-audit --no-fund
 ```
 
 導入後、同梱例のGolden Testとハーネス自身のテストはオフラインで実行できます。
@@ -979,7 +980,7 @@ JSON表記もYAML 1.2として読みます。Issue説明は人間の参照資料
 実際のAGENTS.mdとdevelopment-rules.mdの読み込みは、別の接続テストで確認します。
 参照URL、actor、承認、Git commit、時刻は全て固定合成例であり、実作業の証拠として転用しません。
 
-adaptersはrules、plan、workflow、trace、brownfieldの固定集合です。inputsとexpectedは各adapterから相対ファイルへのmap、signalsは期待statusと診断code集合です。
+adaptersはrules、plan、workflow、trace、brownfieldと、後述のProject用4種類の固定集合です。inputsとexpectedは各adapterから相対ファイルへのmap、signalsは期待statusと診断code集合です。
 planにはplanとruleInput、workflowにはcheckWorkflowの入力一式、traceにはcheckTraceabilityの入力一式を渡します。
 rulesはresolverの入力、brownfieldは既存brownfield schema v1の成果物です。adapter実装をfixture側から差し替えられません。
 assetsは入力の補足資料を列挙する相対path配列です。case内の全fileをmanifestかassetsで宣言し、不要fileを残しません。
@@ -1395,3 +1396,27 @@ loaderは列挙したpathだけを読み、元ファイルと入力を変更し�
 人間確認が必要な相談/claim依頼を自動実行せず、resumeも既存承認を超える権限を作りません。全提案で実Issue/担当/依頼/claim/branch/PR/未push/承認/競合を実行前に再確認します。
 未知version・破損・不整合を解消できなければ元台帳/snapshot/履歴を保持し、[手動Coordinator](manual-coordinator.md)の照合へ戻します。修復・自動解放・再割当・共有state更新は行いません。
 専用テストはCIのNode22/24で動きます。保存Project走査・Project全体Golden・実GitHub連携・Projects/Dispatcher/Runnerは別の後続対応です。
+
+## Projectの統合Golden Test
+
+計画・担当/権限・集約・推薦を、固定した運用例と照合するテストも同じGoldenハーネスで実行します。
+既存12caseに25 Project caseを追加した37caseが対象です。入力・期待見本・禁止条件、設計14観点との対応・未検証範囲は[固定例の説明](../examples/project-golden/README.md)を参照してください。
+
+| adapter | 直接実行する既存API |
+| :--- | :--- |
+| project_plan | checkProjectPlan |
+| project_members | checkProjectMembers |
+| project_aggregate | aggregateProject |
+| project_recommend | recommendNextWork |
+
+各APIのresult schemaを検証し、出力全文を固定見本へ比較します。status/診断のsignalsと独立した重要値・禁止条件も確認します。
+同じcase内の共通台帳・確認snapshot・member facts・全量claim・対象Issueを照合し、推薦は元入力から既存checkerを再実行します。
+入力の欠落・差分・例外・禁止結果は失敗、想定blocked/waitはテストとしてpassedです。未選択adapterはnot_evaluatedのままです。
+
+既存のGolden実行命令とWorkflow ValidationのNode22/24が新caseも実行します。新job・権限やGitHub操作は追加していません。
+Golden利用時は既存workflow-projectの依存も導入します。対象アプリの言語や本番runtimeを変更する必要はありません。
+見本の手動更新・失敗時の復旧と上限は既存Golden Test節のままです。既存12caseの見本・比較規則は維持し、normalizeへ安全上のfieldを追加しません。
+
+2要求は相談→人間が1 ownerを確定した後の他方除外→二重active拒否という固定snapshotで確認します。原子的な排他やライブ同時操作は未実装です。
+Dispatcher停止も実障害を発生させず、人間pauseと実状確認後の手動Issues-only復帰を検証します。実GitHub/本人/証拠/権限の真正性・実scope/未push/引継・実作業は保証しません。
+失敗時は元記録を保存して個別checkerと手動Coordinatorへ戻し、実データを自動修正しません。CI成功はRelease承認ではありません。

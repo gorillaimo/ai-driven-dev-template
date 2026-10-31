@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "recommender_version": "1.0.0",
+  "input_digest": "bb1fc08da223d6e4821c94e9b575856c023f37f251902253ae2d3b9a279eac1e",
+  "project_id": "example-app",
+  "project_revision": 1,
+  "plan_revision": 1,
+  "team_revision": 1,
+  "project_digest": "dee809c58a1b0214011cbb0ce2c1aa7148f2154fa14c803b7df4ce5f7b110e3e",
+  "plan_digest": "53c8b4edf59eb250b9860ddfaffbd7b87f4985d59aa42bb69cadfabe6170ca50",
+  "team_digest": "d40c2d02f204e2ce39062e93460310234bb7db2fea4c1602f196dde9bb5b2d4c",
+  "observed_at": "2026-10-30T00:00:00Z",
+  "evaluated_at": "2026-10-30T00:00:00Z",
+  "human_owner": "example-user",
+  "agent_ref": "codex-a",
+  "status": "blocked",
+  "decision": "blocked",
+  "current_work": {
+    "issue_ref": "https://github.com/example/project/issues/1",
+    "work_id": "issue-1",
+    "feature_id": "a",
+    "human_owner": "example-user",
+    "project_status": "in_progress",
+    "current_stage": null,
+    "claim_id": "claim-a",
+    "reasons": []
+  },
+  "selected_action": null,
+  "coordinator_candidates": [],
+  "excluded": [],
+  "diagnostics": [
+    {
+      "code": "aggregate_blocked",
+      "kind": "invalid",
+      "work_id": "issue-1",
+      "source": "aggregate",
+      "source_code": "workflow_source"
+    },
+    {
+      "code": "aggregate_blocked",
+      "kind": "invalid",
+      "work_id": null,
+      "source": null,
+      "source_code": null
+    }
+  ],
+  "not_evaluated": [
+    "live_github_authenticity",
+    "principal_and_permission_authenticity",
+    "reference_and_approval_authenticity",
+    "actual_time_and_inventory_completeness",
+    "natural_language_contract_and_instruction",
+    "actual_unpushed_and_scope_proof",
+    "atomic_claim",
+    "changes_after_snapshot",
+    "actual_work_execution"
+  ]
+}

@@ -1,3 +1,4 @@
+import { evaluateProject } from './project-adapters.mjs';
 import { readFileSync } from 'node:fs';
 import Ajv from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
@@ -19,6 +20,10 @@ export function evaluate(adapter,input){
    const valid=!!validateBrownfield(input);
    output={schema_version:1,status:valid?'pass':'blocked',diagnostics:valid?[]:[{code:'schema_invalid'}]};break;
   }
+  case 'project_plan':
+  case 'project_members':
+  case 'project_aggregate':
+  case 'project_recommend':return evaluateProject(adapter,input);
   default:throw new Error('adapter_unknown');
  }
  return output;
