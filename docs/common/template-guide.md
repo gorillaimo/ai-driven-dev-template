@@ -8,7 +8,7 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 
 このファイルは、このテンプレート本体のREADME相当のドキュメントです。`README.md` は、テンプレート利用先プロジェクト用のREADME雛形として扱います。
 
-日常の操作は[運用マニュアル](operations-manual.md)から始めてください。目的を伝え、以後は「進めてください」でAIが次の作業と必要な判断を案内します。初回の準備は[セットアップ](operations-setup.md)、詳しい依頼例は[参考資料](operations-reference.md)、コマンドは[検査ツールの利用詳細](workflow-tools-guide.md)を必要なときに参照します。v2の採用範囲と確認状況は[試用前の確認表](v2-adoption-checklist.md)、再現手順は[隔離した導入・移行例](../examples/v2-adoption/README.md)にあります。
+初回の依頼は[セットアップ](operations-setup.md)にある新規開発・既存導入のプロンプトを使います。AIへの返答は「進めてください」で継続でき、準備後の判断やレビューは[運用マニュアル](operations-manual.md)で確認できます。詳しい依頼例は[参考資料](operations-reference.md)、コマンドは[検査ツールの利用詳細](workflow-tools-guide.md)を必要なときに参照します。v2の採用範囲と確認状況は[試用前の確認表](v2-adoption-checklist.md)、再現手順は[隔離した導入・移行例](../examples/v2-adoption/README.md)にあります。
 
 ## 全体像
 

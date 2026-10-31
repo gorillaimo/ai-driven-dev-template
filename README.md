@@ -7,7 +7,7 @@
 
 テンプレートの現在version、v1 / v2のrelease方針、移行方法は、`VERSION`、`CHANGELOG.md`、`docs/common/versioning-policy.md`、`docs/common/migration-v1-to-v2.md`を参照してください。ルート`VERSION`はtemplate本体のversionであり、利用先アプリケーションのversionではありません。
 
-v2を試す前に、[試用前の確認表](docs/common/v2-adoption-checklist.md)と[運用マニュアルの読む順序](docs/common/operations-manual.md)を参照してください。隔離した導入・移行例、確認済み範囲、残る人間判断をまとめています。現在は開発版です。
+v2を試す前に、[試用前の確認表](docs/common/v2-adoption-checklist.md)と[初期セットアップ](docs/common/operations-setup.md)を参照してください。隔離した導入・移行例、確認済み範囲、残る人間判断をまとめています。現在は開発版です。
 
 ## 概要
 
@@ -44,15 +44,12 @@ TBD
 
 **目的を伝えたら、普段は「進めてください」で続けます。** AIが規約・Issue・PR・作業記録を確認し、次に必要な作業と人間へ確認する点を判断します。
 
-```text
-このリポジトリの開発を進めてください。
-目的: ［作りたいもの・改善したいこと］
-人間の担当者: ［GitHubアカウント］
-AGENTS.mdと関連文書、Issue・PR・作業記録を確認して進めてください。
-```
+最初に送るプロンプトは[初期セットアップ](docs/common/operations-setup.md)にあります。
 
-[運用マニュアル](docs/common/operations-manual.md)に、普段の依頼・必要な判断・PRレビュー・中断/再開をまとめています。
-初回は[セットアップ](docs/common/operations-setup.md)、既存プロジェクトでは[移行ガイド](docs/common/migration-v1-to-v2.md)をAIと確認してください。
+- [新規プロジェクトを始める](docs/common/operations-setup.md#new-project)
+- [既存プロジェクトへ初めて導入する](docs/common/operations-setup.md#existing-project)
+
+準備後は[運用マニュアル](docs/common/operations-manual.md)で、普段の依頼・必要な判断・PRレビュー・中断/再開を確認できます。初回の依頼を送り直す必要はありません。
 
 AIは[AGENTS.md](AGENTS.md)と[開発規約](docs/common/development-rules.md)を入口に、Issueと必要な文書を読みます。
 プロジェクト固有の前提は`docs/system-context.md`、採用構成は`docs/architecture.md`、プロトタイプの範囲と結果は必要に応じて`docs/prototype.md`に整理します。`docs/system-context.md`は初期化時に作成します。
