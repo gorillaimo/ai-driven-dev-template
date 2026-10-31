@@ -444,7 +444,7 @@ AIへ依頼する場合は、以下のように指示します。
 ### 作業開始前
 
 1. 最新のmainブランチを取得する。
-2. GitHub Issue Formでissueを作成する。
+2. 必要なissueを作成する。AIへ作成・発行を任せるか、GitHub Issue Formを使う。
 3. `ready-for-ai` ラベルが付いていることを確認する。
 4. 担当（assignee）が設定されていることを確認する。
 5. issue本文を最新化する。
@@ -503,3 +503,185 @@ AIへ依頼する場合は、以下のように指示します。
 - AIへの依頼は、なるべくissue番号、関連ドキュメント、期待する成果物をセットで渡す。
 - AIの出力は最終判断ではなく、issueの受け入れ条件に対する提案としてレビューする。
 
+
+<a id="setup-details"></a>
+
+## 導入担当・AI向けの設定資料
+
+以下はAIや導入担当者が必要な項目を確認するための詳細です。人間の最初の依頼は[初期セットアップ](operations-setup.md)を使ってください。
+コピー範囲・設定の差分を確認し、既存プロジェクトの独自変更は保持します。機構を選んで導入する場合のtool/schema/tests一式は[検査ツール](workflow-tools-guide.md)と[移行ガイド](migration-v1-to-v2.md)で確認します。
+
+### テンプレート利用時の初期セットアップ
+
+AIは導入対象を確認し、`.github/` 配下の自動化用ファイルも含めて準備します。既存プロジェクトでは差分を確認してから反映します。
+
+コピー対象は以下です。
+
+- `README.md`
+- `AGENTS.md`
+- `CLAUDE.md`
+- `.gitattributes`
+- `.gitignore`
+- `LICENSE`
+- `docs/common/template-guide.md`
+- `docs/common/development-rules.md`
+- `docs/common/operations-manual.md`
+- `docs/common/operations-setup.md`
+- `docs/common/operations-reference.md`
+- `docs/common/workflow-tools-guide.md`
+- `docs/common/quality-gates.md`
+- `docs/common/issue-template.md`
+- `docs/examples/issues/001-user-profile-edit.md`
+- `.github/ISSUE_TEMPLATE/feature.yml`
+- `.github/pull_request_template.md`
+- `.github/workflows/issue-contract-check.yml`
+- `.github/workflows/pr-issue-link-check.yml`
+
+`README.md` は利用先プロジェクト用の雛形です。テンプレート公開元のREADME相当の情報は `docs/common/template-guide.md` に置き、日常の入口は`docs/common/operations-manual.md`、詳しい手順・例・コマンドは同文書から参照する資料に置きます。
+
+`AGENTS.md` はAIエージェント共通の入口です。詳細な規約は `docs/common/development-rules.md` に置き、各AI開発ツール向けの入口ファイルからも `AGENTS.md` を参照させます。
+
+`.github/` 配下のファイルは、GitHub Issue Form、PRテンプレート、issue/PRチェック用のGitHub Actionsです。基本的にはコピー後そのまま利用できます。
+
+### GitHubを使わない場合
+
+このテンプレートは、GitHub Issues、Pull Request、GitHub Actions を使う運用を標準としています。GitHubを使わない場合に読み替える項目や編集するファイルは、テンプレート公開元README相当の `docs/common/template-guide.md` を参照してください。
+
+### AI開発ツールごとの入口
+
+このテンプレートの中心は、特定のAI開発ツールではなく、GitHub issue と `docs/` 配下のドキュメントを作業契約にする運用です。
+
+そのため、各ツール固有のファイルや機能は、共通ルールへの入口または補助として扱います。
+
+- **共通**: `AGENTS.md` をAIエージェント共通の入口として置く。詳細規約は `docs/common/development-rules.md`、人間向け手順は `docs/common/operations-manual.md` に集約する。
+- **Codex**: `AGENTS.md` を入口として使う。Codexのスキルは必須ではなく、複数プロジェクトで同じ手順を繰り返す場合や、GitHub issue作成、要件定義、PR作成などを専用ワークフローとして強制したい場合に追加する。
+- **Claude Code**: `CLAUDE.md` を入口として使い、そこから `AGENTS.md` と `docs/common/development-rules.md` を参照させる。必要に応じて `.claude/commands/` にプロジェクト用slash commandを追加し、チーム共有する権限設定は `.claude/settings.json` で管理する。
+- **その他のAI開発ツール**: ツールが自動で読む規約ファイルやルール機能がある場合は、そのファイルから `AGENTS.md` と `docs/common/development-rules.md` を参照させる。ツール固有の権限設定、コマンド、メモリ、コンテキスト読み込み仕様は、利用ツールに合わせて調整する。
+
+ツール固有の設定を追加する場合でも、issueを作業契約にすること、issue外の変更を勝手に実装しないこと、実装前に要件・設計・API・検証観点を確認することは共通ルールとして維持します。ツールの権限や自動実行の範囲を広げる場合は、セキュリティ上の影響を確認し、必要に応じて `docs/common/operations-manual.md` に運用差分を追記してください。
+
+### マルチエージェント利用時の運用
+
+マルチエージェント運用は、Codex、Claude Code、その他のAI開発ツールを含む一般ルールとして扱います。特定ツールの機能名や実装方式に依存せず、GitHub issue と `docs/` 配下のドキュメントを作業契約にする原則を維持します。
+
+`ready-for-ai` ラベルは「AIに依頼できる状態」を示すラベルです。AIエージェントの自動着手、担当確定、排他制御を意味しません。
+
+ここでいう担当（assignee）は、issueの責任を持つ人間のGitHubアカウントを指します。AIエージェント名やツール名ではありません。AIエージェントは、担当（assignee）に設定された人間から明示的に依頼された場合に作業します。
+
+人間は、通常のissue依頼時にマルチエージェント機能を意識する必要はありません。AIエージェントにissue番号を渡すと、AIがissueの目的、スコープ、変更範囲、検証観点を読み、マルチエージェント化が有効かを判断します。
+
+AIがマルチエージェント化が有効だと判断した場合は、作業開始前に分割案を提示します。人間はその案を承認、修正、または却下します。人間が明示的に指示した場合を除き、AIが判断だけで複数エージェント作業を開始する運用にはしません。
+
+マルチエージェント化が有効な例:
+
+- 調査、設計、実装、検証を独立して進められる。
+- 変更対象ファイルや責任範囲を明確に分離できる。
+- 片方の作業結果を待たずに、別の確認作業を並行できる。
+- 複数の観点でレビューした方が、受け入れ条件の漏れを減らせる。
+
+単一エージェントで進める例:
+
+- 小さなドキュメント修正。
+- 単一ファイルの文言修正。
+- 仕様が未確定で、人間の判断待ちが多いissue。
+- 変更範囲が密結合で、並行作業すると衝突しやすいissue。
+
+複数人または複数AIエージェントで開発する場合は、作業開始前に以下を確認します。
+
+- issueに `ready-for-ai` ラベルが付いている。
+- issueに担当（assignee）が設定されている。
+- 担当者または依頼者が、issueコメントで着手を宣言している。
+- 既に別の担当者、AIエージェント、PRが同じissueに着手していない。
+- 変更予定ファイルまたは担当領域が、issue本文または着手コメントで明確になっている。
+
+担当（assignee）が未設定のissueには着手しません。担当する人間を確認して確定し、依頼と操作権限があればAIが設定を代行できます。複数人での担当割当・claim確定・競合調整は、人間ownerまたはCoordinatorが[手動運用](manual-coordinator.md)で確認します。
+
+1つのissueを複数エージェントに分割することは、並行作業が有効な場合に限って許可します。その場合でも、issue全体の責任を持つ primary agent または統合担当者を1つ決めます。
+
+複数エージェントに分割する前に、以下を明確にします。
+
+- primary agent または統合担当者。
+- 各エージェントの担当目的。
+- 各エージェントの変更可能なファイルまたは領域。
+- 各エージェントが触ってはいけない非担当領域。
+- 統合時に確認する受け入れ条件と検証観点。
+- 作業結果をPRにまとめる担当者。
+- 単一エージェントで進める場合と比べた利点とリスク。
+
+分割例:
+
+- 調査担当: 既存ドキュメントとissue本文の矛盾を確認し、変更案だけを提示する。
+- 実装担当: 指定されたファイルだけを更新する。
+- 検証担当: 更新後のドキュメントが受け入れ条件と矛盾しないか確認する。
+- 統合担当: 各エージェントの結果を読み、最終差分、検証結果、PR本文を整理する。
+
+禁止事項:
+
+- 担当（assignee）未設定のissueへAIエージェントを着手させること。
+- `ready-for-ai` ラベルだけを根拠に、担当者確認なしで作業を始めること。
+- 人間の承認なしに、AI判断だけで複数エージェント作業を開始すること。
+- 同一issueに複数エージェントを割り当てる際、担当ファイルや統合担当を決めずに並行作業させること。
+- issue外の改善、リファクタリング、仕様追加をエージェント判断で行うこと。
+- あるエージェントの変更を、別エージェントが理由なく巻き戻すこと。
+
+新しいラベル、GitHub Actionsによる自動アサイン、AI botやGitHub Appによる自動着手制御は、このテンプレートの初期運用には含めません。必要になった場合は、別issueでラベル体系、権限、自動実行条件、対象issueの制限を設計します。
+
+テンプレート本体の改善issueでは、利用先プロジェクトに不要な履歴ドキュメントを残さないため、原則として `docs/requirements/` や `docs/design/` にissue別ドキュメントを作成しません。issue本文を作業契約とし、必要な変更は `docs/common/`、`AGENTS.md`、`.github/` などのテンプレート構成ファイルへ直接反映します。
+
+### リポジトリの準備とIssue作成の順序
+
+1. AIが既存のGit履歴・remote・GitHubリポジトリの有無を確認します。
+2. 未作成なら人間がowner・名前・公開範囲を決め、AIへ作成と初期pushを依頼できます。既存の履歴やremoteを無条件に置き換えません。
+3. AIがIssues/Actionsと接続権限を確認し、関連する既存Issue・PR・着手記録を調べます。
+4. 同じ目的のIssueがなければ、AIが初期化または導入調査のIssueを作成します。指定された人間を担当に設定し、ready-for-aiと必要な確認・承認を整えてから着手します。
+5. AIがsystem-context/architectureの作成・更新案を用意します。人間の確認後、機能別のIssue作成・整理もAIへ任せられます。
+
+### AIにGitHubリポジトリ作成を依頼する
+
+`gh` CLIがインストール済みで、GitHubにログイン済みであれば、リポジトリ作成もAIに依頼できます。
+
+事前に人間が決める項目は以下です。
+
+- GitHub owner: 個人アカウントまたはOrganization名
+- リポジトリ名
+- 公開範囲: public / private
+- デフォルトブランチ名: 通常は `main`
+- 初期コミットメッセージ
+
+**プロンプト:**
+
+> このプロジェクトをGitHubリポジトリとして初期化してください。
+>
+> - GitHub owner: [owner]
+> - リポジトリ名: [repository-name]
+> - 公開範囲: [public / private]
+> - デフォルトブランチ: main
+> - 初期コミットメッセージ: Initial project template setup
+>
+> 実行前に、現在のディレクトリ、`git status`、`gh auth status` を確認してください。
+> 既存のGit履歴やremoteがある場合は、上書きせずに状況を報告してください。
+> 問題なければ、GitHubリポジトリを作成し、現在の内容を初期コミットとしてpushしてください。
+> push後に、GitHub Issues と GitHub Actions が利用可能か確認し、最初のissueを作れる状態か報告してください。
+
+AIが実行する代表的なコマンドは以下です。実際のコマンドは、現在のGit状態を確認してからAIに判断させます。
+
+```bash
+git init
+git add .
+git commit -m "Initial project template setup"
+git branch -M main
+gh repo create [owner]/[repository-name] --private --source=. --remote=origin --push
+```
+
+公開リポジトリにする場合は `--private` を `--public` に変更します。既にGit管理されている場合やremoteが設定済みの場合は、AIに既存状態を確認させてから進めます。
+
+### コピー後に確認すること
+
+- GitHub Issues が有効になっている。
+- GitHub Actions が有効になっている。
+- Actions の `GITHUB_TOKEN` に issue / PR への書き込み権限がある。
+- `.github/workflows/*.yml` がデフォルトブランチに入っている。
+- Issue Formの項目名を変更した場合、`issue-contract-check.yml` のチェック文字列も更新している。
+- チーム運用では、`main` ブランチ保護を設定し、direct push 禁止、PR必須、必要なActions成功必須を有効にしている。
+
+`needs-triage`、`feature`、`needs-info`、`ready-for-ai` ラベルはworkflowが自動作成します。手動作成は不要です。

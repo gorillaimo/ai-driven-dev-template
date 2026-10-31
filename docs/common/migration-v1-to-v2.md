@@ -70,7 +70,7 @@ v1運用が要件を満たす場合、移行は必須ではない。
 - `project_id`、`feature_id`、`actor_ref`、`on_behalf_of`、標準event。
 - schema validationと参照整合check。
 
-Issue成果物にはschema v1、テンプレート、同梱例の形式テストがあり、状態・履歴・再開候補は静的checkerで検査できる。宣言されたACの対応経路と対応するローカル参照は追跡性checkerで検査できる。外部到達性・自然言語・テスト成功の実証は人間の確認が必要。[セットアップの「Issue成果物テンプレートの利用」](operations-setup.md#issue成果物テンプレートの利用)に従い、形式と実際のIssue記録を分けて確認する。
+Issue成果物にはschema v1、テンプレート、同梱例の形式テストがあり、状態・履歴・再開候補は静的checkerで検査できる。宣言されたACの対応経路と対応するローカル参照は追跡性checkerで検査できる。外部到達性・自然言語・テスト成功の実証は人間の確認が必要。[検査ツールの「Issue成果物テンプレートの利用」](workflow-tools-guide.md#issue-artifacts)に従い、形式と実際のIssue記録を分けて確認する。
 
 最初のv2成果物schemaが`schema_version: 1`でも、template v2と矛盾しない。
 

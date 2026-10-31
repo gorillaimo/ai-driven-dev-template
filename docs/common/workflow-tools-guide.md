@@ -6,7 +6,7 @@ Node.jsは開発管理に使い、利用先アプリの開発言語は問いま�
 
 | 調べたいこと | 利用節 |
 | :--- | :--- |
-| Issue成果物を用意する | [初期セットアップ](operations-setup.md#issue成果物テンプレートの利用) |
+| Issue成果物を用意する | [記入とschema検証](#issue-artifacts) |
 | ルールの適用を決める | [モジュール式ルール](#rules) |
 | 計画・現在地・再開候補 | [plan/stateの検査](#workflow-state) |
 | 要件とテストの対応 | [対応漏れの検査](#traceability) |
@@ -20,6 +20,30 @@ Node.jsは開発管理に使い、利用先アプリの開発言語は問いま�
 | 複数Issueの状態 | [集約と不整合](#project-aggregate) |
 | 次の1作業 | [推薦](#project-recommend) |
 | Projectをまたぐ回帰 | [Project Golden](#project-golden) |
+
+<a id="issue-artifacts"></a>
+
+## Issue成果物テンプレートの利用
+
+1. `.ai-workflow/templates/issue/v1/`からplan、state、traceabilityを作業用の`.ai-workflow/issues/<work-id>/`へコピーします。Brownfield調査時だけbrownfieldも使います。
+2. 合成例のID、Issue URL、actor、日時、Git commit、工程、調査結果を実際の作業へ置換します。空配列やnullは未記入・該当なしの初期値であり、承認や完了の証拠ではありません。
+3. 人間向けのplan.mdやbrownfield.mdはYAMLの説明として記述し、同じ状態を独立して管理しません。
+4. schemaで形式を確認したうえで、人間が参照先、履歴、承認、成果物の対応をレビューします。現在の同梱テストはrepositoryのtemplate・fixtureが対象で、任意の作業ファイルを自動走査しません。
+
+schemaの項目、参照形式、後続checkerとの分担は`adaptive-workflow-design.md`の4.1～4.3を参照してください。schemaとテストを利用する場合は、隠しディレクトリを含む`.ai-workflow/schemas/`、`.ai-workflow/templates/`、`tools/workflow-schema/`、`tests/workflow-schema/`を一緒にコピーします。
+
+Node.js 22以上とnpmを用意し、repository rootで次を実行します。初回の依存取得にはネットワークが必要です。lockfileで固定された依存取得後のテストはオフラインで動きます。
+
+```bash
+npm ci --prefix tools/workflow-schema --ignore-scripts --no-audit --no-fund
+npm test --prefix tools/workflow-schema
+```
+
+テストは外部AI、GitHub API、成果物内のcommandを呼び出しません。成功しても実際のIssue作業が承認済み・完了済みとは判断しません。診断はcase IDごとにartifact、instance path、schema path、keywordで確認できます。エラー時は元データを保存し、`versioning-policy.md`の手順に従って従来運用へ戻せます。
+
+複数feature / Issue / 開発者をまたぐ開発順序、チーム台帳、担当割当、claim、進捗集約、AI主導の次Issue選択は、`docs/common/project-orchestration-design.md`で別のプロジェクト統制機構として設計しています。このIssue内部ワークフローだけでは実行しません。
+
+この機構の導入はAIが用途に応じて提案します。Issue契約・人間の担当・ready-for-ai・リスクに応じた承認を維持し、AGENTS.mdと共通開発規約を常時参照します。必要性と採用判断は[初期セットアップ](operations-setup.md#optional-project)を確認してください。
 
 <a id="rules"></a>
 
