@@ -7,6 +7,8 @@
 
 テンプレートの現在version、v1 / v2のrelease方針、移行方法は、`VERSION`、`CHANGELOG.md`、`docs/common/versioning-policy.md`、`docs/common/migration-v1-to-v2.md`を参照してください。ルート`VERSION`はtemplate本体のversionであり、利用先アプリケーションのversionではありません。
 
+v2を試す前に、[試用前の確認表](docs/common/v2-adoption-checklist.md)と[運用マニュアルの読む順序](docs/common/operations-manual.md)を参照してください。隔離した導入・移行例、確認済み範囲、残る人間判断をまとめています。現在は開発版です。
+
 ## 概要
 
 TBD

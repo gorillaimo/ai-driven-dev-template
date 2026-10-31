@@ -4,6 +4,31 @@
 
 `development-rules.md` はAIに読ませる規約です。このファイルは、人間がissueをどう切り、どのタイミングでAIへ何を依頼し、どこを確認するかを定義します。
 
+## 最初に読む順序と役割
+
+1. 新規利用はこの章と第2章、既存プロジェクトは[移行ガイド](migration-v1-to-v2.md)から、導入元commitと利用先の独自変更を確認します。
+2. [試用前の確認表](v2-adoption-checklist.md)で、実装済み範囲・合成確認・人間確認待ちを区別します。まず単一Issueで始め、Projectは必要な場合に採用できます。
+3. 実行して試す場合は[隔離した導入・移行例](../examples/v2-adoption/README.md)へ進みます。初回から設計文書の全章を読まず、必要になった機構の利用節と契約を確認します。
+
+| 担当 | 行うこと |
+| :--- | :--- |
+| 人間 | Issueの目的・担当・採用範囲を決め、必要な設計・権限・競合・PRと実操作を確認/承認する |
+| AI | AGENTS/規約/Issueを読み、計画と現在地を整理し、承認された範囲で文書・テスト・実装・PRを作る |
+| Node.jsの検査ツール | 用意した構造化入力を読み、矛盾・不足・次候補を返す。自然文の指示だけでは起動しない |
+| GitHub Actions | PR/main更新等を契機に同梱のテンプレート運用テストを実行する。利用先アプリのbuild/testは別途用意する |
+
+自然言語の規約はAIが読み、`plan`（作業予定表）と`state`（現在地・履歴）等のYAML/JSONはツールが検査します。Node.jsは開発管理用で、開発するシステムの言語を限定しません。
+
+### 一つのIssueを進める流れ
+
+1. 人間がIssueの目的・範囲・受け入れ条件・担当を確定し、`ready-for-ai`を確認してAIへIssue番号を渡します。
+2. AIが既存の着手記録・PR・変更範囲を確認し、branchと着手記録を用意して、リスクに応じた設計案・Quality Gates（性能・安全性・復旧の確認観点）を示します。
+3. 人間が必要な設計を承認し、AIが受け入れ条件に沿ってテストを先に用意し、実装と検証を進めます。アプリのテストと運用ツールの検査をそれぞれ必要な範囲で実行します。
+4. AIがPRに対応内容・検証・未確認事項をまとめ、人間がレビューしてmergeを判断します。
+5. 中断・再開時は、AIが現在地・停止理由・次の1作業を示します。Project推薦も候補までで、未割当Issueのclaimや承認・工程完了を自動で確定しません。
+
+plan/stateの採用範囲は移行ガイドで選びます。従来のIssue/assignee/着手コメント/branch/PRによる運用も継続できます。checkerが止まった場合は元記録を保持し、手動で照合します。マニュアルを見直す観点とRelease前に残る判断は[試用前の確認表](v2-adoption-checklist.md)にあります。
+
 ## 1. 基本方針
 
 すべての開発は、以下のサイクルで進めます。
@@ -1046,7 +1071,7 @@ planのstage完了は同directoryのstateで確認し、stateがなければ完�
 trace node/check参照の既知IDとlink endpoint、明示Markdown anchorとJSON Pointerは検査できます。
 削除済みfileなど現checkoutだけでは存在を確認できない必要参照を自動承認しません。人間が現存する検証記録への参照を見直すか、既存のcontext付き境界checkerで個別にレビューしてください。
 
-ローカルで同じ検査を実行するには、Golden Test節の既存4packageに加えて次を導入します（schemaテストを実行する場合はworkflow-schemaの依存も導入）。
+ローカルで同じ検査を実行するには、Golden Test節の既存5packageに加えて次を導入します（schemaテストを実行する場合はworkflow-schemaの依存も導入）。
 
 ```sh
 npm ci --prefix tools/workflow-ci --ignore-scripts --no-audit --no-fund
@@ -1069,7 +1094,7 @@ failure/skipped/cancelledと、起動していない検査を成功と読み替�
 fork PRの初回承認やActions利用制限により未実行となる場合は、保守者がGitHubの画面で状態を確認します。Secretsやwrite権限を与えて通す運用にはしません。
 このworkflowはcontents:readとcredential非保持で動き、PRコメント・ラベル・自動承認・merge・deployを行いません。
 
-導入時は新workflow、必要な6tool package、tests、.ai-workflow/schemas、共通文書を一緒に保持してください。
+導入時は新workflow、必要な7tool package、tests、.ai-workflow/schemas、共通文書を一緒に保持してください。
 branch protectionやrequired checksは自動変更しません。まず実行時間と誤検知を観測し、人間が必要性を判断してから必須化します。
 無効化する場合はGitHubのActions画面でこのworkflowだけを停止するか、レビュー済みPRで新workflowを取り除きます。required checkに設定済みなら、先に人間がその設定を見直します。
 失敗時は元成果物・見本を保存してIssueへ理由を記録し、個別checkerと従来のIssue・branch・PR運用で確認を続けられます。
@@ -1164,7 +1189,7 @@ JSONもYAMLも読めますが、contextを共有Project stateとして手編集�
 | not_evaluated | member/権限/capacity、実参照、承認者本人性、鮮度、完了集約、全過去原本、scope非重複などの未確認事項 |
 
 共有areaのdisjoint_scopes指定だけでは並列にしません。Issue未作成の機能も計画できますが、Issueを作成・選択・claimしません。
-新テストは既存CIのNode22/24で実行します。保存Project成果物の自動走査や、Project全体Goldenは後続対応です。
+新テストは既存CIのNode22/24で実行します。Projectを含む共通Golden Testも利用できます。保存Project成果物の自動走査は対象外です。
 上限と計算規則は`project-orchestration-design.md`第8.4節を参照してください。失敗時はcode/path/IDから人間が原因を確認し、データや承認を自動補完して通しません。
 古い結果JSONを次回のpassとして使わず、元入力を再検査します。復旧できなければ元台帳を保持し、従来のIssue/assignee/着手コメント/branch/PRの手動運用へ戻します。
 
@@ -1237,7 +1262,7 @@ approval_typeはintegration_owner_override。対象外のIssue/area、二重指�
 失敗時は台帳と確認記録を保持し、診断から人間が修正・再確認します。古い出力をpassの証拠として再利用せず、元入力から再検査します。
 既存の計画checkerと併用しても、自動的にIssueを選択・割当・着手しません。手動Coordinatorが契約・承認・現在の担当と競合を確認してください。
 上限と計算規則はproject-orchestration-design第9.4節を参照します。最大1000member/200area/10000claimは直接API用fixtureで、file loaderには各file1 MiBの上限もあります。
-CIはこの専用テストをNode22/24で実行します。保存Projectの自動走査とProject全体Goldenは後続対応。復旧できない場合も従来のIssue/assignee/着手コメント/branch/PR運用へ戻れます。
+CIはこの専用テストをNode22/24で実行します。Projectを含む共通Golden Testも利用できます。保存Projectの自動走査は対象外です。復旧できない場合も従来のIssue/assignee/着手コメント/branch/PR運用へ戻れます。
 
 ## 複数Issueの進捗と不整合を読み取り専用で集約する
 
@@ -1395,7 +1420,7 @@ loaderは列挙したpathだけを読み、元ファイルと入力を変更し�
 `not_evaluated`には実GitHub・本人/権限/証拠/全量/時刻の真正性、自然言語AC/指示、実ファイル競合/未pushの全証明、原子的claim、snapshot後の変更、実作業を残します。snapshotの申告だけで実認証や排他は成立しません。
 人間確認が必要な相談/claim依頼を自動実行せず、resumeも既存承認を超える権限を作りません。全提案で実Issue/担当/依頼/claim/branch/PR/未push/承認/競合を実行前に再確認します。
 未知version・破損・不整合を解消できなければ元台帳/snapshot/履歴を保持し、[手動Coordinator](manual-coordinator.md)の照合へ戻します。修復・自動解放・再割当・共有state更新は行いません。
-専用テストはCIのNode22/24で動きます。保存Project走査・Project全体Golden・実GitHub連携・Projects/Dispatcher/Runnerは別の後続対応です。
+専用テストはCIのNode22/24で動きます。Projectを含む共通Golden Testも利用できます。保存Project走査・実GitHub連携・Projects/Dispatcher/Runnerは別の後続対応です。
 
 ## Projectの統合Golden Test
 

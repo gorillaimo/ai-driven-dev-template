@@ -8,6 +8,8 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 
 このファイルは、このテンプレート本体のREADME相当のドキュメントです。`README.md` は、テンプレート利用先プロジェクト用のREADME雛形として扱います。
 
+初めて使う場合は[運用マニュアル](operations-manual.md)の読む順序から進めてください。v2の採用範囲と確認状況は[試用前の確認表](v2-adoption-checklist.md)、再現手順は[隔離した導入・移行例](../examples/v2-adoption/README.md)にあります。
+
 ## 全体像
 
 このテンプレートは、GitHub issue を作業契約にして、人間とAIエージェントが同じ前提を読みながら開発を進めるためのものです。
@@ -21,7 +23,7 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 - release基準: `docs/common/versioning-policy.md`
 - v1からv2への移行: `docs/common/migration-v1-to-v2.md`
 
-v1はIssue、assignee、prompt、人間承認を中心とする軽量な文書駆動baselineです。v2はIssue #8のadaptive workflowとIssue #9のproject orchestrationを段階的に追加します。現在の`main`ではIssue成果物のschema v1、template、同梱例の形式テストとモジュール式ルールのオフライン解決libraryを提供します。計画・状態・再開候補の静的checkerも利用できます。追跡性checkerとBrownfieldの手順・深度別テンプレートも利用できます。オフラインGolden TestとIssue内部のActions統合も利用できます。Projectの3成果物schema・合成記入例・形式テストも利用できます。依存DAG・wave・計画改訂の読み取り専用validatorも利用できます。member/ownership/capacityのsnapshot検査も利用できます。手動Coordinatorの手順・コメント様式・机上例も利用できます。明示snapshotの進捗集約・不整合検出も利用できます。実GitHubの自動取得・推薦は後続実装です。工程の自動実行は提供しません。
+v1はIssue、assignee、prompt、人間承認を中心とする軽量な文書駆動baselineです。v2はIssue #8のadaptive workflowとIssue #9のproject orchestrationを段階的に追加します。現在の`main`ではIssue成果物のschema v1、template、同梱例の形式テストとモジュール式ルールのオフライン解決libraryを提供します。計画・状態・再開候補の静的checkerも利用できます。追跡性checkerとBrownfieldの手順・深度別テンプレートも利用できます。オフラインGolden TestとIssue内部のActions統合も利用できます。Projectの3成果物schema・合成記入例・形式テストも利用できます。依存DAG・wave・計画改訂の読み取り専用validatorも利用できます。member/ownership/capacityのsnapshot検査も利用できます。手動Coordinatorの手順・コメント様式・机上例も利用できます。明示snapshotの進捗集約・不整合検出も利用できます。読み取り専用の次作業推薦とProjectを含む固定37caseのGolden Testも利用できます。実GitHubの自動取得・更新は後続対応です。工程の自動実行は提供しません。
 
 template release versionと各成果物の`schema_version`は独立しています。template v2で最初に導入するschemaが`schema_version: 1`でも問題ありません。利用先projectでは、このrepositoryの`VERSION`をアプリケーションversionと混同しないでください。
 
@@ -259,7 +261,7 @@ Project設定・開発計画・人間のメンバー台帳の記入例は`.ai-wo
 `checkProjectPlan`は依存DAG、ID、共有area、計画revisionを読み取り専用で検査し、waveと待機理由を返します。
 `loadProjectPlan`は明示pathだけを読みます。保存Projectの自動探索やGitHub照会、担当・claim操作は行いません。
 確認snapshotは入力revision/digestに結び付けますが、人間本人・実権限・事実の鮮度を認証しません。scope非重複を確認できない共有領域は保守的に直列化します。
-`npm test --prefix tools/workflow-project`は専用テストで、既存CIにも接続しています。Project全体Goldenは後続対応です。
+`npm test --prefix tools/workflow-project`は専用テストで、既存CIにも接続しています。Projectを含む共通Golden Testも利用できます。固定例と保証範囲は[project-golden](../examples/project-golden/README.md)を参照してください。
 実案件への入力方法、結果の読み方、改訂・復旧は運用マニュアル、契約と上限はproject-orchestration-design第8.4節を参照してください。
 
 ## メンバーと担当条件の追加検査
@@ -276,7 +278,7 @@ Project設定・開発計画・人間のメンバー台帳の記入例は`.ai-wo
 担当割当、着手記録、進捗、解除/再割当、Coordinator交代、部分失敗の照合を、人間がGitHub Issue上で記録します。
 status_mappingとheartbeat/stale方針は導入時に合意し、操作の実状を読み戻します。stale/blocked/inactiveでも自動解放しません。
 任意導入で、従来の単一Issue運用は継続できます。様式v1は人間向けMarkdownの版であり、既存schema/checker/CIに新しい機械契約を追加しません。
-自動割当・原子的claim・集約/recommender・Project全体Goldenは含みません。実案件の同時操作やAPI障害復旧は机上確認の保証範囲外です。
+この手動手順自体は自動割当・原子的claimを提供しません。読み取り専用の集約・推薦とProject Goldenは別の検査として利用できます。実案件の同時操作やAPI障害復旧は机上確認の保証範囲外です。
 
 ## Project進捗の読み取り専用集約
 
@@ -290,7 +292,7 @@ status_mappingとheartbeat/stale方針は導入時に合意し、操作の実状
 
 `tools/workflow-project/recommend.mjs`は確認済み元入力を既存checkerで再検査し、本人の既存作業またはCoordinatorへ相談する候補を決定的に返します。担当・claim・工程を自動実行しません。
 `recommend-load.mjs`と`project-recommend/v1`の独立context/result、[合成入力](../../tests/workflow-recommend/fixtures/README.md)を任意で導入します。初回依存導入後はオフラインのNode.js 22以上で動き、開発対象の言語には依存しません。
-利用方法・確認項目・停止/復旧・上限・not_evaluatedは[運用マニュアル](operations-manual.md)を参照してください。専用合成テストは`npm run test:recommend --prefix tools/workflow-project`で実行し、CIのNode22/24でも検証します。保存Project走査・Project全体Goldenは別途対応です。
+利用方法・確認項目・停止/復旧・上限・not_evaluatedは[運用マニュアル](operations-manual.md)を参照してください。専用合成テストは`npm run test:recommend --prefix tools/workflow-project`で実行し、CIのNode22/24でも検証します。保存Projectの自動走査は対象外です。Projectを含む共通Golden Testは利用できます。
 
 ## Projectの統合Golden Test
 

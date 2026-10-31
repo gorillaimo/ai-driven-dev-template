@@ -7,6 +7,8 @@ Coordinatorは割当と競合の調整担当、claimは誰がどの範囲に着�
 [コメント様式](../../.ai-workflow/templates/project-manual/v1/README.md)をコピーして使い、最初に[合成の机上例](../examples/project-manual/walkthrough.md)を辿ってください。
 [Project共通設計](project-orchestration-design.md)第4・7・9・10・13章と、既存のAGENTS.md/development-rules.mdのalways-onルールを維持します。
 
+採用範囲を決める前に[試用前の確認表](v2-adoption-checklist.md)を確認してください。[隔離した導入・移行例](../examples/v2-adoption/README.md)は合成の確認用であり、実担当・権限・引継ぎの承認はこの手順で人間が行います。
+
 ## 1. 導入時に決めること
 
 1. 移行Issueとbranchを作り、導入元template commitと元の設定・記録を保存します。人間がProject採用範囲を承認します。
