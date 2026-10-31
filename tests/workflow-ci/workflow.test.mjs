@@ -16,9 +16,9 @@ test('permissions and pinned official actions do not persist credentials or expo
  assert.ok(!/secrets\.|pull_request_target|continue-on-error|upload-artifact|id-token|cache:|always\(\).*\|\|/.test(text));
  for(const s of job.steps.filter(s=>s.run))assert.ok(!/\$\{\{/.test(s.run),'Fixed shell commands only');
 });
-test('six locked dependency installations and all existing suites are invoked',()=>{
+test('seven locked dependency installations and all existing suites are invoked',()=>{
  const steps=parseYaml(read()).jobs.validate.steps,commands=steps.map(s=>s.run??'').join('\n');
- for(const name of ['rules','check','trace','schema','golden','ci']){
+ for(const name of ['rules','check','trace','schema','golden','ci','project']){
   assert.ok(commands.includes('npm ci --prefix tools/workflow-'+name+' --ignore-scripts --no-audit --no-fund'));
  }
  for(const command of ['node tools/workflow-schema/validate.mjs','npm run test:brownfield --prefix tools/workflow-schema','npm test --prefix tools/workflow-rules','npm test --prefix tools/workflow-check','npm test --prefix tools/workflow-trace','npm test --prefix tools/workflow-golden','npm test --prefix tools/workflow-ci','node tools/workflow-golden/run.mjs --json','node tools/workflow-ci/validate.mjs --json'])assert.ok(commands.includes(command),command);
@@ -28,4 +28,12 @@ test('summary runs after failures and receives structured outcomes without raw c
  const steps=parseYaml(read()).jobs.validate.steps,last=steps.at(-1);assert.equal(last.if,'always()');assert.ok(last.run.includes('GITHUB_STEP_SUMMARY'));
  assert.ok(last.env.JOB_STATUS.includes('job.status'));assert.ok(last.env.CI_OUTCOME.includes('steps.artifacts.outcome'));assert.ok(last.env.GOLDEN_OUTCOME.includes('steps.golden.outcome'));
  assert.ok(!/cat .*yaml|toJSON\(github|github\.event\.pull_request\.(title|body|head)/.test(read()));
+});
+
+test('Project Golden dependencies, regression and shared case execution are connected',()=>{
+ const steps=parseYaml(read()).jobs.validate.steps;
+ const install=steps.find(s=>s.id==='install').run,regression=steps.find(s=>s.id==='regression').run,golden=steps.find(s=>s.id==='golden');
+ assert.ok(install.includes('npm ci --prefix tools/workflow-project --ignore-scripts --no-audit --no-fund'));
+ for(const cmd of ['npm run test:project --prefix tools/workflow-schema','npm test --prefix tools/workflow-project','npm run test:members --prefix tools/workflow-project','npm run test:aggregate --prefix tools/workflow-project','npm run test:recommend --prefix tools/workflow-project','npm test --prefix tools/workflow-golden'])assert.ok(regression.split('\n').includes(cmd));
+ assert.equal(golden.run,'node tools/workflow-golden/run.mjs --json');assert.equal(golden.if,undefined);assert.equal(golden['continue-on-error'],undefined);
 });

@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "checker_version": "1.0.0",
+  "input_digest": "02d960254248bb595d77c7be542280e5a9c37a4dda93181ddda7670ee6c23641",
+  "project_id": "example-app",
+  "project_revision": 1,
+  "plan_revision": 1,
+  "project_digest": "24cfa5ae57bff532d6dcd5e47c587c77f185464fdc8a1fc526dd0bba26927621",
+  "plan_digest": "be6381657cf8e4bac44c120aca40b08ac87ac51280715c647847f30eaa89327f",
+  "observed_at": "2026-10-30T00:00:00Z",
+  "status": "pass",
+  "checks": [
+    {
+      "check_id": "input",
+      "status": "pass"
+    },
+    {
+      "check_id": "schema",
+      "status": "pass"
+    },
+    {
+      "check_id": "identity",
+      "status": "pass"
+    },
+    {
+      "check_id": "dag",
+      "status": "pass"
+    },
+    {
+      "check_id": "facts",
+      "status": "pass"
+    },
+    {
+      "check_id": "history",
+      "status": "pass"
+    },
+    {
+      "check_id": "revision",
+      "status": "pass"
+    },
+    {
+      "check_id": "waves",
+      "status": "pass"
+    }
+  ],
+  "diagnostics": [],
+  "waves": [
+    {
+      "wave": 1,
+      "feature_ids": [
+        "a"
+      ]
+    },
+    {
+      "wave": 2,
+      "feature_ids": [
+        "b"
+      ]
+    }
+  ],
+  "dependency_candidates": [
+    "a"
+  ],
+  "waiting": [],
+  "active": [],
+  "completed": [],
+  "cancelled": [],
+  "serialization": [
+    {
+      "feature_id": "b",
+      "after_feature_ids": [
+        "a"
+      ],
+      "area_ids": [
+        "backend"
+      ],
+      "reason": "area_serialized"
+    }
+  ],
+  "revision_impact": {
+    "changed_feature_ids": [],
+    "affected_feature_ids": [],
+    "invalidated_waves": [],
+    "active_decisions": []
+  },
+  "not_evaluated": [
+    "approval_authenticity",
+    "disjoint_scope_proof",
+    "feature_completion_aggregation",
+    "full_history_provenance",
+    "membership_permission_capacity",
+    "reference_existence",
+    "snapshot_freshness"
+  ]
+}

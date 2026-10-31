@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "aggregator_version": "1.0.0",
+  "input_digest": "60ba665331bba9641119c28adcc00f90f087bfee7080b1636c621cd02b7d6ff3",
+  "project_id": "example-app",
+  "project_revision": 1,
+  "plan_revision": 1,
+  "project_digest": "24cfa5ae57bff532d6dcd5e47c587c77f185464fdc8a1fc526dd0bba26927621",
+  "plan_digest": "be6381657cf8e4bac44c120aca40b08ac87ac51280715c647847f30eaa89327f",
+  "observed_at": "2026-10-30T00:00:00Z",
+  "evaluated_at": "2026-10-30T00:00:00Z",
+  "status": "pass",
+  "checks": [
+    {
+      "check_id": "input",
+      "status": "pass"
+    },
+    {
+      "check_id": "schema",
+      "status": "pass"
+    },
+    {
+      "check_id": "binding",
+      "status": "pass"
+    },
+    {
+      "check_id": "dag",
+      "status": "pass"
+    },
+    {
+      "check_id": "inventory",
+      "status": "pass"
+    },
+    {
+      "check_id": "issues",
+      "status": "pass"
+    },
+    {
+      "check_id": "features",
+      "status": "pass"
+    }
+  ],
+  "issues": [
+    {
+      "issue_ref": "https://github.com/example/project/issues/10",
+      "work_id": "issue-10",
+      "feature_id": "a",
+      "observed_project_status": "available_for_work",
+      "reconciliation_status": "consistent",
+      "human_owner": null,
+      "active_claim_count": 0,
+      "prepared_claim_count": 0,
+      "workflow": null,
+      "new_event_count": 0,
+      "branch_refs": [],
+      "pr_numbers": []
+    },
+    {
+      "issue_ref": "https://github.com/example/project/issues/2",
+      "work_id": "issue-2",
+      "feature_id": "b",
+      "observed_project_status": "available_for_work",
+      "reconciliation_status": "consistent",
+      "human_owner": null,
+      "active_claim_count": 0,
+      "prepared_claim_count": 0,
+      "workflow": null,
+      "new_event_count": 0,
+      "branch_refs": [],
+      "pr_numbers": []
+    }
+  ],
+  "features": [
+    {
+      "feature_id": "a",
+      "status": "ready",
+      "required_issue_count": 1,
+      "completed_required_count": 0
+    },
+    {
+      "feature_id": "b",
+      "status": "ready",
+      "required_issue_count": 1,
+      "completed_required_count": 0
+    }
+  ],
+  "counts": {
+    "issue_count": 2,
+    "feature_count": 2,
+    "issue_statuses": {
+      "draft": 0,
+      "available_for_work": 2,
+      "assigned": 0,
+      "in_progress": 0,
+      "in_review": 0,
+      "blocked": 0,
+      "completed": 0,
+      "cancelled": 0,
+      "unknown": 0
+    },
+    "feature_statuses": {
+      "planned": 0,
+      "ready": 2,
+      "active": 0,
+      "blocked": 0,
+      "completed": 0,
+      "cancelled": 0,
+      "unknown": 0
+    }
+  },
+  "checkpoint": {
+    "schema_version": 1,
+    "project_id": "example-app",
+    "repository": "example/project",
+    "project_revision": 1,
+    "plan_revision": 1,
+    "project_digest": "24cfa5ae57bff532d6dcd5e47c587c77f185464fdc8a1fc526dd0bba26927621",
+    "plan_digest": "be6381657cf8e4bac44c120aca40b08ac87ac51280715c647847f30eaa89327f",
+    "source_input_digest": "60ba665331bba9641119c28adcc00f90f087bfee7080b1636c621cd02b7d6ff3",
+    "observed_at": "2026-10-30T00:00:00Z",
+    "issues": []
+  },
+  "diagnostics": [],
+  "not_evaluated": [
+    "actual_scope_conflicts",
+    "actual_time_and_inventory_completeness",
+    "actual_work_execution",
+    "atomic_claim",
+    "checkpoint_authenticity",
+    "legacy_workflow",
+    "live_github_authenticity",
+    "membership_permission_capacity",
+    "natural_language_acceptance",
+    "plan_revision_audit",
+    "reference_and_approval_authenticity"
+  ]
+}

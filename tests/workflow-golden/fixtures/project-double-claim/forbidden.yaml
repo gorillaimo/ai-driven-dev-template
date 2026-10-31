@@ -1,0 +1,39 @@
+{
+  "format_version": 1,
+  "rules": [
+    {
+      "adapter": "project_aggregate",
+      "op": "text",
+      "path": "",
+      "value": "SYNTHETIC_PROJECT_CANARY"
+    },
+    {
+      "adapter": "project_recommend",
+      "op": "text",
+      "path": "",
+      "value": "SYNTHETIC_PROJECT_CANARY"
+    },
+    {
+      "adapter": "project_recommend",
+      "op": "contains",
+      "path": "/selected_action",
+      "value": {
+        "kind": "resume_stage"
+      }
+    },
+    {
+      "adapter": "project_recommend",
+      "op": "contains",
+      "path": "/selected_action",
+      "value": {
+        "kind": "ask_coordinator"
+      }
+    },
+    {
+      "adapter": "project_recommend",
+      "op": "equals",
+      "path": "/selected_action/next_stage",
+      "value": "implementation"
+    }
+  ]
+}

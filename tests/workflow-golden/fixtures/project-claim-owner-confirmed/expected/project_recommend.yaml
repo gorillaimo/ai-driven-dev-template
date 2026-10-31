@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "recommender_version": "1.0.0",
+  "input_digest": "ac6d7986edb7734e510d5ee2af930cc10a9bac87546ceb32c80db1dd2bc2f430",
+  "project_id": "example-app",
+  "project_revision": 1,
+  "plan_revision": 1,
+  "team_revision": 1,
+  "project_digest": "dee809c58a1b0214011cbb0ce2c1aa7148f2154fa14c803b7df4ce5f7b110e3e",
+  "plan_digest": "53c8b4edf59eb250b9860ddfaffbd7b87f4985d59aa42bb69cadfabe6170ca50",
+  "team_digest": "1f6d1fd58798bdc67d8556f0b47438def7766ce6433b53c2038307c0d3e1035a",
+  "observed_at": "2026-10-30T00:00:00Z",
+  "evaluated_at": "2026-10-30T00:00:00Z",
+  "human_owner": "second-user",
+  "agent_ref": "codex-b",
+  "status": "pass",
+  "decision": "none",
+  "current_work": null,
+  "selected_action": null,
+  "coordinator_candidates": [],
+  "excluded": [
+    {
+      "issue_ref": "https://github.com/example/project/issues/1",
+      "work_id": "issue-1",
+      "feature_id": "a",
+      "reasons": [
+        "other_owner"
+      ]
+    }
+  ],
+  "diagnostics": [],
+  "not_evaluated": [
+    "live_github_authenticity",
+    "principal_and_permission_authenticity",
+    "reference_and_approval_authenticity",
+    "actual_time_and_inventory_completeness",
+    "natural_language_contract_and_instruction",
+    "actual_unpushed_and_scope_proof",
+    "atomic_claim",
+    "changes_after_snapshot",
+    "actual_work_execution"
+  ]
+}

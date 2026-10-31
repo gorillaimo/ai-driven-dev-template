@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "checker_version": "1.0.0",
+  "input_digest": "567097f34a769d52220830b627a533f1b17ed4f5227d82aadc15561aca70c21f",
+  "project_id": "example-app",
+  "project_revision": 1,
+  "team_revision": 1,
+  "project_digest": "b99fec635b04426e5be31f9ee755cdeb45ad1ce32cf82f8e581068e6d4b2f648",
+  "team_digest": "43598d8fdbb6cfa767099b3fb61acbbb15aa436a9f3227b03b864f9657c16209",
+  "observed_at": "2026-10-30T00:00:00Z",
+  "evaluated_at": "2026-10-30T00:00:00Z",
+  "status": "blocked",
+  "checks": [
+    {
+      "check_id": "input",
+      "status": "pass"
+    },
+    {
+      "check_id": "schema",
+      "status": "pass"
+    },
+    {
+      "check_id": "identity",
+      "status": "pass"
+    },
+    {
+      "check_id": "configuration",
+      "status": "pass"
+    },
+    {
+      "check_id": "facts",
+      "status": "pass"
+    },
+    {
+      "check_id": "principal",
+      "status": "pass"
+    },
+    {
+      "check_id": "subject",
+      "status": "block"
+    },
+    {
+      "check_id": "ownership",
+      "status": "pass"
+    },
+    {
+      "check_id": "capacity",
+      "status": "pass"
+    }
+  ],
+  "subject": {
+    "github_login": "example-user",
+    "mode": "candidate",
+    "qualification": "ineligible",
+    "reasons": [
+      "member_inactive"
+    ]
+  },
+  "coordinators": [
+    {
+      "github_login": "coord-user",
+      "area_ids": [
+        "backend"
+      ],
+      "status": "pass"
+    }
+  ],
+  "integration_owners": [],
+  "capacity": {
+    "active_count": 0,
+    "additional_count": 1,
+    "limit": 1
+  },
+  "diagnostics": [
+    {
+      "code": "member_inactive",
+      "kind": "ineligible",
+      "path": "context/request/human_owner",
+      "github_login": "example-user",
+      "area_id": null
+    }
+  ],
+  "not_evaluated": [
+    "live_github_and_evidence_authenticity",
+    "actual_time_and_inventory_completeness",
+    "issue_contract_and_ready_for_ai",
+    "workflow_approvals",
+    "plan_dependencies",
+    "actual_scope_conflicts",
+    "atomic_claim",
+    "actual_work_execution"
+  ]
+}

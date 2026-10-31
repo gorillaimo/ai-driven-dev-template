@@ -7,7 +7,7 @@
 - 状態: 設計承認済み（Issue #9、2026-08-07）
 - 承認記録: https://github.com/gorillaimo/ai-driven-dev-template/issues/9#issuecomment-5207242159
 - 適用開始: 人間による設計承認後、対応する後続実装Issueが完了した機構から段階的に有効化する
-- 現時点の扱い: Project成果物schema v1・記入例・形式テスト、依存DAG・wave・計画改訂とmember/ownership/capacityの読み取り専用validator、手動Coordinatorの手順・コメント様式・机上例は利用可能。明示snapshotの進捗集約・不整合検出と決定的な次作業推薦も利用可能。実GitHubの自動取得/更新、Project Golden Test、Dispatcherは後続実装。形式テストとvalidatorのテストを既存ワークフローCIで実行する
+- 現時点の扱い: Project成果物schema v1・記入例・形式テスト、依存DAG・wave・計画改訂とmember/ownership/capacityの読み取り専用validator、手動Coordinatorの手順・コメント様式・机上例は利用可能。明示snapshotの進捗集約・不整合検出と決定的な次作業推薦も利用可能。Project Golden Testは既存ハーネス/CIから利用可能。実GitHubの自動取得/更新とDispatcherは後続実装。形式テストとvalidatorのテストを既存ワークフローCIで実行する
 - 初期標準: GitHub Issuesを使う手動Coordinator方式
 - 任意拡張: GitHub Projects、中央Dispatcher、外部Agent Runner
 - 互換性: 1人開発、単一Issue、従来のprompt運用を壊さない追加方式
@@ -505,7 +505,7 @@ paused/blocked/in_review/inactive/staleでも解除確定までcapacityへ含め
 8statusはstatus_mapping先labelで手動表示し、ready-for-ai/assignee/内部stage/open・closedとは区別する。label不整合や部分失敗では新規割当・着手を保留し、元操作IDと現状を人間が照合する。
 同Issue/共有areaの操作担当は1人。複数areaでは関係Coordinatorが合意し、交代は旧担当停止・引継受領・設定PR反映を確認して切り替える。
 コメント様式v1は人間向けの版でschema_versionではなく、parser/reducerや自動冪等性・原子的claim・自動stale解放を提供しない。
-机上確認はライブ同時操作やAPI障害復旧の実証ではない。実GitHubの同期・自動修復、Project全体Goldenは後続Issueとする。読み取り専用の集約・推薦は第13.0・11.1節を参照する。
+机上確認はライブ同時操作やAPI障害復旧の実証ではない。実GitHubの同期・自動修復は後続Issueとする。Project Goldenの静的検証は第16.1節を参照する。読み取り専用の集約・推薦は第13.0・11.1節を参照する。
 
 ## 11. AI主導の次タスク提案
 
@@ -704,6 +704,20 @@ Issue #8のGolden Testハーネスへ、次のfixtureを追加する。
 - Projects未採用のprojectでProjectsを要求しない。
 
 静的fixtureを必須とし、AIによる優先度や意味評価は任意のinformational testへ分離する。
+
+### 16.1 オフラインProject Goldenの契約
+
+既存workflow-goldenへproject_plan / project_members / project_aggregate / project_recommendの4 adapterを追加し、各既存APIを直接呼んでresult schemaを検証する。判定を再実装せず、既存case/forbiddenのformat_version:1、全field比較、signals、禁止条件、exit codeを使う。未選択adapterはnot_evaluated。既存12caseに25 Project caseを追加し、必要case/adapterの欠落を失敗にする。
+
+推薦adapterが共通原本から集約・計画・member・Issue checkerを再実行する。独立adapterの入力も同じ台帳・確認snapshotへ束縛し、横断テストで原本/feature事実/担当対象を照合する。期待見本と独立した重要値・禁止条件を先に定め、実結果で見本を自動更新しない。比較では時刻/TTL/digest/revision/commit/参照/配列順/判定を保持する。
+
+25caseは正常、依存未完了、DAG循環/未知ID、area直列化、inactive/権限/capacity/Team、2要求前後・二重claim、stale、初回event/checkpoint再読込、不整合、手動fallback前後、未割当、botの人間owner欠落、Issues-only、managed再開、承認待ち、partialを扱う。詳細ID・重要値・第16章14観点の対応は[固定例の説明](../examples/project-golden/README.md)を参照する。
+
+同時要求の前snapshotでは複数人が同じ候補を見られるが相談まででclaimを作らない。人間Coordinatorが1 ownerを確定した後のsnapshotで他方を除外し、二重activeを拒否する。原子的な勝者選択や実同時操作は未実装であり、将来のDispatcherで別途検証する。Dispatcherも未実装なのでfallbackは人間pause→実状確認後に手動Issues-onlyへ戻す固定snapshotで検証し、実障害検知/復旧の保証としない。元GitHub labelも自動修復せず、依存未完了をreadyへ昇格・推薦しないことを検査する。
+
+Golden利用時に既存workflow-projectの依存も導入する。既存Workflow Validationの同じ回帰/Golden命令が新caseを含めNode22/24で検査する。新job・権限・外部AI・保存Project走査は追加しない。file1 MiB/1case128file・5 MiB/深さ12/100case/report1 MiBと各checkerの上限を維持し、全37caseのcold30秒を目標とする。通信/command/書込みを禁止した子processと入力/file digestで副作用・非変更を別に検証する。
+
+同梱合成例の静的保証であり、実GitHub・本人/権限/証拠/時計/全量性、自然言語の意味、実scope/未push・引継、原子的claim、実Dispatcher障害、実作業を保証しない。未知/破損/欠落/比較差分/例外/上限超過は失敗とし、元記録を保存して人間レビュー・個別checker・手動Coordinatorへ戻る。Golden成功をReleaseの自動承認にしない。
 
 ## 17. 後続実装Issueの分割案
 

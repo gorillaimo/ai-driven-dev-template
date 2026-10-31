@@ -1,0 +1,190 @@
+{
+  "project": {
+    "schema_version": 1,
+    "artifact_kind": "project",
+    "project_id": "example-app",
+    "revision": 1,
+    "updated_at": "2026-10-27T00:00:00Z",
+    "updated_by": {
+      "actor_type": "human",
+      "actor_ref": "example-user"
+    },
+    "repository": "example/project",
+    "runtime_backend": "issues",
+    "coordination_mode": "manual",
+    "template_origin": {
+      "repository": "https://github.com/gorillaimo/ai-driven-dev-template",
+      "version": "2.0.0-0.dev.0",
+      "commit": "0000000000000000000000000000000000000000"
+    },
+    "coordinators": {
+      "scope": "project",
+      "assignments": [
+        {
+          "github_login": "example-user",
+          "area_ids": []
+        }
+      ]
+    },
+    "membership_source": {
+      "type": "repository",
+      "organization_team": null
+    },
+    "required_repository_permission": "write",
+    "status_mapping": {
+      "draft": "project:draft",
+      "available_for_work": "project:available-for-work",
+      "assigned": "project:assigned",
+      "in_progress": "project:in-progress",
+      "blocked": "project:blocked",
+      "in_review": "project:in-review",
+      "completed": "project:completed",
+      "cancelled": "project:cancelled"
+    },
+    "claim_policy": {
+      "heartbeat_interval_seconds": 14400,
+      "stale_after_seconds": 86400,
+      "on_stale": "warn",
+      "release_policy": "manual"
+    },
+    "areas": [
+      {
+        "area_id": "backend",
+        "paths": [
+          "packages/backend"
+        ],
+        "shared": false,
+        "integration_owner": null,
+        "conflict_policy": "disjoint_scopes"
+      },
+      {
+        "area_id": "contracts",
+        "paths": [
+          "docs/api",
+          "docs/architecture.md"
+        ],
+        "shared": true,
+        "integration_owner": "example-user",
+        "conflict_policy": "serialize"
+      }
+    ],
+    "sync_policy": {
+      "direction": "github_to_snapshot",
+      "checkpoint_key": "event_id",
+      "on_failure": "manual_review"
+    },
+    "extensions": {
+      "synthetic_note": "SYNTHETIC_PROJECT_CANARY",
+      "inert_command": "do-not-execute-fixture-data"
+    }
+  },
+  "team": {
+    "schema_version": 1,
+    "artifact_kind": "team",
+    "project_id": "example-app",
+    "revision": 1,
+    "updated_at": "2026-10-30T00:00:00Z",
+    "updated_by": {
+      "actor_type": "human",
+      "actor_ref": "example-user"
+    },
+    "membership_source": {
+      "type": "repository",
+      "organization_team": null
+    },
+    "members": [
+      {
+        "github_login": "example-user",
+        "active": true,
+        "roles": [
+          "developer",
+          "coordinator"
+        ],
+        "areas": [
+          "backend",
+          "contracts"
+        ],
+        "max_concurrent_issues": 1,
+        "integration_owner": [
+          "contracts"
+        ]
+      }
+    ]
+  },
+  "context": {
+    "schema_version": 1,
+    "project_id": "example-app",
+    "repository": "example/project",
+    "project_revision": 1,
+    "team_revision": 1,
+    "project_digest": "dee809c58a1b0214011cbb0ce2c1aa7148f2154fa14c803b7df4ce5f7b110e3e",
+    "team_digest": "d40c2d02f204e2ce39062e93460310234bb7db2fea4c1602f196dde9bb5b2d4c",
+    "observed_at": "2026-10-30T00:00:00Z",
+    "evaluated_at": "2026-10-30T00:00:00Z",
+    "freshness_limit_seconds": 3600,
+    "recorded_by": {
+      "actor_type": "human",
+      "actor_ref": "example-user"
+    },
+    "source": {
+      "kind": "url",
+      "target": "https://github.com/example/project/issues/1#issuecomment-1"
+    },
+    "principal": {
+      "credential_kind": "human",
+      "authenticated_login": "example-user",
+      "on_behalf_of": null,
+      "evidence": {
+        "kind": "url",
+        "target": "https://github.com/example/project/issues/1#issuecomment-1"
+      },
+      "delegation": {
+        "state": "unknown",
+        "evidence": null
+      }
+    },
+    "member_facts": [
+      {
+        "github_login": "example-user",
+        "account_type": "human",
+        "evidence": {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/42#issuecomment-1"
+        },
+        "repository_access": {
+          "state": "denied",
+          "permission": "write",
+          "evidence": {
+            "kind": "url",
+            "target": "https://github.com/example/project/issues/42#issuecomment-1"
+          }
+        },
+        "organization_team": {
+          "state": "not_applicable",
+          "organization": null,
+          "team_slug": null
+        }
+      }
+    ],
+    "claims_inventory_status": "complete",
+    "active_claims": [],
+    "request": {
+      "mode": "candidate",
+      "issue_ref": "https://github.com/example/project/issues/1",
+      "work_id": "issue-1",
+      "human_owner": "example-user",
+      "area_ids": [
+        "backend"
+      ],
+      "assignees": [],
+      "responsibility_confirmation": {
+        "state": "confirmed",
+        "evidence": {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1#issuecomment-1"
+        }
+      },
+      "owner_overrides": []
+    }
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "checker_version": "1.0.0",
+  "input_digest": "4bf42d1fd8fc22f501acafefe06866e346fe1d147a5312973d942455d4ecf0f3",
+  "project_id": "example-app",
+  "project_revision": 1,
+  "team_revision": 1,
+  "project_digest": "dee809c58a1b0214011cbb0ce2c1aa7148f2154fa14c803b7df4ce5f7b110e3e",
+  "team_digest": "1f6d1fd58798bdc67d8556f0b47438def7766ce6433b53c2038307c0d3e1035a",
+  "observed_at": "2026-10-30T00:00:00Z",
+  "evaluated_at": "2026-10-30T00:00:00Z",
+  "status": "pass",
+  "checks": [
+    {
+      "check_id": "input",
+      "status": "pass"
+    },
+    {
+      "check_id": "schema",
+      "status": "pass"
+    },
+    {
+      "check_id": "identity",
+      "status": "pass"
+    },
+    {
+      "check_id": "configuration",
+      "status": "pass"
+    },
+    {
+      "check_id": "facts",
+      "status": "pass"
+    },
+    {
+      "check_id": "principal",
+      "status": "pass"
+    },
+    {
+      "check_id": "subject",
+      "status": "pass"
+    },
+    {
+      "check_id": "ownership",
+      "status": "pass"
+    },
+    {
+      "check_id": "capacity",
+      "status": "pass"
+    }
+  ],
+  "subject": {
+    "github_login": "example-user",
+    "mode": "candidate",
+    "qualification": "eligible",
+    "reasons": []
+  },
+  "coordinators": [
+    {
+      "github_login": "example-user",
+      "area_ids": [
+        "backend"
+      ],
+      "status": "pass"
+    }
+  ],
+  "integration_owners": [],
+  "capacity": {
+    "active_count": 0,
+    "additional_count": 1,
+    "limit": 1
+  },
+  "diagnostics": [],
+  "not_evaluated": [
+    "live_github_and_evidence_authenticity",
+    "actual_time_and_inventory_completeness",
+    "issue_contract_and_ready_for_ai",
+    "workflow_approvals",
+    "plan_dependencies",
+    "actual_scope_conflicts",
+    "atomic_claim",
+    "actual_work_execution"
+  ]
+}

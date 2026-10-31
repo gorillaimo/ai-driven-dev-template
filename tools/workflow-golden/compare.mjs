@@ -1,5 +1,5 @@
 import { isDeepStrictEqual } from 'node:util';
-export const adapterNames = ['rules','plan','workflow','trace','brownfield'];
+export const adapterNames = ['rules','plan','workflow','trace','brownfield','project_plan','project_members','project_aggregate','project_recommend'];
 export function validateNormalization(paths) {
   if (!Array.isArray(paths) || new Set(paths).size !== paths.length || paths.some(p=>p!=='/duration_ms')) throw new Error('normalization_invalid');
 }

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "checker_version": "1.0.0",
+  "input_digest": "2778a717d05a785886a71de81c9f0fde8c360a391cd7c2549529310b891e6858",
+  "project_id": null,
+  "project_revision": null,
+  "team_revision": null,
+  "project_digest": null,
+  "team_digest": null,
+  "observed_at": null,
+  "evaluated_at": null,
+  "status": "blocked",
+  "checks": [
+    {
+      "check_id": "input",
+      "status": "pass"
+    },
+    {
+      "check_id": "schema",
+      "status": "block"
+    }
+  ],
+  "subject": {
+    "github_login": null,
+    "mode": null,
+    "qualification": "unknown",
+    "reasons": [
+      "schema_invalid"
+    ]
+  },
+  "coordinators": [],
+  "integration_owners": [],
+  "capacity": null,
+  "diagnostics": [
+    {
+      "code": "schema_invalid",
+      "kind": "invalid",
+      "path": "context",
+      "github_login": null,
+      "area_id": null
+    }
+  ],
+  "not_evaluated": [
+    "live_github_and_evidence_authenticity",
+    "actual_time_and_inventory_completeness",
+    "issue_contract_and_ready_for_ai",
+    "workflow_approvals",
+    "plan_dependencies",
+    "actual_scope_conflicts",
+    "atomic_claim",
+    "actual_work_execution"
+  ]
+}

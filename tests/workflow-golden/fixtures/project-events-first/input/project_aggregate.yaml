@@ -1,0 +1,847 @@
+{
+  "project": {
+    "schema_version": 1,
+    "artifact_kind": "project",
+    "project_id": "example-app",
+    "revision": 1,
+    "updated_at": "2026-10-27T00:00:00Z",
+    "updated_by": {
+      "actor_type": "human",
+      "actor_ref": "example-user"
+    },
+    "repository": "example/project",
+    "runtime_backend": "issues",
+    "coordination_mode": "manual",
+    "template_origin": {
+      "repository": "https://github.com/gorillaimo/ai-driven-dev-template",
+      "version": "2.0.0-0.dev.0",
+      "commit": "0000000000000000000000000000000000000000"
+    },
+    "coordinators": {
+      "scope": "project",
+      "assignments": [
+        {
+          "github_login": "example-user",
+          "area_ids": []
+        }
+      ]
+    },
+    "membership_source": {
+      "type": "repository",
+      "organization_team": null
+    },
+    "required_repository_permission": "write",
+    "status_mapping": {
+      "draft": "project:draft",
+      "available_for_work": "project:available-for-work",
+      "assigned": "project:assigned",
+      "in_progress": "project:in-progress",
+      "blocked": "project:blocked",
+      "in_review": "project:in-review",
+      "completed": "project:completed",
+      "cancelled": "project:cancelled"
+    },
+    "claim_policy": {
+      "heartbeat_interval_seconds": 14400,
+      "stale_after_seconds": 86400,
+      "on_stale": "warn",
+      "release_policy": "manual"
+    },
+    "areas": [
+      {
+        "area_id": "backend",
+        "paths": [
+          "packages/backend"
+        ],
+        "shared": false,
+        "integration_owner": null,
+        "conflict_policy": "disjoint_scopes"
+      },
+      {
+        "area_id": "contracts",
+        "paths": [
+          "docs/api",
+          "docs/architecture.md"
+        ],
+        "shared": true,
+        "integration_owner": "example-user",
+        "conflict_policy": "serialize"
+      }
+    ],
+    "sync_policy": {
+      "direction": "github_to_snapshot",
+      "checkpoint_key": "event_id",
+      "on_failure": "manual_review"
+    },
+    "extensions": {
+      "synthetic_note": "SYNTHETIC_PROJECT_CANARY",
+      "inert_command": "do-not-execute-fixture-data"
+    }
+  },
+  "deliveryPlan": {
+    "schema_version": 1,
+    "artifact_kind": "delivery_plan",
+    "project_id": "example-app",
+    "revision": 1,
+    "updated_at": "2026-10-27T00:00:00Z",
+    "updated_by": {
+      "actor_type": "human",
+      "actor_ref": "example-user"
+    },
+    "features": [
+      {
+        "feature_id": "a",
+        "source_ref": {
+          "kind": "file",
+          "target": "docs/system-context.md",
+          "fragment": "feature-a"
+        },
+        "depends_on": [],
+        "area_ids": [
+          "backend"
+        ],
+        "planned_priority": 1,
+        "constraints": [],
+        "issue_refs": [
+          {
+            "issue_ref": "https://github.com/example/project/issues/1",
+            "work_id": "issue-1",
+            "required": true
+          }
+        ]
+      }
+    ],
+    "revision_history": []
+  },
+  "context": {
+    "schema_version": 1,
+    "observed_at": "2026-10-30T00:00:00Z",
+    "evaluated_at": "2026-10-30T00:00:00Z",
+    "freshness_limit_seconds": 3600,
+    "recorded_by": {
+      "actor_type": "human",
+      "actor_ref": "example-user"
+    },
+    "source": {
+      "kind": "url",
+      "target": "https://github.com/example/project/issues/1#issuecomment-1"
+    },
+    "collection_status": "complete",
+    "issues": [
+      {
+        "issue_ref": "https://github.com/example/project/issues/1",
+        "work_id": "issue-1",
+        "feature_id": "a",
+        "observed_at": "2026-10-30T00:00:00Z",
+        "issue_updated_at": "2026-10-23T00:00:00Z",
+        "source": {
+          "kind": "url",
+          "target": "https://github.com/example/project/issues/1#issuecomment-1"
+        },
+        "github_state": "open",
+        "labels": [
+          "project:in-progress"
+        ],
+        "assignees": [
+          "example-user"
+        ],
+        "human_owner": "example-user",
+        "ready_for_ai": true,
+        "inventory_status": "complete",
+        "preconditions": {
+          "state": "confirmed",
+          "evidence": {
+            "kind": "url",
+            "target": "https://github.com/example/project/issues/1#issuecomment-1"
+          }
+        },
+        "completion": {
+          "state": "unknown",
+          "evidence": null
+        },
+        "cancellation": null,
+        "review": {
+          "kind": "none",
+          "reference": null
+        },
+        "blockers": [],
+        "pending_operations": [],
+        "unpushed": {
+          "state": "clear",
+          "evidence": {
+            "kind": "url",
+            "target": "https://github.com/example/project/issues/1#issuecomment-1"
+          }
+        },
+        "claims": [
+          {
+            "claim_id": "claim-a",
+            "human_owner": "example-user",
+            "branch": "feature/1-example",
+            "phase": "active",
+            "claimed_at": "2026-10-30T00:00:00Z",
+            "last_heartbeat_at": "2026-10-30T00:00:00Z",
+            "evidence": {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1#issuecomment-1"
+            },
+            "release": null
+          }
+        ],
+        "branches": [
+          {
+            "name": "feature/1-example",
+            "head_commit": "0000000000000000000000000000000000000000",
+            "existence": "confirmed",
+            "evidence": {
+              "kind": "url",
+              "target": "https://github.com/example/project/issues/1#issuecomment-1"
+            }
+          }
+        ],
+        "prs": [],
+        "workflow_mode": "managed"
+      }
+    ],
+    "feature_confirmations": [
+      {
+        "feature_id": "a",
+        "acceptance": {
+          "state": "unknown",
+          "evidence": null
+        },
+        "cancellation": null
+      }
+    ],
+    "constraint_facts": [],
+    "project_id": "example-app",
+    "repository": "example/project",
+    "project_revision": 1,
+    "plan_revision": 1,
+    "project_digest": "dee809c58a1b0214011cbb0ce2c1aa7148f2154fa14c803b7df4ce5f7b110e3e",
+    "plan_digest": "53c8b4edf59eb250b9860ddfaffbd7b87f4985d59aa42bb69cadfabe6170ca50"
+  },
+  "workflows": [
+    {
+      "issue_ref": "https://github.com/example/project/issues/1",
+      "input": {
+        "plan": {
+          "schema_version": 1,
+          "artifact_kind": "plan",
+          "work_id": "issue-1",
+          "work_source": "github_issue",
+          "issue_ref": "https://github.com/example/project/issues/1",
+          "updated_at": "2026-10-12T00:00:00Z",
+          "updated_by": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "revision": 1,
+          "risk": "low",
+          "context": [
+            {
+              "kind": "file",
+              "target": "docs/common/development-rules.md"
+            }
+          ],
+          "resolved_rules": [
+            {
+              "rule_id": "legacy",
+              "version": "1.0.0",
+              "reference": {
+                "kind": "file",
+                "target": "docs/common/rules/legacy/rule.yaml"
+              }
+            }
+          ],
+          "stages": [
+            {
+              "stage_id": "intake",
+              "selection": "required",
+              "reason": "Synthetic decision",
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ],
+              "decided_by": {
+                "actor_type": "human",
+                "actor_ref": "example-user"
+              },
+              "depends_on": [],
+              "artifacts": [],
+              "approval_required": false,
+              "validation_methods": [
+                "Synthetic review"
+              ]
+            },
+            {
+              "stage_id": "context",
+              "selection": "required",
+              "reason": "Synthetic decision",
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ],
+              "decided_by": {
+                "actor_type": "human",
+                "actor_ref": "example-user"
+              },
+              "depends_on": [],
+              "artifacts": [],
+              "approval_required": false,
+              "validation_methods": [
+                "Synthetic review"
+              ]
+            },
+            {
+              "stage_id": "brownfield",
+              "selection": "skipped",
+              "reason": "Synthetic decision",
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ],
+              "decided_by": {
+                "actor_type": "human",
+                "actor_ref": "example-user"
+              },
+              "depends_on": [],
+              "artifacts": [],
+              "approval_required": false,
+              "validation_methods": [
+                "Synthetic review"
+              ]
+            },
+            {
+              "stage_id": "prototype",
+              "selection": "skipped",
+              "reason": "Synthetic decision",
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ],
+              "decided_by": {
+                "actor_type": "human",
+                "actor_ref": "example-user"
+              },
+              "depends_on": [],
+              "artifacts": [],
+              "approval_required": false,
+              "validation_methods": [
+                "Synthetic review"
+              ]
+            },
+            {
+              "stage_id": "requirements",
+              "selection": "skipped",
+              "reason": "Synthetic decision",
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ],
+              "decided_by": {
+                "actor_type": "human",
+                "actor_ref": "example-user"
+              },
+              "depends_on": [],
+              "artifacts": [],
+              "approval_required": false,
+              "validation_methods": [
+                "Synthetic review"
+              ]
+            },
+            {
+              "stage_id": "design",
+              "selection": "skipped",
+              "reason": "Synthetic decision",
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ],
+              "decided_by": {
+                "actor_type": "human",
+                "actor_ref": "example-user"
+              },
+              "depends_on": [],
+              "artifacts": [],
+              "approval_required": false,
+              "validation_methods": [
+                "Synthetic review"
+              ]
+            },
+            {
+              "stage_id": "api",
+              "selection": "skipped",
+              "reason": "Synthetic decision",
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ],
+              "decided_by": {
+                "actor_type": "human",
+                "actor_ref": "example-user"
+              },
+              "depends_on": [],
+              "artifacts": [],
+              "approval_required": false,
+              "validation_methods": [
+                "Synthetic review"
+              ]
+            },
+            {
+              "stage_id": "quality",
+              "selection": "skipped",
+              "reason": "Synthetic decision",
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ],
+              "decided_by": {
+                "actor_type": "human",
+                "actor_ref": "example-user"
+              },
+              "depends_on": [],
+              "artifacts": [],
+              "approval_required": false,
+              "validation_methods": [
+                "Synthetic review"
+              ]
+            },
+            {
+              "stage_id": "tests",
+              "selection": "skipped",
+              "reason": "Synthetic decision",
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ],
+              "decided_by": {
+                "actor_type": "human",
+                "actor_ref": "example-user"
+              },
+              "depends_on": [],
+              "artifacts": [],
+              "approval_required": false,
+              "validation_methods": [
+                "Synthetic review"
+              ]
+            },
+            {
+              "stage_id": "implementation",
+              "selection": "skipped",
+              "reason": "Synthetic decision",
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ],
+              "decided_by": {
+                "actor_type": "human",
+                "actor_ref": "example-user"
+              },
+              "depends_on": [],
+              "artifacts": [],
+              "approval_required": false,
+              "validation_methods": [
+                "Synthetic review"
+              ]
+            },
+            {
+              "stage_id": "validation",
+              "selection": "required",
+              "reason": "Synthetic decision",
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ],
+              "decided_by": {
+                "actor_type": "human",
+                "actor_ref": "example-user"
+              },
+              "depends_on": [],
+              "artifacts": [],
+              "approval_required": false,
+              "validation_methods": [
+                "Synthetic review"
+              ]
+            },
+            {
+              "stage_id": "handoff",
+              "selection": "required",
+              "reason": "Synthetic decision",
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ],
+              "decided_by": {
+                "actor_type": "human",
+                "actor_ref": "example-user"
+              },
+              "depends_on": [],
+              "artifacts": [],
+              "approval_required": false,
+              "validation_methods": [
+                "Synthetic review"
+              ]
+            }
+          ],
+          "extensions": {
+            "rule_resolution": {
+              "schema_version": 1,
+              "resolver_version": "1.0.0",
+              "status": "pass",
+              "context": {
+                "schema_version": 1,
+                "risk": "low",
+                "areas": [],
+                "technologies": [],
+                "data_types": []
+              },
+              "opt_ins": [],
+              "input_digest": "8b2a965cd28a4faeeb270fa9b35fb6c6ed27c177d9872d97760379be6749cd40",
+              "source_digests": {
+                "docs/common/rules/legacy/rule.yaml": "bebcb36dc81b0cff2835d2959b5980ba91d73395ce52bc97525c2dc7ff04b23b",
+                "docs/common/rules/legacy/rule.md": "56252e68e6d1dc0eff5da78829bff35f5e9d0dd25ce0cb08f176f1dfad3000ed",
+                "AGENTS.md": "127cfce6b9d8461a5eb6e626bc7b3b556eacc5df67ec8fb9dbac1b97ea64db82",
+                "docs/common/development-rules.md": "717a1f47bd08651f8c2cfce433ca3a888acb3cb2a49f87ef364a4ed186e5047a"
+              },
+              "rules": [
+                {
+                  "rule_id": "legacy",
+                  "version": "1.0.0",
+                  "reference": {
+                    "kind": "file",
+                    "target": "docs/common/rules/legacy/rule.yaml"
+                  },
+                  "status": "selected",
+                  "reasons": [
+                    "always_on"
+                  ]
+                }
+              ],
+              "order": [
+                "legacy"
+              ],
+              "diagnostics": []
+            }
+          },
+          "project_id": "example-app",
+          "feature_id": "a"
+        },
+        "state": {
+          "schema_version": 1,
+          "artifact_kind": "state",
+          "work_id": "issue-1",
+          "work_source": "github_issue",
+          "issue_ref": "https://github.com/example/project/issues/1",
+          "updated_at": "2026-10-23T00:00:00Z",
+          "updated_by": {
+            "actor_type": "human",
+            "actor_ref": "example-user"
+          },
+          "plan_revision": 1,
+          "status": "planned",
+          "current_stage": null,
+          "last_completed_stage": null,
+          "next_stage": "intake",
+          "git": {
+            "commit": "0000000000000000000000000000000000000000",
+            "branch": "feature/1-example"
+          },
+          "issue_updated_at": "2026-10-23T00:00:00Z",
+          "stages": [
+            {
+              "stage_id": "intake",
+              "status": "pending"
+            },
+            {
+              "stage_id": "context",
+              "status": "pending"
+            },
+            {
+              "stage_id": "brownfield",
+              "status": "pending"
+            },
+            {
+              "stage_id": "prototype",
+              "status": "pending"
+            },
+            {
+              "stage_id": "requirements",
+              "status": "pending"
+            },
+            {
+              "stage_id": "design",
+              "status": "pending"
+            },
+            {
+              "stage_id": "api",
+              "status": "pending"
+            },
+            {
+              "stage_id": "quality",
+              "status": "pending"
+            },
+            {
+              "stage_id": "tests",
+              "status": "pending"
+            },
+            {
+              "stage_id": "implementation",
+              "status": "pending"
+            },
+            {
+              "stage_id": "validation",
+              "status": "pending"
+            },
+            {
+              "stage_id": "handoff",
+              "status": "pending"
+            }
+          ],
+          "validations": [],
+          "approvals": [],
+          "blockers": [],
+          "failure_reason": null,
+          "resume": {
+            "instructions": "Issue契約とassigneeを確認し、intakeから開始する。",
+            "pending_operations": [],
+            "safe_to_retry": true
+          },
+          "history": [
+            {
+              "event_id": "event-1",
+              "event_type": "work_planned",
+              "occurred_at": "2026-10-12T00:00:00Z",
+              "actor": {
+                "actor_type": "human",
+                "actor_ref": "example-user"
+              },
+              "stage": null,
+              "before": null,
+              "after": "planned",
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ]
+            }
+          ],
+          "extensions": {
+            "workflow_check": {
+              "schema_version": 1,
+              "approval_scopes": [],
+              "validation_scopes": [],
+              "revisions": []
+            }
+          },
+          "project_id": "example-app",
+          "feature_id": "a"
+        },
+        "context": {
+          "schema_version": 1,
+          "work_id": "issue-1",
+          "work_source": "github_issue",
+          "issue_ref": "https://github.com/example/project/issues/1",
+          "risk": "low",
+          "contract_ref": {
+            "kind": "url",
+            "target": "https://github.com/example/project/issues/1"
+          },
+          "assignee": "example-user",
+          "ready_for_ai": true,
+          "issue_updated_at": "2026-10-23T00:00:00Z",
+          "conflicts": false,
+          "git": {
+            "commit": "0000000000000000000000000000000000000000",
+            "branch": "feature/1-example",
+            "clean": true,
+            "remote_matches": true
+          },
+          "facts": {
+            "needs_brownfield": {
+              "value": false,
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ]
+            },
+            "needs_prototype": {
+              "value": false,
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ]
+            },
+            "changes_spec": {
+              "value": false,
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ]
+            },
+            "minor_change": {
+              "value": true,
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ]
+            },
+            "changes_api": {
+              "value": false,
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ]
+            },
+            "changes_implementation": {
+              "value": false,
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ]
+            }
+          },
+          "gates": {
+            "nfr": {
+              "applicable": false,
+              "reason": "Synthetic assessment",
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ]
+            },
+            "security": {
+              "applicable": false,
+              "reason": "Synthetic assessment",
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ]
+            },
+            "resiliency": {
+              "applicable": false,
+              "reason": "Synthetic assessment",
+              "evidence": [
+                {
+                  "kind": "url",
+                  "target": "https://github.com/example/project/issues/1"
+                }
+              ]
+            }
+          },
+          "required_stages": [],
+          "approval_stages": [],
+          "skip_overrides": [],
+          "retry_review": {
+            "confirmed": true,
+            "evidence": [
+              {
+                "kind": "url",
+                "target": "https://github.com/example/project/issues/1"
+              }
+            ]
+          },
+          "project_id": "example-app",
+          "feature_id": "a"
+        },
+        "ruleInput": {
+          "rules": [
+            {
+              "schema_version": 1,
+              "rule_id": "legacy",
+              "version": "1.0.0",
+              "level": "always-on",
+              "category": [
+                "governance"
+              ],
+              "applies_when": [],
+              "requires": [],
+              "conflicts_with": [],
+              "after": [],
+              "severity": "block",
+              "purpose": "既存のIssue契約・承認・開発規約を常時維持する。",
+              "inputs": [
+                "Issue契約",
+                "人間の指示"
+              ],
+              "expected_outputs": [
+                "既存規約に従った作業"
+              ],
+              "on_failure": "作業を停止し、Issueへ理由を記録して人間へ確認する。",
+              "approval_required": false,
+              "body_refs": [
+                {
+                  "kind": "file",
+                  "target": "AGENTS.md"
+                },
+                {
+                  "kind": "file",
+                  "target": "docs/common/development-rules.md"
+                }
+              ]
+            }
+          ],
+          "sourceDigests": {
+            "docs/common/rules/legacy/rule.yaml": "bebcb36dc81b0cff2835d2959b5980ba91d73395ce52bc97525c2dc7ff04b23b",
+            "docs/common/rules/legacy/rule.md": "56252e68e6d1dc0eff5da78829bff35f5e9d0dd25ce0cb08f176f1dfad3000ed",
+            "AGENTS.md": "127cfce6b9d8461a5eb6e626bc7b3b556eacc5df67ec8fb9dbac1b97ea64db82",
+            "docs/common/development-rules.md": "717a1f47bd08651f8c2cfce433ca3a888acb3cb2a49f87ef364a4ed186e5047a"
+          },
+          "ruleSources": {
+            "legacy": "docs/common/rules/legacy/rule.yaml"
+          },
+          "context": {
+            "schema_version": 1,
+            "risk": "low",
+            "areas": [],
+            "technologies": [],
+            "data_types": []
+          },
+          "optIns": []
+        },
+        "revisionPlans": []
+      }
+    }
+  ]
+}

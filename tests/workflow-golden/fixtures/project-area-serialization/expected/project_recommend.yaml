@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "recommender_version": "1.0.0",
+  "input_digest": "dd5dd032dbd416a8f88ae30b4d401732baeab35a6cd09778021ece69a7ddfbde",
+  "project_id": "example-app",
+  "project_revision": 1,
+  "plan_revision": 1,
+  "team_revision": 1,
+  "project_digest": "24cfa5ae57bff532d6dcd5e47c587c77f185464fdc8a1fc526dd0bba26927621",
+  "plan_digest": "be6381657cf8e4bac44c120aca40b08ac87ac51280715c647847f30eaa89327f",
+  "team_digest": "3f6b38cfecdebea94c2d247ac393204ab5a37bb7f4a13e0b2fb7a392cb7c19d9",
+  "observed_at": "2026-10-30T00:00:00Z",
+  "evaluated_at": "2026-10-30T00:00:00Z",
+  "human_owner": "example-user",
+  "agent_ref": "codex-a",
+  "status": "pass",
+  "decision": "coordinator_candidates",
+  "current_work": null,
+  "selected_action": {
+    "issue_ref": "https://github.com/example/project/issues/10",
+    "work_id": "issue-10",
+    "feature_id": "a",
+    "kind": "ask_coordinator",
+    "human_owner": "example-user",
+    "current_stage": null,
+    "next_stage": null,
+    "claim_id": null,
+    "rank": {
+      "planned_priority": 1,
+      "wave": 1,
+      "issue_number": 10
+    },
+    "reasons": [
+      "selected_coordinator"
+    ],
+    "proposed_claim": null,
+    "branch_ref": null,
+    "artifact_refs": [],
+    "requires_human_confirmation": true,
+    "requires_runtime_recheck": true
+  },
+  "coordinator_candidates": [
+    {
+      "issue_ref": "https://github.com/example/project/issues/10",
+      "work_id": "issue-10",
+      "feature_id": "a",
+      "kind": "ask_coordinator",
+      "human_owner": "example-user",
+      "current_stage": null,
+      "next_stage": null,
+      "claim_id": null,
+      "rank": {
+        "planned_priority": 1,
+        "wave": 1,
+        "issue_number": 10
+      },
+      "reasons": [
+        "selected_coordinator"
+      ],
+      "proposed_claim": null,
+      "branch_ref": null,
+      "artifact_refs": [],
+      "requires_human_confirmation": true,
+      "requires_runtime_recheck": true
+    },
+    {
+      "issue_ref": "https://github.com/example/project/issues/2",
+      "work_id": "issue-2",
+      "feature_id": "b",
+      "kind": "ask_coordinator",
+      "human_owner": "example-user",
+      "current_stage": null,
+      "next_stage": null,
+      "claim_id": null,
+      "rank": {
+        "planned_priority": 1,
+        "wave": 2,
+        "issue_number": 2
+      },
+      "reasons": [
+        "selected_coordinator"
+      ],
+      "proposed_claim": null,
+      "branch_ref": null,
+      "artifact_refs": [],
+      "requires_human_confirmation": true,
+      "requires_runtime_recheck": true
+    }
+  ],
+  "excluded": [],
+  "diagnostics": [],
+  "not_evaluated": [
+    "live_github_authenticity",
+    "principal_and_permission_authenticity",
+    "reference_and_approval_authenticity",
+    "actual_time_and_inventory_completeness",
+    "natural_language_contract_and_instruction",
+    "actual_unpushed_and_scope_proof",
+    "atomic_claim",
+    "changes_after_snapshot",
+    "actual_work_execution"
+  ]
+}

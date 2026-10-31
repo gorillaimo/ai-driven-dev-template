@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "recommender_version": "1.0.0",
+  "input_digest": "612a44e30120d7a62ace1cfa7d2c8593bc4d0623eda4417aad464811735537c6",
+  "project_id": null,
+  "project_revision": null,
+  "plan_revision": null,
+  "team_revision": null,
+  "project_digest": null,
+  "plan_digest": null,
+  "team_digest": null,
+  "observed_at": null,
+  "evaluated_at": null,
+  "human_owner": null,
+  "agent_ref": null,
+  "status": "blocked",
+  "decision": "blocked",
+  "current_work": null,
+  "selected_action": null,
+  "coordinator_candidates": [],
+  "excluded": [],
+  "diagnostics": [
+    {
+      "code": "schema_invalid",
+      "kind": "invalid",
+      "work_id": null,
+      "source": null,
+      "source_code": null
+    }
+  ],
+  "not_evaluated": [
+    "live_github_authenticity",
+    "principal_and_permission_authenticity",
+    "reference_and_approval_authenticity",
+    "actual_time_and_inventory_completeness",
+    "natural_language_contract_and_instruction",
+    "actual_unpushed_and_scope_proof",
+    "atomic_claim",
+    "changes_after_snapshot",
+    "actual_work_execution"
+  ]
+}

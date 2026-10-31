@@ -1,0 +1,32 @@
+{
+  "format_version": 1,
+  "id": "project-bot-owner-missing",
+  "purpose": "Static Project contract: project-bot-owner-missing. Synthetic inputs only; live identity, atomic claim and Dispatcher operation remain unverified.",
+  "adapters": [
+    "project_members",
+    "project_recommend"
+  ],
+  "inputs": {
+    "project_members": "input/project_members.yaml",
+    "project_recommend": "input/project_recommend.yaml"
+  },
+  "expected": {
+    "project_members": "expected/project_members.yaml",
+    "project_recommend": "expected/project_recommend.yaml"
+  },
+  "signals": {
+    "project_members": {
+      "status": "blocked",
+      "codes": [
+        "schema_invalid"
+      ]
+    },
+    "project_recommend": {
+      "status": "blocked",
+      "codes": [
+        "schema_invalid"
+      ]
+    }
+  },
+  "normalize": []
+}

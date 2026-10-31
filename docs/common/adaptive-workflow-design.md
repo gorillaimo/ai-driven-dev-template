@@ -700,12 +700,12 @@ tests/workflow-golden/
 Brownfield adapterは既存schema v1の形式だけを検査し、調査工程の必須化・次候補はworkflow checkerが検査する。
 fixture内のIssue文書、facts、Gate判定、承認・参照確認は固定した合成snapshotであり、自然言語の解釈や実承認の検証ではない。
 
-`tests/workflow-golden/fixtures/cases.json`がcase IDの登録正本。必須11観点のIDと必要adapterはハーネスでも確認し、draft warnを含む12caseを同梱する。
+`tests/workflow-golden/fixtures/cases.json`がcase IDの登録正本。必須11観点のIDと必要adapterはハーネスでも確認し、draft warnを含む既存12caseを保持する。Project設計第16章に基づく25caseも同じハーネスへ追加し、計37caseを検証する。
 各caseは`case.yaml`、`input/`、`expected/`、`forbidden.yaml`を持つ。`format_version: 1`はテスト専用契約であり、既存成果物schemaを変更しない。
 caseには目的、adapter一覧、入力・期待ファイル、期待statusと診断code集合、normalize、任意assetsを宣言する。
 未知field/version/adapter/operator、登録漏れ、欠落、重複、不要ファイル、絶対/親path、symlink、不正YAMLを拒否する。
 
-adapterはrules、plan、workflow、trace、brownfieldの固定集合。fixtureからコード、実行hook、shell、外部API、Git、AIを呼ばない。
+adapterはrules、plan、workflow、trace、brownfieldとproject_plan、project_members、project_aggregate、project_recommendの固定集合。Project用は各既存APIを直接呼びresult schemaを検証する。fixtureからコード、実行hook、shell、外部API、Git、AIを呼ばない。
 plan adapterは入力planへ再解決したrule結果を投影し、workflow adapterが工程・履歴・再開を検査する。
 実結果の全fieldをコミット済み見本と比較し、キー順だけを正規化する。配列・履歴・工程・診断順序は保持する。
 実行時刻や絶対pathを挿入しない。normalizeは表示用の最上位`/duration_ms`だけを許可し、実際に両方に数値fieldがある場合に限る。同梱caseは空配列。
@@ -719,7 +719,7 @@ plan adapterは入力planへ再解決したrule結果を投影し、workflow ada
 上限は通常file 1 MiB、1case 128file/5 MiB、directory深さ12、100case、JSON結果1 MiB。全必須caseのcold実行目標は30秒（依存取得除外）。
 元データも見本も自動変更せず、差分時は人間が原因と更新理由をレビューする。自動更新optionは設けない。
 合成canary・宣言済み非スコープ・不正承認の回帰を検査するが、任意の秘密情報検出や意味上のscope判定、本人認証を保証しない。
-実行・手動更新・fallbackはoperations-manualを参照。Actions統合、AI意味評価、統合CLIはこのハーネスには含めない。
+実行・手動更新・fallbackはoperations-manualを参照。ハーネス単体でActionsは起動せず、既存Workflow Validationが同じ命令で37caseを実行する。AI意味評価・統合CLIは含めない。
 
 ## 11. GitHub Actions拡張方針
 

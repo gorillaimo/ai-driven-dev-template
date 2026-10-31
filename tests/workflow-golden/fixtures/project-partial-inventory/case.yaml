@@ -1,0 +1,41 @@
+{
+  "format_version": 1,
+  "id": "project-partial-inventory",
+  "purpose": "Static Project contract: project-partial-inventory. Synthetic inputs only; live identity, atomic claim and Dispatcher operation remain unverified.",
+  "adapters": [
+    "project_members",
+    "project_aggregate",
+    "project_recommend"
+  ],
+  "inputs": {
+    "project_members": "input/project_members.yaml",
+    "project_aggregate": "input/project_aggregate.yaml",
+    "project_recommend": "input/project_recommend.yaml"
+  },
+  "expected": {
+    "project_members": "expected/project_members.yaml",
+    "project_aggregate": "expected/project_aggregate.yaml",
+    "project_recommend": "expected/project_recommend.yaml"
+  },
+  "signals": {
+    "project_members": {
+      "status": "blocked",
+      "codes": [
+        "claims_inventory_unknown"
+      ]
+    },
+    "project_aggregate": {
+      "status": "blocked",
+      "codes": [
+        "collection_unknown"
+      ]
+    },
+    "project_recommend": {
+      "status": "blocked",
+      "codes": [
+        "inventory_unknown"
+      ]
+    }
+  },
+  "normalize": []
+}

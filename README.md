@@ -74,6 +74,8 @@ PRの作成・更新時にはGitHub Actionsの`Workflow Validation`が、テン�
 
 ワークフロー変更の回帰は`tools/workflow-golden/`のオフラインGolden Testで確認できます。開発対象の言語に関係なく、開発環境のNode.jsで動かします。実行方法と期待見本の更新手順は`docs/common/operations-manual.md`を参照してください。
 
+Projectの計画・担当・集約・推薦も、同じGolden Testの25合成ケースで確認します。既存12と合わせ37ケースです。導入時はworkflow-projectの依存も揃えてください。[固定例と保証範囲](docs/examples/project-golden/README.md)に、停止条件・手動対応と未検証の実操作をまとめています。
+
 既存プロジェクトを変更前に調べる手順は`docs/common/brownfield-analysis-guide.md`、深度別MD/YAML例は`.ai-workflow/templates/brownfield/v1/`にあります。
 
 受け入れ条件と設計・テスト・検証の対応漏れを検査するlibraryは`tools/workflow-trace/`です。契約は`docs/common/adaptive-workflow-design.md`第7章、利用例は`docs/common/operations-manual.md`を参照してください。

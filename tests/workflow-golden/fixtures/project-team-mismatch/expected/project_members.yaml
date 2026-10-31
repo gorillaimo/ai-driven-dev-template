@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "checker_version": "1.0.0",
+  "input_digest": "c09246515526c0bd66aadb74fb17f4b83a695308357918cac7c2ba5ef3d7c147",
+  "project_id": "example-app",
+  "project_revision": 1,
+  "team_revision": 1,
+  "project_digest": "8e56c183671d9c01a5b871d2b1d802be9b246f645df77c5e90f15f840da000a1",
+  "team_digest": "95550c51c87a63a375c984a41a8aa125151aaa2c9feabe092844ba1c14b97d3b",
+  "observed_at": "2026-10-30T00:00:00Z",
+  "evaluated_at": "2026-10-30T00:00:00Z",
+  "status": "blocked",
+  "checks": [
+    {
+      "check_id": "input",
+      "status": "pass"
+    },
+    {
+      "check_id": "schema",
+      "status": "pass"
+    },
+    {
+      "check_id": "identity",
+      "status": "pass"
+    },
+    {
+      "check_id": "configuration",
+      "status": "pass"
+    },
+    {
+      "check_id": "facts",
+      "status": "pass"
+    },
+    {
+      "check_id": "principal",
+      "status": "pass"
+    },
+    {
+      "check_id": "subject",
+      "status": "block"
+    },
+    {
+      "check_id": "ownership",
+      "status": "block"
+    },
+    {
+      "check_id": "capacity",
+      "status": "pass"
+    }
+  ],
+  "subject": {
+    "github_login": "example-user",
+    "mode": "candidate",
+    "qualification": "ineligible",
+    "reasons": [
+      "team_mismatch"
+    ]
+  },
+  "coordinators": [
+    {
+      "github_login": "example-user",
+      "area_ids": [
+        "backend"
+      ],
+      "status": "blocked"
+    }
+  ],
+  "integration_owners": [],
+  "capacity": {
+    "active_count": 0,
+    "additional_count": 1,
+    "limit": 1
+  },
+  "diagnostics": [
+    {
+      "code": "team_mismatch",
+      "kind": "ineligible",
+      "path": "context/request/human_owner",
+      "github_login": "example-user",
+      "area_id": null
+    },
+    {
+      "code": "team_mismatch",
+      "kind": "ineligible",
+      "path": "project/coordinators",
+      "github_login": "example-user",
+      "area_id": null
+    }
+  ],
+  "not_evaluated": [
+    "live_github_and_evidence_authenticity",
+    "actual_time_and_inventory_completeness",
+    "issue_contract_and_ready_for_ai",
+    "workflow_approvals",
+    "plan_dependencies",
+    "actual_scope_conflicts",
+    "atomic_claim",
+    "actual_work_execution"
+  ]
+}

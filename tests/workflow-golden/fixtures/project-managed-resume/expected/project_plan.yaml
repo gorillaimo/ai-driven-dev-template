@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "checker_version": "1.0.0",
+  "input_digest": "f496d376e8295c39b269954dbbfd571408c89ccd58b102ddbe92c0880a2d0522",
+  "project_id": "example-app",
+  "project_revision": 1,
+  "plan_revision": 1,
+  "project_digest": "dee809c58a1b0214011cbb0ce2c1aa7148f2154fa14c803b7df4ce5f7b110e3e",
+  "plan_digest": "53c8b4edf59eb250b9860ddfaffbd7b87f4985d59aa42bb69cadfabe6170ca50",
+  "observed_at": "2026-10-30T00:00:00Z",
+  "status": "pass",
+  "checks": [
+    {
+      "check_id": "input",
+      "status": "pass"
+    },
+    {
+      "check_id": "schema",
+      "status": "pass"
+    },
+    {
+      "check_id": "identity",
+      "status": "pass"
+    },
+    {
+      "check_id": "dag",
+      "status": "pass"
+    },
+    {
+      "check_id": "facts",
+      "status": "pass"
+    },
+    {
+      "check_id": "history",
+      "status": "pass"
+    },
+    {
+      "check_id": "revision",
+      "status": "pass"
+    },
+    {
+      "check_id": "waves",
+      "status": "pass"
+    }
+  ],
+  "diagnostics": [],
+  "waves": [],
+  "dependency_candidates": [],
+  "waiting": [],
+  "active": [
+    "a"
+  ],
+  "completed": [],
+  "cancelled": [],
+  "serialization": [],
+  "revision_impact": {
+    "changed_feature_ids": [],
+    "affected_feature_ids": [],
+    "invalidated_waves": [],
+    "active_decisions": []
+  },
+  "not_evaluated": [
+    "approval_authenticity",
+    "disjoint_scope_proof",
+    "feature_completion_aggregation",
+    "full_history_provenance",
+    "membership_permission_capacity",
+    "reference_existence",
+    "snapshot_freshness"
+  ]
+}

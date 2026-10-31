@@ -271,3 +271,10 @@ checkpointは元データとともに保持し、取得不能や入力不整合�
 人間/既存接続ツールで元記録・人間/AIへの依頼・権限・全量claim・契約/承認/範囲を確認し、推薦contextと集約元入力を明示します。代理実行は人間ownerと根拠、既存claimは今回のagentと引継ぎを照合します。
 元入力を再検査し、待機/不明/不整合では別Issueを取得しません。未割当はCoordinator相談まで、legacyの既存工程は手動確認です。結果で担当/claim/stage/履歴を自動更新しません。
 利用手順・停止理由・上限・未評価範囲は[運用マニュアル](operations-manual.md)を参照し、復旧不能なら元記録を保ち手動Coordinatorへ戻します。保存Project走査・Project全体Golden・実GitHub取得/操作・Releaseは別途対応です。
+
+## Project Golden Testの追加導入
+
+同じtemplate commitのGolden tool/tests/fixture一式を保持し、既存workflow-projectの依存も導入します。既存12caseと追加25caseを同じ命令で検証し、必要caseを省略したsuiteは失敗します。利用先Projectの設定や実状態をコピーする必要はありません。
+既存format_version:1の比較/禁止/normalize規則は保持しますが、4つの新adapterと未選択時のreport行が追加されます。既存成果物schema/checker/規約/VERSION・依存lockの移行は不要です。
+導入方法・手動見本更新・第16章対応は[運用マニュアル](operations-manual.md)と[固定例](../examples/project-golden/README.md)を参照してください。失敗時に元データを修復せず、保存した旧一式・個別checker・手動Coordinatorへ戻ります。
+実GitHub操作、原子的claim、実Dispatcher停止/復旧、AI意味評価、保存Project走査は対象外です。CI成功からalpha/stable Releaseを作成しません。

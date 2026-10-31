@@ -8,6 +8,8 @@ AI Driven Development Templateの利用者へ影響する変更を記録する�
 
 ### Added
 
+- 既存GoldenハーネスへのProject用4adapterと25固定合成case、共通原本/重要値/禁止結果・非変更/オフラインの統合テスト、既存CI接続の契約確認と導入/限界/fallback文書。既存12caseと合わせ37caseを検証し、実排他・Dispatcher障害・Releaseの保証とは区別する。
+
 - 確認済み台帳/集約元入力/人間・AI依頼を既存checkerで再検査し、本人の次作業1件またはCoordinator向け候補を決定的に返す読み取り専用推薦library、独立context/result v1、安全loader、合成例・専用テストと最小CI接続。待機/不明/競合は停止し、担当・claim・工程を自動実行しない。
 
 - 明示GitHub確認snapshotとIssue checker元入力を読み取り専用集約するlibrary、context/checkpoint/result schema v1、安全な明示path loader、event prefix照合、不整合検出・保守的feature状態、合成例と専用テスト・最小CI接続。実GitHub取得・自動修復・次Issue推薦は行わない。

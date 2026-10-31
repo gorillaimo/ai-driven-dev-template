@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "aggregator_version": "1.0.0",
+  "input_digest": "1182c4e39466469b571b66c5497d5948ae8aed2bc11c784a0f0f300b937f78e9",
+  "project_id": "example-app",
+  "project_revision": 1,
+  "plan_revision": 1,
+  "project_digest": "dee809c58a1b0214011cbb0ce2c1aa7148f2154fa14c803b7df4ce5f7b110e3e",
+  "plan_digest": "765285db9508e1493c5607256d0f3e0a8b1f407438280ceb6ad8592638d85fb0",
+  "observed_at": "2026-10-30T00:00:00Z",
+  "evaluated_at": "2026-10-30T00:00:00Z",
+  "status": "blocked",
+  "checks": [
+    {
+      "check_id": "input",
+      "status": "pass"
+    },
+    {
+      "check_id": "schema",
+      "status": "pass"
+    },
+    {
+      "check_id": "binding",
+      "status": "pass"
+    },
+    {
+      "check_id": "dag",
+      "status": "block"
+    }
+  ],
+  "issues": [],
+  "features": [],
+  "counts": {
+    "issue_count": 0,
+    "feature_count": 0,
+    "issue_statuses": {
+      "draft": 0,
+      "available_for_work": 0,
+      "assigned": 0,
+      "in_progress": 0,
+      "in_review": 0,
+      "blocked": 0,
+      "completed": 0,
+      "cancelled": 0,
+      "unknown": 0
+    },
+    "feature_statuses": {
+      "planned": 0,
+      "ready": 0,
+      "active": 0,
+      "blocked": 0,
+      "completed": 0,
+      "cancelled": 0,
+      "unknown": 0
+    }
+  },
+  "checkpoint": null,
+  "diagnostics": [
+    {
+      "code": "unknown_dependency",
+      "kind": "mismatch",
+      "path": "deliveryPlan/features/0/depends_on/0",
+      "work_id": null,
+      "feature_id": "a",
+      "recovery": "reconcile"
+    }
+  ],
+  "not_evaluated": [
+    "actual_scope_conflicts",
+    "actual_time_and_inventory_completeness",
+    "actual_work_execution",
+    "atomic_claim",
+    "checkpoint_authenticity",
+    "live_github_authenticity",
+    "membership_permission_capacity",
+    "natural_language_acceptance",
+    "plan_revision_audit",
+    "reference_and_approval_authenticity"
+  ]
+}
