@@ -1,0 +1,13 @@
+{
+  "project": "project.json",
+  "deliveryPlan": "deliveryPlan.json",
+  "team": "team.json",
+  "context": "context.json",
+  "aggregate": {
+    "context": "aggregate-context.json",
+    "workflows": []
+  },
+  "planning": {
+    "replan_decisions": "replan-decisions.json"
+  }
+}

@@ -8,6 +8,8 @@ AI Driven Development Templateの利用者へ影響する変更を記録する�
 
 ### Added
 
+- 確認済み台帳/集約元入力/人間・AI依頼を既存checkerで再検査し、本人の次作業1件またはCoordinator向け候補を決定的に返す読み取り専用推薦library、独立context/result v1、安全loader、合成例・専用テストと最小CI接続。待機/不明/競合は停止し、担当・claim・工程を自動実行しない。
+
 - 明示GitHub確認snapshotとIssue checker元入力を読み取り専用集約するlibrary、context/checkpoint/result schema v1、安全な明示path loader、event prefix照合、不整合検出・保守的feature状態、合成例と専用テスト・最小CI接続。実GitHub取得・自動修復・次Issue推薦は行わない。
 
 - Issues-onlyの手動Coordinator運用手順、担当割当・claim・進捗・解除・交代・不整合照合の6種類のMarkdownコメント様式、正常/復旧の机上検証例。自動操作・原子的排他・自動stale解放は提供しない。

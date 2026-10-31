@@ -264,3 +264,10 @@ managed/legacyを明示し、未採用の内部工程を無理に補完しませ
 checkpointは元データとともに保持し、取得不能や入力不整合で既確認Issueを削除しません。計画revision/digest変更時は人間が元履歴を保持し、checkpointなしで全量再集約する判断を明示します。
 実際の入力方法、出力の未評価範囲・上限・停止/復旧は[運用マニュアル](operations-manual.md)を参照してください。復旧不能なら手動Coordinator/従来Issue運用へ戻します。
 実GitHubの自動取得・自動修復/解放・推薦/Project全体Golden・Releaseは別途対応です。
+
+## 次作業推薦の追加導入
+
+必要な場合だけ、既存rules/check/projectの依存とschema一式に、projectのrecommend用modulesとproject-recommend/v1、合成例を追加参照します。既存規約・schema・依存lock・VERSIONを変更せず、単一Issue運用も継続できます。
+人間/既存接続ツールで元記録・人間/AIへの依頼・権限・全量claim・契約/承認/範囲を確認し、推薦contextと集約元入力を明示します。代理実行は人間ownerと根拠、既存claimは今回のagentと引継ぎを照合します。
+元入力を再検査し、待機/不明/不整合では別Issueを取得しません。未割当はCoordinator相談まで、legacyの既存工程は手動確認です。結果で担当/claim/stage/履歴を自動更新しません。
+利用手順・停止理由・上限・未評価範囲は[運用マニュアル](operations-manual.md)を参照し、復旧不能なら元記録を保ち手動Coordinatorへ戻します。保存Project走査・Project全体Golden・実GitHub取得/操作・Releaseは別途対応です。

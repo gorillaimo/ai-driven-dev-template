@@ -68,6 +68,8 @@ AIエージェントへ作業を依頼する前に、以下を確認してくだ
 
 複数Issueの確認snapshotと内部工程は`tools/workflow-project/aggregate.mjs`で読み取り専用集約できます。担当・claim・branch・PR・工程の不整合とfeatureの状態を返します。実GitHub取得や状態変更は行いません。入力例と手順は[運用マニュアル](docs/common/operations-manual.md)を参照してください。
 
+次に確認する1作業は`tools/workflow-project/recommend.mjs`で提案できます。本人の既存作業を優先し、担当がなければCoordinatorへの相談候補を返します。人間が確認した元入力を再検査し、担当・claim・工程を自動実行しません。利用例と停止時の手順は[運用マニュアル](docs/common/operations-manual.md)を参照してください。
+
 PRの作成・更新時にはGitHub Actionsの`Workflow Validation`が、テンプレートの静的テスト・Golden Testと保存Issue YAMLの形式・参照を検査します。開発するアプリ自体のテストは別途用意します。詳しくは`docs/common/operations-manual.md`の「GitHub Actionsでのワークフロー検査」を参照してください。
 
 ワークフロー変更の回帰は`tools/workflow-golden/`のオフラインGolden Testで確認できます。開発対象の言語に関係なく、開発環境のNode.jsで動かします。実行方法と期待見本の更新手順は`docs/common/operations-manual.md`を参照してください。

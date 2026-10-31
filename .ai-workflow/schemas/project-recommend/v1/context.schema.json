@@ -1,0 +1,259 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:project-recommend:v1:context",
+  "title": "Project recommendation context v1",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/schema_version"
+    },
+    "project_id": {
+      "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/project_id"
+    },
+    "repository": {
+      "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/repository"
+    },
+    "project_revision": {
+      "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/project_revision"
+    },
+    "team_revision": {
+      "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/team_revision"
+    },
+    "project_digest": {
+      "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/project_digest"
+    },
+    "team_digest": {
+      "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/team_digest"
+    },
+    "observed_at": {
+      "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/observed_at"
+    },
+    "evaluated_at": {
+      "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/evaluated_at"
+    },
+    "freshness_limit_seconds": {
+      "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/freshness_limit_seconds"
+    },
+    "recorded_by": {
+      "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/recorded_by"
+    },
+    "source": {
+      "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/source"
+    },
+    "principal": {
+      "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/principal"
+    },
+    "member_facts": {
+      "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/member_facts"
+    },
+    "claims_inventory_status": {
+      "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/claims_inventory_status"
+    },
+    "active_claims": {
+      "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/active_claims"
+    },
+    "plan_revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "plan_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "human_owner": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+    },
+    "agent_ref": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "instruction": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "enum": ["proceed", "stop", "pause", "replan_required"]
+        },
+        "evidence": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+        }
+      },
+      "required": ["state", "evidence"],
+      "additionalProperties": false
+    },
+    "requested_issue_ref": {
+      "anyOf": [
+        {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/issueRef"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "candidate_limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "issue_facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "issue_ref": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/issueRef"
+          },
+          "work_id": {
+            "type": "string",
+            "pattern": "^issue-[1-9][0-9]*$",
+            "maxLength": 128
+          },
+          "area_ids": {
+            "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/request/properties/area_ids"
+          },
+          "file_scope": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+            },
+            "minItems": 1,
+            "maxItems": 10000
+          },
+          "non_scope": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+            },
+            "minItems": 0,
+            "maxItems": 10000
+          },
+          "contract": {
+            "type": "object",
+            "properties": {
+              "acceptance": {
+                "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/request/properties/responsibility_confirmation"
+              },
+              "non_scope": {
+                "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/request/properties/responsibility_confirmation"
+              }
+            },
+            "required": ["acceptance", "non_scope"],
+            "additionalProperties": false
+          },
+          "approval": {
+            "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/request/properties/responsibility_confirmation"
+          },
+          "responsibility_confirmation": {
+            "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/request/properties/responsibility_confirmation"
+          },
+          "owner_overrides": {
+            "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/request/properties/owner_overrides"
+          },
+          "scope_check": {
+            "type": "object",
+            "properties": {
+              "state": {
+                "enum": ["clear", "conflict", "unknown"]
+              },
+              "evidence": {
+                "anyOf": [
+                  {
+                    "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": ["state", "evidence"],
+            "additionalProperties": false
+          },
+          "execution_confirmation": {
+            "type": "object",
+            "properties": {
+              "state": {
+                "enum": ["confirmed", "denied", "unknown"]
+              },
+              "evidence": {
+                "anyOf": [
+                  {
+                    "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "claim_id": {
+                "anyOf": [
+                  {
+                    "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "agent_ref": {
+                "anyOf": [
+                  {
+                    "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": ["state", "evidence", "claim_id", "agent_ref"],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "issue_ref",
+          "work_id",
+          "area_ids",
+          "file_scope",
+          "non_scope",
+          "contract",
+          "approval",
+          "responsibility_confirmation",
+          "owner_overrides",
+          "scope_check",
+          "execution_confirmation"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 100
+    }
+  },
+  "required": [
+    "schema_version",
+    "project_id",
+    "repository",
+    "project_revision",
+    "team_revision",
+    "project_digest",
+    "team_digest",
+    "observed_at",
+    "evaluated_at",
+    "freshness_limit_seconds",
+    "recorded_by",
+    "source",
+    "principal",
+    "member_facts",
+    "claims_inventory_status",
+    "active_claims",
+    "plan_revision",
+    "plan_digest",
+    "human_owner",
+    "agent_ref",
+    "instruction",
+    "requested_issue_ref",
+    "candidate_limit",
+    "issue_facts"
+  ],
+  "additionalProperties": false
+}

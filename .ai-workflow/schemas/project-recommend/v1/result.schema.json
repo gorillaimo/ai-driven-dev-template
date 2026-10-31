@@ -1,0 +1,803 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:project-recommend:v1:result",
+  "title": "Project recommendation result v1",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "recommender_version": {
+      "const": "1.0.0"
+    },
+    "input_digest": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "project_id": {
+      "anyOf": [
+        {
+          "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/project_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "project_revision": {
+      "anyOf": [
+        {
+          "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/project_revision"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "plan_revision": {
+      "anyOf": [
+        {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "team_revision": {
+      "anyOf": [
+        {
+          "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/team_revision"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "project_digest": {
+      "anyOf": [
+        {
+          "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/project_digest"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "plan_digest": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "team_digest": {
+      "anyOf": [
+        {
+          "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/team_digest"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "observed_at": {
+      "anyOf": [
+        {
+          "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/observed_at"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "evaluated_at": {
+      "anyOf": [
+        {
+          "$ref": "urn:ai-workflow:project-member-checks:v1:context#/properties/evaluated_at"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "human_owner": {
+      "anyOf": [
+        {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "agent_ref": {
+      "anyOf": [
+        {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "enum": ["pass", "blocked"]
+    },
+    "decision": {
+      "enum": [
+        "resume",
+        "claim_request",
+        "coordinator_candidates",
+        "wait",
+        "blocked",
+        "none"
+      ]
+    },
+    "current_work": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "issue_ref": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/issueRef"
+            },
+            "work_id": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+            },
+            "feature_id": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+            },
+            "human_owner": {
+              "anyOf": [
+                {
+                  "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "project_status": {
+              "enum": [
+                "draft",
+                "available_for_work",
+                "assigned",
+                "in_progress",
+                "in_review",
+                "blocked",
+                "completed",
+                "cancelled",
+                "unknown"
+              ]
+            },
+            "current_stage": {
+              "anyOf": [
+                {
+                  "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "claim_id": {
+              "anyOf": [
+                {
+                  "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "reasons": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "input_invalid",
+                  "input_limit",
+                  "schema_invalid",
+                  "context_mismatch",
+                  "snapshot_stale",
+                  "inventory_unknown",
+                  "inventory_mismatch",
+                  "untracked_claim",
+                  "issue_facts_mismatch",
+                  "scope_binding",
+                  "principal_unknown",
+                  "principal_mismatch",
+                  "delegation_unknown",
+                  "delegation_denied",
+                  "recorder_mismatch",
+                  "member_invalid",
+                  "member_unknown",
+                  "member_ineligible",
+                  "aggregate_blocked",
+                  "plan_blocked",
+                  "claim_stale",
+                  "instruction_stop",
+                  "instruction_pause",
+                  "instruction_replan_required",
+                  "requested_issue_unknown",
+                  "other_owner",
+                  "not_available",
+                  "terminal_work",
+                  "contract_denied",
+                  "contract_unknown",
+                  "approval_denied",
+                  "approval_unknown",
+                  "scope_conflict",
+                  "scope_unknown",
+                  "dependency_pending",
+                  "dependency_unknown",
+                  "constraint_pending",
+                  "constraint_unknown",
+                  "manual_review",
+                  "execution_denied",
+                  "execution_unknown",
+                  "execution_mismatch",
+                  "workflow_wait",
+                  "own_wait",
+                  "unready",
+                  "selected_resume",
+                  "selected_claim",
+                  "selected_coordinator",
+                  "diagnostic_limit",
+                  "output_limit",
+                  "plan_pause",
+                  "plan_cancel"
+                ]
+              },
+              "minItems": 0,
+              "maxItems": 1000
+            }
+          },
+          "required": [
+            "issue_ref",
+            "work_id",
+            "feature_id",
+            "human_owner",
+            "project_status",
+            "current_stage",
+            "claim_id",
+            "reasons"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "selected_action": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/action"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "coordinator_candidates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/action"
+      },
+      "minItems": 0,
+      "maxItems": 10
+    },
+    "excluded": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "issue_ref": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/issueRef"
+          },
+          "work_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "feature_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "input_invalid",
+                "input_limit",
+                "schema_invalid",
+                "context_mismatch",
+                "snapshot_stale",
+                "inventory_unknown",
+                "inventory_mismatch",
+                "untracked_claim",
+                "issue_facts_mismatch",
+                "scope_binding",
+                "principal_unknown",
+                "principal_mismatch",
+                "delegation_unknown",
+                "delegation_denied",
+                "recorder_mismatch",
+                "member_invalid",
+                "member_unknown",
+                "member_ineligible",
+                "aggregate_blocked",
+                "plan_blocked",
+                "claim_stale",
+                "instruction_stop",
+                "instruction_pause",
+                "instruction_replan_required",
+                "requested_issue_unknown",
+                "other_owner",
+                "not_available",
+                "terminal_work",
+                "contract_denied",
+                "contract_unknown",
+                "approval_denied",
+                "approval_unknown",
+                "scope_conflict",
+                "scope_unknown",
+                "dependency_pending",
+                "dependency_unknown",
+                "constraint_pending",
+                "constraint_unknown",
+                "manual_review",
+                "execution_denied",
+                "execution_unknown",
+                "execution_mismatch",
+                "workflow_wait",
+                "own_wait",
+                "unready",
+                "selected_resume",
+                "selected_claim",
+                "selected_coordinator",
+                "diagnostic_limit",
+                "output_limit",
+                "plan_pause",
+                "plan_cancel"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 1000
+          }
+        },
+        "required": ["issue_ref", "work_id", "feature_id", "reasons"],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 100
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "enum": [
+              "input_invalid",
+              "input_limit",
+              "schema_invalid",
+              "context_mismatch",
+              "snapshot_stale",
+              "inventory_unknown",
+              "inventory_mismatch",
+              "untracked_claim",
+              "issue_facts_mismatch",
+              "scope_binding",
+              "principal_unknown",
+              "principal_mismatch",
+              "delegation_unknown",
+              "delegation_denied",
+              "recorder_mismatch",
+              "member_invalid",
+              "member_unknown",
+              "member_ineligible",
+              "aggregate_blocked",
+              "plan_blocked",
+              "claim_stale",
+              "instruction_stop",
+              "instruction_pause",
+              "instruction_replan_required",
+              "requested_issue_unknown",
+              "other_owner",
+              "not_available",
+              "terminal_work",
+              "contract_denied",
+              "contract_unknown",
+              "approval_denied",
+              "approval_unknown",
+              "scope_conflict",
+              "scope_unknown",
+              "dependency_pending",
+              "dependency_unknown",
+              "constraint_pending",
+              "constraint_unknown",
+              "manual_review",
+              "execution_denied",
+              "execution_unknown",
+              "execution_mismatch",
+              "workflow_wait",
+              "own_wait",
+              "unready",
+              "selected_resume",
+              "selected_claim",
+              "selected_coordinator",
+              "diagnostic_limit",
+              "output_limit",
+              "plan_pause",
+              "plan_cancel"
+            ]
+          },
+          "kind": {
+            "enum": ["invalid", "unknown", "ineligible", "wait"]
+          },
+          "work_id": {
+            "anyOf": [
+              {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source": {
+            "enum": [null, "aggregate", "plan", "member", "workflow"]
+          },
+          "source_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": ["code", "kind", "work_id", "source", "source_code"],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 1000
+    },
+    "not_evaluated": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_]*$"
+      },
+      "minItems": 0,
+      "maxItems": 30
+    }
+  },
+  "required": [
+    "schema_version",
+    "recommender_version",
+    "input_digest",
+    "project_id",
+    "project_revision",
+    "plan_revision",
+    "team_revision",
+    "project_digest",
+    "plan_digest",
+    "team_digest",
+    "observed_at",
+    "evaluated_at",
+    "human_owner",
+    "agent_ref",
+    "status",
+    "decision",
+    "current_work",
+    "selected_action",
+    "coordinator_candidates",
+    "excluded",
+    "diagnostics",
+    "not_evaluated"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "blocked"
+          }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "selected_action": {
+            "type": "null"
+          },
+          "coordinator_candidates": {
+            "maxItems": 0,
+            "type": "array"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "decision": {
+            "enum": ["wait", "blocked", "none"]
+          }
+        },
+        "required": ["decision"]
+      },
+      "then": {
+        "properties": {
+          "selected_action": {
+            "type": "null"
+          },
+          "coordinator_candidates": {
+            "maxItems": 0,
+            "type": "array"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "action": {
+      "type": "object",
+      "properties": {
+        "issue_ref": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/issueRef"
+        },
+        "work_id": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        },
+        "feature_id": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        },
+        "kind": {
+          "enum": ["resume_stage", "request_claim", "ask_coordinator"]
+        },
+        "human_owner": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+        },
+        "current_stage": {
+          "anyOf": [
+            {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "next_stage": {
+          "anyOf": [
+            {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "claim_id": {
+          "anyOf": [
+            {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rank": {
+          "type": "object",
+          "properties": {
+            "planned_priority": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "wave": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "issue_number": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": ["planned_priority", "wave", "issue_number"],
+          "additionalProperties": false
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "input_invalid",
+              "input_limit",
+              "schema_invalid",
+              "context_mismatch",
+              "snapshot_stale",
+              "inventory_unknown",
+              "inventory_mismatch",
+              "untracked_claim",
+              "issue_facts_mismatch",
+              "scope_binding",
+              "principal_unknown",
+              "principal_mismatch",
+              "delegation_unknown",
+              "delegation_denied",
+              "recorder_mismatch",
+              "member_invalid",
+              "member_unknown",
+              "member_ineligible",
+              "aggregate_blocked",
+              "plan_blocked",
+              "claim_stale",
+              "instruction_stop",
+              "instruction_pause",
+              "instruction_replan_required",
+              "requested_issue_unknown",
+              "other_owner",
+              "not_available",
+              "terminal_work",
+              "contract_denied",
+              "contract_unknown",
+              "approval_denied",
+              "approval_unknown",
+              "scope_conflict",
+              "scope_unknown",
+              "dependency_pending",
+              "dependency_unknown",
+              "constraint_pending",
+              "constraint_unknown",
+              "manual_review",
+              "execution_denied",
+              "execution_unknown",
+              "execution_mismatch",
+              "workflow_wait",
+              "own_wait",
+              "unready",
+              "selected_resume",
+              "selected_claim",
+              "selected_coordinator",
+              "diagnostic_limit",
+              "output_limit",
+              "plan_pause",
+              "plan_cancel"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 100
+        },
+        "proposed_claim": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "work_id": {
+                  "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+                },
+                "human_owner": {
+                  "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+                },
+                "agent_ref": {
+                  "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+                }
+              },
+              "required": ["work_id", "human_owner", "agent_ref"],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "branch_ref": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "artifact_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+          },
+          "minItems": 0,
+          "maxItems": 10
+        },
+        "requires_human_confirmation": {
+          "type": "boolean"
+        },
+        "requires_runtime_recheck": {
+          "const": true
+        }
+      },
+      "required": [
+        "issue_ref",
+        "work_id",
+        "feature_id",
+        "kind",
+        "human_owner",
+        "current_stage",
+        "next_stage",
+        "claim_id",
+        "rank",
+        "reasons",
+        "proposed_claim",
+        "branch_ref",
+        "artifact_refs",
+        "requires_human_confirmation",
+        "requires_runtime_recheck"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "resume_stage"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "next_stage": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+              },
+              "requires_human_confirmation": {
+                "const": false
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "next_stage": {
+                "type": "null"
+              },
+              "requires_human_confirmation": {
+                "const": true
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
