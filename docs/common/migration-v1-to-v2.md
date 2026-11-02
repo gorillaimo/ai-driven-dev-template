@@ -9,7 +9,7 @@
 - v1 stable: `v1.0.0`
 - v2: development line
 - `v2.0.0`stable Release: 未公開
-- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。追跡性checkerとBrownfield手順・深度別テンプレートも利用できる。Golden TestとIssue内部のActions統合も利用できる。Projectの3成果物schema・合成記入例・形式テストも利用できる。Projectの依存DAG・wave・計画改訂validatorも利用できる。member/ownership/capacityのsnapshot検査も利用できる。手動Coordinatorの手順・コメント様式・机上例も利用できる。明示snapshotの進捗集約・不整合検出も利用できる。読み取り専用の次作業推薦とProjectを含む固定37caseのGolden Testも利用できる。実GitHubの自動取得・更新は後続対応。工程は自動実行しない
+- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。追跡性checkerとBrownfield手順・深度別テンプレートも利用できる。Golden TestとIssue内部のActions統合も利用できる。Projectの3成果物schema・合成記入例・形式テストも利用できる。Projectの依存DAG・wave・計画改訂validatorも利用できる。member/ownership/capacityのsnapshot検査も利用できる。手動Coordinatorの手順・コメント様式・机上例も利用できる。明示snapshotの進捗集約・不整合検出も利用できる。読み取り専用の次作業推薦とProjectを含む固定37caseのGolden Testも利用できる。実GitHubの自動取得・更新は後続対応。工程は自動実行しない。
 
 設計文書が存在するだけで、AIが状態管理、自動再開、次Issue選択、claim、複数人調整を自動実行できるとは扱わない。対応する後続実装Issueが完了した機構だけを有効化する。
 

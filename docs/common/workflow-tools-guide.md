@@ -395,7 +395,7 @@ branch protectionやrequired checksは自動変更しません。まず実行時
 status_mappingは静的な対応表で、ラベル作成や状態変更を実行しません。active:falseでも既存claimを自動解放しません。
 YAMLが正本で、delivery-plan.mdは将来の生成表示です。共有Project state.yamlや別の手編集状態台帳は作りません。
 
-同梱例の形式テストは、repository rootから実行します。初回の依存取得は通信し、導入後のテストはオフラインです。
+同梱例の形式テストは、repository rootから実行します。初回の依存取得にはネットワーク接続が必要で、導入後のテストはオフラインで実行できます。
 
 ```sh
 npm ci --prefix tools/workflow-schema --ignore-scripts --no-audit --no-fund
@@ -481,7 +481,7 @@ JSONもYAMLも読めますが、contextを共有Project stateとして手編集�
 [6種類のコメント様式](../../.ai-workflow/templates/project-manual/v1/README.md)を実Issueへコピーし、人間が確認して追記します。最初に[机上検証例](../examples/project-manual/walkthrough.md)を辿ってください。
 
 1. 人間のCoordinatorが契約・承認・依存・担当条件・全量active claim・実scope競合を確認し、人間owner1人と引受を確定します。
-2. claim準備、Issue branch、直前再確認、claim確定、status更新を順に行い、実状一致を読み戻した後に作業を始めます。
+2. claim準備、Issue branch、直前再確認、claim確定、status更新を順に行い、更新後に実際の状態が記録と一致することを確認してから、作業を始めます。
 3. 中断・レビュー・staleでもclaimの枠は保持します。解除依頼だけで枠を空けず、旧作業停止・未push/引継を確認して人間Coordinatorが解除を確定します。
 4. 部分失敗や不明点があれば新規割当を止め、同じ操作IDと現状を人間が照合します。旧記録を削除せず追記します。
 

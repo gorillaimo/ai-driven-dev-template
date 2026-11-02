@@ -2,7 +2,7 @@
 
 このドキュメントは、AI Driven Development Template本体のrelease version、release channel、互換性、保守、成果物schemaとの境界を定義する。
 
-初期実装とRelease条件の現在の対応は[試用前の確認表](v2-adoption-checklist.md)を参照する。Issue #42の文書・導入確認が完了してもReleaseを自動作成しない。マニュアルレビューと残る確認事項の判断後、対象version/commit・Release notes・公開承認を別Issue/PRで扱う。
+初期実装の状況とRelease条件の対応は[試用前の確認表](v2-adoption-checklist.md)を参照する。Issue #42の文書・導入確認が完了してもReleaseを自動作成しない。マニュアルをレビューし、残る確認事項について判断した後、対象version/commit・Release notes・公開承認を別Issue/PRで扱う。
 
 ## 1. 現在の状態
 

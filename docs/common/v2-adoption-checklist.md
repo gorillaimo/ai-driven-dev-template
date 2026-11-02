@@ -3,7 +3,7 @@
 初期範囲の機能実装は揃っています。現在は`2.0.0-0.dev.0`の開発版です。
 この表は導入と試用の判断材料です。Issue #42の完了やCI成功だけで、移行承認・alpha/stable公開を確定しません。
 
-日常の依頼は短い[運用マニュアル](operations-manual.md)から始めます。この表は採用・移行・Release判断の際に参照し、実行して試す場合は[隔離した導入・移行例](../examples/v2-adoption/README.md)を使ってください。
+初回の依頼は[初期セットアップ](operations-setup.md)、日常の依頼は[運用マニュアル](operations-manual.md)を参照してください。この表は採用・移行・Release判断の際に参照し、実行して試す場合は[隔離した導入・移行例](../examples/v2-adoption/README.md)を使ってください。
 
 ## 確認の基準と区分
 
@@ -16,10 +16,10 @@
 | 区分 | 意味 |
 | :--- | :--- |
 | 確認済み（静的/合成） | 固定入力・隔離コピー・文書/机上確認で結果を確かめた。証拠の種類は行ごとに示す |
-| 人間確認待ち | 実際の使い方、採用、本人・権限・承認・競合、Release可否などを人間が判断する |
+| 人間による確認待ち | 実際の使い方、採用、本人・権限・承認・競合、Release可否などを人間が判断する |
 | 未検証/任意拡張 | 実案件/他OS/ライブ操作は未検証。Projects等の追加機構は必要性と別Issue/承認で判断する |
 
-実CIは実際に実行されたテストの証拠です。合成入力の内容が実案件でも真実だという証明ではありません。
+実CIは実際に実行されたテストの証拠です。合成入力によるテストの成功だけでは、実案件の情報が正しいことまでは確認できません。
 
 ## 実装と確認の対応
 
@@ -28,7 +28,7 @@
 | 機構・元Issue/PR | 入口・確認方法 | 結果と未評価 |
 | :--- | :--- | :--- |
 | Issue schema：#14 / #15 | `.ai-workflow/schemas/issue/v1/`、`node tools/workflow-schema/validate.mjs` | 確認済み（静的/合成）：93件。形式適合は承認/完了の証明ではない |
-| モジュール式ルール：#16 / #17 | `tools/workflow-rules/`、`npm test --prefix tools/workflow-rules` | 確認済み（静的/合成）：32件。AGENTS/共通規約をalways-onで保持。自然文の意味・実承認は人間確認待ち |
+| モジュール式ルール：#16 / #17 | `tools/workflow-rules/`、`npm test --prefix tools/workflow-rules` | 確認済み（静的/合成）：32件。AGENTS/共通規約をalways-onで保持。自然文の意味・実承認は人間による確認待ち |
 | plan/state・再開：#18 / #19 | `tools/workflow-check/`、`npm test --prefix tools/workflow-check` | 確認済み（静的/合成）：75件。次工程の提案であり、実行・実Git差分取得ではない |
 | 追跡性：#20 / #21 | `tools/workflow-trace/`、`npm test --prefix tools/workflow-trace` | 確認済み（静的/合成）：63件。実アプリのテスト成功や自然言語ACの完全性は未検証 |
 | Brownfield：#22 / #23 | [調査ガイド](brownfield-analysis-guide.md)、`npm run test:brownfield --prefix tools/workflow-schema` | 確認済み（静的/合成）：29件。実案件の調査は別途scopeを定めて行う |
@@ -36,10 +36,10 @@
 | CI/保存Issue検査：#26 / #27 | `.github/workflows/workflow-validation.yml`、`npm test --prefix tools/workflow-ci` | 確認済み（静的/合成）：53件。基準の実CIは上記。保存Project走査・アプリのbuild/testは対象外 |
 | Project成果物：#28 / #29 | `.ai-workflow/schemas/project/v1/`、`npm run test:project --prefix tools/workflow-schema` | 確認済み（静的/合成）：193件。利用先のProject採用は任意 |
 | Project依存/wave：#30 / #31 | `tools/workflow-project/check.mjs`、`npm test --prefix tools/workflow-project` | 確認済み（静的/合成）：141件。実担当・着手の許可ではない |
-| member/ownership/capacity：#32 / #33 | `tools/workflow-project/members.mjs`、`npm run test:members --prefix tools/workflow-project` | 確認済み（静的/合成）：166件。実本人・権限・全量claimの真正性は人間確認待ち |
+| member/ownership/capacity：#32 / #33 | `tools/workflow-project/members.mjs`、`npm run test:members --prefix tools/workflow-project` | 確認済み（静的/合成）：166件。本人確認、権限の確認、全量claimの真正性の確認は、人間による確認待ち |
 | 手動Coordinator：#34 / #35 | [手順](manual-coordinator.md)、[様式](../../.ai-workflow/templates/project-manual/v1/README.md)、[机上例](../examples/project-manual/walkthrough.md) | 確認済み（文書/机上）：割当・claim・stale・release/再割当。実案件の引継・原子的排他は未検証 |
 | 集約/reconciliation：#36 / #37 | `tools/workflow-project/aggregate.mjs`、`npm run test:aggregate --prefix tools/workflow-project` | 確認済み（静的/合成）：107件。明示snapshotから集約し、実GitHub取得/自動修復は行わない |
-| 次作業推薦：#38 / #39 | `tools/workflow-project/recommend.mjs`、`npm run test:recommend --prefix tools/workflow-project` | 確認済み（静的/合成）：160件。未割当は相談まで、実操作は人間確認待ち |
+| 次作業推薦：#38 / #39 | `tools/workflow-project/recommend.mjs`、`npm run test:recommend --prefix tools/workflow-project` | 確認済み（静的/合成）：160件。未割当は相談まで、実操作は人間による確認待ち |
 
 専用テストは計1267件、固定Goldenは既存12＋Project25の37caseです。Project設計第17章1〜8に対応します。
 番号から参照する場合は[Issue一覧](https://github.com/gorillaimo/ai-driven-dev-template/issues)・[PR一覧](https://github.com/gorillaimo/ai-driven-dev-template/pulls)を使ってください。
@@ -48,12 +48,12 @@
 
 | 確認項目 | 証拠・結果 | 次の判断 |
 | :--- | :--- | :--- |
-| 新しいコピーからの導入 | 確認済み（隔離実行）：7packageをlockfile/ignore-scriptsで導入、1267件・Golden37case成功、元627fileのhash一致 | 人間確認待ち：利用先固有の構成・必要な採用範囲 |
+| 新しいコピーからの導入 | 確認済み（隔離実行）：7packageをlockfile/ignore-scriptsで導入、1267件・Golden37case成功、元の627ファイルのhash一致 | 人間による確認待ち：利用先固有の構成・必要な採用範囲 |
 | Goldenだけの依存 | 確認済み（別の隔離実行）：rules/check/trace/golden/projectの5packageでハーネス155件・固定37case成功。schema/ciのnode_modulesなし | 同じcommitのtool/schema/tests/fixtureを保持する |
-| 単一Issue・任意Project | 確認済み（明示入力例）：project_idなしで次intake、計画/member/集約pass、推薦はask_coordinator。実Project台帳を作成せず実行 | 人間確認待ち：実Issue・担当・証拠・承認・競合の確認 |
-| v1からの段階導入 | 確認済み（合成）：rules/checkを選択導入し、AGENTS/共通規約と利用先独自3fileの計5file、v1参照19file・backupを保持 | 人間確認待ち：既存規約の差分レビューと実案件への採用 |
+| 単一Issue・任意Project | 確認済み（明示入力例）：project_idなしで次intake、計画/member/集約pass、推薦はask_coordinator。実Project台帳を作成せず実行 | 人間による確認待ち：実Issue・担当・証拠・承認・競合の確認 |
+| v1からの段階導入 | 確認済み（合成）：rules/checkを選択導入し、AGENTS/共通規約と利用先独自3fileの計5file、v1参照19file・backupを保持 | 人間による確認待ち：既存規約の差分レビューと実案件への採用 |
 | 不足/非対応で停止 | 確認済み（合成）：version999とcontext欠落がschema_invalid/blocked/next_stage:null、元入力hash一致 | 自動再試行せず、契約・現在地・承認を人間が照合 |
-| 手動運用へ戻す | 確認済み（机上）：元入力/backup/利用先変更を残して合成引継記録を作成 | 実案件の停止・未push・引継・再開判断は人間確認待ち |
+| 手動運用へ戻す | 確認済み（机上）：元入力/backup/利用先変更を残して合成引継記録を作成 | 実案件の停止・未push・引継・再開判断は人間による確認待ち |
 
 ## 試用とReleaseの判断
 
@@ -62,10 +62,10 @@
 | 条件 | 現在の整理 |
 | :--- | :--- |
 | 初期schema/validator/手動運用/Golden/CIの実装 | 確認済み（静的/合成と上記の実CI）。機構の存在と実案件での運用承認を区別する |
-| v1移行/fallback、互換性・既知制約 | 合成経路を確認し文書化。実案件での採用・妥当性は人間確認待ち |
-| Security/Privacy/NFR/Resiliencyの未確認事項がstable利用を妨げない | 人間確認待ち。実本人/権限/証拠、実scope/未push/引継・実障害、他OS等を静的確認で埋めない |
-| マニュアルの使いやすさ、移行結果/fallbackの承認 | 人間確認待ち。下の観点でレビューする |
-| 対象version/commit・Release notes・公開の明示承認 | 人間確認待ち。Release専用Issue/PRで判断。現在のVERSIONは開発版のまま |
+| v1移行/fallback、互換性・既知制約 | 合成経路を確認し文書化。実案件での採用・妥当性は人間による確認待ち |
+| Security/Privacy/NFR/Resiliencyの未確認事項がstable利用を妨げない | 人間による確認待ち。実際の本人確認・権限・証拠、scope・未push変更・引継ぎ・障害対応、他OSでの動作は、静的な検証だけでは確認できない |
+| マニュアルの使いやすさ、移行結果/fallbackの承認 | 人間による確認待ち。下の観点でレビューする |
+| 対象version/commit・Release notes・公開の明示承認 | 人間による確認待ち。Release専用Issue/PRで判断。現在のVERSIONは開発版のまま |
 | Projects / Dispatcher / Runner | 未検証/任意拡張。v2初期範囲の必須条件ではなく、必要性と別承認で判断 |
 
 ### 人間がマニュアルを見直す観点
@@ -91,5 +91,5 @@
 | plan / state | 作業予定表 / 現在地と追記履歴 |
 | context / snapshot | 人間や既存ツールが確認した、その時点の状況 |
 | Quality Gates | 性能・安全性・失敗時の復旧を確認する観点 |
-| Golden Test | 固定した入力と正解見本で、運用の判定のずれを検出するテスト |
+| Golden Test | 固定した入力を使い、判定結果と正解見本の違いを検出するテスト |
 | fallback | 問題時に元記録を保ち、手動確認による運用へ戻ること |

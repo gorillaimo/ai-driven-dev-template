@@ -276,7 +276,7 @@ Project設定・開発計画・人間のメンバー台帳の記入例は`.ai-wo
 
 [手順](manual-coordinator.md)、[コメント様式v1](../../.ai-workflow/templates/project-manual/v1/README.md)、[机上例](../examples/project-manual/walkthrough.md)をまとめて参照します。
 担当割当、着手記録、進捗、解除/再割当、Coordinator交代、部分失敗の照合を、人間がGitHub Issue上で記録します。
-status_mappingとheartbeat/stale方針は導入時に合意し、操作の実状を読み戻します。stale/blocked/inactiveでも自動解放しません。
+status_mappingとheartbeat/stale方針は導入時に合意し、操作後の実際の状態を確認します。stale/blocked/inactiveでも自動解放しません。
 任意導入で、従来の単一Issue運用は継続できます。様式v1は人間向けMarkdownの版であり、既存schema/checker/CIに新しい機械契約を追加しません。
 この手動手順自体は自動割当・原子的claimを提供しません。読み取り専用の集約・推薦とProject Goldenは別の検査として利用できます。実案件の同時操作やAPI障害復旧は机上確認の保証範囲外です。
 
