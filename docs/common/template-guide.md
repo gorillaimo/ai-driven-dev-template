@@ -10,26 +10,86 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 
 初回の依頼は[セットアップ](operations-setup.md)にある新規開発・既存導入のプロンプトを使います。AIへの返答は「進めてください」で継続でき、準備後の判断やレビューは[運用マニュアル](operations-manual.md)で確認できます。詳しい依頼例は[参考資料](operations-reference.md)、コマンドは[検査ツールの利用詳細](workflow-tools-guide.md)を必要なときに参照します。v2の採用範囲と確認状況は[試用前の確認表](v2-adoption-checklist.md)、再現手順は[隔離した導入・移行例](../examples/v2-adoption/README.md)にあります。
 
-## 全体像
+## 全体像：誰が何をするか
 
-このテンプレートは、GitHub issue を作業契約にして、人間とAIエージェントが同じ前提を読みながら開発を進めるためのものです。
+**人間が目的と必要な判断を伝え、AIが記録を確認して次の作業を選び、必要なコードを呼び出して検証するテンプレートです。**
+人間が工程ごとの指示や検査コマンドを覚える負担を減らします。図では、人間を青、AIを緑、ローカルの検査コードを黄、GitHub Actionsを紫、保存する記録を灰色で示しています。矢印のラベルは、依頼・操作・入力・結果の受け渡しを表します。
+
+![人間が目的と判断を伝え、AIが記録を扱い、検査コードとGitHub Actionsから結果を受け取る関係図](../assets/template-guide/responsibility-map.svg)
+
+[図を拡大する](../assets/template-guide/responsibility-map.svg) / [Mermaidの原本](../assets/template-guide/responsibility-map.mmd)
+
+| 担当 | 行うこと |
+| :--- | :--- |
+| 人間 | 目的・優先順位を決め、必要な設計・担当調整・PRを確認し、承認やマージを判断する |
+| AI | Issue・文書・実際の作業状況から次の作業を選び、調査、Issue発行、文書更新、テスト・実装、検査、記録、PR準備を進める |
+| ローカルの検査コード | AIが用意した元入力を決められた規則で検査し、結果・不足・停止理由・次の候補を返す |
+| GitHub Actions | IssueやPR等のイベントを契機に、契約の必要項目、PRとの関連、テンプレートのテストや保存Issue成果物を検査する |
+
+AIは自然言語の規約やIssueを読みます。検査コードには、計画・状態・確認記録などをYAML/JSONの元入力として渡します。
+Issue/PRには作業契約・担当・着手・レビューの記録を残し、リポジトリには文書と各Issueの成果物を保存します。全員が手編集する共有Project状態ファイルは作りません。
+
+## 開発フロー：依頼から次の作業まで
+
+初回は[セットアップ](operations-setup.md)の依頼例を使います。AIが必要なIssueの作成や調査、全体要件・アーキテクチャ案の整理を進め、人間は不足情報への回答や必要な承認を行います。
+その後は「進めてください」で継続でき、AIが同じ手順で進捗と次の作業を確認します。
+
+![初回の依頼、AIの準備、人間の承認、実装、ローカル検査、実CIの確認、PRレビューを経て、継続依頼に戻る開発フロー](../assets/template-guide/development-flow.svg)
+
+[図を拡大する](../assets/template-guide/development-flow.svg) / [Mermaidの原本](../assets/template-guide/development-flow.mmd)
+
+図は代表的な流れです。文書のみのIssueや既存構成を継続する場合など、AIはIssueの契約と変更リスクに応じて必要な工程・検査を選びます。
+図のローカル検査はPR前の例です。計画・設計など、各工程の区切りでも必要に応じて実行します。
+「次工程の条件」には、人間の担当者、ready-for-ai、既存作業との競合、依存関係、必要な承認の確認も含みます。検査の成功だけで承認済み・作業完了とは判断しません。
+不足・失敗・未確認事項があれば、その理由を確認して修正や人間への相談に戻ります。PRのCIが未実行の状態も成功として扱いません。
+
+複数人・複数AIでの作業が必要になったら、AIが[担当調整の手順](manual-coordinator.md)から必要な箇所と判断事項を案内します。マージ・本番反映・Releaseは、それぞれの対象と影響を確認して判断します。
+
+## コードが担当する領域
+
+### ローカルの検査ツール
+
+これらは開発管理用のNode.jsコードです。開発するアプリの言語や本番runtimeは問いません。必要な検査をAIや開発者が呼び出し、元入力を渡して使います。
+
+| コード | 主な入力 | 返す結果・確認すること |
+| :--- | :--- | :--- |
+| `tools/workflow-schema/` | 同梱のIssue/Project成果物・調査結果の記入例とテスト入力 | schemaで定義した形式への適合をテストする。任意ファイルを指定する汎用CLIではない |
+| `tools/workflow-rules/` | ルールのmetadataと適用条件 | 適用するルールと順序、依存・競合・未知条件。既存規約を常時維持する |
+| `tools/workflow-check/` | 計画・状態・履歴と確認記録 | 工程や改訂の整合性、停止理由、再開する工程の候補 |
+| `tools/workflow-trace/` | 受け入れ条件・設計・テスト・検証等の対応表 | 対応漏れや参照先の不整合 |
+| `tools/workflow-project/` | 計画・メンバー台帳、確認済みの担当やIssueの情報 | 開発順序・担当条件・進捗の集約・次の作業候補。採用は任意 |
+| `tools/workflow-golden/` | 固定した入力と正解見本 | テンプレートの判定が見本から変わっていないか。既存12＋Project25の37ケースを比較 |
+| `tools/workflow-ci/` | 保存されたIssue成果物 | 形式や識別子・参照の整合性。保存Projectの自動走査は行わない |
+
+検査コードが返すpassや候補は、担当の確定や実行の承認ではありません。GitHubの実状態・本人・権限・証拠の確認は、AIや人間が接続ツール等で行い、必要な記録を元入力へ反映します。`workflow-project`自体が実GitHubを収集・更新することはありません。
+
+### GitHub Actionsで自動実行する検査
+
+| 契機 | workflow | 行うこと |
+| :--- | :--- | :--- |
+| Issueの作成・更新等 | `issue-contract-check.yml` | 必要項目の有無を調べ、ready-for-ai/needs-info等のラベルや不足のコメントを反映する。仕様や承認の妥当性は判断しない |
+| PRの作成・更新等 | `pr-issue-link-check.yml` | 対応Issueのリンクと「実行した検証」の記載を確認する |
+| PRの作成・更新、main更新、手動起動 | `workflow-validation.yml` | Node.js 22/24でテンプレートの静的テスト・Golden Test・保存Issue成果物の検査を実行する |
+
+`Workflow Validation`は読み取り専用です。Issue契約チェックによるラベル更新と区別し、自動承認・マージ・デプロイは行いません。
+AIが実際のstep/logを確認し、結果と未検証事項をPRへまとめます。
+
+### 開発するアプリのコードとテスト
+
+アプリの機能、API、画面、データ処理などは、AIが承認された範囲で実装し、そのアプリに適したテストを用意して実行します。
+上記のテンプレート運用テストとは別に、利用先アプリのbuild/testやCIを設定します。このテンプレートの`Workflow Validation`がアプリのテストまで自動実行するわけではありません。
+具体的なコマンドと入力・結果の読み方は[検査ツールの利用詳細](workflow-tools-guide.md)を参照してください。
 
 ## バージョンとリリース
 
 - 公開済みstable: `v1.0.0`
-- `main`: v2 development line
-- 現在の目標version: ルート`VERSION`を参照
-- 変更履歴: `CHANGELOG.md`
-- release基準: `docs/common/versioning-policy.md`
-- v1からv2への移行: `docs/common/migration-v1-to-v2.md`
+- `main`: v2開発版。現在の目標versionはルート`VERSION`を参照
+- 変更履歴: [CHANGELOG](../../CHANGELOG.md)
+- Release基準: [バージョン方針](versioning-policy.md)
+- 移行と試用: [移行ガイド](migration-v1-to-v2.md) / [試用前の確認表](v2-adoption-checklist.md)
 
-v1はIssue、assignee、prompt、人間承認を中心とする軽量な文書駆動baselineです。v2はIssue #8のadaptive workflowとIssue #9のproject orchestrationを段階的に追加します。現在の`main`ではIssue成果物のschema v1、template、同梱例の形式テストとモジュール式ルールのオフライン解決libraryを提供します。計画・状態・再開候補の静的checkerも利用できます。追跡性checkerとBrownfieldの手順・深度別テンプレートも利用できます。オフラインGolden TestとIssue内部のActions統合も利用できます。Projectの3成果物schema・合成記入例・形式テストも利用できます。依存DAG・wave・計画改訂の読み取り専用validatorも利用できます。member/ownership/capacityのsnapshot検査も利用できます。手動Coordinatorの手順・コメント様式・机上例も利用できます。明示snapshotの進捗集約・不整合検出も利用できます。読み取り専用の次作業推薦とProjectを含む固定37caseのGolden Testも利用できます。実GitHubの自動取得・更新は後続対応です。工程の自動実行は提供しません。
-
-template release versionと各成果物の`schema_version`は独立しています。template v2で最初に導入するschemaが`schema_version: 1`でも問題ありません。利用先projectでは、このrepositoryの`VERSION`をアプリケーションversionと混同しないでください。
-
-### 開発フロー
-
-![AI駆動開発テンプレートの開発フロー](../assets/template-guide/development-flow.svg)
+v1は文書と人間承認を中心に進める運用です。v2には、Issueの計画・状態・再開候補・対応関係や、任意のProject計画・メンバー確認・集約・推薦を検査する機構を追加しています。提供状況と保証範囲は上記の確認表にまとめています。
+template本体のversionと成果物の`schema_version`は独立しており、template v2で`schema_version: 1`を使っていても矛盾しません。`VERSION`は利用先アプリのversionとは別です。
 
 ## 目的
 
@@ -68,6 +128,14 @@ template release versionと各成果物の`schema_version`は独立していま�
 - `docs/common/versioning-policy.md`: template release、pre-release、schema version、保守branchの方針
 - `docs/common/migration-v1-to-v2.md`: v1からv2への段階移行とfallback
 - `docs/common/operations-manual.md`: 人間向けの具体的な運用手順
+- `docs/common/operations-setup.md`: 初回の依頼とAIによる導入準備
+- `docs/common/operations-reference.md`: 詳しい依頼例・レビュー・設定資料
+- `docs/common/workflow-tools-guide.md`: 検査ツールのコマンドと入出力
+- `docs/common/manual-coordinator.md`と`manual-coordinator-reference.md`: 担当調整の案内と詳細手順
+- `docs/common/v2-adoption-checklist.md`: 実装・検証・試用前の人間確認の対応
+- `tools/workflow-project/`: Projectの計画・担当条件・集約・次作業候補の検査
+- `tools/workflow-golden/`: 固定した入力と正解見本の比較
+- `tools/workflow-ci/`: 保存Issue成果物の検査
 - `docs/common/quality-gates.md`: NFR、Security、Resiliency の品質ゲート
 - `docs/common/template-guide.md`: テンプレート本体の説明、公開設定、利用時の読み替えガイド
 - `docs/common/issue-template.md`: issue本文テンプレート

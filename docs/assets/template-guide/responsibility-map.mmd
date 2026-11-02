@@ -1,0 +1,32 @@
+flowchart TB
+  accTitle: v2テンプレートの役割と情報の受け渡し
+  accDescr: 人間が目的と判断を伝え、AIが文書とGitHubの記録を確認して作業する。検査コードは元入力から結果や候補を返し、GitHub ActionsはIssueとPRの更新に応じて検査する。
+
+  human["人間<br/>目的・優先順位を決める<br/>必要な承認とレビューを行う"]
+  ai["AI<br/>次の作業を選ぶ<br/>文書・コード・テストを準備する"]
+  docs[("文書・YAML<br/>規約・設計・計画・状態")]
+  local["ローカルの検査コード<br/>元入力を検査し、結果・候補を返す"]
+  github[("GitHub Issue・PR<br/>作業契約・担当・着手・レビューの記録")]
+  actions["GitHub Actions<br/>Issue契約・PR記載・運用テスト"]
+
+  human -->|目的・継続依頼・判断| ai
+  ai -->|質問・提案・結果報告| human
+  ai -->|読む・承認範囲で更新| docs
+  ai -->|必要な検査を呼び出す| local
+  docs -->|検査対象の元入力| local
+  local -->|結果・停止理由・次の候補| ai
+  ai -->|確認・依頼に沿って発行や更新| github
+  github -->|Issue・PRの更新イベント| actions
+  actions -->|検査結果・不足項目| ai
+  actions -->|契約チェックの結果をラベルへ反映| github
+
+  classDef human fill:#e8f0fe,stroke:#315da8,color:#163260,stroke-width:2px
+  classDef ai fill:#e8f5ec,stroke:#28744d,color:#17472f,stroke-width:2px
+  classDef code fill:#fff3d6,stroke:#916000,color:#5a3b00,stroke-width:2px
+  classDef actions fill:#f0eafa,stroke:#7750a5,color:#493064,stroke-width:2px
+  classDef record fill:#f1f5f9,stroke:#64748b,color:#243447,stroke-width:1.5px
+  class human human
+  class ai ai
+  class local code
+  class actions actions
+  class docs,github record
