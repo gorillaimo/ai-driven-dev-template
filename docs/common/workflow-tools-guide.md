@@ -477,7 +477,7 @@ JSONもYAMLも読めますが、contextを共有Project stateとして手編集�
 
 ## 手動で担当割当・着手・引き継ぎを行う
 
-[手動Coordinator運用](manual-coordinator.md)に、status mapping、担当確定、claim（着手記録）、heartbeat（明示的な進捗確認）、stale警告、解除・再割当・交代と部分失敗の復旧をまとめています。
+[担当調整の案内](manual-coordinator.md)を入口に、[詳細手順](manual-coordinator-reference.md)でstatus mapping、担当確定、claim（着手記録）、heartbeat（明示的な進捗確認）、stale警告、解除・再割当・交代と部分失敗の復旧を確認できます。
 [6種類のコメント様式](../../.ai-workflow/templates/project-manual/v1/README.md)を実Issueへコピーし、人間が確認して追記します。最初に[机上検証例](../examples/project-manual/walkthrough.md)を辿ってください。
 
 1. 人間のCoordinatorが契約・承認・依存・担当条件・全量active claim・実scope競合を確認し、人間owner1人と引受を確定します。
