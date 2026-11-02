@@ -2,6 +2,8 @@
 
 このドキュメントは、AI Driven Development Template本体のrelease version、release channel、互換性、保守、成果物schemaとの境界を定義する。
 
+初期実装とRelease条件の現在の対応は[試用前の確認表](v2-adoption-checklist.md)を参照する。Issue #42の文書・導入確認が完了してもReleaseを自動作成しない。マニュアルレビューと残る確認事項の判断後、対象version/commit・Release notes・公開承認を別Issue/PRで扱う。
+
 ## 1. 現在の状態
 
 - 公開済みstable: `v1.0.0`
@@ -239,7 +241,7 @@ canonical digestは対象台帳と入力の識別、checker_versionは計算規�
 context/checkpoint/resultは`.ai-workflow/schemas/project-aggregate/v1/`へ独立配置します。既存Project/Issue/checkerのschema v1や計算規則を変更しません。
 新schema_version:1はtemplate VERSION・aggregator_version・Markdown様式v1とは別です。coreのfield/enum/型/必須性など受理集合の変更は新schema majorへ追加します。
 入力digestは内容の識別、checkpointはevent prefix照合用であり、実GitHubや承認者・生成者の認証ではありません。人間向けコメントを自動解釈する契約にもなりません。
-元台帳/Issue成果物/導入commitを保持して明示導入し、非対応/破損/改訂時は暗黙変換しません。詳細はoperations-manualの集約手順を参照します。
+元台帳/Issue成果物/導入commitを保持して明示導入し、非対応/破損/改訂時は暗黙変換しません。詳細は[検査ツールの集約手順](workflow-tools-guide.md#project-aggregate)を参照します。
 導入しない単一Issue運用、legacy always-on規約、手動Coordinatorへのfallbackを維持します。この追加でalpha/stable Releaseを公開しません。
 
 ## Project recommendation v1の互換性
@@ -247,7 +249,7 @@ context/checkpoint/resultは`.ai-workflow/schemas/project-aggregate/v1/`へ独�
 project-recommend/v1/context・resultは任意追加の独立契約です。template VERSION、既存Issue/Project/member/aggregate/checkerのschema・受理集合・規約・依存lockfileを変更しません。`recommender_version:1.0.0`は推薦実装の識別子で、template Releaseの公開を意味しません。
 contextは原本revision/digestと観測条件へ束縛し、未知core/versionは拒否します。resultは元入力から再計算する提案であり、担当/claim/承認の正本や次回の許可として流用しません。
 新規相談/claim依頼には人間確認、すべての提案には実行前再確認が必要です。既存checkerの停止条件とlegacy always-onルールを維持します。破損時は元記録を保ち手動Coordinatorへ戻します。
-保証範囲・上限・利用例は[運用マニュアル](operations-manual.md)を参照してください。Project全体Golden・実運用確認は後続対応で、alpha/stable Releaseは作成しません。
+保証範囲・上限・利用例は[検査ツールの利用詳細](workflow-tools-guide.md)を参照してください。Projectを含む共通Golden Testは利用できます。実運用確認は別途必要で、alpha/stable Releaseは作成しません。
 
 ## Project Goldenの互換性
 

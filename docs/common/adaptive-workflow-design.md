@@ -734,9 +734,9 @@ plan adapterは入力planへ再解決したrule結果を投影し、workflow ada
 ### 11.1 実装済みのWorkflow Validation
 
 `.github/workflows/workflow-validation.yml`は既存2workflowと独立し、全PRのopened/synchronize/reopened/ready_for_review、main push、手動で起動する。
-pathsフィルターを使わず、UbuntuのNode.js 22/24で既存のschema/rules/workflow/trace/Brownfield/Goldenテスト、新CIテスト、Golden固定case、保存Issue成果物検査を実行する。
+pathsフィルターを使わず、UbuntuのNode.js 22/24で既存のschema/rules/workflow/trace/Brownfield/Goldenテスト、Projectの形式/計画/member/集約/推薦テスト、新CIテスト、Golden固定case、保存Issue成果物検査を実行する。
 対象はテンプレートの開発管理機構で、アプリケーション自身のbuild/test/deployは実行しない。
-6つの専用packageをlockfileに従いinstall scripts無効で導入し、依存取得後の検査はオフラインで動く。
+7つの専用packageをlockfileに従いinstall scripts無効で導入し、依存取得後の検査はオフラインで動く。
 公式checkout/setup-nodeを確認したcommit SHAへ固定し、contents:read、persist-credentials:false、fetch-depth:1を使う。PRでは既定のmerge commitを検査する。
 Secrets、write権限、OIDC、pull_request_target、キャッシュ、原文artifact upload、外部AI、PR本文のshell展開を使わない。
 Node matrixはfail-fast:false、同一PR/refの古い実行だけをcancelし、各jobの目標10分/timeout15分を設定する。

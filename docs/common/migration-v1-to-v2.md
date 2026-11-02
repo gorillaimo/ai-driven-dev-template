@@ -2,12 +2,14 @@
 
 このドキュメントは、v1の文書・prompt中心のIssueベース運用から、v2のadaptive workflowとproject orchestrationへ段階移行する方針を定義する。
 
+移行前に[試用前の確認表](v2-adoption-checklist.md)で採用する範囲を選び、[隔離した導入・移行例](../examples/v2-adoption/README.md)で手順を確認する。合成例の成功は実案件への移行承認ではない。利用先の規約・未pushの作業・履歴は保持して差分をレビューする。
+
 ## 1. 現在の注意事項
 
 - v1 stable: `v1.0.0`
 - v2: development line
 - `v2.0.0`stable Release: 未公開
-- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。追跡性checkerとBrownfield手順・深度別テンプレートも利用できる。Golden TestとIssue内部のActions統合も利用できる。Projectの3成果物schema・合成記入例・形式テストも利用できる。Projectの依存DAG・wave・計画改訂validatorも利用できる。member/ownership/capacityのsnapshot検査も利用できる。手動Coordinatorの手順・コメント様式・机上例も利用できる。明示snapshotの進捗集約・不整合検出も利用できる。実GitHubの自動取得・推薦は後続実装。工程は自動実行しない
+- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。追跡性checkerとBrownfield手順・深度別テンプレートも利用できる。Golden TestとIssue内部のActions統合も利用できる。Projectの3成果物schema・合成記入例・形式テストも利用できる。Projectの依存DAG・wave・計画改訂validatorも利用できる。member/ownership/capacityのsnapshot検査も利用できる。手動Coordinatorの手順・コメント様式・机上例も利用できる。明示snapshotの進捗集約・不整合検出も利用できる。読み取り専用の次作業推薦とProjectを含む固定37caseのGolden Testも利用できる。実GitHubの自動取得・更新は後続対応。工程は自動実行しない
 
 設計文書が存在するだけで、AIが状態管理、自動再開、次Issue選択、claim、複数人調整を自動実行できるとは扱わない。対応する後続実装Issueが完了した機構だけを有効化する。
 
@@ -68,7 +70,7 @@ v1運用が要件を満たす場合、移行は必須ではない。
 - `project_id`、`feature_id`、`actor_ref`、`on_behalf_of`、標準event。
 - schema validationと参照整合check。
 
-Issue成果物にはschema v1、テンプレート、同梱例の形式テストがあり、状態・履歴・再開候補は静的checkerで検査できる。宣言されたACの対応経路と対応するローカル参照は追跡性checkerで検査できる。外部到達性・自然言語・テスト成功の実証は人間の確認が必要。`operations-manual.md`の「Issue成果物テンプレートの利用」に従い、形式と実際のIssue記録を分けて確認する。
+Issue成果物にはschema v1、テンプレート、同梱例の形式テストがあり、状態・履歴・再開候補は静的checkerで検査できる。宣言されたACの対応経路と対応するローカル参照は追跡性checkerで検査できる。外部到達性・自然言語・テスト成功の実証は人間の確認が必要。[検査ツールの「Issue成果物テンプレートの利用」](workflow-tools-guide.md#issue-artifacts)に従い、形式と実際のIssue記録を分けて確認する。
 
 最初のv2成果物schemaが`schema_version: 1`でも、template v2と矛盾しない。
 
@@ -233,7 +235,7 @@ GitHubの実status/assignee/claimを静的台帳へ複製せず、共有Project 
 形式適合する循環・重複ID・古い確認記録等が意味検査でblockされる場合、人間が元データと差分を照合します。unknown条件を推測でsatisfiedへ変更しません。
 waveとdependency_candidatesは担当・claim・着手権を確定せず、進行中作業を自動移動しません。member/ownership/実権限/capacity/実在/本人性/全過去原本は別途確認します。
 導入手順と実行例は運用マニュアルの「機能の依存関係と開発順序を検査する」、計算規則と上限はproject-orchestration-design第8.4節を参照してください。
-保存Project自動走査、Project Golden、自動割当・集約は後続対応です。修復不能なら元台帳を保持し、個別Issueと手動Coordinatorへ戻せます。Releaseは別の承認事項です。
+明示snapshotの集約・推薦とProject Goldenは利用できます。保存Projectの自動走査と自動割当は対象外です。修復不能なら元台帳を保持し、個別Issueと手動Coordinatorへ戻せます。Releaseは別の承認事項です。
 
 ## member・ownership・capacity検査の追加導入
 
@@ -244,7 +246,7 @@ contextの合成例は実際の権限・本人性・claimの証拠にせず、�
 Issue単位のowner上書きはrequest.owner_overridesのIssue/work/areaとCoordinator approvalに限定し、静的なteamの既定所有を変更しません。
 新検査でblockされても、古いresultの流用・不明な承認の作成・stale claimの自動解放は行いません。元入力を保持して人間が確認し、再実行します。
 eligibleは提出された条件適合だけで、担当変更・claim開始・実認証を意味しません。従来のIssue/assignee/着手コメント/branch/PRと手動Coordinatorへfallbackできます。
-実行例と結果は運用マニュアル、計算規則・上限・未評価はproject-orchestration-design第9.4節を参照してください。Release、Project全体Golden、実API collectorは別途対応です。
+実行例と結果は[検査ツールの利用詳細](workflow-tools-guide.md)、計算規則・上限・未評価はproject-orchestration-design第9.4節を参照してください。Projectを含む共通Golden Testは利用できます。Releaseと実API collectorは別途対応です。
 
 ## 手動Coordinator様式の追加導入
 
@@ -254,7 +256,7 @@ eligibleは提出された条件適合だけで、担当変更・claim開始・�
 既存着手記録を新しいclaimとして二重登録せず、所有・変更scope・作業と元記録を照合して関連参照を追記します。既存schemaや結果を暗黙変換しません。
 コメント様式v1はschema_versionとは別です。既存Project/Issue schema、checker、CI、always-on規約、VERSIONを変更しません。
 確認不能や部分失敗では新規割当を保留し、元記録を残して従来のIssue/assignee/着手コメント/branch/PRへ人間判断で戻します。未解消claimは消さず個別に照合します。
-机上確認は実案件の排他・GitHub障害の試験ではありません。自動集約・推薦・Project全体Golden、alpha/stable公開は別途対応です。
+机上確認は実案件の排他・GitHub障害の試験ではありません。読み取り専用の集約・推薦とProject Goldenは別の検査として利用できます。実GitHubの自動取得・更新とalpha/stable公開は別途対応です。
 
 ## Project進捗集約の追加導入
 
@@ -262,19 +264,19 @@ eligibleは提出された条件適合だけで、担当変更・claim開始・�
 人間がGitHub記録とIssue元成果物を取得・確認し、対象ID/revision/digest・観測時刻・全量取得範囲を明示したsnapshotへ投影します。取得そのものやMarkdown様式の解析は行いません。
 managed/legacyを明示し、未採用の内部工程を無理に補完しません。チェック結果だけで担当・claim・承認・完了を確定せず、人間が実状を確認します。
 checkpointは元データとともに保持し、取得不能や入力不整合で既確認Issueを削除しません。計画revision/digest変更時は人間が元履歴を保持し、checkpointなしで全量再集約する判断を明示します。
-実際の入力方法、出力の未評価範囲・上限・停止/復旧は[運用マニュアル](operations-manual.md)を参照してください。復旧不能なら手動Coordinator/従来Issue運用へ戻します。
-実GitHubの自動取得・自動修復/解放・推薦/Project全体Golden・Releaseは別途対応です。
+実際の入力方法、出力の未評価範囲・上限・停止/復旧は[検査ツールの利用詳細](workflow-tools-guide.md)を参照してください。復旧不能なら手動Coordinator/従来Issue運用へ戻します。
+推薦とProject Goldenは利用できます。実GitHubの自動取得・自動修復/解放とReleaseは別途対応です。
 
 ## 次作業推薦の追加導入
 
 必要な場合だけ、既存rules/check/projectの依存とschema一式に、projectのrecommend用modulesとproject-recommend/v1、合成例を追加参照します。既存規約・schema・依存lock・VERSIONを変更せず、単一Issue運用も継続できます。
 人間/既存接続ツールで元記録・人間/AIへの依頼・権限・全量claim・契約/承認/範囲を確認し、推薦contextと集約元入力を明示します。代理実行は人間ownerと根拠、既存claimは今回のagentと引継ぎを照合します。
 元入力を再検査し、待機/不明/不整合では別Issueを取得しません。未割当はCoordinator相談まで、legacyの既存工程は手動確認です。結果で担当/claim/stage/履歴を自動更新しません。
-利用手順・停止理由・上限・未評価範囲は[運用マニュアル](operations-manual.md)を参照し、復旧不能なら元記録を保ち手動Coordinatorへ戻します。保存Project走査・Project全体Golden・実GitHub取得/操作・Releaseは別途対応です。
+利用手順・停止理由・上限・未評価範囲は[検査ツールの利用詳細](workflow-tools-guide.md)を参照し、復旧不能なら元記録を保ち手動Coordinatorへ戻します。Projectを含む共通Golden Testは利用できます。保存Project走査・実GitHub取得/操作・Releaseは別途対応です。
 
 ## Project Golden Testの追加導入
 
 同じtemplate commitのGolden tool/tests/fixture一式を保持し、既存workflow-projectの依存も導入します。既存12caseと追加25caseを同じ命令で検証し、必要caseを省略したsuiteは失敗します。利用先Projectの設定や実状態をコピーする必要はありません。
 既存format_version:1の比較/禁止/normalize規則は保持しますが、4つの新adapterと未選択時のreport行が追加されます。既存成果物schema/checker/規約/VERSION・依存lockの移行は不要です。
-導入方法・手動見本更新・第16章対応は[運用マニュアル](operations-manual.md)と[固定例](../examples/project-golden/README.md)を参照してください。失敗時に元データを修復せず、保存した旧一式・個別checker・手動Coordinatorへ戻ります。
+導入方法・手動見本更新・第16章対応は[検査ツールの利用詳細](workflow-tools-guide.md)と[固定例](../examples/project-golden/README.md)を参照してください。失敗時に元データを修復せず、保存した旧一式・個別checker・手動Coordinatorへ戻ります。
 実GitHub操作、原子的claim、実Dispatcher停止/復旧、AI意味評価、保存Project走査は対象外です。CI成功からalpha/stable Releaseを作成しません。
