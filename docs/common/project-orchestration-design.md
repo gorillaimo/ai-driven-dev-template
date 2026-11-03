@@ -580,6 +580,8 @@ result v1はinput_digest、revision/digest/時刻、人間/agent、status:pass|b
 
 ## 12. 自動DispatcherとAgent Runner
 
+担当Issueの有限バッチ、共通の検証・別AIレビュー・セキュリティ検査、Issue間の統合検証については、[自律並行開発の追加設計案](autonomous-development-design.md)を参照する。これはIssue #44の提案・詳細設計承認待ちの資料であり、本章や既存v1契約の動作を変更せず、Dispatcher/Runnerを有効化しない。
+
 ### 12.1 Dispatcher
 
 自動割当を導入する場合、各AIがGitHubから自由にIssueを選ぶ方式は採用しない。中央Dispatcherをclaim確定のsingle writerとし、同一repository / projectの割当処理を直列化する。
