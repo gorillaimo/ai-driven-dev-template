@@ -1,13 +1,14 @@
-# 継続依頼を起点とする担当Issueの自律開発・検証・AIレビュー設計案
+# 継続依頼を起点とする担当Issueの自律開発・検証・AIレビュー設計
 
-## 1. 状態と採用案
+## 1. 状態と採用方針
 
-- 状態: **提案・人間の詳細設計承認待ち**。Issue #44の設計資料。
+- 状態: **設計承認済み（2026-11-03、gorillaimo）**。Issue #44の設計資料。PR #45のmain反映は別途確認する。
+- 承認対象: PR #45 head `30b4cbfdc8e65d5ae95699ad30ed12ab153bae81`の設計。[会話での人間承認を記録したIssueコメント](https://github.com/gorillaimo/ai-driven-dev-template/issues/44#issuecomment-6607335179)を参照。AIによる転記をGitHub本人のPR Reviewや実行用grantとは扱わない。
 - 基準: PR #43マージ後のmain `991cefadf876a65f6bd51e9b26ac359ee44a21ce`。
-- 本文は将来の契約案であり、機能の提供開始や実行許可を意味しない。コード・規約・既存schema・CI・VERSIONは変更しない。
+- 本文は実装前の設計であり、機能の提供開始や実行許可を意味しない。コード・規約・既存schema・CI・VERSIONは変更しない。
 - 人間の担当はGitHubのassignee。AI名は実行者の識別に使い、人間の責任者と区別する。
 
-採用を提案する内容:
+採用する方針:
 
 1. 「進めてください」等の依頼を起点に、AIがGitHub Issue/PRと作業記録を調べ、依頼元の人間が担当するIssueから進められる作業を選ぶ。
 2. 単一Issueでも使える検証・別AIレビュー・セキュリティ検査を先に整える。
@@ -19,7 +20,7 @@
 
 **中心となる動作は、継続依頼→AIによる作業選択→可能な範囲で複数Issueを自律的に進行→人間への報告である。** 昼夜や人間の在席を条件にしない。「夜に依頼して朝に結果を確認する」は利用例の1つで、報告を朝まで遅らせたり、夜間用の別工程を必須にしたりしない。
 
-具体的な上限値と最初のAIツールも提案するが、設計承認と実行時の承認を分ける。既存の[Project統制設計](project-orchestration-design.md)・[Issue内部の設計](adaptive-workflow-design.md)を置き換えない。
+具体的な上限値と最初のAIツールは後続実装と能力試験でも確認し、設計の合意と実行時の承認を分ける。既存の[Project統制設計](project-orchestration-design.md)・[Issue内部の設計](adaptive-workflow-design.md)を置き換えない。
 
 ## 2. 人間とAIの流れ
 
@@ -296,9 +297,19 @@ GitHubにはcommitに束縛した要約/Check等を接続する案とするが�
 
 v2 stableの現在の必須条件は[versioning-policy](versioning-policy.md)第5章を維持する。Dispatcher/Runnerは任意拡張とし、本設計だけでstableの必須範囲や公開時期を変更しない。セキュリティの実施範囲・既知制約をRelease判断で明示し、未提供の検査や無人実行を利用可能と宣伝しない。
 
-## 12. 後続実装の分割案
+## 12. 後続実装計画
 
-P1〜P7は計画項目IDであり、GitHub Issue番号ではない。詳細設計の承認後に必要なIssueを発行し、GitHubが返した実番号を記録する。
+P1〜P7は計画項目IDであり、GitHub Issue番号ではない。設計承認後に発行した実装Issueは以下のとおり。各Issueの発行は、依存完了・個別の実装設計承認・実環境の有効化を意味しない。
+
+| 項目 | 実装Issue | 主な着手前提 |
+| :--- | :--- | :--- |
+| P1 | [Issue #46](https://github.com/gorillaimo/ai-driven-dev-template/issues/46) | PR #45のmain反映 |
+| P2 | [Issue #47](https://github.com/gorillaimo/ai-driven-dev-template/issues/47) | #46 |
+| P3 | [Issue #48](https://github.com/gorillaimo/ai-driven-dev-template/issues/48) | #46 |
+| P4 | [Issue #49](https://github.com/gorillaimo/ai-driven-dev-template/issues/49) | #48 |
+| P5 | [Issue #50](https://github.com/gorillaimo/ai-driven-dev-template/issues/50) | #47・#49 |
+| P6 | [Issue #51](https://github.com/gorillaimo/ai-driven-dev-template/issues/51) | #47・#48。Runner接続・最終完了には #50 も必要 |
+| P7 | [Issue #52](https://github.com/gorillaimo/ai-driven-dev-template/issues/52) | #50・#51 |
 
 | 項目・依存 | 目的・主な変更候補 | 受け入れ条件・先行テスト |
 | :--- | :--- | :--- |
@@ -348,7 +359,7 @@ P1〜P7は計画項目IDであり、GitHub Issue番号ではない。詳細設�
 | AC11: アプリと基盤のセキュリティ | 第6・8章 |
 | AC12: 未評価・例外・定期・CI段階導入 | 第8・12〜13章 |
 
-## 14. Quality Gatesと承認時に確認する点
+## 14. Quality Gatesと実装前の確認事項
 
 | Gate | 設計で扱うこと | 未実証・後続で確認すること |
 | :--- | :--- | :--- |
@@ -356,7 +367,7 @@ P1〜P7は計画項目IDであり、GitHub Issue番号ではない。詳細設�
 | Security | 人間承認、最小権限、隔離、scanner/負のテスト、別AIレビュー、秘密の保護 | 実ツールの対応/通信/版、実sandbox境界、実アプリの脆弱性と修正品質 |
 | Resiliency | 排他、操作ID、世代、途中記録、停止/再開・手動復帰 | 実同時実行、電源断/API障害、子プロセス停止、未push保存・引継ぎ |
 
-今回の承認対象は、継続依頼を起点にAIが許可範囲内の担当Issueを選んで進め報告する方式、実行量と権限の上限、既存v1から分離した自動方式、共通検証/別AIレビュー/セキュリティ工程、段階実装とその保証境界。次は実装Issueで確認する。
+本設計では、継続依頼を起点にAIが許可範囲内の担当Issueを選んで進め報告する方式、実行量と権限の上限、既存v1から分離した自動方式、共通検証/別AIレビュー/セキュリティ工程、段階実装とその保証境界に合意した。次の詳細は実装Issueで提示・確認する。
 
 - 最初のadapter候補と能力試験結果、具体的な実行基盤/隔離方式。
 - 第4.3章の提案値、実際の費用上限・単位・観測/強制方法。

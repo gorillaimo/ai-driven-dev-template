@@ -580,7 +580,7 @@ result v1はinput_digest、revision/digest/時刻、人間/agent、status:pass|b
 
 ## 12. 自動DispatcherとAgent Runner
 
-継続依頼を起点にAIが担当Issueを選んで自律的に進める方式、共通の検証・別AIレビュー・セキュリティ検査、Issue間の統合検証と人間への報告については、[自律並行開発の追加設計案](autonomous-development-design.md)を参照する。これはIssue #44の提案・詳細設計承認待ちの資料であり、本章や既存v1契約の動作を変更せず、Dispatcher/Runnerを有効化しない。
+継続依頼を起点にAIが担当Issueを選んで自律的に進める方式、共通の検証・別AIレビュー・セキュリティ検査、Issue間の統合検証と人間への報告については、[自律並行開発の追加設計](autonomous-development-design.md)を参照する。これはIssue #44で設計承認済み・後続実装前の資料であり、本章や既存v1契約の動作を変更せず、Dispatcher/Runnerを有効化しない。
 
 ### 12.1 Dispatcher
 
