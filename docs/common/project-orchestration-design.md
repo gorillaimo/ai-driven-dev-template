@@ -339,7 +339,7 @@ not_evaluatedは権限/member/capacity、参照実在、承認本人性、snapsh
 上限は1file 1 MiB、current/previous合計5 MiB、JSON深さ32/200000node。
 各snapshotはfeature1000、area200、依存辺/constraint/Issue参照/featureのarea参照/areaのpath各総数10000、history100、history内影響ID/wave各総数10000。
 diagnostic1000・結果1 MiB。診断の蓄積にもbyte予算を設け、超過は打切りblock。1000feature/10000edgeのcold実行目標5秒（依存取得除外）を合成例で検証する。
-schema、決定性、非変更、通信/command非実行、境界、改訂・待機を専用テストで確認する。これは後続のProject Golden Testや実プロジェクト導入試験の代替ではない。
+schema、決定性、非変更、通信/command非実行、境界、改訂・待機を専用テストで確認する。この専用テストと、実装済みの共通Project Golden Testは別の検査であり、実プロジェクト導入試験の代替ではない。
 結果のpassや候補はassignee/claim/承認/着手の代替ではない。member、ownership、capacity、実参照、全過去原本の監査は別途確認する。
 
 ## 9. メンバー確認と割当可能性
@@ -431,7 +431,7 @@ not_evaluatedはGitHub/証拠真正性、実時刻/inventory全量の真正性�
 上限は1file 1 MiB、合計5 MiB、JSON深さ32/200000node、member/fact/Coordinator登録1000、area/要求area/override200、active claim10000。
 area path/member-area/member-owner/Coordinator-area各参照総数10000、診断1000/結果1 MiB。過大な診断も打切りblockする。
 1000member/200area/10000claimの直接API用合成fixtureでcold5秒目標（依存取得除外）を検証する。file loaderの1file上限は別途適用する。
-Node22/24の専用テストは既存Workflow Validationへ接続する。Project全体Golden、実案件の認証・membership取得の自動化、自動割当は後続対応である。手動割当は第10.6節の手順を参照する。
+Node22/24の専用テストは既存Workflow Validationへ接続する。共通Project Golden Testも利用できる（第16.1節）。実案件の認証・membership取得の自動化、自動割当は後続対応である。手動割当は第10.6節の手順を参照する。
 
 ## 10. Coordinator、claim、競合防止
 
@@ -505,7 +505,7 @@ paused/blocked/in_review/inactive/staleでも解除確定までcapacityへ含め
 8statusはstatus_mapping先labelで手動表示し、ready-for-ai/assignee/内部stage/open・closedとは区別する。label不整合や部分失敗では新規割当・着手を保留し、元操作IDと現状を人間が照合する。
 同Issue/共有areaの操作担当は1人。複数areaでは関係Coordinatorが合意し、交代は旧担当停止・引継受領・設定PR反映を確認して切り替える。
 コメント様式v1は人間向けの版でschema_versionではなく、parser/reducerや自動冪等性・原子的claim・自動stale解放を提供しない。
-机上確認はライブ同時操作やAPI障害復旧の実証ではない。実GitHubの同期・自動修復は後続Issueとする。Project Goldenの静的検証は第16.1節を参照する。読み取り専用の集約・推薦は第13.0・11.1節を参照する。
+机上確認はライブ同時操作やAPI障害復旧の実証ではない。実GitHubの同期・自動修復は後続Issueとする。Project Goldenの静的検証は第16.1節を参照する。読み取り専用の集約・推薦は第13.0・11.6節を参照する。
 
 ## 11. AI主導の次タスク提案
 
@@ -560,7 +560,7 @@ AIは次を短く提示する。
 
 停止時は、理由、影響、確認先、再開条件を提示する。
 
-### 11.1 オフライン推薦APIの契約
+### 11.6 オフライン推薦APIの契約
 
 `recommendNextWork({project,deliveryPlan,team,aggregate,planning,context})`は、確認済み原本から次の1作業を計算する読み取り専用関数とする。`aggregate`は集約context/workflowsと任意checkpoint、`planning`はreplan_decisionsと任意previous（project/deliveryPlan/context）を持つ。保存済みのpassやeligibleは入力にしない。
 
@@ -576,7 +576,7 @@ result v1はinput_digest、revision/digest/時刻、人間/agent、status:pass|b
 
 `loadProjectRecommendation(root,paths)`は明示pathだけを安全に読み、参照追跡・走査・通信・command・書込みをしない。新schemaはproject-recommend/v1/context,result、既存契約とlegacy always-onルールは維持。全入力5 MiB/file1 MiB/深さ32/200000node、100Issue、feature1000/area200/member1000/active_claim10000、scope等総数10000、既存履歴制限、診断・除外理由計1000/結果1 MiB。合成100Issueのcold10秒を目標とする。
 
-実GitHub・本人/権限/証拠/全量性/実時刻の真正性、自然言語指示/ACの意味、実ファイル競合/未pushの全証明、原子的claim、snapshot後の変更、実作業は保証しない。未知version/破損時は元記録を保ち、手動Coordinatorへ戻る。Project全体Golden/自動割当/Projects/Dispatcher/Runnerは別の後続Issueで扱う。
+実GitHub・本人/権限/証拠/全量性/実時刻の真正性、自然言語指示/ACの意味、実ファイル競合/未pushの全証明、原子的claim、snapshot後の変更、実作業は保証しない。未知version/破損時は元記録を保ち、手動Coordinatorへ戻る。共通Project Golden Testは第16.1節で提供する。自動割当/Projects/Dispatcher/Runnerは別の後続Issueで扱う。
 
 ## 12. 自動DispatcherとAgent Runner
 

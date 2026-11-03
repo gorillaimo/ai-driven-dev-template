@@ -1,0 +1,45 @@
+flowchart TB
+  accTitle: v2の開発フローと人間・AI・コードの担当
+  accDescr: 初回の依頼からAIがIssueと文書案を準備し、必要な人間の承認を受けて作業する。ローカル検査と実CIの結果を確認し、人間がPRをレビューしてマージを判断する。不足や失敗は確認と修正へ戻り、継続依頼で次の作業を選ぶ。
+
+  request["人間｜初回の依頼<br/>目的・人間の担当者を伝える"]
+  inspect["AI｜記録と進捗を確認<br/>文書・Issue・PR・着手記録"]
+  prepare["AI｜Issueと文書案を準備<br/>初回は調査・全体要件・構成案"]
+  decision{"AI｜人間の判断が必要？"}
+  approval["人間｜質問に回答・必要な案を承認<br/>目的・構成・設計・担当調整"]
+  work["AI｜承認された範囲で作業<br/>文書更新・アプリのテスト先行実装"]
+  checks["検査コード｜必要な検査を実行<br/>計画・状態・対応関係の形式と整合性"]
+  assess{"AI｜次工程の条件を満たす？"}
+  pr["AI｜結果と残課題を記録<br/>PRを作成・更新する"]
+  ci["GitHub Actions｜PR更新で実行<br/>テンプレートのテスト・保存Issueの検査"]
+  verify{"AI｜必要なCI検証を確認済み？"}
+  rework["AI｜停止理由を確認<br/>修正または人間へ確認"]
+  review["人間｜PRをレビュー<br/>マージするか判断する"]
+
+  request --> inspect
+  inspect --> prepare
+  prepare --> decision
+  decision -->|必要| approval
+  decision -->|必要条件を確認済み| work
+  approval -->|回答・承認した範囲| work
+  work -->|元入力を準備して呼び出す| checks
+  checks -->|検査結果・未評価の項目| assess
+  assess -->|条件を満たす| pr
+  assess -->|不足・失敗・未確認| rework
+  pr -->|PRイベント| ci
+  ci -->|実行結果| verify
+  verify -->|必要な検証を確認済み| review
+  verify -->|失敗・未実行・未確認| rework
+  review -->|修正を依頼| rework
+  review -->|マージ後に継続を依頼| inspect
+
+  rework -->|記録と承認を再確認| inspect
+
+  classDef human fill:#e8f0fe,stroke:#315da8,color:#163260,stroke-width:2px
+  classDef ai fill:#e8f5ec,stroke:#28744d,color:#17472f,stroke-width:2px
+  classDef code fill:#fff3d6,stroke:#916000,color:#5a3b00,stroke-width:2px
+  classDef actions fill:#f0eafa,stroke:#7750a5,color:#493064,stroke-width:2px
+  class request,approval,review human
+  class inspect,prepare,decision,work,assess,pr,verify,rework ai
+  class checks code
+  class ci actions

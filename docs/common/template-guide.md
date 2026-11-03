@@ -8,26 +8,107 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 
 このファイルは、このテンプレート本体のREADME相当のドキュメントです。`README.md` は、テンプレート利用先プロジェクト用のREADME雛形として扱います。
 
-## 全体像
+初回の依頼は[セットアップ](operations-setup.md)にある新規開発・既存導入のプロンプトを使います。作業内容を具体的に指示でき、次に行う作業の判断をAIに任せたいときは「進めてください」と依頼することもできます。準備後の依頼方法やレビューは[運用マニュアル](operations-manual.md)で確認できます。詳しい依頼例は[参考資料](operations-reference.md)、コマンドは[検査ツールの利用詳細](workflow-tools-guide.md)を必要なときに参照します。v2の採用範囲と確認状況は[試用前の確認表](v2-adoption-checklist.md)、再現手順は[隔離した導入・移行例](../examples/v2-adoption/README.md)にあります。
 
-このテンプレートは、GitHub issue を作業契約にして、人間とAIエージェントが同じ前提を読みながら開発を進めるためのものです。
+## 特徴と利点
+
+**GitHubのIssue・PRを使い、AIへの依頼から成果物の確認まで、共通の手順で進められます。**
+初回の依頼例と運用手順があるため、AIへの頼み方や、次にどの工程へ進むかに迷ったときの手がかりになります。
+
+| 特徴 | 開発で役立つこと |
+| :--- | :--- |
+| GitHubのIssue・PRを中心に進める | 目的・担当・作業記録・レビューを、コードと同じ場所で共有できます。判断の経緯を後から確認でき、既存のGitHub運用にも組み込めます |
+| 次の作業の判断をAIに任せられる | AIがIssueや記録を読み、必要な調査・設計・実装・検査を整理します。具体的な指示もでき、工程ごとの長いプロンプトや検査コマンドを人間が毎回用意する負担を減らせます |
+| 必要な範囲から導入できる | 単一Issueの運用から始め、計画・担当・進捗を扱うProjectの仕組みは必要に応じて追加できます。専用の常駐実行基盤を用意せずに始められます |
+| 担当と作業範囲を明確にする | Issueごとに責任を持つ人間を決め、複数人・複数AIでは担当領域と統合担当を共有します。作業の分担や、記録を使った引継ぎを進めやすくします |
+| 人間のレビュー前に検証・修正する | AIがテストや検査の結果を確認し、承認された範囲で修正・再検証を行います。PRには検証結果と残る課題をまとめ、人間が判断するための根拠を揃えます |
+| 要件と検証結果を対応付ける | 受け入れ条件に対する設計・テスト・検証の記録を残し、検査コードでも形式や対応関係を確認できます。人間がPRで確認する根拠を揃えられます |
+| AIツールや開発対象に合わせて使える | 共通の規約・Issue・文書をCodexやClaude Codeなどで共有できます。管理用の検査はNode.jsで動き、開発するアプリの言語や本番環境とは分けて利用できます |
+
+利用にはAI開発ツールの設定とGitHubへの接続が必要です。人間は目的・必要な設計・成果物を確認します。
+複数人での担当割当や競合の調整は、人間の判断を前提にしています。
+検証・修正は作業中のAIが行います。別AIによるレビューを標準工程として管理する仕組みと、複数Issueの自動並行実行は、現在の提供範囲には含みません。
+
+## 全体像：誰が何をするか
+
+**人間が目的と必要な判断を伝え、AIが記録を確認して次の作業を選び、必要なコードを呼び出して検証するテンプレートです。**
+人間が工程ごとの指示や検査コマンドを覚える負担を減らします。図では、人間を青、AIを緑、ローカルの検査コードを黄、GitHub Actionsを紫、保存する記録を灰色で示しています。矢印のラベルは、依頼・操作・入力・結果の受け渡しを表します。
+
+![人間が目的と判断を伝え、AIが記録を扱い、検査コードとGitHub Actionsから結果を受け取る関係図](../assets/template-guide/responsibility-map.svg)
+
+[図を拡大する](../assets/template-guide/responsibility-map.svg) / [Mermaidの原本](../assets/template-guide/responsibility-map.mmd)
+
+| 担当 | 行うこと |
+| :--- | :--- |
+| 人間 | 目的・優先順位を決め、必要な設計・担当調整・PRを確認し、承認やマージを判断する |
+| AI | Issue・文書・実際の作業状況から次の作業を選び、調査、Issue発行、文書更新、テスト・実装、検査、記録、PR準備を進める |
+| ローカルの検査コード | AIが用意した元入力を決められた規則で検査し、結果・不足・停止理由・次の候補を返す |
+| GitHub Actions | IssueやPR等のイベントを契機に、契約の必要項目、PRとの関連、テンプレートのテストや保存Issue成果物を検査する |
+
+AIは自然言語の規約やIssueを読みます。検査コードには、計画・状態・確認記録などをYAML/JSONの元入力として渡します。
+Issue/PRには作業契約・担当・着手・レビューの記録を残し、リポジトリには文書と各Issueの成果物を保存します。全員が手編集する共有Project状態ファイルは作りません。
+
+## 開発フロー：依頼から次の作業まで
+
+初回は[セットアップ](operations-setup.md)の依頼例を使います。AIが必要なIssueの作成や調査、全体要件・アーキテクチャ案の整理を進め、人間は不足情報への回答や必要な承認を行います。
+作業中は具体的な指示で進め方を調整できます。次の作業の判断をAIに任せる場合は、AIが記録から進捗と次に必要な作業を確認します。
+
+![初回の依頼、AIの準備、人間の承認、実装、ローカル検査、実CIの確認、PRレビューを経て、継続依頼に戻る開発フロー](../assets/template-guide/development-flow.svg)
+
+[図を拡大する](../assets/template-guide/development-flow.svg) / [Mermaidの原本](../assets/template-guide/development-flow.mmd)
+
+図は代表的な流れです。文書のみのIssueや既存構成を継続する場合など、AIはIssueの契約と変更リスクに応じて必要な工程・検査を選びます。
+図のローカル検査はPR前の例です。計画・設計など、各工程の区切りでも必要に応じて実行します。
+「次工程の条件」には、人間の担当者、ready-for-ai、既存作業との競合、依存関係、必要な承認の確認も含みます。検査の成功だけで承認済み・作業完了とは判断しません。
+不足・失敗・未確認事項があれば、その理由を確認して修正や人間への相談に戻ります。PRのCIが未実行の状態も成功として扱いません。
+
+複数人・複数AIでの作業が必要になったら、AIが[担当調整の手順](manual-coordinator.md)から必要な箇所と判断事項を案内します。マージ・本番反映・Releaseは、それぞれの対象と影響を確認して判断します。
+
+## コードが担当する領域
+
+### ローカルの検査ツール
+
+これらは開発管理用のNode.jsコードです。開発するアプリの言語や本番runtimeは問いません。必要な検査をAIや開発者が呼び出し、元入力を渡して使います。
+
+| コード | 主な入力 | 返す結果・確認すること |
+| :--- | :--- | :--- |
+| `tools/workflow-schema/` | 同梱のIssue/Project成果物・調査結果の記入例とテスト入力 | schemaで定義した形式への適合をテストする。任意ファイルを指定する汎用CLIではない |
+| `tools/workflow-rules/` | ルールのmetadataと適用条件 | 適用するルールと順序、依存・競合・未知条件。既存規約を常時維持する |
+| `tools/workflow-check/` | 計画・状態・履歴と確認記録 | 工程や改訂の整合性、停止理由、再開する工程の候補 |
+| `tools/workflow-trace/` | 受け入れ条件・設計・テスト・検証等の対応表 | 対応漏れや参照先の不整合 |
+| `tools/workflow-project/` | 計画・メンバー台帳、確認済みの担当やIssueの情報 | 開発順序・担当条件・進捗の集約・次の作業候補。採用は任意 |
+| `tools/workflow-golden/` | 固定した入力と正解見本 | テンプレートの判定が見本から変わっていないか。既存12＋Project25の37ケースを比較 |
+| `tools/workflow-ci/` | 保存されたIssue成果物 | 形式や識別子・参照の整合性。保存Projectの自動走査は行わない |
+
+検査コードが返すpassや候補は、担当の確定や実行の承認ではありません。GitHubの実状態・本人・権限・証拠の確認は、AIや人間が接続ツール等で行い、必要な記録を元入力へ反映します。`workflow-project`自体が実GitHubを収集・更新することはありません。
+
+### GitHub Actionsで自動実行する検査
+
+| 契機 | workflow | 行うこと |
+| :--- | :--- | :--- |
+| Issueの作成・更新等 | `issue-contract-check.yml` | 必要項目の有無を調べ、ready-for-ai/needs-info等のラベルや不足のコメントを反映する。仕様や承認の妥当性は判断しない |
+| PRの作成・更新等 | `pr-issue-link-check.yml` | 対応Issueのリンクと「実行した検証」の記載を確認する |
+| PRの作成・更新、main更新、手動起動 | `workflow-validation.yml` | Node.js 22/24でテンプレートの静的テスト・Golden Test・保存Issue成果物の検査を実行する |
+
+`Workflow Validation`は読み取り専用です。Issue契約チェックによるラベル更新と区別し、自動承認・マージ・デプロイは行いません。
+AIが実際のstep/logを確認し、結果と未検証事項をPRへまとめます。
+
+### 開発するアプリのコードとテスト
+
+アプリの機能、API、画面、データ処理などは、AIが承認された範囲で実装し、そのアプリに適したテストを用意して実行します。
+上記のテンプレート運用テストとは別に、利用先アプリのbuild/testやCIを設定します。このテンプレートの`Workflow Validation`がアプリのテストまで自動実行するわけではありません。
+具体的なコマンドと入力・結果の読み方は[検査ツールの利用詳細](workflow-tools-guide.md)を参照してください。
 
 ## バージョンとリリース
 
 - 公開済みstable: `v1.0.0`
-- `main`: v2 development line
-- 現在の目標version: ルート`VERSION`を参照
-- 変更履歴: `CHANGELOG.md`
-- release基準: `docs/common/versioning-policy.md`
-- v1からv2への移行: `docs/common/migration-v1-to-v2.md`
+- `main`: v2開発版。現在の目標versionはルート`VERSION`を参照
+- 変更履歴: [CHANGELOG](../../CHANGELOG.md)
+- Release基準: [バージョン方針](versioning-policy.md)
+- 移行と試用: [移行ガイド](migration-v1-to-v2.md) / [試用前の確認表](v2-adoption-checklist.md)
 
-v1はIssue、assignee、prompt、人間承認を中心とする軽量な文書駆動baselineです。v2はIssue #8のadaptive workflowとIssue #9のproject orchestrationを段階的に追加します。現在の`main`ではIssue成果物のschema v1、template、同梱例の形式テストとモジュール式ルールのオフライン解決libraryを提供します。計画・状態・再開候補の静的checkerも利用できます。追跡性checkerとBrownfieldの手順・深度別テンプレートも利用できます。オフラインGolden TestとIssue内部のActions統合も利用できます。Projectの3成果物schema・合成記入例・形式テストも利用できます。依存DAG・wave・計画改訂の読み取り専用validatorも利用できます。member/ownership/capacityのsnapshot検査も利用できます。手動Coordinatorの手順・コメント様式・机上例も利用できます。明示snapshotの進捗集約・不整合検出も利用できます。実GitHubの自動取得・推薦は後続実装です。工程の自動実行は提供しません。
-
-template release versionと各成果物の`schema_version`は独立しています。template v2で最初に導入するschemaが`schema_version: 1`でも問題ありません。利用先projectでは、このrepositoryの`VERSION`をアプリケーションversionと混同しないでください。
-
-### 開発フロー
-
-![AI駆動開発テンプレートの開発フロー](../assets/template-guide/development-flow.svg)
+v1は文書と人間承認を中心に進める運用です。v2には、Issueの計画・状態・再開候補・対応関係や、任意のProject計画・メンバー確認・集約・推薦を検査する機構を追加しています。提供状況と保証範囲は上記の確認表にまとめています。
+template本体のversionと成果物の`schema_version`は独立しており、template v2で`schema_version: 1`を使っていても矛盾しません。`VERSION`は利用先アプリのversionとは別です。
 
 ## 目的
 
@@ -66,6 +147,14 @@ template release versionと各成果物の`schema_version`は独立していま�
 - `docs/common/versioning-policy.md`: template release、pre-release、schema version、保守branchの方針
 - `docs/common/migration-v1-to-v2.md`: v1からv2への段階移行とfallback
 - `docs/common/operations-manual.md`: 人間向けの具体的な運用手順
+- `docs/common/operations-setup.md`: 初回の依頼とAIによる導入準備
+- `docs/common/operations-reference.md`: 詳しい依頼例・レビュー・設定資料
+- `docs/common/workflow-tools-guide.md`: 検査ツールのコマンドと入出力
+- `docs/common/manual-coordinator.md`と`manual-coordinator-reference.md`: 担当調整の案内と詳細手順
+- `docs/common/v2-adoption-checklist.md`: 実装・検証・試用前の人間確認の対応
+- `tools/workflow-project/`: Projectの計画・担当条件・集約・次作業候補の検査
+- `tools/workflow-golden/`: 固定した入力と正解見本の比較
+- `tools/workflow-ci/`: 保存Issue成果物の検査
 - `docs/common/quality-gates.md`: NFR、Security、Resiliency の品質ゲート
 - `docs/common/template-guide.md`: テンプレート本体の説明、公開設定、利用時の読み替えガイド
 - `docs/common/issue-template.md`: issue本文テンプレート
@@ -77,7 +166,7 @@ template release versionと各成果物の`schema_version`は独立していま�
 - `.github/workflows/issue-contract-check.yml`: issue契約チェック
 - `.github/workflows/pr-issue-link-check.yml`: PR本文チェック
 
-`docs/common/adaptive-workflow-design.md`の4.1～4.3が実装済みschemaの契約です。templateは実際のIDや状態へ置換して利用します。形式検証の成功は承認・工程完了・参照先の存在を保証しません。利用・検証コマンドは`docs/common/operations-manual.md`、移行・fallbackは`docs/common/versioning-policy.md`を参照してください。計画・状態・再開候補の意味検査は第5.4・6.4節のcheckerで提供します。対応表の網羅と参照は第7章の追跡性checkerで検査します。Projectの3成果物の形式はproject-orchestration-design第5.5節を参照してください。依存DAG・wave・改訂の検査は第8.4節のvalidatorで追加利用できます。member/ownership/capacityは第9.4節でsnapshotを追加検査できます。従来のIssueベース運用を維持します。
+`docs/common/adaptive-workflow-design.md`の4.1～4.3が実装済みschemaの契約です。templateは実際のIDや状態へ置換して利用します。形式検証の成功は承認・工程完了・参照先の存在を保証しません。利用・検証コマンドは`docs/common/workflow-tools-guide.md`、移行・fallbackは`docs/common/versioning-policy.md`を参照してください。計画・状態・再開候補の意味検査は第5.4・6.4節のcheckerで提供します。対応表の網羅と参照は第7章の追跡性checkerで検査します。Projectの3成果物の形式はproject-orchestration-design第5.5節を参照してください。依存DAG・wave・改訂の検査は第8.4節のvalidatorで追加利用できます。member/ownership/capacityは第9.4節でsnapshotを追加検査できます。従来のIssueベース運用を維持します。
 
 Issue内部の工程選択と再開はadaptive workflow、プロジェクト全体の開発順序、担当割当、進捗集約、AI主導の次Issue提案はproject orchestrationの責務です。後者の初期標準はIssues-onlyと手動Coordinatorであり、GitHub Projects、Dispatcher、外部Agent Runnerを必須にしません。
 
@@ -235,7 +324,7 @@ MIT License
 
 利用時は`.ai-workflow/schemas/`、既存の`tools/workflow-{rules,check,trace}/`、新しい`tools/workflow-golden/`と`tests/workflow-golden/`をまとめて保持します。
 既存checkerと新パッケージそれぞれの依存を導入した後、テスト中の外部通信はありません。
-セットアップ、実行、fixture契約、見本の手動更新、失敗時の扱いは[運用マニュアル](operations-manual.md#golden-testの実行)を参照してください。
+セットアップ、実行、fixture契約、見本の手動更新、失敗時の扱いは[検査ツールの利用詳細](workflow-tools-guide.md#golden-testの実行)を参照してください。
 Golden Testの成功は同梱例の回帰確認であり、利用先Issueの承認・完了・安全性の証明ではありません。GitHub Actions接続は利用可能で、AI意味評価は後続実装です。
 
 ## GitHub Actionsへの接続
@@ -259,8 +348,8 @@ Project設定・開発計画・人間のメンバー台帳の記入例は`.ai-wo
 `checkProjectPlan`は依存DAG、ID、共有area、計画revisionを読み取り専用で検査し、waveと待機理由を返します。
 `loadProjectPlan`は明示pathだけを読みます。保存Projectの自動探索やGitHub照会、担当・claim操作は行いません。
 確認snapshotは入力revision/digestに結び付けますが、人間本人・実権限・事実の鮮度を認証しません。scope非重複を確認できない共有領域は保守的に直列化します。
-`npm test --prefix tools/workflow-project`は専用テストで、既存CIにも接続しています。Project全体Goldenは後続対応です。
-実案件への入力方法、結果の読み方、改訂・復旧は運用マニュアル、契約と上限はproject-orchestration-design第8.4節を参照してください。
+`npm test --prefix tools/workflow-project`は専用テストで、既存CIにも接続しています。Projectを含む共通Golden Testも利用できます。固定例と保証範囲は[project-golden](../examples/project-golden/README.md)を参照してください。
+実案件への入力方法、結果の読み方、改訂・復旧は[検査ツールの利用詳細](workflow-tools-guide.md)、契約と上限はproject-orchestration-design第8.4節を参照してください。
 
 ## メンバーと担当条件の追加検査
 
@@ -274,9 +363,9 @@ Project設定・開発計画・人間のメンバー台帳の記入例は`.ai-wo
 
 [手順](manual-coordinator.md)、[コメント様式v1](../../.ai-workflow/templates/project-manual/v1/README.md)、[机上例](../examples/project-manual/walkthrough.md)をまとめて参照します。
 担当割当、着手記録、進捗、解除/再割当、Coordinator交代、部分失敗の照合を、人間がGitHub Issue上で記録します。
-status_mappingとheartbeat/stale方針は導入時に合意し、操作の実状を読み戻します。stale/blocked/inactiveでも自動解放しません。
+status_mappingとheartbeat/stale方針は導入時に合意し、操作後の実際の状態を確認します。stale/blocked/inactiveでも自動解放しません。
 任意導入で、従来の単一Issue運用は継続できます。様式v1は人間向けMarkdownの版であり、既存schema/checker/CIに新しい機械契約を追加しません。
-自動割当・原子的claim・集約/recommender・Project全体Goldenは含みません。実案件の同時操作やAPI障害復旧は机上確認の保証範囲外です。
+この手動手順自体は自動割当・原子的claimを提供しません。読み取り専用の集約・推薦とProject Goldenは別の検査として利用できます。実案件の同時操作やAPI障害復旧は机上確認の保証範囲外です。
 
 ## Project進捗の読み取り専用集約
 
@@ -284,16 +373,16 @@ status_mappingとheartbeat/stale方針は導入時に合意し、操作の実状
 `aggregateProject`は明示GitHub確認snapshotと既存checkWorkflowの元入力を再検査し、Issue/featureの現在地・保守的状態・不整合・event checkpointを返します。
 `loadProjectAggregate`は列挙pathだけを読みます。人間向けコメントを解析せず、通信・Git・自動保存・担当/状態変更は行いません。
 `npm run test:aggregate --prefix tools/workflow-project`は同梱合成テストです。実案件の取得方法や本人性を証明するものではありません。
-実行例・元入力・checkpoint/復旧は[運用マニュアル](operations-manual.md)、契約はproject-orchestration-design第13.0節を参照します。任意導入で、単一Issue運用も継続できます。
+実行例・元入力・checkpoint/復旧は[検査ツールの利用詳細](workflow-tools-guide.md)、契約はproject-orchestration-design第13.0節を参照します。任意導入で、単一Issue運用も継続できます。
 
 ## 安全な次作業の提案を追加する
 
 `tools/workflow-project/recommend.mjs`は確認済み元入力を既存checkerで再検査し、本人の既存作業またはCoordinatorへ相談する候補を決定的に返します。担当・claim・工程を自動実行しません。
 `recommend-load.mjs`と`project-recommend/v1`の独立context/result、[合成入力](../../tests/workflow-recommend/fixtures/README.md)を任意で導入します。初回依存導入後はオフラインのNode.js 22以上で動き、開発対象の言語には依存しません。
-利用方法・確認項目・停止/復旧・上限・not_evaluatedは[運用マニュアル](operations-manual.md)を参照してください。専用合成テストは`npm run test:recommend --prefix tools/workflow-project`で実行し、CIのNode22/24でも検証します。保存Project走査・Project全体Goldenは別途対応です。
+利用方法・確認項目・停止/復旧・上限・not_evaluatedは[検査ツールの利用詳細](workflow-tools-guide.md)を参照してください。専用合成テストは`npm run test:recommend --prefix tools/workflow-project`で実行し、CIのNode22/24でも検証します。保存Projectの自動走査は対象外です。Projectを含む共通Golden Testは利用できます。
 
 ## Projectの統合Golden Test
 
 計画・member・集約・推薦の固定運用例も既存Goldenハーネスで検証します。既存12caseと新25caseの計37caseが対象で、既存Workflow ValidationのNode22/24でも同じ命令を実行します。
 新しいProject adapterを読み込むため、Golden利用時に既存workflow-projectの依存も導入します。tool/fixtureは同じtemplate commitの一式を保持し、25必須caseを落としたsuiteを成功としません。利用先Projectの設定・成果物保存を強制するものではありません。
-[運用マニュアル](operations-manual.md)と[固定例](../examples/project-golden/README.md)に導入、比較/禁止条件、手動見本更新、停止時の復旧、第16章14観点との対応・保証境界を記載しています。実GitHub操作・原子的claim・実Dispatcher障害やアプリ自身のテストは含みません。
+[検査ツールの利用詳細](workflow-tools-guide.md)と[固定例](../examples/project-golden/README.md)に導入、比較/禁止条件、手動見本更新、停止時の復旧、第16章14観点との対応・保証境界を記載しています。実GitHub操作・原子的claim・実Dispatcher障害やアプリ自身のテストは含みません。
