@@ -70,7 +70,7 @@ passed/failed/not_evaluated/errorを区別します。未起動、0対象、形�
 
 ## 上限と保証範囲
 
-1scanner 5分、検査全体15分、同時上限2（初期CLIは直列実行）、worker CPU2/2GiB/PID256です。raw出力10MiB、構造化入力5MiB・深さ32/200000node、証拠128・指摘1000・診断1000、公開要約1MiB。DBはecosystem最大3、圧縮合計1GiB/展開合計2GiB/100000entryで、空/破損/未対応形式を拒否します。各制限の最大値を同時に収められる保証ではありません。
+1scanner 5分、検査全体15分、同時上限2（初期CLIは直列実行）、worker CPU2/2GiB/PID256です。raw出力10MiB、構造化入力5MiB・深さ32/200000node、証拠128・指摘1000・診断1000、公開要約1MiB。DBはecosystem最大3、圧縮合計1GiB/展開合計2GiB/500000entryで、空/破損/未対応形式を拒否します。各制限の最大値を同時に収められる保証ではありません。
 
 workerはnetwork:none・非root・read-only・cap-drop・権限昇格禁止で、GitHub token/Docker socketを渡しません。containerの作成結果・終了/削除を読み戻し、停止不明なら次を開始しません。controller自体とDocker daemonは信頼する管理環境が必要です。任意のAgent Runnerの完全な隔離・本人性・予算強制・意味上の安全性の保証は未提供です。
 

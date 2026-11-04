@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parent
 MAX_TOOL=256*1024*1024
 MAX_DB=1024*1024*1024
 MAX_EXPANDED=2*1024*1024*1024
-MAX_ENTRIES=100000
+MAX_ENTRIES=500000
 STAGE="arguments"
 TOOL=None
 
@@ -14,6 +14,10 @@ class DatabaseLimitError(ValueError):
     def __init__(self,code,counts):
         super().__init__(code)
         self.counts=counts
+
+def validate_database_totals(counts):
+    if counts['database_entries']>MAX_ENTRIES:raise DatabaseLimitError('database_entry_limit',counts)
+    if counts['database_expanded_bytes']>MAX_EXPANDED:raise DatabaseLimitError('database_expanded_limit',counts)
 
 def sha(path):
     h=hashlib.sha256()
@@ -45,8 +49,7 @@ def inspect_database(path):
     with zipfile.ZipFile(path) as z:
         rows=z.infolist()
         counts={'database_entries':len(rows),'database_expanded_bytes':sum(row.file_size for row in rows),'database_compressed_bytes':path.stat().st_size}
-        if counts['database_entries']>MAX_ENTRIES:raise DatabaseLimitError('database_entry_limit',counts)
-        if counts['database_expanded_bytes']>MAX_EXPANDED:raise DatabaseLimitError('database_expanded_limit',counts)
+        validate_database_totals(counts)
         for row in rows:
             entries+=1;expanded+=row.file_size
             parts=Path(row.filename).parts
@@ -109,8 +112,7 @@ def acquire(destination,ecosystems):
         compressed+=download(source,path,MAX_DB-compressed,metadata)
         STAGE='database_validation'
         inspected=inspect_database(path);entries+=inspected['entries'];expanded+=inspected['expanded']
-        if entries>MAX_ENTRIES:raise ValueError('database_entry_limit')
-        if expanded>MAX_EXPANDED:raise ValueError('database_expanded_limit')
+        validate_database_totals({'database_entries':entries,'database_expanded_bytes':expanded,'database_compressed_bytes':compressed})
         now=datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00','Z')
         inventory['databases'].append({'ecosystem':ecosystem,'digest':sha(path),'fetched_at':now,'checked_at':now,'source':source,'snapshot_kind':'public_snapshot','advisory_count':inspected['advisories'],**metadata})
         path.chmod(0o444)
