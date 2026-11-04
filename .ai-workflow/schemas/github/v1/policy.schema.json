@@ -265,6 +265,30 @@
       },
       "maxItems": 10000,
       "minItems": 0
+    },
+    "delegates": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "login": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "id",
+          "login"
+        ],
+        "additionalProperties": false
+      }
     }
   },
   "required": [

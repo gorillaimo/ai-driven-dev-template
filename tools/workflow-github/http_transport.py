@@ -11,7 +11,8 @@ def request(value):
     headers={'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2026-03-10','User-Agent':'workflow-github/1.0'}
     for key,val in value.get('headers',{}).items():
         if key.lower() not in ['accept','x-github-api-version','if-none-match'] or not isinstance(val,str) or '\r' in val or '\n' in val:raise ValueError()
-        headers[key]=val
+        if key.lower()=='x-github-api-version' and val!='2026-03-10':raise ValueError()
+        if key.lower()=='if-none-match':headers['If-None-Match']=val
     if token is not None:
         if not isinstance(token,str) or not re.fullmatch(r'[A-Za-z0-9_.-]{1,16384}',token):raise ValueError()
         headers['Authorization']='Bearer '+token

@@ -1,0 +1,67 @@
+# Synthetic format example only. No live authority or operation.
+schema_version: 1
+artifact_kind: github-snapshot
+repository: example/synthetic
+repository_id: 1
+started_at: 2026-11-04T00:10:00Z
+finished_at: 2026-11-04T00:10:00Z
+status: complete
+policy_digest: 81f4dc183c5134e75182255cc76db051a9df4b69022b7f925307ec73495b9cbd
+default_branch: main
+sections:
+  issues: complete
+  prs: complete
+  branches: complete
+  comments: complete
+  reviews: complete
+  permissions: complete
+  protections: complete
+issues:
+  - id: 11
+    number: 1
+    state: open
+    assignees:
+      - id: 7
+        login: gorillaimo
+    labels:
+      - ready-for-ai
+    updated_at: 2026-11-04T00:10:00Z
+    body_digest: e8ea82a96aec183cce8f26a11702010a16cb81f049527208c097063e0f4f1517
+    contract_digest: a44a4948189d4718520e7cf5f7e43660d9f3561fc0ff92336b98952122fb379d
+prs: []
+branches:
+  - name: main
+    sha: "2222222222222222222222222222222222222222"
+    protected: true
+sources:
+  - kind: comment
+    id: 21
+    issue_number: 1
+    actor_id: 7
+    actor_type: User
+    updated_at: 2026-11-04T00:10:00Z
+    body_digest: 6b8e51386962a0e885d3306e048b073db86ae5f8866537e01c2436239ac65967
+    state: active
+    machine: null
+  - kind: comment
+    id: 22
+    issue_number: 1
+    actor_id: 7
+    actor_type: User
+    updated_at: 2026-11-04T00:10:00Z
+    body_digest: 0efcca06c1f2e49e04cbfa168b7dffd03e6e0239a063ee890cb38a188bd9dc81
+    state: active
+    machine: null
+permissions:
+  - actor_id: 7
+    login: gorillaimo
+    permission: admin
+    observed_at: 2026-11-04T00:10:00Z
+protections:
+  - branch: main
+    enforced: true
+    bypass_actors: []
+    observed_at: 2026-11-04T00:10:00Z
+    source_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+pages: []
+unresolved: []

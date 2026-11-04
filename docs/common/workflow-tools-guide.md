@@ -22,6 +22,7 @@ Node.jsは開発管理に使い、利用先アプリの開発言語は問いま�
 | Projectをまたぐ回帰 | [Project Golden](#project-golden) |
 | 検証・AIレビュー結果の整合 | [execution記録](#execution) |
 | 実セキュリティ検査 | [検査の接続](#security) |
+| GitHub取得・許可操作の接続 | [GitHub操作境界](#github-boundary) |
 
 <a id="issue-artifacts"></a>
 
@@ -328,8 +329,9 @@ main更新と手動操作でも起動します。手動実行はworkflowをdefau
 
 実行内容:
 
-1. 専用9package（schema/rules/check/trace/golden/ci/project/execution/security）のlockfileで依存取得。install scriptsは無効。
+1. 専用10package（schema/rules/check/trace/golden/ci/project/execution/security/github）のlockfileで依存取得。install scriptsは無効。
 2. 既存の静的テスト、execution記録の検査、Goldenハーネスのテスト、CI検査・workflow契約テストを実行。
+   GitHub境界の偽APIテストも含みます。HTTP helperのオフライン試験にはPython 3.10以上とGitを使用します。
 3. Golden固定caseを実行。
 4. repositoryに保存したIssue成果物の形式・識別子・必要なローカル参照を検査。
 
@@ -372,7 +374,7 @@ failure/skipped/cancelledと、起動していない検査を成功と読み替�
 fork PRの初回承認やActions利用制限により未実行となる場合は、保守者がGitHubの画面で状態を確認します。Secretsやwrite権限を与えて通す運用にはしません。
 このworkflowはcontents:readとcredential非保持で動き、PRコメント・ラベル・自動承認・merge・deployを行いません。
 
-導入時は新workflow、必要な9tool package、tests、.ai-workflow/schemas、共通文書を一緒に保持してください。
+導入時は新workflow、必要な10tool package、tests、.ai-workflow/schemas、共通文書を一緒に保持してください。
 branch protectionやrequired checksは自動変更しません。まず実行時間と誤検知を観測し、人間が必要性を判断してから必須化します。
 無効化する場合はGitHubのActions画面でこのworkflowだけを停止するか、レビュー済みPRで新workflowを取り除きます。required checkに設定済みなら、先に人間がその設定を見直します。
 失敗時は元成果物・見本を保存してIssueへ理由を記録し、個別checkerと従来のIssue・branch・PR運用で確認を続けられます。
@@ -796,3 +798,11 @@ plain JSONのみ受理し、getter/Proxy/cycle/特殊object/疎配列等をschem
 Summaryには成否・件数・未評価を表示します。secret・原文・code断片・raw reportはuploadしません。詳細の保存先は人間が承認して選び、CIの一時ファイルが終了後も参照できるとは扱いません。検出・未対応・故障・未実行・古いDB・停止不明を区別し、未解決指摘や期限切れ例外を成功へ昇格しません。
 
 動的検査とLLM機能固有の検査は、条件と隔離/負のテストの例です。実host/実LLMを検査するadapterは未提供で、未設定を非該当や成功にしません。Dartなど初期規則が未対応の言語も保留にします。scanner成功はASVS準拠、認証/tenant境界、人間承認、Agent Runner全体の安全性を保証しません。
+
+<a id="github-boundary"></a>
+
+## GitHub取得・許可操作の接続
+
+`tools/workflow-github/`は全量snapshot、署名付き依頼/承認の照合、有限の外部操作とreceiptを提供します。標準CLIは公開repoのGET専用で、書込みにはcontroller側の明示設定が必要です。通常のWorkflow Validationは合成テストだけを実行します。
+
+[接続準備](github-boundary-setup.md)には人間が行う設定とAIの準備、[記入例とAPI](../../.ai-workflow/templates/github/v1/README.md)には形式・コマンド・上限・復旧の入口があります。P1/v1の判定から実権限を作らず、P4/P5の予約・会話接続・worker起動を単独では提供しません。

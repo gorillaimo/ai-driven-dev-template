@@ -12,6 +12,8 @@ AI Driven Development Templateの利用者へ影響する変更を記録する�
 
 ### Added
 
+- GitHub全量snapshot、Ed25519依頼/承認の照合、最小権限App transport、有限操作broker、repo外の永続journalと応答不明の読戻し、P1 event投影をgithub/v1として追加。合成テストをWorkflow Validationへ接続し、人間とAIの接続準備を分けた手順と限定実証入口を追加。実証環境の採用、会話認証・worker起動・複数Issue予約は別途確認。
+
 - アプリ/テンプレート/実行環境を分けるsecurity/v1、固定Gitleaks/OSV-Scanner/Semgrep CE/Trivy adapterと隔離実行、アプリCI→P1の検証記録接続、合成例・負のテスト、独立したread-only Security Validationを追加。secret/原文を公開せず、未実行・古いDB・故障・期限切れ例外を成功にしない。実Agent Runner/自動修正/実host・LLMへの検査は有効化しない。
 
 - execution/v1の検証・別AIレビュー・セキュリティ/統合結果・実行条件・報告/eventの記録形式、合成YAML例、読み取り専用の整合checkerと明示path loaderを追加。対象commit・改訂・鮮度・指摘の再確認を検査し、Node22/24の既存CIへ専用テストを接続。実scanner/AI起動や自律実行の有効化は含まない。設計書・作業経緯・詳細記録の役割を明記。

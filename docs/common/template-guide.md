@@ -79,6 +79,7 @@ Issue/PRには作業契約・担当・着手・レビューの記録を残し、
 | `tools/workflow-project/` | 計画・メンバー台帳、確認済みの担当やIssueの情報 | 開発順序・担当条件・進捗の集約・次の作業候補。採用は任意 |
 | `tools/workflow-execution/` | 検証・別AIレビュー等の記録 | 提出記録の対象・鮮度・参照・指摘対応が整合するか。実検証やAI起動は別 |
 | `tools/workflow-security/` | 検査profile・実scannerと結果 | 対象/版/鮮度・実結果を検査。templateと利用先アプリを区別 |
+| `tools/workflow-github/` | GitHub実状態、署名付き依頼・承認、有限の操作要求 | 取得の不足・権限・headを照合し、許可した操作と読戻しを記録。利用には別途接続設定が必要 |
 | `tools/workflow-golden/` | 固定した入力と正解見本 | テンプレートの判定が見本から変わっていないか。既存12＋Project25の37ケースを比較 |
 | `tools/workflow-ci/` | 保存されたIssue成果物 | 形式や識別子・参照の整合性。保存Projectの自動走査は行わない |
 
@@ -333,7 +334,7 @@ Golden Testの成功は同梱例の回帰確認であり、利用先Issueの承�
 
 `Workflow Validation`は全PR/main更新/手動操作でテンプレートの静的テスト・Golden Testと保存Issue成果物を検査します。
 既存2workflowとは独立し、UbuntuのNode.js 22/24、contents:read、credential非保持で動きます。
-必要な9tool package（schema/rules/check/trace/golden/ci/project/execution/security）、tests、.ai-workflow/schemas、workflowをまとめて保持してください。
+必要な10tool package（schema/rules/check/trace/golden/ci/project/execution/security/github）、tests、.ai-workflow/schemas、workflowをまとめて保持してください。
 アプリ自身のテストは別途用意します。Secrets/自動承認/merge/deploy/AI評価は追加しません。
 導入・結果の見方・未評価・無効化・required checkの段階導入は運用マニュアルの「GitHub Actionsでのワークフロー検査」を参照してください。
 

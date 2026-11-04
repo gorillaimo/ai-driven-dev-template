@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": { "node": ">=22" },
-  "exports": { "./collector": "./collector.mjs", "./auth": "./auth.mjs", "./broker": "./broker.mjs", "./journal": "./journal.mjs", "./transport": "./transport.mjs", "./schema": "./schema.mjs", "./projection": "./projection.mjs" },
+  "exports": { "./collector": "./collector.mjs", "./auth": "./auth.mjs", "./broker": "./broker.mjs", "./journal": "./journal.mjs", "./transport": "./transport.mjs", "./schema": "./schema.mjs", "./projection": "./projection.mjs", "./trial": "./trial.mjs" },
   "scripts": { "test": "node ../../tests/workflow-github/run.mjs", "test:live": "node ../../tests/workflow-github/live.mjs" },
   "dependencies": { "workflow-execution": "file:../workflow-execution", "workflow-rules": "file:../workflow-rules", "ajv": "^8.17.1", "ajv-formats": "^3.0.1", "yaml": "^2.8.1" }
 }
