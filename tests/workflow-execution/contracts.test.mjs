@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync, readdirSync } from 'node:fs';
+import { parseYaml } from '../../tools/workflow-rules/load.mjs';
+import { validateExecutionArtifact as validate } from '../../tools/workflow-execution/schema.mjs';
+import { fixture, security, integration, report, event } from './fixture.mjs';
+const kinds=['profile','grant','verification','review','security-result','integration-result','run-report','event','context','result'];
+test('eleven schemas have unique local versioned URNs',()=>{const ids=[];for(const kind of ['common',...kinds]){const s=JSON.parse(readFileSync(new URL('../../.ai-workflow/schemas/execution/v1/'+kind+'.schema.json',import.meta.url)));assert.equal(s.$id,'urn:ai-workflow:execution:v1:'+kind);ids.push(s.$id);}assert.equal(new Set(ids).size,11);});
+test('each artifact rejects unknown properties and contract versions',()=>{const s=fixture();const cases={profile:s.profile,grant:s.grant,verification:s.verifications[0],review:s.reviews[0],'security-result':security(s),'integration-result':integration(s),'run-report':report(s),event:event(s),context:s.context};for(const [kind,value]of Object.entries(cases)){assert.equal(validate(kind,value).valid,true,kind);assert.equal(validate(kind,{...value,extra:1}).valid,false);assert.equal(validate(kind,{...value,schema_version:2}).valid,false);}});
+test('all YAML examples are schema-valid synthetic records',()=>{const dir=new URL('../../.ai-workflow/templates/execution/v1/',import.meta.url);for(const file of readdirSync(dir).filter(p=>p.endsWith('.yaml'))){const v=parseYaml(readFileSync(new URL(file,dir),'utf8'));assert.equal(validate(v.artifact_kind,v).valid,true,file);}});
+test('public validator never prints hostile kind or values',()=>{assert.deepEqual(validate('CANARY_SECRET',{}),{valid:false,diagnostics:[{code:'artifact_kind_invalid',artifact_kind:'input',index:0}]});});
