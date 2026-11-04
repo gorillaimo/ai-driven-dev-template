@@ -31,7 +31,7 @@ export function createDockerExecutor({toolRoot,sourceRoot,outputRoot,signal},dri
  return {async execute(request){
   if(inspectJson(request)||!request?.limits||active>=request.limits.max_concurrent)throw Error('capacity_invalid');
   active++;try{
-  if(inspectJson(request)||!same(planSecurityChecks(request.plan.inputs),request.plan)||!same(buildRequest({plan:request.plan,check:request.check,workspace:request.workspace,outputDir:request.outputDir}),request))throw Error('executor_request_invalid');
+  if(inspectJson(request)||!same(request.check,request.plan.checks.find(c=>c.check_id===request.check.check_id))||!same(planSecurityChecks(request.plan.inputs),request.plan)||!same(buildRequest({plan:request.plan,check:request.check,workspace:request.workspace,outputDir:request.outputDir}),request))throw Error('executor_request_invalid');
   if(signal?.aborted||uncertain||realpathSync(request.workspace)!==sourcePath||realpathSync(request.outputDir)!==outPath||request.image!==catalog.image)throw Error('executor_scope_invalid');
   const inventory=JSON.parse(readFileSync(join(toolPath,'inventory.json'),'utf8'));
   if(hash(inventory)!==hash(request.plan.inputs.context.inventory))throw Error('inventory_changed');

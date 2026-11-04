@@ -10,3 +10,4 @@ import './negative.test.mjs';
 import './ci.test.mjs';
 import './application.test.mjs';
 import './acquisition.test.mjs';
+import './bounds.test.mjs';
