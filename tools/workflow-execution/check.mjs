@@ -104,6 +104,24 @@ export function checkExecutionEvidence(input){
   const eventKey=e.operation_id+'|'+e.status;if(eventIds.has(eventKey))add('event_invalid','event',index);eventIds.add(eventKey);
   if(e.run_id!==g.run_id||!matches(e.profile,p)||!selected.has(e.issue_number)||Date.parse(e.occurred_at)>now||['claim','push','release','stop'].includes(e.operation_kind)&&(!e.claim_id||!e.worker_id||!e.generation))add('event_invalid','event',index);
  }
- if(input.report){const r=input.report,ids=new Set();if(r.run_id!==g.run_id||!matches(r.profile,p)||!matches(r.grant,g)||Date.parse(r.started_at)>Date.parse(r.finished_at)||Date.parse(r.finished_at)>now)add('report_invalid','run-report');for(const row of r.subjects){if(ids.has(row.issue_number)||!selected.has(row.issue_number)||row.head_sha!==selected.get(row.issue_number)?.head_sha)add('report_invalid','run-report');ids.add(row.issue_number);}if(new Set(r.recommended_merge_order).size!==r.recommended_merge_order.length||r.recommended_merge_order.some(i=>!ids.has(i)))add('report_invalid','run-report');}
+ if(input.report){
+  const r=input.report,ids=new Set();
+  if(r.run_id!==g.run_id||!matches(r.profile,p)||!matches(r.grant,g)||Date.parse(r.started_at)<Date.parse(g.issued_at)||Date.parse(r.started_at)>Date.parse(r.finished_at)||Date.parse(r.finished_at)>now)add('report_invalid','run-report');
+  for(const row of r.subjects){
+   const target=selected.get(row.issue_number);
+   if(ids.has(row.issue_number)||!target||row.head_sha!==target.head_sha)add('report_invalid','run-report');ids.add(row.issue_number);
+   for(const ref of row.result_refs){
+    const result=lookup(ref);
+    if(!result||result.repository!==c.repository){add('report_invalid','run-report');continue;}
+    if(['verification','review','security-result'].includes(result.artifact_kind)){
+     if(!target||!same(result.subject,subjectOf(target)))add('report_invalid','run-report');
+    }else if(result.artifact_kind==='integration-result'){
+     if(result.run_id!==g.run_id||!matches(result.profile,p)||!result.targets.some(t=>t.issue_number===row.issue_number&&t.head_sha===row.head_sha))add('report_invalid','run-report');
+    }else add('report_invalid','run-report');
+   }
+  }
+  if(new Set(r.recommended_merge_order).size!==r.recommended_merge_order.length||r.recommended_merge_order.some(i=>!ids.has(i)))add('report_invalid','run-report');
+ }
+
  return finish();
 }
