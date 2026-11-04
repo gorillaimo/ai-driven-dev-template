@@ -13,7 +13,11 @@ with tempfile.TemporaryDirectory() as d:
  assert m.inspect_database(p)['advisories']==1
  m.MAX_ENTRIES=0
  try:m.inspect_database(p);raise AssertionError('entry limit accepted')
- except ValueError as error:assert str(error)=='database_entry_limit'
+ except ValueError as error:
+  assert str(error)=='database_entry_limit'
+  assert error.counts['database_entries']==1
+  assert error.counts['database_expanded_bytes']>0
+  assert set(error.counts)=={'database_entries','database_expanded_bytes','database_compressed_bytes'}
  m.MAX_ENTRIES=100000;m.MAX_EXPANDED=0
  try:m.inspect_database(p);raise AssertionError('expanded limit accepted')
  except ValueError as error:assert str(error)=='database_expanded_limit'

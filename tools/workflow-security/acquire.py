@@ -10,6 +10,11 @@ MAX_ENTRIES=100000
 STAGE="arguments"
 TOOL=None
 
+class DatabaseLimitError(ValueError):
+    def __init__(self,code,counts):
+        super().__init__(code)
+        self.counts=counts
+
 def sha(path):
     h=hashlib.sha256()
     with path.open('rb') as f:
@@ -38,7 +43,11 @@ def download(url,path,limit,metadata=None):
 def inspect_database(path):
     entries=0;expanded=0;advisories=0
     with zipfile.ZipFile(path) as z:
-        for row in z.infolist():
+        rows=z.infolist()
+        counts={'database_entries':len(rows),'database_expanded_bytes':sum(row.file_size for row in rows),'database_compressed_bytes':path.stat().st_size}
+        if counts['database_entries']>MAX_ENTRIES:raise DatabaseLimitError('database_entry_limit',counts)
+        if counts['database_expanded_bytes']>MAX_EXPANDED:raise DatabaseLimitError('database_expanded_limit',counts)
+        for row in rows:
             entries+=1;expanded+=row.file_size
             parts=Path(row.filename).parts
             if entries>MAX_ENTRIES:raise ValueError('database_entry_limit')
@@ -119,4 +128,5 @@ if __name__=='__main__':
     except Exception as error:
         known={'ecosystem_invalid','output_exists','download_limit','checksum_invalid','archive_invalid','archive_limit','database_invalid','database_format_invalid','database_empty','database_entry_limit','database_expanded_limit','arguments_invalid'}
         code=str(error) if isinstance(error,ValueError) and str(error) in known else 'acquisition_failed'
-        print(json.dumps({'status':'error','code':code,'stage':STAGE,'tool_id':TOOL,'http_status':getattr(error,'code',None) if isinstance(getattr(error,'code',None),int) else None}));sys.exit(1)
+        counts=error.counts if isinstance(error,DatabaseLimitError) else {}
+        print(json.dumps({'status':'error','code':code,'stage':STAGE,'tool_id':TOOL,'http_status':getattr(error,'code',None) if isinstance(getattr(error,'code',None),int) else None,**counts}));sys.exit(1)
