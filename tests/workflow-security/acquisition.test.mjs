@@ -12,4 +12,4 @@ with tempfile.TemporaryDirectory() as d:
  with zipfile.ZipFile(p,'w') as z:z.writestr('OSV-fixture.json',json.dumps({'id':'OSV-fixture','modified':'2026-11-04T00:00:00Z','affected':[]}))
  assert m.inspect_database(p)['advisories']==1
 print('database_limits_pass')`;
- const r=await executeProcess('python3',['-c',code]);assert.equal(r.code,0,r.stderr);assert.equal(r.stdout.trim(),'database_limits_pass');});
+ const r=await executeProcess('python3',['-c',code],{cwd:new URL('../../',import.meta.url)});assert.equal(r.code,0,r.stderr);assert.equal(r.stdout.trim(),'database_limits_pass');});
