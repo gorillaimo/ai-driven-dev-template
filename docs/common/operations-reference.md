@@ -685,3 +685,8 @@ gh repo create [owner]/[repository-name] --private --source=. --remote=origin --
 - チーム運用では、`main` ブランチ保護を設定し、direct push 禁止、PR必須、必要なActions成功必須を有効にしている。
 
 `needs-triage`、`feature`、`needs-info`、`ready-for-ai` ラベルはworkflowが自動作成します。手動作成は不要です。
+
+## セキュリティ検査結果を確認する
+
+GitHubのSecurity Validationで、実施した検査・成否/件数・未評価を確認します。問題があればAIが根拠と対応範囲を調べ、修正後に再検査します。人間は範囲外の修正や例外の判断を行います。詳細は必要時に保護した記録を参照します。
+利用先へはAIが対象に合う設定を準備し、通信・権限・上限・保存先を説明してから接続します。手順と未提供の範囲は[検査ツール](workflow-tools-guide.md#security)を参照してください。

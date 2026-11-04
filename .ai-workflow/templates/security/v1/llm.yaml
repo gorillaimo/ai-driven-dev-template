@@ -1,0 +1,59 @@
+# PROPOSAL ONLY: no executable adapter or real target is enabled.
+schema_version: 1
+artifact_kind: security-profile
+artifact_id: llm-proposal
+revision: 1
+repository: example/synthetic
+human_owner: gorillaimo
+execution_profile:
+  kind: profile
+  id: profile
+  revision: 1
+  digest: 818232acf61747829466f742b2395ddc9fda6ce39959bf4046195e26436275bc
+  location:
+    kind: id
+    target: profile
+catalog_digest: 5bf8a111a343b66f1aae16899537882acafb46b3f1ebb687c1e420626cc71f68
+domain: app
+languages:
+  - javascript
+required_acs:
+  - ac-1
+reviewed_at: 2026-11-04T00:00:00Z
+expires_at: 2026-12-01T00:00:00Z
+approval_refs:
+  - kind: source
+    id: security-policy
+    revision: 1
+    digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    location:
+      kind: id
+      target: protected-security-policy
+max_age_seconds: 86400
+stop_severities:
+  - critical
+  - high
+exceptions: []
+limits:
+  timeout_seconds: 300
+  overall_seconds: 900
+  max_concurrent: 2
+  memory_mib: 2048
+  cpus: 2
+  pids: 256
+  max_raw_bytes: 10485760
+checks:
+  - check_id: secrets
+    tool_id: llm
+    required: true
+    command_id: security-secrets
+    acs:
+      - ac-1
+    targets:
+      - src
+    formats:
+      - text
+    exclusions: []
+    when:
+      fact_id: application_uses_llm
+      equals: true

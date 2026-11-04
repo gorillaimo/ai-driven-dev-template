@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:security:v1:result",
+  "title": "security/v1 result",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "artifact_kind": {
+      "const": "security-result"
+    },
+    "check_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "tool_id": {
+      "enum": [
+        "gitleaks",
+        "osv",
+        "semgrep",
+        "trivy",
+        "application",
+        "dynamic",
+        "llm"
+      ]
+    },
+    "domain": {
+      "enum": [
+        "app",
+        "template",
+        "execution_environment"
+      ]
+    },
+    "subject": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/subject"
+    },
+    "plan_digest": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+    },
+    "profile_digest": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+    },
+    "catalog_digest": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+    },
+    "input_digest": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+    },
+    "status": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/outcome"
+    },
+    "started_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "finished_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "tool_version": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "rules_digest": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+    },
+    "intelligence": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "rules",
+            "vulnerability_snapshot"
+          ]
+        },
+        "snapshots": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:ai-workflow:security:v1:common#/$defs/database"
+          },
+          "maxItems": 3,
+          "minItems": 0
+        }
+      },
+      "required": [
+        "kind",
+        "snapshots"
+      ],
+      "additionalProperties": false
+    },
+    "receipt": {
+      "$ref": "urn:ai-workflow:security:v1:common#/$defs/receipt"
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:security:v1:common#/$defs/finding"
+      },
+      "maxItems": 1000,
+      "minItems": 0
+    },
+    "verification": {
+      "$ref": "urn:ai-workflow:execution:v1:verification"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:security:v1:common#/$defs/diagnostic"
+      },
+      "maxItems": 1000,
+      "minItems": 0
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "check_id",
+    "tool_id",
+    "domain",
+    "subject",
+    "plan_digest",
+    "profile_digest",
+    "catalog_digest",
+    "input_digest",
+    "status",
+    "started_at",
+    "finished_at",
+    "tool_version",
+    "rules_digest",
+    "intelligence",
+    "receipt",
+    "findings",
+    "verification",
+    "diagnostics"
+  ],
+  "additionalProperties": false
+}

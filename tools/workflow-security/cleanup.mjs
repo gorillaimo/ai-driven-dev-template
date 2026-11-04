@@ -1,0 +1,4 @@
+import{executeProcess}from'./process.mjs';import{runLabel}from'./docker.mjs';
+const env={...process.env};for(const k of ['DOCKER_HOST','DOCKER_CONTEXT','DOCKER_TLS','DOCKER_TLS_VERIFY','DOCKER_CERT_PATH'])delete env[k];
+const run=args=>executeProcess('docker',['--host=unix:///var/run/docker.sock',...args],{env,timeoutMs:15000});
+try{if(!process.env.GITHUB_RUN_ID||!process.env.GITHUB_RUN_ATTEMPT)throw Error();const filter='label=ai-workflow-run='+runLabel(),listed=await run(['ps','--all','--quiet','--filter',filter]);if(listed.error||listed.code!==0)throw Error();for(const id of listed.stdout.trim().split('\n').filter(Boolean)){if(!/^[0-9a-f]{12,64}$/.test(id))throw Error();await run(['rm','--force',id]);}const after=await run(['ps','--all','--quiet','--filter',filter]);if(after.error||after.code!==0||after.stdout.trim())throw Error();console.log('{"cleanup":"confirmed"}');}catch{console.log('{"cleanup":"unknown"}');process.exitCode=1;}

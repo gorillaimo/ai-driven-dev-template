@@ -1,0 +1,82 @@
+# SYNTHETIC EXAMPLE
+schema_version: 1
+artifact_kind: security-context
+repository: example/synthetic
+purpose: tool_trial
+evaluated_at: 2026-11-04T00:10:00Z
+recorded_by:
+  actor_type: ai_agent
+  actor_ref: implementer
+  on_behalf_of: gorillaimo
+subject:
+  issue_number: 1
+  work_id: issue-1
+  run_id: run-1
+  attempt: 1
+  base_sha: "1111111111111111111111111111111111111111"
+  head_sha: "2222222222222222222222222222222222222222"
+  plan:
+    id: plan-1
+    revision: 1
+    digest: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  profile:
+    kind: profile
+    id: profile
+    revision: 1
+    digest: 818232acf61747829466f742b2395ddc9fda6ce39959bf4046195e26436275bc
+    location:
+      kind: id
+      target: profile
+profile_digest: 9f60a8299f09b4d50e70ceffe50ea04f4307609af8622d346e2e9f315e339f47
+authorization:
+  status: confirmed
+  evidence_refs:
+    - kind: source
+      id: authority
+      revision: 1
+      digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      location:
+        kind: id
+        target: protected-authority
+capabilities:
+  docker: true
+  linux_amd64: true
+  network_none: true
+  read_only: true
+  resource_limits: true
+facts:
+  - fact_id: has_iac
+    value: false
+    observed_at: 2026-11-04T00:10:00Z
+    evidence_refs:
+      - kind: source
+        id: iac
+        revision: 1
+        digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        location:
+          kind: id
+          target: protected-iac
+targets:
+  - path: src/index.js
+    digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    format: javascript
+inventory:
+  image: semgrep/semgrep@sha256:fb59331f2772da4a9960692ae31961cd58a7c666c014125e9202c96bdfdc38cc
+  tools:
+    - tool_id: gitleaks
+      version: 8.30.1
+      binary_digest: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+      archive_digest: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+    - tool_id: osv
+      version: 2.7.0
+      binary_digest: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+      archive_digest: 160c6253e2922e9e0a6a9771c5c4c40a4b3c6090b34a3cdd5e80c96cc2e4218b
+    - tool_id: semgrep
+      version: 1.183.0
+      binary_digest: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+      archive_digest: fb59331f2772da4a9960692ae31961cd58a7c666c014125e9202c96bdfdc38cc
+    - tool_id: trivy
+      version: 0.76.1
+      binary_digest: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+      archive_digest: c7cbe3137fb8a48a17574bede3dd6beb16742d1e9772929940fc90082c39d9c0
+  databases: []

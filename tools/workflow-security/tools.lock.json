@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "image": "semgrep/semgrep@sha256:fb59331f2772da4a9960692ae31961cd58a7c666c014125e9202c96bdfdc38cc",
+  "tools": [
+    {
+      "tool_id": "gitleaks",
+      "version": "8.30.1",
+      "url": "https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz",
+      "sha256": "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb",
+      "binary": "gitleaks",
+      "license": "MIT",
+      "formats": [
+        "text"
+      ],
+      "finding_exit": 10
+    },
+    {
+      "tool_id": "osv",
+      "version": "2.7.0",
+      "url": "https://github.com/google/osv-scanner/releases/download/v2.7.0/osv-scanner_linux_amd64",
+      "sha256": "160c6253e2922e9e0a6a9771c5c4c40a4b3c6090b34a3cdd5e80c96cc2e4218b",
+      "binary": "osv-scanner",
+      "license": "Apache-2.0",
+      "formats": [
+        "npm",
+        "PyPI",
+        "Pub"
+      ],
+      "finding_exit": 1
+    },
+    {
+      "tool_id": "semgrep",
+      "version": "1.183.0",
+      "url": "https://github.com/semgrep/semgrep/releases/tag/v1.183.0",
+      "sha256": "fb59331f2772da4a9960692ae31961cd58a7c666c014125e9202c96bdfdc38cc",
+      "binary": "semgrep",
+      "license": "LGPL-2.1",
+      "formats": [
+        "javascript",
+        "typescript",
+        "python"
+      ],
+      "finding_exit": 1
+    },
+    {
+      "tool_id": "trivy",
+      "version": "0.76.1",
+      "url": "https://github.com/aquasecurity/trivy/releases/download/v0.76.1/trivy_0.76.1_Linux-64bit.tar.gz",
+      "sha256": "c7cbe3137fb8a48a17574bede3dd6beb16742d1e9772929940fc90082c39d9c0",
+      "binary": "trivy",
+      "license": "Apache-2.0",
+      "formats": [
+        "terraform",
+        "cloudformation",
+        "kubernetes",
+        "dockerfile"
+      ],
+      "finding_exit": 10
+    }
+  ],
+  "rules": {
+    "empty.ignore": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gitleaks.toml": "27630a96d6c55755cc37620f3933d5cab94b1eb78a726a32e11212972525d76e",
+    "osv-scanner.toml": "051718af31ca7f871023e54cd3699624cb58c462c5995bff9e3de3698c94a74f",
+    "semgrep.yaml": "41bc30cad72b83ffe61443d296ff27884cf24f4eddf28637c3520c1059c7f9e6",
+    "trivy.yaml": "5ab16d990e4645fcfe403ab9a682718aa1f3eea5e5386243f61fc16f669c7464"
+  },
+  "system_exclusions": [
+    ".git",
+    "node_modules"
+  ],
+  "max_source_files": 10000,
+  "max_source_bytes": 209715200
+}

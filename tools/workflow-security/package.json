@@ -1,0 +1,29 @@
+{
+  "name": "workflow-security",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    "./plan": "./plan.mjs",
+    "./run": "./run.mjs",
+    "./normalize": "./normalize.mjs",
+    "./check": "./check.mjs",
+    "./load": "./load.mjs",
+    "./schema": "./schema.mjs",
+    "./application": "./application.mjs"
+  },
+  "scripts": {
+    "test": "node ../../tests/workflow-security/run.mjs",
+    "test:live": "node ../../tests/workflow-security/live.mjs"
+  },
+  "dependencies": {
+    "workflow-execution": "file:../workflow-execution",
+    "workflow-rules": "file:../workflow-rules",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "yaml": "^2.8.1"
+  }
+}

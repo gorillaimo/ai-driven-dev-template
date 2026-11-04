@@ -44,6 +44,7 @@ jobs:
           npm ci --prefix tools/workflow-ci --ignore-scripts --no-audit --no-fund
           npm ci --prefix tools/workflow-project --ignore-scripts --no-audit --no-fund
           npm ci --prefix tools/workflow-execution --ignore-scripts --no-audit --no-fund
+          npm ci --prefix tools/workflow-security --ignore-scripts --no-audit --no-fund
       - name: Existing schema and checker tests
         id: regression
         run: |
@@ -59,6 +60,7 @@ jobs:
           npm test --prefix tools/workflow-trace
           npm test --prefix tools/workflow-golden
           npm test --prefix tools/workflow-execution
+          npm test --prefix tools/workflow-security
       - name: CI runner and workflow contract tests
         id: contracts
         run: npm test --prefix tools/workflow-ci

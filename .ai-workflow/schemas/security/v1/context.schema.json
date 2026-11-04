@@ -1,0 +1,296 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:security:v1:context",
+  "title": "security/v1 context",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "artifact_kind": {
+      "const": "security-context"
+    },
+    "repository": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/repository"
+    },
+    "purpose": {
+      "enum": [
+        "repository_check",
+        "tool_trial"
+      ]
+    },
+    "evaluated_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "recorded_by": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/actor"
+    },
+    "subject": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/subject"
+    },
+    "profile_digest": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+    },
+    "authorization": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "enum": [
+            "confirmed",
+            "denied",
+            "unknown"
+          ]
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+          },
+          "maxItems": 100,
+          "minItems": 1
+        }
+      },
+      "required": [
+        "status",
+        "evidence_refs"
+      ],
+      "additionalProperties": false
+    },
+    "capabilities": {
+      "type": "object",
+      "properties": {
+        "docker": {
+          "type": "boolean"
+        },
+        "linux_amd64": {
+          "type": "boolean"
+        },
+        "network_none": {
+          "type": "boolean"
+        },
+        "read_only": {
+          "type": "boolean"
+        },
+        "resource_limits": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "docker",
+        "linux_amd64",
+        "network_none",
+        "read_only",
+        "resource_limits"
+      ],
+      "additionalProperties": false
+    },
+    "facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "fact_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "value": {
+            "enum": [
+              true,
+              false,
+              "unknown"
+            ]
+          },
+          "observed_at": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+            },
+            "maxItems": 100,
+            "minItems": 1
+          }
+        },
+        "required": [
+          "fact_id",
+          "value",
+          "observed_at",
+          "evidence_refs"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 100,
+      "minItems": 0
+    },
+    "targets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+          },
+          "digest": {
+            "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+          },
+          "format": {
+            "enum": [
+              "text",
+              "javascript",
+              "typescript",
+              "python",
+              "dart",
+              "npm",
+              "PyPI",
+              "Pub",
+              "terraform",
+              "cloudformation",
+              "kubernetes",
+              "dockerfile",
+              "image",
+              "web",
+              "llm"
+            ]
+          }
+        },
+        "required": [
+          "path",
+          "digest",
+          "format"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 10000,
+      "minItems": 0
+    },
+    "inventory": {
+      "type": "object",
+      "properties": {
+        "image": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tool_id": {
+                "enum": [
+                  "gitleaks",
+                  "osv",
+                  "semgrep",
+                  "trivy"
+                ]
+              },
+              "version": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 32
+              },
+              "binary_digest": {
+                "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+              },
+              "archive_digest": {
+                "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+              }
+            },
+            "required": [
+              "tool_id",
+              "version",
+              "binary_digest",
+              "archive_digest"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 4,
+          "minItems": 0
+        },
+        "databases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ecosystem": {
+                "enum": [
+                  "npm",
+                  "PyPI",
+                  "Pub"
+                ]
+              },
+              "digest": {
+                "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+              },
+              "fetched_at": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+              },
+              "checked_at": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+              },
+              "source": {
+                "type": "string",
+                "pattern": "^(https://osv-vulnerabilities\\.storage\\.googleapis\\.com/(npm|PyPI|Pub)/all\\.zip|urn:ai-workflow:synthetic-osv-db)$"
+              },
+              "snapshot_kind": {
+                "enum": [
+                  "public_snapshot",
+                  "synthetic_fixture"
+                ]
+              },
+              "source_modified_at": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+              },
+              "advisory_count": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100000
+              }
+            },
+            "required": [
+              "ecosystem",
+              "digest",
+              "fetched_at",
+              "checked_at",
+              "source",
+              "snapshot_kind"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 3,
+          "minItems": 0
+        }
+      },
+      "required": [
+        "image",
+        "tools",
+        "databases"
+      ],
+      "additionalProperties": false
+    },
+    "rechecks": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:execution:v1:review"
+      },
+      "maxItems": 100,
+      "minItems": 0
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "repository",
+    "purpose",
+    "evaluated_at",
+    "recorded_by",
+    "subject",
+    "profile_digest",
+    "authorization",
+    "capabilities",
+    "facts",
+    "targets",
+    "inventory"
+  ],
+  "additionalProperties": false
+}

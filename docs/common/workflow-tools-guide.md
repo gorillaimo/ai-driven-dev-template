@@ -21,6 +21,7 @@ Node.jsは開発管理に使い、利用先アプリの開発言語は問いま�
 | 次の1作業 | [推薦](#project-recommend) |
 | Projectをまたぐ回帰 | [Project Golden](#project-golden) |
 | 検証・AIレビュー結果の整合 | [execution記録](#execution) |
+| 実セキュリティ検査 | [検査の接続](#security) |
 
 <a id="issue-artifacts"></a>
 
@@ -327,7 +328,7 @@ main更新と手動操作でも起動します。手動実行はworkflowをdefau
 
 実行内容:
 
-1. 専用8package（schema/rules/check/trace/golden/ci/project/execution）のlockfileで依存取得。install scriptsは無効。
+1. 専用9package（schema/rules/check/trace/golden/ci/project/execution/security）のlockfileで依存取得。install scriptsは無効。
 2. 既存の静的テスト、execution記録の検査、Goldenハーネスのテスト、CI検査・workflow契約テストを実行。
 3. Golden固定caseを実行。
 4. repositoryに保存したIssue成果物の形式・識別子・必要なローカル参照を検査。
@@ -371,7 +372,7 @@ failure/skipped/cancelledと、起動していない検査を成功と読み替�
 fork PRの初回承認やActions利用制限により未実行となる場合は、保守者がGitHubの画面で状態を確認します。Secretsやwrite権限を与えて通す運用にはしません。
 このworkflowはcontents:readとcredential非保持で動き、PRコメント・ラベル・自動承認・merge・deployを行いません。
 
-導入時は新workflow、必要な8tool package、tests、.ai-workflow/schemas、共通文書を一緒に保持してください。
+導入時は新workflow、必要な9tool package、tests、.ai-workflow/schemas、共通文書を一緒に保持してください。
 branch protectionやrequired checksは自動変更しません。まず実行時間と誤検知を観測し、人間が必要性を判断してから必須化します。
 無効化する場合はGitHubのActions画面でこのworkflowだけを停止するか、レビュー済みPRで新workflowを取り除きます。required checkに設定済みなら、先に人間がその設定を見直します。
 失敗時は元成果物・見本を保存してIssueへ理由を記録し、個別checkerと従来のIssue・branch・PR運用で確認を続けられます。
@@ -779,3 +780,19 @@ profileのpathは厳格な相対pathで、許可したpath自身とその配下�
 plain JSONのみ受理し、getter/Proxy/cycle/特殊object/疎配列等をschema検査前に拒否します。loaderはroot内の通常fileだけを読み、symlink/不正path/過大file、YAML alias/tag/重複keyを拒否します。安定したcheckoutを前提にし、悪意ある同時FS変更への原子性やsandboxを保証しません。
 
 失敗時は原本・過去結果を保存し、入力/参照/時刻/対象の不一致を訂正して再検査します。外部事実が不明なら人間の確認に戻します。既存v1と手動運用を維持し、この追加だけで無人実行を有効にしません。scanner実行、GitHub取得・認証、Dispatcher/Runner、実統合と自律継続は後続Issueの対象です。
+
+<a id="security"></a>
+
+## 実テスト・セキュリティ検査への接続
+
+`tools/workflow-security/`は、検査の適用条件を調べ、固定scannerを実行してP1 verificationとsecurity/v1の結果へ接続します。利用先アプリの言語は限定しません。検査の選択と採用設定はAIが準備し、人間は対象・通信・上限を承認してGitHubで結果を確認します。
+
+[記入例・API・手動手順](../../.ai-workflow/templates/security/v1/README.md)と[このrepoの採用設定](../../.ai-workflow/security/README.md)を参照してください。CLI利用にはNode22以上、Python3.10以上、Linux amd64/Dockerが必要です。既存アプリのtest/build/type-checkは承認済みのアプリCI環境から`runApplicationVerification`で接続し、静的scannerと区別します。
+
+基本検査はGitleaks（secret）、OSV-Scanner（依存）、Semgrep CE（静的解析）です。TrivyのIaC検査は該当時に追加します。DBやtoolの取得は別段階にし、scanner workerはnetwork:none/read-only・非rootで動かします。版・配布物checksum/image digest・規則を固定し、エラー時に自動更新/除外拡大をしません。
+
+新しいSecurity Validationは、PR/main/手動と週1回mainで実検査を行います。既存Workflow Validationはfake/合成テストをNode22/24で実行し、scanner取得を混ぜません。このrepoが検査するのはtemplate code/依存で、利用先アプリの検査は別途採用します。required checksや権限/課金設定を自動変更しません。
+
+Summaryには成否・件数・未評価を表示します。secret・原文・code断片・raw reportはuploadしません。詳細の保存先は人間が承認して選び、CIの一時ファイルが終了後も参照できるとは扱いません。検出・未対応・故障・未実行・古いDB・停止不明を区別し、未解決指摘や期限切れ例外を成功へ昇格しません。
+
+動的検査とLLM機能固有の検査は、条件と隔離/負のテストの例です。実host/実LLMを検査するadapterは未提供で、未設定を非該当や成功にしません。Dartなど初期規則が未対応の言語も保留にします。scanner成功はASVS準拠、認証/tenant境界、人間承認、Agent Runner全体の安全性を保証しません。

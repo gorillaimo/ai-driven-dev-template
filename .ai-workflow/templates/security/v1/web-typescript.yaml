@@ -1,0 +1,66 @@
+# SYNTHETIC POLICY EXAMPLE. Pair with actual app commands, approvals and context at adoption.
+schema_version: 1
+artifact_kind: security-profile
+artifact_id: web-typescript
+revision: 1
+repository: example/synthetic
+human_owner: gorillaimo
+execution_profile:
+  kind: profile
+  id: profile
+  revision: 1
+  digest: f1bd3e19991e690ea759bbbcb1ff47d0ce94bdb868e6fedeada85a49a89d334a
+  location:
+    kind: id
+    target: profile
+catalog_digest: 5bf8a111a343b66f1aae16899537882acafb46b3f1ebb687c1e420626cc71f68
+domain: app
+languages:
+  - javascript
+  - typescript
+required_acs:
+  - ac-1
+reviewed_at: 2026-11-04T00:00:00Z
+expires_at: 2026-12-01T00:00:00Z
+approval_refs:
+  - kind: source
+    id: security-policy
+    revision: 1
+    digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    location:
+      kind: id
+      target: protected-security-policy
+max_age_seconds: 86400
+stop_severities:
+  - critical
+  - high
+exceptions: []
+limits:
+  timeout_seconds: 300
+  overall_seconds: 900
+  max_concurrent: 2
+  memory_mib: 2048
+  cpus: 2
+  pids: 256
+  max_raw_bytes: 10485760
+checks:
+  - check_id: secrets
+    tool_id: semgrep
+    required: true
+    command_id: security-secrets
+    acs:
+      - ac-1
+    targets:
+      - src
+    formats:
+      - javascript
+      - typescript
+    exclusions: []
+standard_refs:
+  - standard: OWASP-ASVS
+    version: 5.0.0
+    requirement_ids:
+      - v5.0.0-8.2.1
+      - v5.0.0-8.2.2
+    acs:
+      - ac-1
