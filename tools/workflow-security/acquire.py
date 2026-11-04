@@ -6,6 +6,8 @@ ROOT=Path(__file__).resolve().parent
 MAX_TOOL=256*1024*1024
 MAX_DB=1024*1024*1024
 MAX_EXPANDED=2*1024*1024*1024
+STAGE="arguments"
+TOOL=None
 
 def sha(path):
     h=hashlib.sha256()
@@ -54,6 +56,7 @@ def inspect_database(path):
     return {'entries':entries,'expanded':expanded,'advisories':advisories}
 
 def acquire(destination,ecosystems):
+    global STAGE,TOOL
     if any(e not in ['npm','PyPI','Pub'] for e in ecosystems) or len(ecosystems)>3 or len(set(ecosystems))!=len(ecosystems):raise ValueError('ecosystem_invalid')
     target=Path(destination)
     if target.exists():raise ValueError('output_exists')
@@ -64,6 +67,7 @@ def acquire(destination,ecosystems):
     for tool in catalog['tools']:
         if tool['tool_id']=='semgrep':
             inventory['tools'].append({'tool_id':'semgrep','version':tool['version'],'binary_digest':tool['sha256'],'archive_digest':tool['sha256']});continue
+        STAGE='tool_download';TOOL=tool['tool_id']
         archive=target/(tool['tool_id']+'.download')
         download(tool['url'],archive,MAX_TOOL)
         if sha(archive)!=tool['sha256']:raise ValueError('checksum_invalid')
@@ -86,10 +90,12 @@ def acquire(destination,ecosystems):
         inventory['tools'].append({'tool_id':tool['tool_id'],'version':tool['version'],'binary_digest':sha(binary),'archive_digest':tool['sha256']})
     compressed=0;expanded=0;entries=0
     for ecosystem in ecosystems:
+        STAGE='database_download';TOOL=None
         directory=target/'db'/ecosystem;directory.mkdir(mode=0o755)
         path=directory/'all.zip';source='https://osv-vulnerabilities.storage.googleapis.com/'+ecosystem+'/all.zip'
         metadata={}
         compressed+=download(source,path,MAX_DB-compressed,metadata)
+        STAGE='database_validation'
         inspected=inspect_database(path);entries+=inspected['entries'];expanded+=inspected['expanded']
         if entries>100000 or expanded>MAX_EXPANDED:raise ValueError('database_limit')
         now=datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00','Z')
@@ -106,5 +112,7 @@ if __name__=='__main__':
         signal.alarm(600)
         result=acquire(sys.argv[1],sys.argv[2].split(',') if sys.argv[2] else [])
         print(json.dumps({'status':'acquired','tools':len(result['tools']),'databases':len(result['databases'])}))
-    except Exception:
-        print('{"status":"error","code":"acquisition_failed"}');sys.exit(1)
+    except Exception as error:
+        known={'ecosystem_invalid','output_exists','download_limit','checksum_invalid','archive_invalid','archive_limit','database_invalid','database_format_invalid','database_empty','database_limit','arguments_invalid'}
+        code=str(error) if isinstance(error,ValueError) and str(error) in known else 'acquisition_failed'
+        print(json.dumps({'status':'error','code':code,'stage':STAGE,'tool_id':TOOL,'http_status':getattr(error,'code',None) if isinstance(getattr(error,'code',None),int) else None}));sys.exit(1)
