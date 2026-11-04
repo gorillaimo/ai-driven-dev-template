@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:security:v1:plan",
+  "title": "security/v1 plan",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "artifact_kind": {
+      "const": "security-plan"
+    },
+    "status": {
+      "enum": [
+        "pass",
+        "blocked"
+      ]
+    },
+    "input_digest": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "domain": {
+      "enum": [
+        "app",
+        "template",
+        "execution_environment",
+        "unknown"
+      ]
+    },
+    "inputs": {
+      "anyOf": [
+        {
+          "$ref": "urn:ai-workflow:security:v1:common#/$defs/inputs"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "check_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "tool_id": {
+            "enum": [
+              "gitleaks",
+              "osv",
+              "semgrep",
+              "trivy",
+              "application",
+              "dynamic",
+              "llm"
+            ]
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "applicability": {
+            "enum": [
+              "required",
+              "optional",
+              "not_applicable",
+              "unknown"
+            ]
+          },
+          "status": {
+            "enum": [
+              "ready",
+              "not_applicable",
+              "not_evaluated"
+            ]
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+            },
+            "maxItems": 10000,
+            "minItems": 0
+          },
+          "formats": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "text",
+                "javascript",
+                "typescript",
+                "python",
+                "dart",
+                "npm",
+                "PyPI",
+                "Pub",
+                "terraform",
+                "cloudformation",
+                "kubernetes",
+                "dockerfile",
+                "image",
+                "web",
+                "llm"
+              ]
+            },
+            "maxItems": 20,
+            "minItems": 0
+          },
+          "exclusions": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+            },
+            "maxItems": 100,
+            "minItems": 0
+          }
+        },
+        "required": [
+          "check_id",
+          "tool_id",
+          "required",
+          "applicability",
+          "status",
+          "targets",
+          "formats",
+          "exclusions"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 100,
+      "minItems": 0
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:security:v1:common#/$defs/diagnostic"
+      },
+      "maxItems": 1000,
+      "minItems": 0
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "status",
+    "input_digest",
+    "domain",
+    "inputs",
+    "checks",
+    "diagnostics"
+  ],
+  "additionalProperties": false
+}

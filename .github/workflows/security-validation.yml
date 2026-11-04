@@ -1,0 +1,61 @@
+name: Security Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '17 3 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  security:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      SECURITY_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+      SECURITY_BASE: ${{ github.event.pull_request.base.sha || github.sha }}
+    steps:
+      - name: Checkout scanned revision
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Install locked management dependencies
+        run: |
+          npm ci --prefix tools/workflow-rules --ignore-scripts --no-audit --no-fund
+          npm ci --prefix tools/workflow-execution --ignore-scripts --no-audit --no-fund
+          npm ci --prefix tools/workflow-security --ignore-scripts --no-audit --no-fund
+      - name: Validate adopted policy
+        run: node tools/workflow-security/admission.mjs
+      - name: Acquire pinned public tools and npm vulnerability snapshot
+        timeout-minutes: 10
+        run: |
+          python3 tools/workflow-security/acquire.py "$RUNNER_TEMP/security-tools" npm
+          docker pull --platform=linux/amd64 semgrep/semgrep@sha256:fb59331f2772da4a9960692ae31961cd58a7c666c014125e9202c96bdfdc38cc
+      - name: Verify actual tools on inert fixtures
+        timeout-minutes: 10
+        run: node tests/workflow-security/live.mjs "$RUNNER_TEMP/security-tools"
+      - name: Scan template code and dependencies offline
+        timeout-minutes: 15
+        run: node tools/workflow-security/cli.mjs --head "$SECURITY_HEAD" --base "$SECURITY_BASE" --issue 47 --tool-root "$RUNNER_TEMP/security-tools" --output "$RUNNER_TEMP/security-results"
+      - name: Reconcile this run's scanner containers
+        if: always()
+        timeout-minutes: 1
+        run: node tools/workflow-security/cleanup.mjs
+      - name: Security summary
+        if: always()
+        run: node tools/workflow-security/summary.mjs "$RUNNER_TEMP/security-results/report.json" >> "$GITHUB_STEP_SUMMARY"

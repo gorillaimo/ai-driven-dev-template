@@ -1,0 +1,124 @@
+schema_version: 1
+artifact_kind: security-profile
+artifact_id: template-security
+revision: 1
+repository: gorillaimo/ai-driven-dev-template
+human_owner: gorillaimo
+execution_profile:
+  kind: profile
+  id: template-security-execution
+  revision: 1
+  digest: 192a12990941f232f6aad40c697179ddeaedc59cf90abae2ba639af306c12192
+  location:
+    kind: id
+    target: template-security-execution
+catalog_digest: 5bf8a111a343b66f1aae16899537882acafb46b3f1ebb687c1e420626cc71f68
+domain: template
+languages:
+  - javascript
+  - typescript
+  - python
+required_acs:
+  - security-policy
+reviewed_at: 2026-11-04T06:06:16Z
+expires_at: 2026-12-04T06:06:16Z
+approval_refs:
+  - kind: source
+    id: issue-47-approval-record
+    revision: 1
+    digest: 22c271ed422b6353e043fcde43ce5aa90c6461a28645e4ec50ee30d09005e50a
+    location:
+      kind: url
+      target: https://github.com/gorillaimo/ai-driven-dev-template/issues/47#issuecomment-6623910263
+max_age_seconds: 86400
+stop_severities:
+  - critical
+  - high
+exceptions: []
+limits:
+  timeout_seconds: 300
+  overall_seconds: 900
+  max_concurrent: 2
+  memory_mib: 2048
+  cpus: 2
+  pids: 256
+  max_raw_bytes: 10485760
+checks:
+  - check_id: secrets
+    tool_id: gitleaks
+    required: true
+    command_id: security-secrets
+    acs:
+      - security-policy
+    targets:
+      - .ai-workflow
+      - .github
+      - docs
+      - tests
+      - tools
+      - AGENTS.md
+      - CLAUDE.md
+      - README.md
+      - CHANGELOG.md
+      - LICENSE
+      - VERSION
+      - .gitignore
+      - .gitattributes
+    formats:
+      - text
+    exclusions: []
+  - check_id: dependencies
+    tool_id: osv
+    required: true
+    command_id: security-dependencies
+    acs:
+      - security-policy
+    targets:
+      - tools
+    formats:
+      - npm
+    exclusions: []
+  - check_id: static
+    tool_id: semgrep
+    required: true
+    command_id: security-static
+    acs:
+      - security-policy
+    targets:
+      - tools
+      - tests
+    formats:
+      - javascript
+      - typescript
+      - python
+    exclusions: []
+  - check_id: infrastructure
+    tool_id: trivy
+    required: true
+    command_id: security-infrastructure
+    acs:
+      - security-policy
+    targets:
+      - .ai-workflow
+      - .github
+      - docs
+      - tests
+      - tools
+      - AGENTS.md
+      - CLAUDE.md
+      - README.md
+      - CHANGELOG.md
+      - LICENSE
+      - VERSION
+      - .gitignore
+      - .gitattributes
+    formats:
+      - terraform
+      - cloudformation
+      - kubernetes
+      - dockerfile
+    exclusions: []
+    when:
+      fact_id: has_iac
+      equals: true
+coverage: all_targets

@@ -1,0 +1,8 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { runSecurityCheck } from '../../tools/workflow-security/run.mjs';
+import { planSecurityChecks } from '../../tools/workflow-security/plan.mjs';
+import { scannerFixture,rawFor,receipt } from './fixture.mjs';
+test('fake executor receives fixed offline command; complete result returned',async()=>{const s=scannerFixture('gitleaks'),plan=planSecurityChecks(s);let called=0;const r=await runSecurityCheck({plan,checkId:'secrets',workspace:'/synthetic',outputDir:'/protected'}, {async execute(request){called++;assert.equal(request.network,'none');assert.equal(request.read_only,true);assert.ok(request.argv.includes('--redact=100'));assert.equal(request.shell,false);return {rawResult:JSON.stringify(rawFor('gitleaks')),receipt:receipt(s,'gitleaks')};}});assert.equal(called,1);assert.equal(r.status,'passed');});
+test('blocked or mutated plan never invokes executor',async()=>{for(const mutate of [p=>p.status='blocked',p=>p.checks[0].targets=['../escape']]){const s=scannerFixture('gitleaks'),plan=planSecurityChecks(s);mutate(plan);let called=false;const r=await runSecurityCheck({plan,checkId:'secrets',workspace:'/synthetic',outputDir:'/protected'}, {async execute(){called=true;throw Error('CANARY_SECRET');}});assert.equal(called,false);assert.notEqual(r.status,'passed');}});
+test('executor fault is sanitized and cannot be passed',async()=>{const s=scannerFixture('gitleaks'),plan=planSecurityChecks(s);const r=await runSecurityCheck({plan,checkId:'secrets',workspace:'/synthetic',outputDir:'/protected'},{async execute(){throw Error('CANARY_SECRET');}});assert.notEqual(r.status,'passed');assert.ok(!JSON.stringify(r).includes('CANARY_SECRET'));});

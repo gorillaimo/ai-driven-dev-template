@@ -1,0 +1,3 @@
+import{messages}from'./messages.mjs';
+import{readFileSync}from'node:fs';
+try{const r=JSON.parse(readFileSync(process.argv[2],'utf8'));if(!['pass','blocked'].includes(r.status)||!Array.isArray(r.checks))throw Error();const allowed=new Set(['secrets','dependencies','static','infrastructure']);console.log('## '+messages.title+'\n\n'+messages.status+': '+r.status+'\n\n'+messages.table);for(const row of r.checks)if(allowed.has(row.check_id)&&['passed','failed','not_evaluated','error'].includes(row.status)&&Number.isSafeInteger(row.finding_count))console.log('| '+row.check_id+' | '+row.status+' | '+row.finding_count+' |');console.log('\n'+messages.limits);}catch{console.log('## '+messages.title+'\n\n'+messages.unavailable);}

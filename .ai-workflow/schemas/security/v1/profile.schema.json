@@ -1,0 +1,457 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:security:v1:profile",
+  "title": "security/v1 profile",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "artifact_kind": {
+      "const": "security-profile"
+    },
+    "artifact_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "revision": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+    },
+    "repository": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/repository"
+    },
+    "human_owner": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+    },
+    "execution_profile": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+    },
+    "catalog_digest": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+    },
+    "domain": {
+      "enum": [
+        "app",
+        "template",
+        "execution_environment"
+      ]
+    },
+    "coverage": {
+      "enum": [
+        "selected",
+        "all_targets"
+      ]
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "text",
+          "javascript",
+          "typescript",
+          "python",
+          "dart",
+          "npm",
+          "PyPI",
+          "Pub",
+          "terraform",
+          "cloudformation",
+          "kubernetes",
+          "dockerfile",
+          "image",
+          "web",
+          "llm"
+        ]
+      },
+      "maxItems": 20,
+      "minItems": 1
+    },
+    "required_acs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+      },
+      "maxItems": 100,
+      "minItems": 1
+    },
+    "reviewed_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "expires_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "approval_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+      },
+      "maxItems": 100,
+      "minItems": 1
+    },
+    "max_age_seconds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 86400
+    },
+    "stop_severities": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "critical",
+          "high",
+          "medium",
+          "low",
+          "info",
+          "unknown"
+        ]
+      },
+      "maxItems": 6,
+      "minItems": 2
+    },
+    "exceptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "finding_id": {
+            "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+          },
+          "head_sha": {
+            "$ref": "urn:ai-workflow:execution:v1:common#/$defs/commit"
+          },
+          "actor": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/actor"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "issued_at": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+          },
+          "expires_at": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+            },
+            "maxItems": 100,
+            "minItems": 1
+          }
+        },
+        "required": [
+          "finding_id",
+          "head_sha",
+          "actor",
+          "reason",
+          "issued_at",
+          "expires_at",
+          "evidence_refs"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 1000,
+      "minItems": 0
+    },
+    "limits": {
+      "type": "object",
+      "properties": {
+        "timeout_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 300
+        },
+        "overall_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 900
+        },
+        "max_concurrent": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2
+        },
+        "memory_mib": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2048
+        },
+        "cpus": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2
+        },
+        "pids": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256
+        },
+        "max_raw_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10485760
+        }
+      },
+      "required": [
+        "timeout_seconds",
+        "overall_seconds",
+        "max_concurrent",
+        "memory_mib",
+        "cpus",
+        "pids",
+        "max_raw_bytes"
+      ],
+      "additionalProperties": false
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "check_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "tool_id": {
+            "enum": [
+              "gitleaks",
+              "osv",
+              "semgrep",
+              "trivy",
+              "application",
+              "dynamic",
+              "llm"
+            ]
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "command_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "acs": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+            },
+            "maxItems": 100,
+            "minItems": 0
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+            },
+            "maxItems": 10000,
+            "minItems": 1
+          },
+          "formats": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "text",
+                "javascript",
+                "typescript",
+                "python",
+                "dart",
+                "npm",
+                "PyPI",
+                "Pub",
+                "terraform",
+                "cloudformation",
+                "kubernetes",
+                "dockerfile",
+                "image",
+                "web",
+                "llm"
+              ]
+            },
+            "maxItems": 20,
+            "minItems": 1
+          },
+          "exclusions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+                },
+                "reason": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "expires_at": {
+                  "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+                },
+                "approval_refs": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+                  },
+                  "maxItems": 100,
+                  "minItems": 1
+                }
+              },
+              "required": [
+                "path",
+                "reason",
+                "expires_at",
+                "approval_refs"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100,
+            "minItems": 0
+          },
+          "when": {
+            "type": "object",
+            "properties": {
+              "fact_id": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+              },
+              "equals": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "fact_id",
+              "equals"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "check_id",
+          "tool_id",
+          "required",
+          "command_id",
+          "acs",
+          "targets",
+          "formats",
+          "exclusions"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 100,
+      "minItems": 1
+    },
+    "standard_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "standard": {
+            "const": "OWASP-ASVS"
+          },
+          "version": {
+            "const": "5.0.0"
+          },
+          "requirement_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^v5\\.0\\.0-[0-9]+\\.[0-9]+\\.[0-9]+$"
+            },
+            "maxItems": 100,
+            "minItems": 1
+          },
+          "acs": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+            },
+            "maxItems": 100,
+            "minItems": 1
+          }
+        },
+        "required": [
+          "standard",
+          "version",
+          "requirement_ids",
+          "acs"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 20,
+      "minItems": 0
+    },
+    "dynamic": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "authentication_ref": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+        },
+        "network_id": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        },
+        "max_requests": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "timeout_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 300
+        },
+        "follow_external_redirects": {
+          "const": false
+        },
+        "approval_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+          },
+          "maxItems": 100,
+          "minItems": 1
+        }
+      },
+      "required": [
+        "host",
+        "port",
+        "authentication_ref",
+        "network_id",
+        "max_requests",
+        "timeout_seconds",
+        "follow_external_redirects",
+        "approval_refs"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "artifact_id",
+    "revision",
+    "repository",
+    "human_owner",
+    "execution_profile",
+    "catalog_digest",
+    "domain",
+    "languages",
+    "required_acs",
+    "reviewed_at",
+    "expires_at",
+    "approval_refs",
+    "max_age_seconds",
+    "stop_severities",
+    "exceptions",
+    "limits",
+    "checks"
+  ],
+  "additionalProperties": false
+}

@@ -263,3 +263,8 @@ Golden専用format_version:1へproject_plan/project_members/project_aggregate/pr
 `.ai-workflow/schemas/execution/v1/`は既存Issue/Project/rule/check/traceとは独立した任意追加の契約です。8種類の記録とcommon/context/resultを持ちます。schema_version:1、checker_version:1.0.0、template VERSIONは独立し、coreの型・必須性・受理集合を変えるときは新schema majorを追加します。未知version/keyは黙って変換しません。
 既存v1の受理集合・Golden37case・legacy always-on規約は維持します。Project v2や自動実行への移行を発生させず、v2 stable Releaseも作成しません。新tool/schema/templates/testsを同じcommitから導入し、既存の導入一式を保存します。
 非対応・破損・失効時は元記録を保持して訂正・再検査し、本人性や必要承認が確認できなければ従来のIssue/PR・手動運用へ戻します。passを承認や実行権限に変換しません。[利用法と制約](workflow-tools-guide.md#execution)を参照してください。
+
+## security/v1の互換性
+
+profile/context/plan/result/reportとcommonは独立したsecurity/v1です。既存P1 verificationへの接続を使い、execution/v1のDB必須fieldへ架空の値を追加しません。既存v1・Golden・always-on規約を維持します。新しいcoreの受理集合を変える場合は新schema majorを追加し、未知version/keyは拒否します。
+採用時は同じcommitのtool/catalog/規則/schema/testsを揃え、固定配布物と実行環境を確認します。任意の実scanner機能にはNode22以上に加えてPython/Docker等が必要です。非対応環境では未評価を残して既存の手動・オフライン検査を維持します。新規scanner/通信/除外/規則変更、CI接続は人間レビューを経た設定PRで採用し、template VERSIONやstable Releaseを変更しません。

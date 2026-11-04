@@ -1,0 +1,22 @@
+rules:
+  - id: unsafe-eval
+    languages: [javascript, typescript, python]
+    message: Dynamic evaluation requires security review
+    severity: ERROR
+    pattern: eval($X)
+    metadata:
+      security_severity: high
+  - id: tls-verification-disabled-js
+    languages: [javascript, typescript]
+    message: TLS peer verification must remain enabled
+    severity: ERROR
+    pattern: "{rejectUnauthorized: false, ...}"
+    metadata:
+      security_severity: high
+  - id: tls-verification-disabled-python
+    languages: [python]
+    message: TLS peer verification must remain enabled
+    severity: ERROR
+    pattern: requests.$METHOD(..., verify=False, ...)
+    metadata:
+      security_severity: high

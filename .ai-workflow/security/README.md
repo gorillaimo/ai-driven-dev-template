@@ -1,0 +1,13 @@
+# このrepository用のSecurity Validation設定
+
+profile.yaml / execution-profile.yamlは、テンプレート管理コード自身を検査する採用設定です。利用先アプリの設定や実行grantではありません。対象repo・owner・承認参照・期限を確認し、他のrepositoryへはAIが対象に合わせた採用PRを準備します。
+
+GitHub ActionsのSecurity Validationが、固定tool/DB取得→合成入力で実toolの検出能力確認→指定commitの実code/依存検査→終了照合→安全な要約の順で実行します。PR/main/手動と週1回の再確認を別のread-only workflowで行います。既存のオフラインWorkflow Validationは独立して動きます。
+
+現在の設定の期限は2026-12-04 06:06 UTCです。期限やtool/rules/除外/対象を更新する場合は、人間レビューを経た設定PRで変更します。時刻だけを書き換えて再承認や検証を補完しません。
+
+CIの追跡用Issueは、この検査設定を導入した実Issue #47です。自律開発の担当/claim/工程着手を表すものではありません。将来のGitHub collectorやRunnerの権限確認を代行しません。
+
+CIのSummaryは成否と件数・未評価を示します。raw出力はuploadせず、詳細ファイルはjob終了後の永続保存を保証しません。詳細確認は対象commitを保ち、承認済み保護保存先への保存を設定するか、[手動手順](../templates/security/v1/README.md)でローカル再検査します。取得失敗や未保存を成功・保存済みの証拠へ読み替えません。
+
+required checks/branch protection/公開範囲/課金設定は変更しません。Actionsの利用枠は消費します。v2 stable Releaseを作成する設定ではありません。
