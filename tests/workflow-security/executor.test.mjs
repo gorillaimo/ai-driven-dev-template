@@ -1,0 +1,7 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {dockerCreateArgs} from '../../tools/workflow-security/docker.mjs';
+import {buildRequest} from '../../tools/workflow-security/commands.mjs';
+import {planSecurityChecks} from '../../tools/workflow-security/plan.mjs';
+import {scannerFixture} from './fixture.mjs';
+test('Docker request enforces no network, read-only, nonroot and bounded resources',()=>{const s=scannerFixture('gitleaks'),p=planSecurityChecks(s),request=buildRequest({plan:p,check:p.checks[0],workspace:'/snapshot',outputDir:'/protected'});const a=dockerCreateArgs(request,{view:'/view',bin:'/bin',db:'/db',rules:'/rules',config:'/config.json',controller:'/controller'},'scan-1');for(const v of ['none','--read-only','--cap-drop=ALL','--security-opt=no-new-privileges','--memory=2048m','--pids-limit=256','--cpus=2'])assert.ok(a.includes(v),v);assert.ok(!a.includes('--privileged'));assert.ok(!a.some(x=>x.includes('docker.sock')));assert.ok(a.filter(x=>x.startsWith('type=bind')).every(x=>x.endsWith(',readonly')));});
+test('mount delimiter/escape injection is rejected',()=>{const s=scannerFixture('gitleaks'),p=planSecurityChecks(s),r=buildRequest({plan:p,check:p.checks[0],workspace:'/snapshot',outputDir:'/protected'});assert.throws(()=>dockerCreateArgs(r,{view:'/tmp/a,src=/etc',bin:'/bin',db:'/db',rules:'/rules',config:'/config',controller:'/controller'},'scan-1'));});

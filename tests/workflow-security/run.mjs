@@ -1,0 +1,12 @@
+import './contracts.test.mjs';
+import './plan.test.mjs';
+import './normalize.test.mjs';
+import './check.test.mjs';
+import './run.test.mjs';
+import './executor.test.mjs';
+import './load.test.mjs';
+import './source.test.mjs';
+import './negative.test.mjs';
+import './ci.test.mjs';
+import './application.test.mjs';
+import './acquisition.test.mjs';
