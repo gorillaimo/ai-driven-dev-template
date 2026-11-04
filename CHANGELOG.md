@@ -6,6 +6,10 @@ AI Driven Development Templateの利用者へ影響する変更を記録する�
 
 ## [Unreleased] - v2 development line
 
+### Security
+
+- 管理ツール6か所の間接依存fast-uriを3.1.8から3.1.9へ更新し、URI解析・正規化に関する4つの既知問題を修正。各ツールが実際に使用する依存を対象に、安全な文字列入力による回帰テストを追加。
+
 ### Added
 
 - アプリ/テンプレート/実行環境を分けるsecurity/v1、固定Gitleaks/OSV-Scanner/Semgrep CE/Trivy adapterと隔離実行、アプリCI→P1の検証記録接続、合成例・負のテスト、独立したread-only Security Validationを追加。secret/原文を公開せず、未実行・古いDB・故障・期限切れ例外を成功にしない。実Agent Runner/自動修正/実host・LLMへの検査は有効化しない。
