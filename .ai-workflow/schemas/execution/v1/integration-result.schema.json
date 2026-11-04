@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:execution:v1:integration-result",
+  "title": "execution/v1 integration-result",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "artifact_kind": {
+      "const": "integration-result"
+    },
+    "artifact_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "revision": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+    },
+    "repository": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/repository"
+    },
+    "recorded_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "recorded_by": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/actor"
+    },
+    "input_digest": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+      },
+      "maxItems": 1000,
+      "minItems": 1
+    },
+    "run_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "profile": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+    },
+    "main_sha": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/commit"
+    },
+    "targets": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:execution:v1:common#/$defs/target"
+      },
+      "maxItems": 100,
+      "minItems": 1
+    },
+    "scope": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+      },
+      "maxItems": 1000,
+      "minItems": 1
+    },
+    "started_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "finished_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "status": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/outcome"
+    },
+    "log_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+      },
+      "maxItems": 1000,
+      "minItems": 1
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "artifact_id",
+    "revision",
+    "repository",
+    "recorded_at",
+    "recorded_by",
+    "input_digest",
+    "evidence_refs",
+    "run_id",
+    "profile",
+    "main_sha",
+    "targets",
+    "scope",
+    "started_at",
+    "finished_at",
+    "status",
+    "log_refs"
+  ],
+  "additionalProperties": false
+}

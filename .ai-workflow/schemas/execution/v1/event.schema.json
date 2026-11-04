@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:execution:v1:event",
+  "title": "execution/v1 event",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "artifact_kind": {
+      "const": "event"
+    },
+    "artifact_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "revision": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+    },
+    "repository": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/repository"
+    },
+    "recorded_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "recorded_by": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/actor"
+    },
+    "input_digest": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+      },
+      "maxItems": 1000,
+      "minItems": 1
+    },
+    "run_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "profile": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+    },
+    "operation_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "operation_kind": {
+      "enum": [
+        "record",
+        "claim",
+        "branch",
+        "push",
+        "pr",
+        "stop",
+        "release"
+      ]
+    },
+    "issue_number": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "status": {
+      "enum": [
+        "requested",
+        "confirmed",
+        "unknown",
+        "failed"
+      ]
+    },
+    "occurred_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "claim_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "worker_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "generation": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "artifact_id",
+    "revision",
+    "repository",
+    "recorded_at",
+    "recorded_by",
+    "input_digest",
+    "evidence_refs",
+    "run_id",
+    "profile",
+    "operation_id",
+    "operation_kind",
+    "issue_number",
+    "status",
+    "occurred_at"
+  ],
+  "additionalProperties": false
+}

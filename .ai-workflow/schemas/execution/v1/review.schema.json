@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:execution:v1:review",
+  "title": "execution/v1 review",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "artifact_kind": {
+      "const": "review"
+    },
+    "artifact_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "revision": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+    },
+    "repository": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/repository"
+    },
+    "recorded_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "recorded_by": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/actor"
+    },
+    "input_digest": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+      },
+      "maxItems": 1000,
+      "minItems": 1
+    },
+    "subject": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/subject"
+    },
+    "implementer": {
+      "type": "object",
+      "properties": {
+        "actor": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/actor"
+        },
+        "context_id": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        }
+      },
+      "required": [
+        "actor",
+        "context_id"
+      ],
+      "additionalProperties": false
+    },
+    "reviewer": {
+      "type": "object",
+      "properties": {
+        "actor": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/actor"
+        },
+        "context_id": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        }
+      },
+      "required": [
+        "actor",
+        "context_id"
+      ],
+      "additionalProperties": false
+    },
+    "execution_status": {
+      "enum": [
+        "not_started",
+        "running",
+        "completed",
+        "interrupted",
+        "invalid"
+      ]
+    },
+    "started_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "finished_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "status": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/outcome"
+    },
+    "requirements_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+      },
+      "maxItems": 1000,
+      "minItems": 1
+    },
+    "diff_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+      },
+      "maxItems": 1000,
+      "minItems": 1
+    },
+    "verification_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+      },
+      "maxItems": 1000,
+      "minItems": 0
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:execution:v1:common#/$defs/finding"
+      },
+      "maxItems": 1000,
+      "minItems": 0
+    },
+    "rechecks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "finding_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "finding_digest": {
+            "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+          }
+        },
+        "required": [
+          "finding_id",
+          "finding_digest"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 1000,
+      "minItems": 0
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "artifact_id",
+    "revision",
+    "repository",
+    "recorded_at",
+    "recorded_by",
+    "input_digest",
+    "evidence_refs",
+    "subject",
+    "implementer",
+    "reviewer",
+    "execution_status",
+    "started_at",
+    "finished_at",
+    "status",
+    "requirements_refs",
+    "diff_refs",
+    "verification_refs",
+    "findings"
+  ],
+  "additionalProperties": false
+}

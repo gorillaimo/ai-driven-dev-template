@@ -1,0 +1,497 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:execution:v1:common",
+  "title": "execution/v1 common",
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "repository": {
+      "type": "string",
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "reference": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "profile",
+            "grant",
+            "verification",
+            "review",
+            "security-result",
+            "integration-result",
+            "run-report",
+            "event",
+            "source"
+          ]
+        },
+        "id": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        },
+        "revision": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+        },
+        "digest": {
+          "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+        },
+        "location": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/reference"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "revision",
+        "digest",
+        "location"
+      ],
+      "additionalProperties": false
+    },
+    "subject": {
+      "type": "object",
+      "properties": {
+        "issue_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "work_id": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        },
+        "run_id": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "base_sha": {
+          "$ref": "urn:ai-workflow:execution:v1:common#/$defs/commit"
+        },
+        "head_sha": {
+          "$ref": "urn:ai-workflow:execution:v1:common#/$defs/commit"
+        },
+        "plan": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+            },
+            "revision": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+            },
+            "digest": {
+              "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+            }
+          },
+          "required": [
+            "id",
+            "revision",
+            "digest"
+          ],
+          "additionalProperties": false
+        },
+        "profile": {
+          "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+        }
+      },
+      "required": [
+        "issue_number",
+        "work_id",
+        "run_id",
+        "attempt",
+        "base_sha",
+        "head_sha",
+        "plan",
+        "profile"
+      ],
+      "additionalProperties": false
+    },
+    "usage": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "status": {
+              "const": "known"
+            },
+            "amount": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          },
+          "required": [
+            "status",
+            "amount",
+            "unit"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "status": {
+              "const": "unknown"
+            }
+          },
+          "required": [
+            "status"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "limits": {
+      "type": "object",
+      "properties": {
+        "max_issues": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "max_concurrent_issues": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "max_ai_processes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "run_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "cleanup_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "call_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "max_repairs": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "cost": {
+          "$ref": "urn:ai-workflow:execution:v1:common#/$defs/usage"
+        }
+      },
+      "required": [
+        "max_issues",
+        "max_concurrent_issues",
+        "max_ai_processes",
+        "run_seconds",
+        "cleanup_seconds",
+        "call_seconds",
+        "max_repairs",
+        "cost"
+      ],
+      "additionalProperties": false
+    },
+    "check": {
+      "type": "object",
+      "properties": {
+        "check_id": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        },
+        "kind": {
+          "enum": [
+            "verification",
+            "security-result",
+            "integration-result"
+          ]
+        },
+        "domain": {
+          "enum": [
+            "app",
+            "template"
+          ]
+        },
+        "acs": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "maxItems": 1000,
+          "minItems": 0
+        },
+        "command_id": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        },
+        "test_check": {
+          "type": "boolean"
+        },
+        "min_tests": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "when": {
+          "type": "object",
+          "properties": {
+            "fact_id": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+            },
+            "equals": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "fact_id",
+            "equals"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "check_id",
+        "kind",
+        "domain",
+        "acs"
+      ],
+      "additionalProperties": false
+    },
+    "finding": {
+      "type": "object",
+      "properties": {
+        "finding_id": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        },
+        "category": {
+          "enum": [
+            "defect",
+            "suggestion"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "critical",
+            "high",
+            "medium",
+            "low",
+            "info"
+          ]
+        },
+        "subject": {
+          "$ref": "urn:ai-workflow:execution:v1:common#/$defs/subject"
+        },
+        "path": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "specification_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+          },
+          "maxItems": 1000,
+          "minItems": 1
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+          },
+          "maxItems": 1000,
+          "minItems": 1
+        },
+        "impact": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "status": {
+          "enum": [
+            "open",
+            "fixed",
+            "disputed",
+            "accepted_risk"
+          ]
+        },
+        "required_ac": {
+          "type": "boolean"
+        },
+        "resolution": {
+          "$ref": "urn:ai-workflow:execution:v1:common#/$defs/resolution"
+        },
+        "exception": {
+          "$ref": "urn:ai-workflow:execution:v1:common#/$defs/exception"
+        }
+      },
+      "required": [
+        "finding_id",
+        "category",
+        "severity",
+        "subject",
+        "path",
+        "line",
+        "specification_refs",
+        "evidence_refs",
+        "impact",
+        "status",
+        "required_ac"
+      ],
+      "additionalProperties": false
+    },
+    "resolution": {
+      "type": "object",
+      "properties": {
+        "head_sha": {
+          "$ref": "urn:ai-workflow:execution:v1:common#/$defs/commit"
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "verification_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+          },
+          "maxItems": 1000,
+          "minItems": 1
+        },
+        "review_ref": {
+          "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+        },
+        "finding_digest": {
+          "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+        }
+      },
+      "required": [
+        "head_sha",
+        "attempt",
+        "verification_refs",
+        "review_ref",
+        "finding_digest"
+      ],
+      "additionalProperties": false
+    },
+    "exception": {
+      "type": "object",
+      "properties": {
+        "actor": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/actor"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "head_sha": {
+          "$ref": "urn:ai-workflow:execution:v1:common#/$defs/commit"
+        },
+        "issue_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "finding_id": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+        },
+        "finding_digest": {
+          "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+        },
+        "issued_at": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+        },
+        "expires_at": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+          },
+          "maxItems": 1000,
+          "minItems": 1
+        }
+      },
+      "required": [
+        "actor",
+        "reason",
+        "head_sha",
+        "issue_number",
+        "finding_id",
+        "finding_digest",
+        "issued_at",
+        "expires_at",
+        "evidence_refs"
+      ],
+      "additionalProperties": false
+    },
+    "target": {
+      "type": "object",
+      "properties": {
+        "issue_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "pr_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "head_sha": {
+          "$ref": "urn:ai-workflow:execution:v1:common#/$defs/commit"
+        },
+        "plan_digest": {
+          "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "maxItems": 100,
+          "minItems": 0
+        }
+      },
+      "required": [
+        "issue_number",
+        "pr_number",
+        "head_sha",
+        "plan_digest",
+        "depends_on"
+      ],
+      "additionalProperties": false
+    },
+    "outcome": {
+      "enum": [
+        "passed",
+        "failed",
+        "not_evaluated",
+        "error"
+      ]
+    }
+  }
+}

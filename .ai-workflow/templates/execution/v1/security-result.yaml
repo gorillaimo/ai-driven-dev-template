@@ -1,0 +1,61 @@
+# SYNTHETIC EXAMPLE: no real approval, execution, security or identity proof.
+schema_version: 1
+artifact_kind: security-result
+artifact_id: security-1
+revision: 1
+repository: example/synthetic
+recorded_at: 2026-11-04T00:10:00Z
+recorded_by:
+  actor_type: ai_agent
+  actor_ref: implementer
+  on_behalf_of: gorillaimo
+input_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+evidence_refs:
+  - kind: source
+    id: evidence
+    revision: 1
+    digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    location:
+      kind: id
+      target: protected-evidence
+subject:
+  issue_number: 1
+  work_id: issue-1
+  run_id: run-1
+  attempt: 1
+  base_sha: "1111111111111111111111111111111111111111"
+  head_sha: "2222222222222222222222222222222222222222"
+  plan:
+    id: plan-1
+    revision: 1
+    digest: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  profile:
+    kind: profile
+    id: profile
+    revision: 1
+    digest: 50604216ab7224a5ca273c84242bde5b3619a1f3a57127d0af453e8d2fb04ba2
+    location:
+      kind: id
+      target: profile
+check_id: secrets
+scanner: synthetic-scanner
+scanner_version: "1"
+rules_version: "1"
+database_version: "1"
+database_fetched_at: 2026-11-04T00:00:00Z
+formats:
+  - javascript
+exclusions: []
+supported: true
+started_at: 2026-11-04T00:01:00Z
+finished_at: 2026-11-04T00:02:00Z
+status: passed
+log_refs:
+  - kind: source
+    id: security-log
+    revision: 1
+    digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    location:
+      kind: id
+      target: protected-security-log
+findings: []

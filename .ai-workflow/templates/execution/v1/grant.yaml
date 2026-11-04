@@ -1,0 +1,91 @@
+# SYNTHETIC EXAMPLE: no real approval, execution, security or identity proof.
+schema_version: 1
+artifact_kind: grant
+artifact_id: grant
+revision: 1
+repository: example/synthetic
+recorded_at: 2026-11-04T00:10:00Z
+recorded_by:
+  actor_type: ai_agent
+  actor_ref: implementer
+  on_behalf_of: gorillaimo
+input_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+evidence_refs:
+  - kind: source
+    id: evidence
+    revision: 1
+    digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    location:
+      kind: id
+      target: protected-evidence
+run_id: run-1
+profile:
+  kind: profile
+  id: profile
+  revision: 1
+  digest: 50604216ab7224a5ca273c84242bde5b3619a1f3a57127d0af453e8d2fb04ba2
+  location:
+    kind: id
+    target: profile
+human_owner: gorillaimo
+request:
+  mode: continue
+  actor:
+    actor_type: human
+    actor_ref: gorillaimo
+  reference:
+    kind: source
+    id: request
+    revision: 1
+    digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    location:
+      kind: id
+      target: protected-request
+policy_approval_refs:
+  - kind: source
+    id: policy-approval
+    revision: 1
+    digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    location:
+      kind: id
+      target: protected-policy-approval
+issued_at: 2026-11-04T00:00:00Z
+expires_at: 2026-11-04T06:00:00Z
+revoked: false
+selected:
+  - issue_number: 1
+    work_id: issue-1
+    run_id: run-1
+    attempt: 1
+    base_sha: "1111111111111111111111111111111111111111"
+    head_sha: "2222222222222222222222222222222222222222"
+    plan:
+      id: plan-1
+      revision: 1
+      digest: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    profile:
+      kind: profile
+      id: profile
+      revision: 1
+      digest: 50604216ab7224a5ca273c84242bde5b3619a1f3a57127d0af453e8d2fb04ba2
+      location:
+        kind: id
+        target: profile
+    contract_digest: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+    design_digest: dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+    stages:
+      - validation
+    allowed_paths:
+      - src
+    forbidden_paths:
+      - secrets
+    shared_areas:
+      - common
+    approval_refs:
+      - kind: source
+        id: design-approval
+        revision: 1
+        digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        location:
+          kind: id
+          target: protected-design-approval

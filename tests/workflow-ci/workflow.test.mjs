@@ -16,12 +16,12 @@ test('permissions and pinned official actions do not persist credentials or expo
  assert.ok(!/secrets\.|pull_request_target|continue-on-error|upload-artifact|id-token|cache:|always\(\).*\|\|/.test(text));
  for(const s of job.steps.filter(s=>s.run))assert.ok(!/\$\{\{/.test(s.run),'Fixed shell commands only');
 });
-test('seven locked dependency installations and all existing suites are invoked',()=>{
+test('eight locked dependency installations and all existing suites are invoked',()=>{
  const steps=parseYaml(read()).jobs.validate.steps,commands=steps.map(s=>s.run??'').join('\n');
- for(const name of ['rules','check','trace','schema','golden','ci','project']){
+ for(const name of ['rules','check','trace','schema','golden','ci','project','execution']){
   assert.ok(commands.includes('npm ci --prefix tools/workflow-'+name+' --ignore-scripts --no-audit --no-fund'));
  }
- for(const command of ['node tools/workflow-schema/validate.mjs','npm run test:brownfield --prefix tools/workflow-schema','npm test --prefix tools/workflow-rules','npm test --prefix tools/workflow-check','npm test --prefix tools/workflow-trace','npm test --prefix tools/workflow-golden','npm test --prefix tools/workflow-ci','node tools/workflow-golden/run.mjs --json','node tools/workflow-ci/validate.mjs --json'])assert.ok(commands.includes(command),command);
+ for(const command of ['node tools/workflow-schema/validate.mjs','npm run test:brownfield --prefix tools/workflow-schema','npm test --prefix tools/workflow-rules','npm test --prefix tools/workflow-check','npm test --prefix tools/workflow-trace','npm test --prefix tools/workflow-golden','npm test --prefix tools/workflow-execution','npm test --prefix tools/workflow-ci','node tools/workflow-golden/run.mjs --json','node tools/workflow-ci/validate.mjs --json'])assert.ok(commands.includes(command),command);
  assert.ok(!commands.includes('npm ci\n'));assert.ok(!/packages\//.test(commands));
 });
 test('summary runs after failures and receives structured outcomes without raw content',()=>{

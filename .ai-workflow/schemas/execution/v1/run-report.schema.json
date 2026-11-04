@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:execution:v1:run-report",
+  "title": "execution/v1 run-report",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "artifact_kind": {
+      "const": "run-report"
+    },
+    "artifact_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "revision": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+    },
+    "repository": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/repository"
+    },
+    "recorded_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "recorded_by": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/actor"
+    },
+    "input_digest": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+      },
+      "maxItems": 1000,
+      "minItems": 1
+    },
+    "run_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "profile": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+    },
+    "grant": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+    },
+    "started_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "finished_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "termination_reason": {
+      "enum": [
+        "completed",
+        "no_candidates",
+        "awaiting_approval",
+        "limit",
+        "stopped",
+        "error"
+      ]
+    },
+    "subjects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "issue_number": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "head_sha": {
+            "$ref": "urn:ai-workflow:execution:v1:common#/$defs/commit"
+          },
+          "pr_number": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result_refs": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+            },
+            "maxItems": 1000,
+            "minItems": 0
+          },
+          "repair_refs": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+            },
+            "maxItems": 1000,
+            "minItems": 0
+          },
+          "unresolved_refs": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+            },
+            "maxItems": 1000,
+            "minItems": 0
+          },
+          "not_evaluated": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+            },
+            "maxItems": 1000,
+            "minItems": 0
+          },
+          "human_decisions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            "maxItems": 1000,
+            "minItems": 0
+          }
+        },
+        "required": [
+          "issue_number",
+          "head_sha",
+          "pr_number",
+          "result_refs",
+          "repair_refs",
+          "unresolved_refs",
+          "not_evaluated",
+          "human_decisions"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 100,
+      "minItems": 1
+    },
+    "usage": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/usage"
+    },
+    "recommended_merge_order": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9007199254740991
+      },
+      "maxItems": 100,
+      "minItems": 0
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "artifact_id",
+    "revision",
+    "repository",
+    "recorded_at",
+    "recorded_by",
+    "input_digest",
+    "evidence_refs",
+    "run_id",
+    "profile",
+    "grant",
+    "started_at",
+    "finished_at",
+    "termination_reason",
+    "subjects",
+    "usage",
+    "recommended_merge_order"
+  ],
+  "additionalProperties": false
+}
