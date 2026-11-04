@@ -6,6 +6,10 @@ AI Driven Development Templateの利用者へ影響する変更を記録する�
 
 ## [Unreleased] - v2 development line
 
+### Security
+
+- 管理ツール6か所の間接依存fast-uriを3.1.8から3.1.9へ更新し、URI解析・正規化に関する4つの既知問題を修正。各ツールが実際に使用する依存を対象に、安全な文字列入力による回帰テストを追加。
+
 ### Added
 
 - execution/v1の検証・別AIレビュー・セキュリティ/統合結果・実行条件・報告/eventの記録形式、合成YAML例、読み取り専用の整合checkerと明示path loaderを追加。対象commit・改訂・鮮度・指摘の再確認を検査し、Node22/24の既存CIへ専用テストを接続。実scanner/AI起動や自律実行の有効化は含まない。設計書・作業経緯・詳細記録の役割を明記。
