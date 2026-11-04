@@ -75,3 +75,5 @@ passed/failed/not_evaluated/errorを区別します。未起動、0対象、形�
 workerはnetwork:none・非root・read-only・cap-drop・権限昇格禁止で、GitHub token/Docker socketを渡しません。containerの作成結果・終了/削除を読み戻し、停止不明なら次を開始しません。controller自体とDocker daemonは信頼する管理環境が必要です。任意のAgent Runnerの完全な隔離・本人性・予算強制・意味上の安全性の保証は未提供です。
 
 設計書には現在の仕様・制約・判断理由、Issue/PRには指示/承認/作業経緯、詳細記録には対象・実結果・未評価を残します。GitHubには安全な要約を載せ、危険な詳細は承認した保護保存先を使います。
+
+Trivyの実adapterは現在IaC/Dockerfileの設定検査です。imageのOS/package脆弱性、実hostの動的検査、実LLMの安全性は未提供・未評価として残します。image用DB/providerや実対象を採用する際は対応する契約・adapterの実装と能力試験が必要です。

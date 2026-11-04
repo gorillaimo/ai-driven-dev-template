@@ -39,6 +39,8 @@ jobs:
           npm ci --prefix tools/workflow-rules --ignore-scripts --no-audit --no-fund
           npm ci --prefix tools/workflow-execution --ignore-scripts --no-audit --no-fund
           npm ci --prefix tools/workflow-security --ignore-scripts --no-audit --no-fund
+      - name: Validate adopted policy
+        run: node tools/workflow-security/admission.mjs
       - name: Acquire pinned public tools and npm vulnerability snapshot
         timeout-minutes: 10
         run: |

@@ -5,7 +5,7 @@ import {validateExecutionArtifact} from 'workflow-execution/schema';
 import {planSecurityChecks} from './plan.mjs';
 import {hash,same,snapshots,fresh,diag,maxDiagnostics,finiteTimes} from './core.mjs';
 export function checkSecurityEvidence(input){
- const report={schema_version:1,artifact_kind:'security-report',status:'blocked',decision:'invalid',input_digest:null,checks:[],diagnostics:[],not_evaluated:['approval_authenticity','history_completeness','application_security_guarantee','external_agent_runner','protected_storage_permissions']};
+ const report={schema_version:1,artifact_kind:'security-report',status:'blocked',decision:'invalid',input_digest:null,checks:[],diagnostics:[],not_evaluated:['approval_authenticity','history_completeness','application_security_guarantee','external_agent_runner','protected_storage_permissions','container_image_vulnerabilities','live_dynamic_scan','real_llm_security']};
  const add=(code,index=0)=>report.diagnostics.push(diag(code,index));
  const bad=inspectJson(input);if(bad){add(bad);return report;}
  if(!input||typeof input!=='object'||Object.keys(input).some(k=>!['profile','executionProfile','context','catalog','plan','results','previous'].includes(k))||!Array.isArray(input.results)||input.results.length>128){add('input_invalid');return report;}
