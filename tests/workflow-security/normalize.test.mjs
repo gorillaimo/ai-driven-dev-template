@@ -16,3 +16,11 @@ test('malformed receipt/context or null rows return a sanitized error',()=>{for(
 test('unparseable receipt timestamps do not leak into a record',()=>{const s=scannerFixture('gitleaks'),plan=planSecurityChecks(s),r=receipt(s,'gitleaks');r.started_at='SECRET_CANARY';const out=normalize({toolId:'gitleaks',rawResult:'[]',receipt:r,context:{...s.context,plan,check_id:'secrets'}});assert.equal(out.status,'error');assert.ok(!JSON.stringify(out).includes('SECRET_CANARY'));});
 test('receipt accessors are rejected before reading properties',()=>{let invoked=false;const bad=Object.defineProperty({},'receipt',{enumerable:true,get(){invoked=true;throw Error('SECRET_CANARY');}});assert.doesNotThrow(()=>normalize(bad));assert.equal(invoked,false);});
 test('OSV must not treat only LOCAL dependencies as registry coverage',()=>{const s=scannerFixture('osv'),plan=planSecurityChecks(s),raw=rawFor('osv');raw.results[0].packages[0].package.purl='pkg:npm/synthetic@1?source=LOCAL';const r=normalize({toolId:'osv',rawResult:JSON.stringify(raw),receipt:receipt(s,'osv'),context:{...s.context,plan,check_id:'secrets'}});assert.notEqual(r.status,'passed');});
+test('public snapshot counts fit both context and normalized result through 500000',()=>{
+ for(const count of [231159,500000,500001]){
+  const s=scannerFixture('osv'),db=s.context.inventory.databases[0];db.snapshot_kind='public_snapshot';db.source='https://osv-vulnerabilities.storage.googleapis.com/npm/all.zip';db.advisory_count=count;s.context.purpose='repository_check';
+  assert.equal(validateSecurityArtifact('context',s.context).valid,count<=500000);
+  const plan=planSecurityChecks(s);assert.equal(plan.status,count<=500000?'pass':'blocked');
+  if(count<=500000){const r=normalize({toolId:'osv',rawResult:JSON.stringify(rawFor('osv')),receipt:receipt(s,'osv'),context:{...s.context,plan,check_id:'secrets'}});assert.equal(r.status,'passed',JSON.stringify(r));assert.equal(validateSecurityArtifact('result',r).valid,true);}
+ }
+});

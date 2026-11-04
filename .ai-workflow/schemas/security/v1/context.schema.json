@@ -244,7 +244,7 @@
               "advisory_count": {
                 "type": "integer",
                 "minimum": 1,
-                "maximum": 100000
+                "maximum": 500000
               }
             },
             "required": [
