@@ -6,6 +6,7 @@ ROOT=Path(__file__).resolve().parent
 MAX_TOOL=256*1024*1024
 MAX_DB=1024*1024*1024
 MAX_EXPANDED=2*1024*1024*1024
+MAX_ENTRIES=100000
 STAGE="arguments"
 TOOL=None
 
@@ -40,7 +41,9 @@ def inspect_database(path):
         for row in z.infolist():
             entries+=1;expanded+=row.file_size
             parts=Path(row.filename).parts
-            if entries>100000 or expanded>MAX_EXPANDED or row.filename.startswith('/') or '..' in parts or '\\' in row.filename or stat.S_ISLNK(row.external_attr>>16):raise ValueError('database_invalid')
+            if entries>MAX_ENTRIES:raise ValueError('database_entry_limit')
+            if expanded>MAX_EXPANDED:raise ValueError('database_expanded_limit')
+            if row.filename.startswith('/') or '..' in parts or '\\' in row.filename or stat.S_ISLNK(row.external_attr>>16):raise ValueError('database_invalid')
             if row.is_dir():continue
             if not row.filename.endswith('.json') or row.file_size>2*1024*1024:raise ValueError('database_format_invalid')
             try:
@@ -97,7 +100,8 @@ def acquire(destination,ecosystems):
         compressed+=download(source,path,MAX_DB-compressed,metadata)
         STAGE='database_validation'
         inspected=inspect_database(path);entries+=inspected['entries'];expanded+=inspected['expanded']
-        if entries>100000 or expanded>MAX_EXPANDED:raise ValueError('database_limit')
+        if entries>MAX_ENTRIES:raise ValueError('database_entry_limit')
+        if expanded>MAX_EXPANDED:raise ValueError('database_expanded_limit')
         now=datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00','Z')
         inventory['databases'].append({'ecosystem':ecosystem,'digest':sha(path),'fetched_at':now,'checked_at':now,'source':source,'snapshot_kind':'public_snapshot','advisory_count':inspected['advisories'],**metadata})
         path.chmod(0o444)
@@ -113,6 +117,6 @@ if __name__=='__main__':
         result=acquire(sys.argv[1],sys.argv[2].split(',') if sys.argv[2] else [])
         print(json.dumps({'status':'acquired','tools':len(result['tools']),'databases':len(result['databases'])}))
     except Exception as error:
-        known={'ecosystem_invalid','output_exists','download_limit','checksum_invalid','archive_invalid','archive_limit','database_invalid','database_format_invalid','database_empty','database_limit','arguments_invalid'}
+        known={'ecosystem_invalid','output_exists','download_limit','checksum_invalid','archive_invalid','archive_limit','database_invalid','database_format_invalid','database_empty','database_entry_limit','database_expanded_limit','arguments_invalid'}
         code=str(error) if isinstance(error,ValueError) and str(error) in known else 'acquisition_failed'
         print(json.dumps({'status':'error','code':code,'stage':STAGE,'tool_id':TOOL,'http_status':getattr(error,'code',None) if isinstance(getattr(error,'code',None),int) else None}));sys.exit(1)

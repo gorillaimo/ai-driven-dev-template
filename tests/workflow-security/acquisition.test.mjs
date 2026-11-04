@@ -11,5 +11,11 @@ with tempfile.TemporaryDirectory() as d:
  p=pathlib.Path(d)/'valid.zip'
  with zipfile.ZipFile(p,'w') as z:z.writestr('OSV-fixture.json',json.dumps({'id':'OSV-fixture','modified':'2026-11-04T00:00:00Z','affected':[]}))
  assert m.inspect_database(p)['advisories']==1
+ m.MAX_ENTRIES=0
+ try:m.inspect_database(p);raise AssertionError('entry limit accepted')
+ except ValueError as error:assert str(error)=='database_entry_limit'
+ m.MAX_ENTRIES=100000;m.MAX_EXPANDED=0
+ try:m.inspect_database(p);raise AssertionError('expanded limit accepted')
+ except ValueError as error:assert str(error)=='database_expanded_limit'
 print('database_limits_pass')`;
  const r=await executeProcess('python3',['-c',code],{cwd:new URL('../../',import.meta.url)});assert.equal(r.code,0,r.stderr);assert.equal(r.stdout.trim(),'database_limits_pass');});
