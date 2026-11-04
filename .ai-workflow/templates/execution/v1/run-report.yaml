@@ -1,0 +1,68 @@
+# SYNTHETIC EXAMPLE: no real approval, execution, security or identity proof.
+schema_version: 1
+artifact_kind: run-report
+artifact_id: run-report
+revision: 1
+repository: example/synthetic
+recorded_at: 2026-11-04T00:10:00Z
+recorded_by:
+  actor_type: ai_agent
+  actor_ref: implementer
+  on_behalf_of: gorillaimo
+input_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+evidence_refs:
+  - kind: source
+    id: evidence
+    revision: 1
+    digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    location:
+      kind: id
+      target: protected-evidence
+run_id: run-1
+profile:
+  kind: profile
+  id: profile
+  revision: 1
+  digest: 50604216ab7224a5ca273c84242bde5b3619a1f3a57127d0af453e8d2fb04ba2
+  location:
+    kind: id
+    target: profile
+grant:
+  kind: grant
+  id: grant
+  revision: 1
+  digest: 731054e15137af2f53e5ea29328e6d4b18799c7d2536bf0a9b44f0026016c9d2
+  location:
+    kind: id
+    target: grant
+started_at: 2026-11-04T00:00:00Z
+finished_at: 2026-11-04T00:10:00Z
+termination_reason: completed
+subjects:
+  - issue_number: 1
+    head_sha: "2222222222222222222222222222222222222222"
+    pr_number: 2
+    result_refs:
+      - kind: verification
+        id: unit-1
+        revision: 1
+        digest: 9f9a84386ce71abc0cc0c844219ee45f758c1619547488bcec5dc951f93ec23b
+        location:
+          kind: id
+          target: unit-1
+      - kind: review
+        id: review-1
+        revision: 1
+        digest: df5b5f0fb73e388296fd25b87495f36e10a191e057e21ce47b5033cb6e268ebb
+        location:
+          kind: id
+          target: review-1
+    repair_refs: []
+    unresolved_refs: []
+    not_evaluated:
+      - live-execution
+    human_decisions: []
+usage:
+  status: unknown
+recommended_merge_order:
+  - 1

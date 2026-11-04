@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:execution:v1:context",
+  "title": "execution/v1 context",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "artifact_kind": {
+      "const": "context"
+    },
+    "repository": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/repository"
+    },
+    "evaluated_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "subject": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/subject"
+    },
+    "grant": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+    },
+    "human_owner": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+    },
+    "stage": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+    },
+    "contract_digest": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+    },
+    "design_digest": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+    },
+    "allowed_paths": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+      },
+      "maxItems": 1000,
+      "minItems": 1
+    },
+    "forbidden_paths": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+      },
+      "maxItems": 1000,
+      "minItems": 0
+    },
+    "facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "fact_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "value": {
+            "enum": [
+              true,
+              false,
+              "unknown"
+            ]
+          },
+          "observed_at": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+            },
+            "maxItems": 1000,
+            "minItems": 1
+          }
+        },
+        "required": [
+          "fact_id",
+          "value",
+          "observed_at",
+          "evidence_refs"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 1000,
+      "minItems": 0
+    },
+    "integration_targets": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:execution:v1:common#/$defs/target"
+      },
+      "maxItems": 100,
+      "minItems": 0
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "repository",
+    "evaluated_at",
+    "subject",
+    "grant",
+    "human_owner",
+    "stage",
+    "contract_digest",
+    "design_digest",
+    "allowed_paths",
+    "forbidden_paths",
+    "facts",
+    "integration_targets"
+  ],
+  "additionalProperties": false
+}

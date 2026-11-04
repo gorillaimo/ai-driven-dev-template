@@ -20,6 +20,7 @@ Node.jsは開発管理に使い、利用先アプリの開発言語は問いま�
 | 複数Issueの状態 | [集約と不整合](#project-aggregate) |
 | 次の1作業 | [推薦](#project-recommend) |
 | Projectをまたぐ回帰 | [Project Golden](#project-golden) |
+| 検証・AIレビュー結果の整合 | [execution記録](#execution) |
 
 <a id="issue-artifacts"></a>
 
@@ -326,8 +327,8 @@ main更新と手動操作でも起動します。手動実行はworkflowをdefau
 
 実行内容:
 
-1. 専用7package（schema/rules/check/trace/golden/ci/project）のlockfileで依存取得。install scriptsは無効。
-2. 既存の静的テスト、Goldenハーネスのテスト、新CI検査・workflow契約テストを実行。
+1. 専用8package（schema/rules/check/trace/golden/ci/project/execution）のlockfileで依存取得。install scriptsは無効。
+2. 既存の静的テスト、execution記録の検査、Goldenハーネスのテスト、CI検査・workflow契約テストを実行。
 3. Golden固定caseを実行。
 4. repositoryに保存したIssue成果物の形式・識別子・必要なローカル参照を検査。
 
@@ -370,7 +371,7 @@ failure/skipped/cancelledと、起動していない検査を成功と読み替�
 fork PRの初回承認やActions利用制限により未実行となる場合は、保守者がGitHubの画面で状態を確認します。Secretsやwrite権限を与えて通す運用にはしません。
 このworkflowはcontents:readとcredential非保持で動き、PRコメント・ラベル・自動承認・merge・deployを行いません。
 
-導入時は新workflow、必要な7tool package、tests、.ai-workflow/schemas、共通文書を一緒に保持してください。
+導入時は新workflow、必要な8tool package、tests、.ai-workflow/schemas、共通文書を一緒に保持してください。
 branch protectionやrequired checksは自動変更しません。まず実行時間と誤検知を観測し、人間が必要性を判断してから必須化します。
 無効化する場合はGitHubのActions画面でこのworkflowだけを停止するか、レビュー済みPRで新workflowを取り除きます。required checkに設定済みなら、先に人間がその設定を見直します。
 失敗時は元成果物・見本を保存してIssueへ理由を記録し、個別checkerと従来のIssue・branch・PR運用で確認を続けられます。
@@ -735,3 +736,46 @@ Golden利用時は既存workflow-projectの依存も導入します。対象ア�
 2要求は相談→人間が1 ownerを確定した後の他方除外→二重active拒否という固定snapshotで確認します。原子的な排他やライブ同時操作は未実装です。
 Dispatcher停止も実障害を発生させず、人間pauseと実状確認後の手動Issues-only復帰を検証します。実GitHub/本人/証拠/権限の真正性・実scope/未push/引継・実作業は保証しません。
 失敗時は元記録を保存して個別checkerと手動Coordinatorへ戻し、実データを自動修正しません。CI成功はRelease承認ではありません。
+
+<a id="execution"></a>
+
+## 検証・別AIレビューの記録と整合検査
+
+`tools/workflow-execution/`は、提出した記録の形式・対象・参照・鮮度を調べる読み取り専用libraryです。利用先アプリの言語は問いません。Projectなしの単一Issueでも使えます。
+
+人間は通常、GitHubのIssue/PRで成果・検査結果・未確認・判断事項の要約を確認します。AIは詳細な構造化記録で再開・照合し、人間も必要時にYAMLや保護ログへたどれます。**設計書には現在の仕様と必要な判断理由、Issue/PRには提案・指示・承認・作業経緯、YAML/ログには進捗・検査詳細**を記載します。未確定仕様は確定事項と区別します。
+
+### 導入とAPI
+
+```sh
+npm ci --prefix tools/workflow-rules --ignore-scripts --no-audit --no-fund
+npm ci --prefix tools/workflow-execution --ignore-scripts --no-audit --no-fund
+npm test --prefix tools/workflow-execution
+```
+
+依存導入後の検査・テストはオフラインです。APIは`workflow-execution/schema`の`validateExecutionArtifact(kind,value)`、`workflow-execution/check`の`checkExecutionEvidence(input)`、`workflow-execution/load`の`loadExecutionEvidence(root,paths)`です。repository内では各`.mjs`を直接importできます。CLIや外部adapterは提供しません。
+
+inputはprofile/grant/contextと、verifications/reviews/securityResults/integrationResultsの4配列を必須にします。report、events（省略時は空）、previous（同形式の過去入力1つ、再帰不可）は任意で、nullや未知keyを拒否します。loaderでは各記録の明示相対pathを渡し、配列も明示します。探索・URL取得・参照の自動読込み・command実行・書込みはありません。
+
+schemaは`.ai-workflow/schemas/execution/v1/`の11種類、記入例とそのまま試せる利用例は[executionテンプレート](../../.ai-workflow/templates/execution/v1/README.md)を参照してください。actorは記録上の主体であり、外部の認証済み本人性を証明しません。
+
+### 検査する条件
+
+- context.subjectのrepository/実Issue/work ID、run/attempt、base/head、plan/profileの改訂とdigestを照合します。grantは初期方針・個別承認・開始/継続依頼と、AIが選んだ有限の対象を分けます。毎回人間にIssue一覧の選択を要求しません。
+- contextのevaluated_atを使い、未来/期限外/鮮度超過/撤回/不明な必要条件を保留します。時計の取得や外部事実の確認は呼出し側の責任です。JSで解釈できない時刻も拒否します。
+- 検査のpassed/failed/not_evaluated/errorを保持します。必須実検証は終了コード、テスト件数、範囲、ログ参照を確認し、古いpassで新しい失敗を隠しません。アプリの検査とテンプレートのchecker/Goldenは別です。
+- 通常機能/高リスクでは別AIレビューが必須です。実装者と別のcontextで要件・差分・実検証をレビューし、未起動/中断を成功にしません。レビューを実際に起動する機能は後続実装です。
+- 指摘はopen/fixed/disputed/accepted_riskを区別します。fixedには修正に対応する実検証と後続の独立レビューが必要です。指摘を後のレビューから削除しても解決扱いしません。人間の期限付き例外はhuman_reviewとして分離します。
+- 統合が必須ならmainと順序付きPR/head/依存/plan集合の完全一致を確認します。報告/eventは型・重複・対象・参照を確認し、他Issueやrun全体の完了を推定しません。
+
+profileのpathは厳格な相対pathで、許可したpath自身とその配下を許可します。globや任意式はありません。適用条件はfact_idとboolean比較だけで、unknownは保留です。必須ACは適用されるcheckで網羅する必要があります。
+
+結果のstatusはpass/blocked、decisionはevidence_complete/needs_work/human_review/invalidです。**passは提出記録の整合だけ**を示します。外部本人性、実際の実行、参照先の真正性、未提出履歴、意味上の正しさ、隔離/排他、実予算の強制等はnot_evaluatedに残し、実行・工程完了・mergeの許可へ読み替えません。診断は固定code・記録の種類・数値indexのみで、入力値/path/command/原文を出しません。
+
+### 上限と復旧
+
+1file 1MiB、全入力5MiB、深さ32/200000 node、選択Issue合計100、証拠記録合計128、check/findingそれぞれ1000、event10000、診断1000、出力1MiBです。current/previousを合算し、いずれか超過で保留します。これらは受理限界で、すべての最大件数を同時に収められる保証や実行権限ではありません。
+
+plain JSONのみ受理し、getter/Proxy/cycle/特殊object/疎配列等をschema検査前に拒否します。loaderはroot内の通常fileだけを読み、symlink/不正path/過大file、YAML alias/tag/重複keyを拒否します。安定したcheckoutを前提にし、悪意ある同時FS変更への原子性やsandboxを保証しません。
+
+失敗時は原本・過去結果を保存し、入力/参照/時刻/対象の不一致を訂正して再検査します。外部事実が不明なら人間の確認に戻します。既存v1と手動運用を維持し、この追加だけで無人実行を有効にしません。scanner実行、GitHub取得・認証、Dispatcher/Runner、実統合と自律継続は後続Issueの対象です。

@@ -1,0 +1,49 @@
+# SYNTHETIC EXAMPLE: no real approval, execution, security or identity proof.
+schema_version: 1
+artifact_kind: integration-result
+artifact_id: integration-1
+revision: 1
+repository: example/synthetic
+recorded_at: 2026-11-04T00:10:00Z
+recorded_by:
+  actor_type: ai_agent
+  actor_ref: implementer
+  on_behalf_of: gorillaimo
+input_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+evidence_refs:
+  - kind: source
+    id: evidence
+    revision: 1
+    digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    location:
+      kind: id
+      target: protected-evidence
+run_id: run-1
+profile:
+  kind: profile
+  id: profile
+  revision: 1
+  digest: 50604216ab7224a5ca273c84242bde5b3619a1f3a57127d0af453e8d2fb04ba2
+  location:
+    kind: id
+    target: profile
+main_sha: "1111111111111111111111111111111111111111"
+targets:
+  - issue_number: 1
+    pr_number: 2
+    head_sha: "2222222222222222222222222222222222222222"
+    plan_digest: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    depends_on: []
+scope:
+  - src
+started_at: 2026-11-04T00:05:00Z
+finished_at: 2026-11-04T00:06:00Z
+status: passed
+log_refs:
+  - kind: source
+    id: integration-log
+    revision: 1
+    digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    location:
+      kind: id
+      target: protected-integration-log

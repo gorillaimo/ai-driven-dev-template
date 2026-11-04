@@ -1,0 +1,108 @@
+# SYNTHETIC EXAMPLE: no real approval, execution, security or identity proof.
+schema_version: 1
+artifact_kind: context
+repository: example/synthetic
+evaluated_at: 2026-11-04T00:10:00Z
+subject:
+  issue_number: 1
+  work_id: issue-1
+  run_id: run-1
+  attempt: 1
+  base_sha: "1111111111111111111111111111111111111111"
+  head_sha: "2222222222222222222222222222222222222222"
+  plan:
+    id: plan-1
+    revision: 1
+    digest: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  profile:
+    kind: profile
+    id: profile
+    revision: 1
+    digest: 50604216ab7224a5ca273c84242bde5b3619a1f3a57127d0af453e8d2fb04ba2
+    location:
+      kind: id
+      target: profile
+grant:
+  kind: grant
+  id: grant
+  revision: 1
+  digest: 731054e15137af2f53e5ea29328e6d4b18799c7d2536bf0a9b44f0026016c9d2
+  location:
+    kind: id
+    target: grant
+human_owner: gorillaimo
+stage: validation
+contract_digest: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+design_digest: dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+allowed_paths:
+  - src
+forbidden_paths:
+  - secrets
+facts:
+  - fact_id: identity
+    value: true
+    observed_at: 2026-11-04T00:10:00Z
+    evidence_refs:
+      - kind: source
+        id: identity
+        revision: 1
+        digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        location:
+          kind: id
+          target: protected-identity
+  - fact_id: authority
+    value: true
+    observed_at: 2026-11-04T00:10:00Z
+    evidence_refs:
+      - kind: source
+        id: authority
+        revision: 1
+        digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        location:
+          kind: id
+          target: protected-authority
+  - fact_id: inventory
+    value: true
+    observed_at: 2026-11-04T00:10:00Z
+    evidence_refs:
+      - kind: source
+        id: inventory
+        revision: 1
+        digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        location:
+          kind: id
+          target: protected-inventory
+  - fact_id: approval
+    value: true
+    observed_at: 2026-11-04T00:10:00Z
+    evidence_refs:
+      - kind: source
+        id: approval
+        revision: 1
+        digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        location:
+          kind: id
+          target: protected-approval
+  - fact_id: assignment
+    value: true
+    observed_at: 2026-11-04T00:10:00Z
+    evidence_refs:
+      - kind: source
+        id: assignment
+        revision: 1
+        digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        location:
+          kind: id
+          target: protected-assignment
+  - fact_id: ready
+    value: true
+    observed_at: 2026-11-04T00:10:00Z
+    evidence_refs:
+      - kind: source
+        id: ready
+        revision: 1
+        digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        location:
+          kind: id
+          target: protected-ready
+integration_targets: []

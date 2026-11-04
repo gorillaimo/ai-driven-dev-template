@@ -1,0 +1,80 @@
+# SYNTHETIC EXAMPLE: no real approval, execution, security or identity proof.
+schema_version: 1
+artifact_kind: review
+artifact_id: review-1
+revision: 1
+repository: example/synthetic
+recorded_at: 2026-11-04T00:10:00Z
+recorded_by:
+  actor_type: ai_agent
+  actor_ref: implementer
+  on_behalf_of: gorillaimo
+input_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+evidence_refs:
+  - kind: source
+    id: evidence
+    revision: 1
+    digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    location:
+      kind: id
+      target: protected-evidence
+subject:
+  issue_number: 1
+  work_id: issue-1
+  run_id: run-1
+  attempt: 1
+  base_sha: "1111111111111111111111111111111111111111"
+  head_sha: "2222222222222222222222222222222222222222"
+  plan:
+    id: plan-1
+    revision: 1
+    digest: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  profile:
+    kind: profile
+    id: profile
+    revision: 1
+    digest: 50604216ab7224a5ca273c84242bde5b3619a1f3a57127d0af453e8d2fb04ba2
+    location:
+      kind: id
+      target: profile
+implementer:
+  actor:
+    actor_type: ai_agent
+    actor_ref: implementer
+    on_behalf_of: gorillaimo
+  context_id: impl-1
+reviewer:
+  actor:
+    actor_type: ai_agent
+    actor_ref: reviewer
+    on_behalf_of: gorillaimo
+  context_id: review-1
+execution_status: completed
+started_at: 2026-11-04T00:03:00Z
+finished_at: 2026-11-04T00:04:00Z
+status: passed
+requirements_refs:
+  - kind: source
+    id: requirements
+    revision: 1
+    digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    location:
+      kind: id
+      target: protected-requirements
+diff_refs:
+  - kind: source
+    id: diff
+    revision: 1
+    digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    location:
+      kind: id
+      target: protected-diff
+verification_refs:
+  - kind: verification
+    id: unit-1
+    revision: 1
+    digest: 9f9a84386ce71abc0cc0c844219ee45f758c1619547488bcec5dc951f93ec23b
+    location:
+      kind: id
+      target: unit-1
+findings: []

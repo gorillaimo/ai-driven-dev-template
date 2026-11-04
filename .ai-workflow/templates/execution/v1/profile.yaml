@@ -1,0 +1,71 @@
+# SYNTHETIC EXAMPLE: no real approval, execution, security or identity proof.
+schema_version: 1
+artifact_kind: profile
+artifact_id: profile
+revision: 1
+repository: example/synthetic
+recorded_at: 2026-11-04T00:10:00Z
+recorded_by:
+  actor_type: ai_agent
+  actor_ref: implementer
+  on_behalf_of: gorillaimo
+input_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+evidence_refs:
+  - kind: source
+    id: evidence
+    revision: 1
+    digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    location:
+      kind: id
+      target: protected-evidence
+human_owner: gorillaimo
+risk: high
+allowed_stages:
+  - validation
+allowed_paths:
+  - src
+forbidden_paths:
+  - secrets
+required_acs:
+  - ac-1
+review_required: true
+review_omission_reason: ""
+max_age_seconds: 3600
+stop_severities:
+  - critical
+  - high
+delegates: []
+commands:
+  - command_id: unit
+    executable: node
+    argv:
+      - --test
+checks:
+  - check_id: unit
+    kind: verification
+    domain: app
+    acs:
+      - ac-1
+    command_id: unit
+    test_check: true
+    min_tests: 1
+limits:
+  max_issues: 10
+  max_concurrent_issues: 2
+  max_ai_processes: 3
+  run_seconds: 21600
+  cleanup_seconds: 600
+  call_seconds: 1800
+  max_repairs: 3
+  cost:
+    status: known
+    amount: 10
+    unit: synthetic-units
+approval_refs:
+  - kind: source
+    id: policy-approval
+    revision: 1
+    digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    location:
+      kind: id
+      target: protected-policy-approval

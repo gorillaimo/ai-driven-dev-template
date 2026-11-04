@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:execution:v1:grant",
+  "title": "execution/v1 grant",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "artifact_kind": {
+      "const": "grant"
+    },
+    "artifact_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "revision": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+    },
+    "repository": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/repository"
+    },
+    "recorded_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "recorded_by": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/actor"
+    },
+    "input_digest": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+      },
+      "maxItems": 1000,
+      "minItems": 1
+    },
+    "run_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "profile": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+    },
+    "human_owner": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+    },
+    "request": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": [
+            "start",
+            "continue"
+          ]
+        },
+        "actor": {
+          "$ref": "urn:ai-workflow:issue:v1:common#/$defs/actor"
+        },
+        "reference": {
+          "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+        }
+      },
+      "required": [
+        "mode",
+        "actor",
+        "reference"
+      ],
+      "additionalProperties": false
+    },
+    "policy_approval_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+      },
+      "maxItems": 1000,
+      "minItems": 1
+    },
+    "issued_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "expires_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "revoked": {
+      "type": "boolean"
+    },
+    "selected": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "issue_number": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "work_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "run_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "attempt": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "base_sha": {
+            "$ref": "urn:ai-workflow:execution:v1:common#/$defs/commit"
+          },
+          "head_sha": {
+            "$ref": "urn:ai-workflow:execution:v1:common#/$defs/commit"
+          },
+          "plan": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+              },
+              "revision": {
+                "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+              },
+              "digest": {
+                "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+              }
+            },
+            "required": [
+              "id",
+              "revision",
+              "digest"
+            ],
+            "additionalProperties": false
+          },
+          "profile": {
+            "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+          },
+          "contract_digest": {
+            "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+          },
+          "design_digest": {
+            "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+          },
+          "stages": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+            },
+            "maxItems": 12,
+            "minItems": 1
+          },
+          "allowed_paths": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+            },
+            "maxItems": 1000,
+            "minItems": 1
+          },
+          "forbidden_paths": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+            },
+            "maxItems": 1000,
+            "minItems": 0
+          },
+          "shared_areas": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+            },
+            "maxItems": 200,
+            "minItems": 0
+          },
+          "approval_refs": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+            },
+            "maxItems": 1000,
+            "minItems": 1
+          }
+        },
+        "required": [
+          "issue_number",
+          "work_id",
+          "run_id",
+          "attempt",
+          "base_sha",
+          "head_sha",
+          "plan",
+          "profile",
+          "contract_digest",
+          "design_digest",
+          "stages",
+          "allowed_paths",
+          "forbidden_paths",
+          "shared_areas",
+          "approval_refs"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 100,
+      "minItems": 1
+    },
+    "requested_issues": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9007199254740991
+      },
+      "maxItems": 100,
+      "minItems": 1
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "artifact_id",
+    "revision",
+    "repository",
+    "recorded_at",
+    "recorded_by",
+    "input_digest",
+    "evidence_refs",
+    "run_id",
+    "profile",
+    "human_owner",
+    "request",
+    "policy_approval_refs",
+    "issued_at",
+    "expires_at",
+    "revoked",
+    "selected"
+  ],
+  "additionalProperties": false
+}

@@ -257,3 +257,9 @@ Golden専用format_version:1へproject_plan/project_members/project_aggregate/pr
 新toolで既存12caseだけのsuiteを検証すると、必須Project case不足で失敗します。同じtemplate commitのtool/fixtures/testsを一式で導入し、Golden利用時は既存workflow-projectの依存も導入してください。利用先の実Project設定は必須にしません。
 成果物schema/checker・always-on規約・外部依存lock・VERSIONは変更しません。差分で見本を自動更新せず、人間が仕様とIssueに照らしてレビューします。元の一式を保持し、復旧不能なら個別checker/手動Coordinatorへ戻します。
 37caseの成功は静的な合成運用の回帰確認です。実認証・原子的claim・実Dispatcher障害・Release条件の完了を保証せず、alpha/stable公開を承認しません。[固定例の保証境界](../examples/project-golden/README.md)を参照してください。
+
+## execution/v1の互換性
+
+`.ai-workflow/schemas/execution/v1/`は既存Issue/Project/rule/check/traceとは独立した任意追加の契約です。8種類の記録とcommon/context/resultを持ちます。schema_version:1、checker_version:1.0.0、template VERSIONは独立し、coreの型・必須性・受理集合を変えるときは新schema majorを追加します。未知version/keyは黙って変換しません。
+既存v1の受理集合・Golden37case・legacy always-on規約は維持します。Project v2や自動実行への移行を発生させず、v2 stable Releaseも作成しません。新tool/schema/templates/testsを同じcommitから導入し、既存の導入一式を保存します。
+非対応・破損・失効時は元記録を保持して訂正・再検査し、本人性や必要承認が確認できなければ従来のIssue/PR・手動運用へ戻します。passを承認や実行権限に変換しません。[利用法と制約](workflow-tools-guide.md#execution)を参照してください。

@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:execution:v1:profile",
+  "title": "execution/v1 profile",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "artifact_kind": {
+      "const": "profile"
+    },
+    "artifact_id": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+    },
+    "revision": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/revision"
+    },
+    "repository": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/repository"
+    },
+    "recorded_at": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/timestamp"
+    },
+    "recorded_by": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/actor"
+    },
+    "input_digest": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/digest"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+      },
+      "maxItems": 1000,
+      "minItems": 1
+    },
+    "human_owner": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+    },
+    "risk": {
+      "$ref": "urn:ai-workflow:issue:v1:common#/$defs/risk"
+    },
+    "allowed_stages": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/stage"
+      },
+      "maxItems": 12,
+      "minItems": 1
+    },
+    "allowed_paths": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+      },
+      "maxItems": 1000,
+      "minItems": 1
+    },
+    "forbidden_paths": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/filePath"
+      },
+      "maxItems": 1000,
+      "minItems": 0
+    },
+    "required_acs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+      },
+      "maxItems": 1000,
+      "minItems": 1
+    },
+    "review_required": {
+      "type": "boolean"
+    },
+    "review_omission_reason": {
+      "type": "string",
+      "maxLength": 2048
+    },
+    "max_age_seconds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "stop_severities": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "critical",
+          "high",
+          "medium",
+          "low",
+          "info"
+        ]
+      },
+      "maxItems": 5,
+      "minItems": 0
+    },
+    "delegates": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:issue:v1:common#/$defs/login"
+      },
+      "maxItems": 100,
+      "minItems": 0
+    },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "command_id": {
+            "$ref": "urn:ai-workflow:issue:v1:common#/$defs/id"
+          },
+          "executable": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "argv": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 2048
+            },
+            "maxItems": 256,
+            "minItems": 0
+          }
+        },
+        "required": [
+          "command_id",
+          "executable",
+          "argv"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 1000,
+      "minItems": 0
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:execution:v1:common#/$defs/check"
+      },
+      "maxItems": 1000,
+      "minItems": 1
+    },
+    "limits": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/limits"
+    },
+    "approval_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+      },
+      "maxItems": 1000,
+      "minItems": 1
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "artifact_id",
+    "revision",
+    "repository",
+    "recorded_at",
+    "recorded_by",
+    "input_digest",
+    "evidence_refs",
+    "human_owner",
+    "risk",
+    "allowed_stages",
+    "allowed_paths",
+    "forbidden_paths",
+    "required_acs",
+    "review_required",
+    "review_omission_reason",
+    "max_age_seconds",
+    "stop_severities",
+    "delegates",
+    "commands",
+    "checks",
+    "limits",
+    "approval_refs"
+  ],
+  "additionalProperties": false
+}
