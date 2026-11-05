@@ -20,6 +20,27 @@ const SECTIONS = [
   "permissions",
   "protections",
 ];
+function repositoryIdentity(body, policy) {
+  const owner = body?.owner;
+  if (
+    body?.id !== policy.repository_id ||
+    body?.full_name !== policy.repository ||
+    typeof body.default_branch !== "string" ||
+    !Number.isSafeInteger(owner?.id) ||
+    owner.id < 1 ||
+    typeof owner.login !== "string" ||
+    owner.login.toLowerCase() !==
+      policy.repository.split("/")[0].toLowerCase() ||
+    !["User", "Organization"].includes(owner.type)
+  )
+    return null;
+  return {
+    repository_id: body.id,
+    repository: body.full_name,
+    default_branch: body.default_branch,
+    owner: { id: owner.id, login: owner.login, type: owner.type },
+  };
+}
 export async function collectGitHubSnapshot(
   input,
   transport,
@@ -87,6 +108,11 @@ export async function collectGitHubSnapshot(
     )
       fail("repository_mismatch");
     result.default_branch = repo.body.default_branch;
+    const identity = scope.include_protections
+      ? repositoryIdentity(repo.body, p)
+      : null;
+    if (scope.include_protections && !identity)
+      fail("repository_identity_unknown");
     const paths = {
       issues: base + "/issues?state=all&sort=created&direction=asc",
       prs: base + "/pulls?state=all&sort=created&direction=asc",
@@ -281,8 +307,12 @@ export async function collectGitHubSnapshot(
       result.sections.permissions = "complete";
     } else result.unresolved.push("permission_unknown");
     if (scope.include_protections) {
-      result.protections = await collectProtections(p, client, clock, (code) =>
-        result.unresolved.push(code),
+      result.protections = await collectProtections(
+        p,
+        client,
+        clock,
+        (code) => result.unresolved.push(code),
+        identity,
       );
       result.sections.protections = result.protections.every(
         (x) => x.enforced === true && Array.isArray(x.bypass_actors),
@@ -310,6 +340,14 @@ export async function collectGitHubSnapshot(
         r.body.updated_at !== issue.updated_at
       )
         fail("concurrent_change");
+    }
+    if (scope.include_protections) {
+      const last = await client.request("GET", base);
+      if (
+        last.status !== 200 ||
+        !same(identity, repositoryIdentity(last.body, p))
+      )
+        fail("repository_identity_changed");
     }
     result.finished_at = clock();
     result.unresolved = [...new Set(result.unresolved)];

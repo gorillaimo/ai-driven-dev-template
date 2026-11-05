@@ -37,6 +37,10 @@ Appの秘密鍵はrepo外のprivateな通常fileを明示指定します。`crea
 
 GitHubは取得権限によってrulesetの`bypass_actors`を省略します。省略と空配列は別です。この版は、適用rulesetにbypass actorがある場合や、teamの範囲が不明な場合も保留します。独立した監査接続が完全な設定を観測できる構成を検討し、brokerへ`administration:write`を追加して通過させないでください。署名付き監査証明を受け取る専用adapterは、この版にはありません。
 
+legacy branch protectionの例外許可リストは、[GitHubの仕様](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)では組織所有repo向けです。collectorは実GETでrepoの数値ID・名前とownerの数値ID・login・typeを確認します。個人所有（`User`）で、PR必須ルールの`bypass_pull_request_allowances`プロパティ自体が省略されている場合だけ、その項目を対象外と扱います。組織所有や所有情報不明の場合の省略、`null`・壊れた情報・配列の部分欠損、個人repoに非空の例外一覧がある場合は停止します。rulesetにはこの扱いを適用しません。
+
+保護情報のdigestには観測したrepo所有情報も含め、全量取得の最後にrepo/ownerを読み戻します。変更や取得不能なら許可を作りません。追加GETも既存の要求予算に含めます。PR必須・管理者への適用・force push/削除の制限、操作直前の権限/保護再確認とTTLは引き続き必要です。
+
 ## データと実行権限の違い
 
 schemaと合成例は[github/v1](../../.ai-workflow/templates/github/v1/README.md)にあります。

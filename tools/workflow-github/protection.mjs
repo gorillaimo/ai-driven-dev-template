@@ -1,12 +1,14 @@
 import { hash, same, fail } from "./core.mjs";
 
 // Effective rules identify applicability. Never guess GitHub's fnmatch semantics.
-// Unknown/hidden bypass metadata makes the whole observation unusable.
+// Unknown/hidden bypass metadata makes the whole observation unusable. The only
+// inapplicable legacy field is an absent bypass property on an observed User repo.
 export async function collectProtections(
   policy,
   client,
   clock,
   diagnose = () => {},
+  repositoryIdentity = null,
 ) {
   const base = "/repos/" + policy.repository,
     reads = [];
@@ -82,9 +84,17 @@ export async function collectProtections(
     let legacyEnforced = false;
     if (legacy.status === 200) {
       const b = legacy.body,
-        a = b.required_pull_request_reviews?.bypass_pull_request_allowances;
-      if (!a) reasons.add("protection_legacy_bypass_missing");
-      else {
+        reviews = b.required_pull_request_reviews,
+        a = reviews?.bypass_pull_request_allowances,
+        personal = repositoryIdentity?.owner.type === "User",
+        inapplicable =
+          personal &&
+          reviews !== null &&
+          typeof reviews === "object" &&
+          !Array.isArray(reviews) &&
+          !Object.hasOwn(reviews, "bypass_pull_request_allowances");
+      if (!a && !inapplicable) reasons.add("protection_legacy_bypass_missing");
+      else if (a) {
         if (!Array.isArray(a.users))
           reasons.add("protection_legacy_bypass_users_missing");
         if (!Array.isArray(a.apps))
@@ -94,7 +104,12 @@ export async function collectProtections(
         else if (a.teams.length)
           reasons.add("protection_legacy_team_bypass_unknown");
       }
-      if (
+      if (inapplicable) {
+        // GitHub permits legacy bypass lists only on organization-owned repos.
+        // This is based on the collector's real repository observation, never
+        // on policy owner names or omitted metadata on an organization/ruleset.
+        bypass = [];
+      } else if (
         !a ||
         !Array.isArray(a.users) ||
         !Array.isArray(a.apps) ||
@@ -104,6 +119,10 @@ export async function collectProtections(
         complete = false;
       else {
         bypass = [...a.users, ...a.apps].map((v) => v.id);
+        if (personal && bypass.length) {
+          complete = false;
+          reasons.add("protection_legacy_personal_bypass_inconsistent");
+        }
         if (bypass.some((id) => !Number.isSafeInteger(id) || id < 1)) {
           complete = false;
           reasons.add("protection_legacy_bypass_actor_invalid");
@@ -148,6 +167,7 @@ export async function collectProtections(
       bypass_actors: complete ? bypass : null,
       observed_at: clock(),
       source_digest: hash({
+        repository_identity: repositoryIdentity,
         legacy: legacy.body,
         effective,
         details: [...details],
