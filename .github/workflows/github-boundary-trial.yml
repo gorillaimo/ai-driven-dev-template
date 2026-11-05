@@ -1,0 +1,86 @@
+name: GitHub Boundary Trial
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: 'Run the one-repository bounded trial'
+        required: true
+        type: choice
+        default: do-not-run
+        options:
+          - do-not-run
+          - run-sandbox-1446360916-issue-1
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-boundary-trial-1446360916-1
+  cancel-in-progress: false
+
+jobs:
+  trial:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      TRIAL_SOURCE_SHA: cfb23d8140a32b20d63724a11cb9895b28d390b9
+      TRIAL_CONFIRMATION: ${{ inputs.confirmation }}
+    steps:
+      - name: Admit this manual request
+        run: |
+          test "$GITHUB_EVENT_NAME" = workflow_dispatch
+          test "$GITHUB_REPOSITORY" = gorillaimo/ai-driven-dev-template
+          test "$GITHUB_REPOSITORY_ID" = 1225812134
+          test "$GITHUB_REF" = refs/heads/main
+          test "$GITHUB_ACTOR" = gorillaimo
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          test "$TRIAL_CONFIRMATION" = run-sandbox-1446360916-issue-1
+      - name: Checkout reviewed controller and implementation
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: gorillaimo/ai-driven-dev-template
+          ref: cfb23d8140a32b20d63724a11cb9895b28d390b9
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+      - name: Verify reviewed source
+        run: test "$(git rev-parse HEAD)" = "$TRIAL_SOURCE_SHA"
+      - name: Install locked controller tools
+        id: install
+        run: |
+          npm ci --prefix tools/workflow-rules --ignore-scripts --no-audit --no-fund
+          npm ci --prefix tools/workflow-execution --ignore-scripts --no-audit --no-fund
+          npm ci --prefix tools/workflow-github --ignore-scripts --no-audit --no-fund
+      - name: Verify controller offline
+        id: offline
+        run: npm test --prefix tools/workflow-github
+      - name: Prepare private App key
+        env:
+          TRIAL_GITHUB_APP_PRIVATE_KEY: ${{ secrets.TRIAL_GITHUB_APP_PRIVATE_KEY }}
+        run: node tools/workflow-github/actions-entry.mjs prepare-key
+      - name: Run the bounded sandbox trial
+        id: run
+        timeout-minutes: 15
+        run: node tools/workflow-github/actions-entry.mjs run
+      - name: Remove this run's private key
+        id: cleanup
+        if: always()
+        timeout-minutes: 1
+        run: node tools/workflow-github/actions-entry.mjs cleanup
+      - name: Trial summary
+        id: summary
+        if: always()
+        run: node tools/workflow-github/actions-entry.mjs summary >> "$GITHUB_STEP_SUMMARY"
+      - name: Preserve public-safe receipt metadata
+        id: metadata
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: github-boundary-trial-result
+          path: ${{ runner.temp }}/workflow-github-trial/public-report.json
+          retention-days: 3
+          if-no-files-found: ignore
