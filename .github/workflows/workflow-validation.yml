@@ -33,6 +33,15 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: ${{ matrix.node }}
+      - name: Check Dispatcher backend requirements
+        id: dispatch_backend
+        run: |
+          python3 - <<'PYTHON'
+          import fcntl, sqlite3, sys
+          assert sys.platform == 'linux' and sys.version_info >= (3, 11)
+          assert sqlite3.sqlite_version_info >= (3, 35)
+          print('Dispatcher Linux/Python/SQLite backend requirements passed')
+          PYTHON
       - name: Install locked development tools
         id: install
         run: |
@@ -46,6 +55,7 @@ jobs:
           npm ci --prefix tools/workflow-execution --ignore-scripts --no-audit --no-fund
           npm ci --prefix tools/workflow-security --ignore-scripts --no-audit --no-fund
           npm ci --prefix tools/workflow-github --ignore-scripts --no-audit --no-fund
+          npm ci --prefix tools/workflow-dispatch --ignore-scripts --no-audit --no-fund
       - name: Existing schema and checker tests
         id: regression
         run: |
@@ -63,6 +73,7 @@ jobs:
           npm test --prefix tools/workflow-execution
           npm test --prefix tools/workflow-security
           npm test --prefix tools/workflow-github
+          npm test --prefix tools/workflow-dispatch
       - name: CI runner and workflow contract tests
         id: contracts
         run: npm test --prefix tools/workflow-ci
@@ -76,6 +87,7 @@ jobs:
         if: always()
         env:
           JOB_STATUS: ${{ job.status }}
+          BACKEND_OUTCOME: ${{ steps.dispatch_backend.outcome }}
           INSTALL_OUTCOME: ${{ steps.install.outcome }}
           REGRESSION_OUTCOME: ${{ steps.regression.outcome }}
           CONTRACT_OUTCOME: ${{ steps.contracts.outcome }}
@@ -86,6 +98,7 @@ jobs:
             printf '## Workflow Validation\n\n'
             printf 'Job status: %s\n\n' "$JOB_STATUS"
             printf '| Check | Outcome |\n| --- | --- |\n'
+            printf '| Dispatcher backend requirements | %s |\n' "$BACKEND_OUTCOME"
             printf '| Dependency installation | %s |\n' "$INSTALL_OUTCOME"
             printf '| Existing regression suites | %s |\n' "$REGRESSION_OUTCOME"
             printf '| CI runner and workflow contract | %s |\n' "$CONTRACT_OUTCOME"

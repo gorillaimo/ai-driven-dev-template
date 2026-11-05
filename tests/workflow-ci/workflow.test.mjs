@@ -16,9 +16,9 @@ test('permissions and pinned official actions do not persist credentials or expo
  assert.ok(!/secrets\.|pull_request_target|continue-on-error|upload-artifact|id-token|cache:|always\(\).*\|\|/.test(text));
  for(const s of job.steps.filter(s=>s.run))assert.ok(!/\$\{\{/.test(s.run),'Fixed shell commands only');
 });
-test('ten locked dependency installations and all existing suites are invoked',()=>{
+test('eleven locked dependency installations and all existing suites are invoked',()=>{
  const steps=parseYaml(read()).jobs.validate.steps,commands=steps.map(s=>s.run??'').join('\n');
- for(const name of ['rules','check','trace','schema','golden','ci','project','execution','security','github']){
+ for(const name of ['rules','check','trace','schema','golden','ci','project','execution','security','github','dispatch']){
   assert.ok(commands.includes('npm ci --prefix tools/workflow-'+name+' --ignore-scripts --no-audit --no-fund'));
  }
  for(const command of ['node tools/workflow-schema/validate.mjs','npm run test:brownfield --prefix tools/workflow-schema','npm test --prefix tools/workflow-rules','npm test --prefix tools/workflow-check','npm test --prefix tools/workflow-trace','npm test --prefix tools/workflow-golden','npm test --prefix tools/workflow-execution','npm test --prefix tools/workflow-security','npm test --prefix tools/workflow-ci','node tools/workflow-golden/run.mjs --json','node tools/workflow-ci/validate.mjs --json'])assert.ok(commands.includes(command),command);
@@ -39,3 +39,5 @@ test('Project Golden dependencies, regression and shared case execution are conn
  for(const cmd of ['npm run test:project --prefix tools/workflow-schema','npm test --prefix tools/workflow-project','npm run test:members --prefix tools/workflow-project','npm run test:aggregate --prefix tools/workflow-project','npm run test:recommend --prefix tools/workflow-project','npm test --prefix tools/workflow-golden'])assert.ok(regression.split('\n').includes(cmd));
  assert.equal(golden.run,'node tools/workflow-golden/run.mjs --json');assert.equal(golden.if,undefined);assert.equal(golden['continue-on-error'],undefined);
 });
+
+test('Dispatcher has locked dependencies, mandatory supported backend and full process suite',()=>{const steps=parseYaml(read()).jobs.validate.steps,install=steps.find(s=>s.id==='install').run,backend=steps.find(s=>s.id==='dispatch_backend');assert.ok(install.includes('npm ci --prefix tools/workflow-dispatch --ignore-scripts --no-audit --no-fund'));assert.ok(backend);assert.match(backend.run,/python3/);assert.match(backend.run,/sqlite3/);assert.match(backend.run,/fcntl/);assert.equal(backend['continue-on-error'],undefined);assert.ok(steps.find(s=>s.id==='regression').run.includes('npm test --prefix tools/workflow-dispatch'));});

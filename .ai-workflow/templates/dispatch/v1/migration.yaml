@@ -1,0 +1,33 @@
+# Synthetic example only. Not an approval or live execution record.
+schema_version: 1
+artifact_kind: migration
+project_id: example-app
+configuration_digest: 427d11f7dddb35d9048e4305da07eb83e8e1f3cd4ba9e91ab36250f28c403734
+source_digest: 931fd9b658b605aac1327cde1ea0e4c6151ae1cc9159bcdaf99ac2c01e129295
+inventory_digest: 96b914d9cc46ab5a5eee23ef0ed07759b92aa6994b4e578455c23ecedce5147c
+observed_at: 2026-11-04T00:10:00Z
+dispositions:
+  - kind: manual
+    id: comment:21
+    disposition: not_claim
+    claim: null
+    approval_refs:
+      - kind: source
+        id: manual-confirmation
+        revision: 1
+        digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        location:
+          kind: id
+          target: protected-manual-confirmation
+  - kind: manual
+    id: comment:22
+    disposition: not_claim
+    claim: null
+    approval_refs:
+      - kind: source
+        id: manual-confirmation
+        revision: 1
+        digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        location:
+          kind: id
+          target: protected-manual-confirmation

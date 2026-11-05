@@ -1,0 +1,15 @@
+# Synthetic example only. Not an approval or live execution record.
+schema_version: 1
+artifact_kind: ledger-view
+project_id: example-app
+configuration_digest: 427d11f7dddb35d9048e4305da07eb83e8e1f3cd4ba9e91ab36250f28c403734
+generation: 1
+status: ready
+complete: true
+claims: []
+pending_operations: []
+runs: []
+history:
+  claims: 0
+  operations: 0
+  events: 0

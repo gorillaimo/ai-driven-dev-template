@@ -1,0 +1,236 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:dispatch:v1:common",
+  "$defs": {
+    "claim": {
+      "type": "object",
+      "properties": {
+        "claim_id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+        },
+        "operation_id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+        },
+        "input_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "run_id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+        },
+        "worker_id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+        },
+        "generation": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "issue_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "human_owner": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "areas": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+          },
+          "maxItems": 200
+        },
+        "allowed_paths": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$",
+            "maxLength": 1024
+          },
+          "maxItems": 1000
+        },
+        "forbidden_paths": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$",
+            "maxLength": 1024
+          },
+          "maxItems": 1000
+        },
+        "status": {
+          "enum": [
+            "reserved",
+            "publishing",
+            "ready",
+            "running",
+            "in_review",
+            "blocked",
+            "reconcile_required",
+            "released"
+          ]
+        },
+        "reserved_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "head_sha": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "execution_active": {
+          "type": "boolean"
+        },
+        "profile_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "grant_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "origin": {
+          "enum": ["dispatcher", "manual-v1"]
+        },
+        "feature_id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+        },
+        "contract_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "design_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "stages": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "maxItems": 100
+        },
+        "branch": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$",
+              "maxLength": 1024
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "policy_digest": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "claim_id",
+        "operation_id",
+        "input_digest",
+        "run_id",
+        "worker_id",
+        "generation",
+        "issue_number",
+        "human_owner",
+        "areas",
+        "allowed_paths",
+        "forbidden_paths",
+        "status",
+        "reserved_at",
+        "updated_at",
+        "head_sha",
+        "execution_active",
+        "profile_digest",
+        "grant_digest",
+        "origin",
+        "feature_id",
+        "contract_digest",
+        "design_digest",
+        "stages",
+        "branch",
+        "policy_digest"
+      ],
+      "additionalProperties": false
+    },
+    "operation": {
+      "type": "object",
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+        },
+        "claim_id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+        },
+        "input_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "kind": {
+          "enum": [
+            "create_branch",
+            "append_claim",
+            "publish_commit",
+            "append_record",
+            "create_draft_pr",
+            "update_draft_pr"
+          ]
+        },
+        "status": {
+          "enum": ["sending", "confirmed", "unknown", "failed"]
+        },
+        "receipt_digest": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "actor_id": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "operation_id",
+        "claim_id",
+        "input_digest",
+        "kind",
+        "status",
+        "receipt_digest",
+        "actor_id"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:dispatch:v1:request",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "artifact_kind": {
+      "const": "request"
+    },
+    "project": {
+      "$ref": "urn:ai-workflow:project:v2:project"
+    },
+    "team": {
+      "$ref": "urn:ai-workflow:project:v2:team"
+    },
+    "deliveryPlan": {
+      "$ref": "urn:ai-workflow:project:v2:delivery-plan"
+    },
+    "profile": {
+      "$ref": "urn:ai-workflow:execution:v1:profile"
+    },
+    "grant": {
+      "$ref": "urn:ai-workflow:execution:v1:grant"
+    },
+    "snapshot": {
+      "$ref": "urn:ai-workflow:github:v1:snapshot"
+    },
+    "evaluated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "requested_issues": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "maxItems": 100
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "issue_facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "issue_number": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "approval": {
+            "enum": ["approved", "pending", "unknown"]
+          },
+          "blocker": {
+            "enum": ["none", "known", "unknown"]
+          },
+          "pr_numbers": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "maxItems": 100
+          }
+        },
+        "required": [
+          "issue_number",
+          "priority",
+          "approval",
+          "blocker",
+          "pr_numbers"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 100
+    },
+    "ledger": {
+      "$ref": "urn:ai-workflow:dispatch:v1:ledger-view"
+    },
+    "constraint_facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "feature_id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+          },
+          "constraint_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "status": {
+            "enum": ["satisfied", "blocked", "unknown"]
+          }
+        },
+        "required": ["feature_id", "constraint_digest", "status"],
+        "additionalProperties": false
+      },
+      "maxItems": 10000
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "project",
+    "team",
+    "deliveryPlan",
+    "profile",
+    "grant",
+    "snapshot",
+    "evaluated_at",
+    "requested_issues",
+    "issue_facts",
+    "ledger",
+    "constraint_facts"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,381 @@
+# Synthetic example only. Not an approval or live execution record.
+from:
+  project:
+    schema_version: 1
+    artifact_kind: project
+    project_id: example-app
+    revision: 1
+    updated_at: 2026-10-27T00:00:00Z
+    updated_by:
+      actor_type: human
+      actor_ref: example-user
+    repository: example/project
+    runtime_backend: issues
+    coordination_mode: manual
+    template_origin:
+      repository: https://github.com/gorillaimo/ai-driven-dev-template
+      version: 2.0.0-0.dev.0
+      commit: "0000000000000000000000000000000000000000"
+    coordinators:
+      scope: project
+      assignments:
+        - github_login: example-user
+          area_ids: []
+    membership_source:
+      type: repository
+      organization_team: null
+    required_repository_permission: write
+    status_mapping:
+      draft: project:draft
+      available_for_work: project:available-for-work
+      assigned: project:assigned
+      in_progress: project:in-progress
+      blocked: project:blocked
+      in_review: project:in-review
+      completed: project:completed
+      cancelled: project:cancelled
+    claim_policy:
+      heartbeat_interval_seconds: 14400
+      stale_after_seconds: 86400
+      on_stale: warn
+      release_policy: manual
+    areas:
+      - area_id: backend
+        paths:
+          - packages/backend
+        shared: false
+        integration_owner: null
+        conflict_policy: disjoint_scopes
+      - area_id: contracts
+        paths:
+          - docs/api
+          - docs/architecture.md
+        shared: true
+        integration_owner: example-user
+        conflict_policy: serialize
+      - area_id: frontend
+        paths:
+          - packages/frontend
+        shared: false
+        integration_owner: null
+        conflict_policy: disjoint_scopes
+    sync_policy:
+      direction: github_to_snapshot
+      checkpoint_key: event_id
+      on_failure: manual_review
+  team:
+    schema_version: 1
+    artifact_kind: team
+    project_id: example-app
+    revision: 1
+    updated_at: 2026-10-30T00:00:00Z
+    updated_by:
+      actor_type: human
+      actor_ref: example-user
+    membership_source:
+      type: repository
+      organization_team: null
+    members:
+      - github_login: example-user
+        active: true
+        roles:
+          - developer
+          - coordinator
+        areas:
+          - backend
+          - contracts
+          - frontend
+        max_concurrent_issues: 3
+        integration_owner:
+          - contracts
+  deliveryPlan:
+    schema_version: 1
+    artifact_kind: delivery_plan
+    project_id: example-app
+    revision: 1
+    updated_at: 2026-10-27T00:00:00Z
+    updated_by:
+      actor_type: human
+      actor_ref: example-user
+    features:
+      - feature_id: a
+        source_ref:
+          kind: file
+          target: docs/system-context.md
+          fragment: feature-a
+        depends_on: []
+        area_ids:
+          - backend
+        planned_priority: 1
+        constraints: []
+        issue_refs:
+          - issue_ref: https://github.com/example/project/issues/1
+            work_id: issue-1
+            required: true
+      - feature_id: b
+        source_ref:
+          kind: file
+          target: docs/system-context.md
+          fragment: feature-b
+        depends_on: []
+        area_ids:
+          - frontend
+        planned_priority: 2
+        constraints: []
+        issue_refs:
+          - issue_ref: https://github.com/example/project/issues/2
+            work_id: issue-2
+            required: true
+    revision_history: []
+to:
+  project:
+    schema_version: 2
+    artifact_kind: project
+    project_id: example-app
+    revision: 1
+    updated_at: 2026-10-27T00:00:00Z
+    updated_by:
+      actor_type: human
+      actor_ref: example-user
+    repository: example/project
+    runtime_backend: issues
+    coordination_mode: dispatcher
+    template_origin:
+      repository: https://github.com/gorillaimo/ai-driven-dev-template
+      version: 2.0.0-0.dev.0
+      commit: "0000000000000000000000000000000000000000"
+    coordinators:
+      scope: project
+      assignments:
+        - github_login: example-user
+          area_ids: []
+    membership_source:
+      type: repository
+      organization_team: null
+    required_repository_permission: write
+    status_mapping:
+      draft: project:draft
+      available_for_work: project:available-for-work
+      assigned: project:assigned
+      in_progress: project:in-progress
+      blocked: project:blocked
+      in_review: project:in-review
+      completed: project:completed
+      cancelled: project:cancelled
+    claim_policy:
+      heartbeat_interval_seconds: 14400
+      stale_after_seconds: 86400
+      on_stale: warn
+      release_policy: manual
+    areas:
+      - area_id: backend
+        paths:
+          - packages/backend
+        shared: false
+        integration_owner: null
+        conflict_policy: disjoint_scopes
+      - area_id: contracts
+        paths:
+          - docs/api
+          - docs/architecture.md
+        shared: true
+        integration_owner: example-user
+        conflict_policy: serialize
+      - area_id: frontend
+        paths:
+          - packages/frontend
+        shared: false
+        integration_owner: null
+        conflict_policy: disjoint_scopes
+    sync_policy:
+      direction: github_to_snapshot
+      checkpoint_key: event_id
+      on_failure: manual_review
+    repository_id: 1
+    dispatcher:
+      storage_id: synthetic-ledger
+      max_parallel_issues: 2
+      max_run_issues: 10
+      team:
+        revision: 1
+        digest: cac9b47e979ba3b5b1e3787d553ae92ad3c01989ef64c88eccc4a4b1b493a338
+      delivery_plan:
+        revision: 1
+        digest: a303ad76e7312910759d173dcc0a88bb1bd14112b9fcb16fa097f4a151541409
+  team:
+    schema_version: 2
+    artifact_kind: team
+    project_id: example-app
+    revision: 1
+    updated_at: 2026-10-30T00:00:00Z
+    updated_by:
+      actor_type: human
+      actor_ref: example-user
+    membership_source:
+      type: repository
+      organization_team: null
+    members:
+      - github_login: example-user
+        active: true
+        roles:
+          - developer
+          - coordinator
+        areas:
+          - backend
+          - contracts
+          - frontend
+        max_concurrent_issues: 3
+        integration_owner:
+          - contracts
+  deliveryPlan:
+    schema_version: 2
+    artifact_kind: delivery_plan
+    project_id: example-app
+    revision: 1
+    updated_at: 2026-10-27T00:00:00Z
+    updated_by:
+      actor_type: human
+      actor_ref: example-user
+    features:
+      - feature_id: a
+        source_ref:
+          kind: file
+          target: docs/system-context.md
+          fragment: feature-a
+        depends_on: []
+        area_ids:
+          - backend
+        planned_priority: 1
+        constraints: []
+        issue_refs:
+          - issue_ref: https://github.com/example/project/issues/1
+            work_id: issue-1
+            required: true
+      - feature_id: b
+        source_ref:
+          kind: file
+          target: docs/system-context.md
+          fragment: feature-b
+        depends_on: []
+        area_ids:
+          - frontend
+        planned_priority: 2
+        constraints: []
+        issue_refs:
+          - issue_ref: https://github.com/example/project/issues/2
+            work_id: issue-2
+            required: true
+    revision_history: []
+snapshot:
+  schema_version: 1
+  artifact_kind: github-snapshot
+  repository: example/project
+  repository_id: 1
+  started_at: 2026-11-04T00:10:00Z
+  finished_at: 2026-11-04T00:10:00Z
+  status: complete
+  policy_digest: 83a9721d8f40c8dbcbba5709f41c035a7c9d8742f33692f3fefd38011a642237
+  default_branch: main
+  sections:
+    issues: complete
+    prs: complete
+    branches: complete
+    comments: complete
+    reviews: complete
+    permissions: complete
+    protections: complete
+  issues:
+    - id: 11
+      number: 1
+      state: open
+      assignees:
+        - id: 7
+          login: example-user
+      labels:
+        - ready-for-ai
+      updated_at: 2026-11-04T00:10:00Z
+      body_digest: e8ea82a96aec183cce8f26a11702010a16cb81f049527208c097063e0f4f1517
+      contract_digest: "1111111111111111111111111111111111111111111111111111111111111111"
+    - id: 12
+      number: 2
+      state: open
+      assignees:
+        - id: 7
+          login: example-user
+      labels:
+        - ready-for-ai
+      updated_at: 2026-11-04T00:10:00Z
+      body_digest: e8ea82a96aec183cce8f26a11702010a16cb81f049527208c097063e0f4f1517
+      contract_digest: "2222222222222222222222222222222222222222222222222222222222222222"
+  prs: []
+  branches:
+    - name: main
+      sha: "2222222222222222222222222222222222222222"
+      protected: true
+  sources:
+    - kind: comment
+      id: 21
+      issue_number: 1
+      actor_id: 7
+      actor_type: User
+      updated_at: 2026-11-04T00:10:00Z
+      body_digest: 6b8e51386962a0e885d3306e048b073db86ae5f8866537e01c2436239ac65967
+      state: active
+      machine: null
+    - kind: comment
+      id: 22
+      issue_number: 1
+      actor_id: 7
+      actor_type: User
+      updated_at: 2026-11-04T00:10:00Z
+      body_digest: 0efcca06c1f2e49e04cbfa168b7dffd03e6e0239a063ee890cb38a188bd9dc81
+      state: active
+      machine: null
+  permissions:
+    - actor_id: 7
+      login: example-user
+      permission: admin
+      observed_at: 2026-11-04T00:10:00Z
+  protections:
+    - branch: main
+      enforced: true
+      bypass_actors: []
+      observed_at: 2026-11-04T00:10:00Z
+      source_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  pages: []
+  unresolved: []
+legacy_claims: []
+migration:
+  schema_version: 1
+  artifact_kind: migration
+  project_id: example-app
+  configuration_digest: 427d11f7dddb35d9048e4305da07eb83e8e1f3cd4ba9e91ab36250f28c403734
+  source_digest: 931fd9b658b605aac1327cde1ea0e4c6151ae1cc9159bcdaf99ac2c01e129295
+  inventory_digest: 96b914d9cc46ab5a5eee23ef0ed07759b92aa6994b4e578455c23ecedce5147c
+  observed_at: 2026-11-04T00:10:00Z
+  dispositions:
+    - kind: manual
+      id: comment:21
+      disposition: not_claim
+      claim: null
+      approval_refs:
+        - kind: source
+          id: manual-confirmation
+          revision: 1
+          digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          location:
+            kind: id
+            target: protected-manual-confirmation
+    - kind: manual
+      id: comment:22
+      disposition: not_claim
+      claim: null
+      approval_refs:
+        - kind: source
+          id: manual-confirmation
+          revision: 1
+          digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          location:
+            kind: id
+            target: protected-manual-confirmation
+evaluated_at: 2026-11-04T00:10:00Z

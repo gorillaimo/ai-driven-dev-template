@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:dispatch:v1:transition",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "artifact_kind": {
+      "const": "transition"
+    },
+    "claim_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+    },
+    "worker_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+    },
+    "generation": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "status": {
+      "enum": [
+        "reserved",
+        "publishing",
+        "ready",
+        "running",
+        "in_review",
+        "blocked",
+        "reconcile_required",
+        "released"
+      ]
+    },
+    "head_sha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+      },
+      "maxItems": 100
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "claim_id",
+    "worker_id",
+    "generation",
+    "status",
+    "head_sha",
+    "evidence_refs"
+  ],
+  "additionalProperties": false
+}
