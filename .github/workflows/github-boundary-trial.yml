@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
-      TRIAL_SOURCE_SHA: 65e8edac4baf0b87244c8ec778b9bd0e7ed770ee
+      TRIAL_SOURCE_SHA: 68df9ec333d3fffedb7414dcb997628861bb5723
       TRIAL_CONFIRMATION: ${{ inputs.confirmation }}
     steps:
       - name: Admit this manual request
@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: gorillaimo/ai-driven-dev-template
-          ref: 65e8edac4baf0b87244c8ec778b9bd0e7ed770ee
+          ref: 68df9ec333d3fffedb7414dcb997628861bb5723
           persist-credentials: false
           fetch-depth: 1
       - name: Set up Node
