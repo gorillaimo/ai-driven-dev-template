@@ -690,3 +690,7 @@ gh repo create [owner]/[repository-name] --private --source=. --remote=origin --
 
 GitHubのSecurity Validationで、実施した検査・成否/件数・未評価を確認します。問題があればAIが根拠と対応範囲を調べ、修正後に再検査します。人間は範囲外の修正や例外の判断を行います。詳細は必要時に保護した記録を参照します。
 利用先へはAIが対象に合う設定を準備し、通信・権限・上限・保存先を説明してから接続します。手順と未提供の範囲は[検査ツール](workflow-tools-guide.md#security)を参照してください。
+
+## GitHub操作境界の接続
+
+GitHub取得・認証済み依頼・許可操作を仲介する部品の導入は[接続準備](github-boundary-setup.md)を参照してください。AIが設定案と試行手順を用意し、人間は対象repo、必要権限、保存先、実証範囲を確認します。日常の依頼方法は変わりません。会話の認証入口や自律Runnerは別途接続するため、この部品だけで無人実行が始まることはありません。

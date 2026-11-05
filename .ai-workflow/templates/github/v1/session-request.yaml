@@ -1,0 +1,20 @@
+# Synthetic format example only. No live authority or operation.
+schema_version: 1
+artifact_kind: session-request
+issuer: synthetic-issuer
+key_id: synthetic-key
+payload:
+  event_id: event-1
+  session_id: session-1
+  nonce: nonce-1
+  audience: workflow-github
+  repository_id: 1
+  owner_id: 7
+  actor_id: 7
+  run_id: run-1
+  policy_digest: 81f4dc183c5134e75182255cc76db051a9df4b69022b7f925307ec73495b9cbd
+  profile_digest: c019aacf7b817b6bd367d0769794034fb36e7088408b674ebd9fcee96aff38cc
+  intent: continue
+  issued_at: 2026-11-04T00:09:00Z
+  expires_at: 2026-11-04T00:14:00Z
+signature: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==

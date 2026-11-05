@@ -268,3 +268,7 @@ Golden専用format_version:1へproject_plan/project_members/project_aggregate/pr
 
 profile/context/plan/result/reportとcommonは独立したsecurity/v1です。既存P1 verificationへの接続を使い、execution/v1のDB必須fieldへ架空の値を追加しません。既存v1・Golden・always-on規約を維持します。新しいcoreの受理集合を変える場合は新schema majorを追加し、未知version/keyは拒否します。
 採用時は同じcommitのtool/catalog/規則/schema/testsを揃え、固定配布物と実行環境を確認します。任意の実scanner機能にはNode22以上に加えてPython/Docker等が必要です。非対応環境では未評価を残して既存の手動・オフライン検査を維持します。新規scanner/通信/除外/規則変更、CI接続は人間レビューを経た設定PRで採用し、template VERSIONやstable Releaseを変更しません。
+
+## github/v1の互換性
+
+GitHub操作境界は独立namespaceのcommon/policy/snapshot/session-request/authorization/operation/receiptで提供します。Issue/Project/execution v1と既存checkerの受理集合・Goldenは変更しません。未知version/keyは拒否します。機械receiptは手動Markdown v1へ無断投入せず、旧記録は人間の照合と対応表を経て移行します。復旧・手動fallbackは[接続準備](github-boundary-setup.md)を参照してください。部品の提供は本番認証入口・複数Issue Runnerの採用やv2 stable Releaseを意味しません。

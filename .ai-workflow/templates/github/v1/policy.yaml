@@ -1,0 +1,62 @@
+# Synthetic format example only. No live authority or operation.
+schema_version: 1
+artifact_kind: github-policy
+artifact_id: github-policy
+revision: 1
+repository: example/synthetic
+repository_id: 1
+owner:
+  id: 7
+  login: gorillaimo
+profile:
+  kind: profile
+  id: profile
+  revision: 1
+  digest: c019aacf7b817b6bd367d0769794034fb36e7088408b674ebd9fcee96aff38cc
+  location:
+    kind: id
+    target: profile
+mode: trial
+reviewed_at: 2026-11-04T00:00:00Z
+expires_at: 2026-11-05T00:00:00Z
+base_branch: main
+branch_prefix: ai-work/
+protected_branches:
+  - main
+allowed_operations:
+  - create_branch
+  - publish_commit
+  - append_claim
+  - append_record
+  - create_draft_pr
+  - update_draft_pr
+allowed_paths:
+  - src
+forbidden_paths:
+  - secrets
+ttl_seconds: 60
+request_ttl_seconds: 300
+monitor_seconds: 30
+limits:
+  collector_seconds: 60
+  requests: 400
+  page_items: 100
+  resource_items: 1000
+  discussion_items: 10000
+  response_bytes: 2097152
+  raw_bytes: 67108864
+  operation_seconds: 180
+  operation_requests: 100
+  file_count: 32
+  file_bytes: 1048576
+  change_bytes: 5242880
+  journal_transitions: 10000
+  journal_bytes: 33554432
+manual_mappings:
+  - id: 21
+    body_digest: 6b8e51386962a0e885d3306e048b073db86ae5f8866537e01c2436239ac65967
+    disposition: not_claim
+  - id: 22
+    body_digest: 0efcca06c1f2e49e04cbfa168b7dffd03e6e0239a063ee890cb38a188bd9dc81
+    disposition: not_claim
+delegates: []

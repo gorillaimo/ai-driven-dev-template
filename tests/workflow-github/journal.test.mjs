@@ -1,0 +1,80 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { mkdtempSync, readFileSync, appendFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { createFileJournal } from "../../tools/workflow-github/journal.mjs";
+test("journal exclusively persists admission and rejects nonce reuse across runs", () => {
+  const directory = mkdtempSync(join(tmpdir(), "github-journal-test-")),
+    j = createFileJournal({
+      directory,
+      sourceRoot: new URL("../../", import.meta.url),
+    });
+  try {
+    assert.throws(() =>
+      createFileJournal({
+        directory,
+        sourceRoot: new URL("../../", import.meta.url),
+      }),
+    );
+    assert.equal(
+      j.admit({
+        event_id: "e",
+        nonce: "n",
+        run_id: "r",
+        request_digest: "a".repeat(64),
+      }),
+      true,
+    );
+    assert.equal(
+      j.admit({
+        event_id: "e",
+        nonce: "n",
+        run_id: "r",
+        request_digest: "a".repeat(64),
+      }),
+      true,
+    );
+    assert.equal(
+      j.admit({
+        event_id: "e",
+        nonce: "n",
+        run_id: "other",
+        request_digest: "b".repeat(64),
+      }),
+      false,
+    );
+  } finally {
+    j.close();
+  }
+  const reopened = createFileJournal({
+    directory,
+    sourceRoot: new URL("../../", import.meta.url),
+  });
+  try {
+    assert.equal(reopened.records().length, 1);
+  } finally {
+    reopened.close();
+  }
+});
+test("journal corruption and partial writes stop reopen", () => {
+  const directory = mkdtempSync(join(tmpdir(), "github-journal-corrupt-")),
+    j = createFileJournal({
+      directory,
+      sourceRoot: new URL("../../", import.meta.url),
+    });
+  j.admit({
+    event_id: "e",
+    nonce: "n",
+    run_id: "r",
+    request_digest: "a".repeat(64),
+  });
+  j.close();
+  appendFileSync(join(directory, "journal.jsonl"), "{");
+  assert.throws(() =>
+    createFileJournal({
+      directory,
+      sourceRoot: new URL("../../", import.meta.url),
+    }),
+  );
+});

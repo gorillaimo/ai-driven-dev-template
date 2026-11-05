@@ -1,0 +1,180 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { verifyRunAuthorization } from "../../tools/workflow-github/auth.mjs";
+import {
+  executeBrokerOperation,
+  reconcileBrokerOperation,
+} from "../../tools/workflow-github/broker.mjs";
+import { fixture, fakeApi } from "./fixture.mjs";
+async function setup() {
+  const s = fixture(),
+    a = await verifyRunAuthorization(s.input, s.provider),
+    api = fakeApi();
+  return {
+    ...s,
+    api,
+    capability: a.capability,
+    context: {
+      transport: api,
+      journal: s.journal,
+      authorityProvider: s.provider,
+    },
+  };
+}
+test("branch is read back and same operation never repeats a POST", async () => {
+  const s = await setup();
+  try {
+    const r = await executeBrokerOperation(
+      s.operation,
+      s.capability,
+      s.context,
+    );
+    assert.equal(r.status, "confirmed", JSON.stringify(r));
+    assert.equal(
+      (await executeBrokerOperation(s.operation, s.capability, s.context))
+        .status,
+      "confirmed",
+    );
+    assert.equal(s.api.calls.filter((c) => c.method === "POST").length, 1);
+  } finally {
+    s.close();
+  }
+});
+for (const [name, change] of [
+  ["main", (o) => (o.branch = "main")],
+  ["wrong repo", (o) => (o.repository = "other/repo")],
+  ["wrong issue", (o) => (o.issue_number = 2)],
+  ["stale generation", (o) => (o.generation = 2)],
+  ["wrong head", (o) => (o.expected_head = "3".repeat(40))],
+  ["unknown operation", (o) => (o.kind = "merge")],
+  ["extra key", (o) => (o.force = true)],
+])
+  test("broker rejects " + name + " before any write", async () => {
+    const s = await setup();
+    try {
+      change(s.operation);
+      const r = await executeBrokerOperation(
+        s.operation,
+        s.capability,
+        s.context,
+      );
+      assert.notEqual(r.status, "confirmed");
+      assert.equal(s.api.calls.filter((c) => c.method !== "GET").length, 0);
+    } finally {
+      s.close();
+    }
+  });
+test("serialized or caller-forged capability grants no authority", async () => {
+  const s = await setup();
+  try {
+    for (const cap of [
+      { status: "allowed" },
+      JSON.parse(JSON.stringify(s.capability)),
+    ]) {
+      assert.notEqual(
+        (await executeBrokerOperation(s.operation, cap, s.context)).status,
+        "confirmed",
+      );
+    }
+    assert.equal(s.api.calls.length, 0);
+  } finally {
+    s.close();
+  }
+});
+test("lost create response reconciles exact branch without rePOST", async () => {
+  const s = await setup();
+  try {
+    s.api.loseNext("branch");
+    const r = await executeBrokerOperation(
+      s.operation,
+      s.capability,
+      s.context,
+    );
+    assert.equal(r.status, "unknown");
+    const q = await reconcileBrokerOperation(
+      s.operation.operation_id,
+      s.capability,
+      s.context,
+    );
+    assert.equal(q.status, "confirmed");
+    assert.equal(s.api.calls.filter((c) => c.method === "POST").length, 1);
+  } finally {
+    s.close();
+  }
+});
+for (const kind of ["append_record", "create_draft_pr"])
+  test(kind + " response loss is reconciled without duplication", async () => {
+    const s = await setup();
+    try {
+      s.api.refs.set(s.operation.branch, s.operation.expected_head);
+      s.operation = {
+        ...s.operation,
+        operation_id: "op-2",
+        kind,
+        stage: "handoff",
+        payload:
+          kind === "append_record"
+            ? { record_kind: "progress", status: "in_progress" }
+            : { title: "Synthetic change" },
+      };
+      s.api.loseNext(kind === "append_record" ? "comment" : "pr");
+      assert.equal(
+        (await executeBrokerOperation(s.operation, s.capability, s.context))
+          .status,
+        "unknown",
+      );
+      assert.equal(
+        (await reconcileBrokerOperation("op-2", s.capability, s.context))
+          .status,
+        "confirmed",
+      );
+      assert.equal(s.api.calls.filter((c) => c.method === "POST").length, 1);
+    } finally {
+      s.close();
+    }
+  });
+test("unknown POST with no visible record is not blindly resent", async () => {
+  const s = await setup();
+  try {
+    s.api.refs.set(s.operation.branch, s.operation.expected_head);
+    s.operation.kind = "append_record";
+    s.operation.payload = { record_kind: "progress", status: "in_progress" };
+    s.context.transport = {
+      request: async (r) => {
+        s.api.calls.push(r);
+        if (r.method === "POST") throw Error("SECRET_CANARY");
+        return r.path.includes("/git/ref/")
+          ? s.api.request(r)
+          : { status: 200, headers: {}, body: [] };
+      },
+    };
+    assert.equal(
+      (await executeBrokerOperation(s.operation, s.capability, s.context))
+        .status,
+      "unknown",
+    );
+    assert.equal(
+      (await reconcileBrokerOperation("branch-1", s.capability, s.context))
+        .status,
+      "unknown",
+    );
+    assert.equal(s.api.calls.filter((c) => c.method === "POST").length, 1);
+    assert.ok(!JSON.stringify(s.journal.records()).includes("SECRET_CANARY"));
+  } finally {
+    s.close();
+  }
+});
+test("stop after admission prevents writes", async () => {
+  const s = await setup();
+  try {
+    s.state.execution.stopped = true;
+    assert.notEqual(
+      (await executeBrokerOperation(s.operation, s.capability, s.context))
+        .status,
+      "confirmed",
+    );
+    assert.equal(s.api.calls.length, 0);
+  } finally {
+    s.close();
+  }
+});

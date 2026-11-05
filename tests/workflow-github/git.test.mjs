@@ -1,0 +1,86 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { buildGitObjects } from "../../tools/workflow-github/git.mjs";
+const base = { sha: "2".repeat(40), tree: [], truncated: false };
+const scope = { allowed_paths: ["src"], forbidden_paths: ["secrets"] };
+test("Git object builder binds content, paths and exact parent deterministically", () => {
+  const a = buildGitObjects({
+    base,
+    changes: [
+      { path: "src/a.txt", action: "set", content: "hello\n", mode: "100644" },
+    ],
+    operation_id: "op-1",
+    created_at: "2026-11-04T00:10:00Z",
+    scope,
+  });
+  assert.equal(a.commit.parents[0], base.sha);
+  assert.equal(a.objects[0].sha, "ce013625030ba8dba906f756967f9e9ca394464a");
+  assert.deepEqual(
+    a,
+    buildGitObjects({
+      base,
+      changes: [
+        {
+          path: "src/a.txt",
+          action: "set",
+          content: "hello\n",
+          mode: "100644",
+        },
+      ],
+      operation_id: "op-1",
+      created_at: "2026-11-04T00:10:00Z",
+      scope,
+    }),
+  );
+});
+for (const path of [
+  "../x",
+  "src/../secrets/x",
+  "/src/x",
+  "src/%2fsecrets",
+  "secrets/x",
+  ".github/workflows/a.yml",
+])
+  test("builder rejects " + path, () =>
+    assert.throws(() =>
+      buildGitObjects({
+        base,
+        changes: [{ path, action: "set", content: "x", mode: "100644" }],
+        operation_id: "op-1",
+        created_at: "2026-11-04T00:10:00Z",
+        scope,
+      }),
+    ),
+  );
+test("builder refuses truncated tree and symlink parents", () => {
+  for (const b of [
+    { ...base, truncated: true },
+    {
+      ...base,
+      tree: [
+        { path: "src", mode: "120000", type: "blob", sha: "a".repeat(40) },
+      ],
+    },
+  ])
+    assert.throws(() =>
+      buildGitObjects({
+        base: b,
+        changes: [
+          { path: "src/a", action: "set", content: "x", mode: "100644" },
+        ],
+        operation_id: "op-1",
+        created_at: "2026-11-04T00:10:00Z",
+        scope,
+      }),
+    );
+});
+test("builder rejects a base tree whose content does not match its advertised SHA", () =>
+  assert.throws(() =>
+    buildGitObjects({
+      base: { ...base, tree_sha: "a".repeat(40) },
+      changes: [{ path: "src/a", action: "set", content: "x", mode: "100644" }],
+      operation_id: "op-1",
+      created_at: "2026-11-04T00:10:00Z",
+      scope,
+    }),
+  ));

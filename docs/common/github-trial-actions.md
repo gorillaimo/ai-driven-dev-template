@@ -50,6 +50,10 @@ GITHUB_TOKENはcontents:readです。Secretを読み込む前に固定sourceのc
 
 公開するartifactは1 MiB以下の`public-report.json`だけで、保存期間は3日です。receipt、要求数、固定SHA、失効/cleanup結果、診断コードと未評価を含む公開可能なmetadataです。秘密鍵/token、署名依頼、原文HTTP/commandログ、raw journalは含めません。詳細journalは実行中のrepo外private fileに置きます。公開reportを秘密の保存先の代わりにしません。
 
+保護設定で止まった場合は、`diagnostics`の固定コードで不足箇所を確認します。`protection_legacy_read_forbidden`は保護設定の取得が403、`protection_legacy_bypass_missing`や`protection_legacy_bypass_*_missing`は例外許可の情報不足、`protection_legacy_admins_not_enforced`等は必要な制限の不足、`protection_ruleset_*_unknown`はrulesetの情報不足を示します。`repository_identity_unknown`は所有情報の不足/不整合、`repository_identity_changed`は全量取得の前後でrepo/ownerが変わった、または再確認できないことを示します。APIの応答本文やactor名は公開しません。診断コードだけで権限を許可せず、実設定と取得権限を確認します。
+
+legacyの例外リストは組織所有repo向けなので、個人所有を実APIで確認でき、例外許可プロパティ自体が省略されている場合だけ対象外と扱います。所有情報は取得の前後で照合し、保護情報のdigestへ含めます。組織repo/所有情報不明/rulesetの省略や、`null`・壊れた情報を「例外なし」にはしません。詳しい条件は[接続準備](github-boundary-setup.md#接続に必要なもの)を参照します。
+
 通常終了時は専用tokenを失効し、一時鍵を削除します。失効/cleanup不明、blocked、途中成功、結果fileなし、skipped/cancelledは成功ではありません。強制停止では片付けが完了する保証がないため、人間が試験専用Appを停止/アンインストールして実状態を照合します。
 
 unknownの後にRe-run jobsや新しい操作IDで再送しません。別の手動起動でも、既存trial branch/PR/機械sourceを検出したら書込み前に止めます。復旧はreceiptとGitHubの実状態を照合して判断します。

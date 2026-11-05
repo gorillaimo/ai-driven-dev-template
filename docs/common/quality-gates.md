@@ -97,3 +97,13 @@ PR本文では、該当するゲートについて以下を記載する。
 未確認事項 / 後続issue候補:
 - TBD
 ```
+
+## GitHub操作境界
+
+GitHubとの自動連携を採用する場合は[接続準備](github-boundary-setup.md)に沿って、次を検証する。
+
+- NFR: 全量取得とpage/API/時間/サイズの上限、TTL、GET再試行、操作・journalの枠を確認する。上限や取得不能を0件や成功にしない。
+- Security: 人間操作と署名issuer、数値actor/対象digest、最小権限、main/default保護とbypass、controller/worker/保存先の境界を確認する。省略された権限情報・合成署名・AIの転記を本番の証拠にしない。
+- Resiliency: 送信前の永続化、応答喪失の読戻し、同ID再要求、未知/部分失敗による停止、lock/破損からの手動復旧を確認する。非冪等POSTを見切り再送しない。
+
+通常CIの偽API試験、明示承認した専用repoの限定実証、実会話/worker/予約の能力試験を分ける。未接続・未実行は未評価として残し、CI成功だけで実運用の安全性を確認済みにしない。
