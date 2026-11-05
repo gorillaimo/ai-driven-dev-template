@@ -140,3 +140,88 @@ test("every repo mutation is preceded by issue, source, permission and protectio
     removeTrialKey(s.paths);
   }
 });
+
+for (const [name, change, code] of [
+  [
+    "bypass object",
+    (r) => {
+      delete r.body.required_pull_request_reviews
+        .bypass_pull_request_allowances;
+    },
+    "protection_legacy_bypass_missing",
+  ],
+  ...["users", "apps", "teams"].map((key) => [
+    key,
+    (r) => {
+      delete r.body.required_pull_request_reviews
+        .bypass_pull_request_allowances[key];
+    },
+    "protection_legacy_bypass_" + key + "_missing",
+  ]),
+  [
+    "team membership",
+    (r) => {
+      r.body.required_pull_request_reviews.bypass_pull_request_allowances.teams.push(
+        { id: 42 },
+      );
+    },
+    "protection_legacy_team_bypass_unknown",
+  ],
+  [
+    "forbidden read",
+    (r) => {
+      r.status = 403;
+      r.body = { message: "PRIVATE_PROTECTION_CANARY" };
+    },
+    "protection_legacy_read_forbidden",
+  ],
+  [
+    "admin enforcement",
+    (r) => {
+      r.body.enforce_admins.enabled = false;
+    },
+    "protection_legacy_admins_not_enforced",
+  ],
+  [
+    "no protection",
+    (r) => {
+      r.status = 404;
+      r.body = {};
+    },
+    "protection_required_rules_missing",
+  ],
+])
+  test(
+    "blocked Actions report identifies " +
+      name +
+      " without publishing raw settings",
+    async () => {
+      const s = actionsFixture((q, r) => {
+        if (q.path.endsWith("/protection")) {
+          change(r);
+          r.body.private_canary = "PRIVATE_PROTECTION_CANARY";
+        }
+      });
+      try {
+        const r = await runActionsTrial(s.options, s.dependencies);
+        assert.equal(r.status, "blocked");
+        assert.ok(
+          r.diagnostics.some((d) => d.code === code),
+          JSON.stringify(r.diagnostics),
+        );
+        assert.equal(
+          s.calls.filter(
+            (q) => q.method !== "GET" && q.path.includes("/repos/"),
+          ).length,
+          0,
+        );
+        assert.equal(r.token_revocation, "revoked");
+        assert.equal(r.key_cleanup, "removed");
+        assert.ok(validTrialReport(r));
+        assert.ok(!JSON.stringify(r).includes("PRIVATE_PROTECTION_CANARY"));
+        assert.ok(r.request_count <= 100);
+      } finally {
+        removeTrialKey(s.paths);
+      }
+    },
+  );

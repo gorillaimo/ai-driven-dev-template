@@ -167,11 +167,51 @@ for (const mode of ["complete", "omitted bypass", "changed rules"])
       if (mode === "complete") {
         assert.equal(r.sections.protections, "complete", JSON.stringify(r));
         assert.equal(r.protections[0].enforced, true);
-      } else if (mode === "omitted bypass")
+      } else if (mode === "omitted bypass") {
         assert.equal(r.sections.protections, "unknown");
-      else assert.notEqual(r.status, "complete");
+        assert.ok(r.unresolved.includes("protection_ruleset_bypass_unknown"));
+      } else assert.notEqual(r.status, "complete");
       assert.ok(a.calls.every((c) => c.method === "GET"));
     } finally {
       s.close();
     }
   });
+
+test("complete effective rules do not become blocked by legacy-only diagnostic reasons", async () => {
+  const s = fixture();
+  const a = api((r, v) => {
+    const path = new URL(r.path, "https://api.github.com").pathname;
+    if (path.endsWith("/protection"))
+      v.body = {
+        required_pull_request_reviews: {
+          bypass_pull_request_allowances: { users: [], apps: [], teams: [] },
+        },
+        enforce_admins: { enabled: false },
+        allow_force_pushes: { enabled: true },
+        allow_deletions: { enabled: true },
+      };
+    if (path.endsWith("/rulesets"))
+      v.body = [{ id: 90, enforcement: "active" }];
+    if (path.endsWith("/rulesets/90"))
+      v.body = { id: 90, enforcement: "active", rules: [], bypass_actors: [] };
+    if (path.includes("/rules/branches/"))
+      v.body = ["pull_request", "non_fast_forward", "deletion"].map((type) => ({
+        type,
+        ruleset_id: 90,
+      }));
+  });
+  try {
+    const r = await collectGitHubSnapshot(
+      {
+        policy: s.policy,
+        scope: { approval_sources: [], actors: [], include_protections: true },
+      },
+      a,
+      () => time,
+    );
+    assert.equal(r.sections.protections, "complete", JSON.stringify(r));
+    assert.ok(!r.unresolved.some((code) => code.startsWith("protection_")));
+  } finally {
+    s.close();
+  }
+});
