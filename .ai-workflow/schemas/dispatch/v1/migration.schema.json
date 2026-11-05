@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:dispatch:v1:migration",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "artifact_kind": {
+      "const": "migration"
+    },
+    "project_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+    },
+    "configuration_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "source_digest": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "inventory_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "dispositions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "enum": ["claim", "branch", "pr", "manual"]
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "disposition": {
+            "enum": ["retain", "released", "not_claim"]
+          },
+          "claim": {
+            "anyOf": [
+              {
+                "$ref": "urn:ai-workflow:dispatch:v1:common#/$defs/claim"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "approval_refs": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+            },
+            "maxItems": 100
+          }
+        },
+        "required": ["kind", "id", "disposition", "claim", "approval_refs"],
+        "additionalProperties": false
+      },
+      "maxItems": 10000
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "project_id",
+    "configuration_digest",
+    "source_digest",
+    "inventory_digest",
+    "observed_at",
+    "dispositions"
+  ],
+  "additionalProperties": false
+}

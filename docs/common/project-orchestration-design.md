@@ -7,7 +7,7 @@
 - 状態: 設計承認済み（Issue #9、2026-08-07）
 - 承認記録: https://github.com/gorillaimo/ai-driven-dev-template/issues/9#issuecomment-5207242159
 - 適用開始: 人間による設計承認後、対応する後続実装Issueが完了した機構から段階的に有効化する
-- 現時点の扱い: Project成果物schema v1・記入例・形式テスト、依存DAG・wave・計画改訂とmember/ownership/capacityの読み取り専用validator、手動Coordinatorの手順・コメント様式・机上例は利用可能。明示snapshotの進捗集約・不整合検出と決定的な次作業推薦も利用可能。Project Golden Testは既存ハーネス/CIから利用可能。実GitHubの自動取得/更新とDispatcherは後続実装。形式テストとvalidatorのテストを既存ワークフローCIで実行する
+- 現時点の扱い: Project成果物schema v1・記入例・形式テスト、依存DAG・wave・計画改訂とmember/ownership/capacityの読み取り専用validator、手動Coordinatorの手順・コメント様式・机上例は利用可能。明示snapshotの進捗集約・不整合検出と決定的な次作業推薦も利用可能。Project Golden Testは既存ハーネス/CIから利用可能。P3の限定GitHub取得/更新と、Project v2の純粋batch planner・単一Linuxホストの排他台帳/P3接続を提供する。実AI起動・隔離・会話からの自律継続は後続実装。形式テストとvalidatorのテストを既存ワークフローCIで実行する
 - 初期標準: GitHub Issuesを使う手動Coordinator方式
 - 任意拡張: GitHub Projects、中央Dispatcher、外部Agent Runner
 - 互換性: 1人開発、単一Issue、従来のprompt運用を壊さない追加方式
@@ -180,7 +180,7 @@ Issue用envelope自体を流用せず、Project headerにはschema_version、art
 artifact_kindはproject/delivery_plan/team。project_idは小文字英数字とhyphen、1〜128文字で、feature/area IDは既存commonの形式を使う。
 既存Issue schemaは変更せず、Project参照のない従来の単一Issueも維持する。schema_versionとtemplate release versionは独立。
 
-初期の受理集合はruntime_backend:issues、coordination_mode:manualに限定する。第5.1節のProjects/Dispatcherは将来設計であり、v1では有効化・受理しない。
+初期の受理集合はruntime_backend:issues、coordination_mode:manualに限定する。v1ではProjects/Dispatcherを有効化・受理しない。Dispatcherは独立した[Project v2の契約・排他台帳](dispatcher-design.md)と[明示移行](dispatcher-setup.md)を使用する。
 project.yamlはrepository（owner/name）、template_origin（HTTPS repository URL/SemVer/40桁commit）、coordinators、membership_source、required_repository_permission、status_mapping、claim_policy、areas、sync_policyを持つ。
 coordinators.scopeはproject/area。project全体ならassignment1人・area_ids空、area別なら各assignmentにarea IDを1件以上指定する。
 membership_source.typeはrepositoryで、Organization Teamはnull/省略またはorganization/team_slug。required_repository_permissionはread/triage/write/maintain/adminの方針値。

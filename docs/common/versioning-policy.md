@@ -43,6 +43,10 @@ Issue成果物v1の実装は`.ai-workflow/schemas/issue/v1/`に置く。各成�
 
 破損・非対応version・復元不能な参照の場合は自動再開を止める。元ファイルを保存し、最後に確認できたGit commitとIssue／PR記録へ戻り、人間が現在地を確認する。復元できない承認は再承認を受ける。復元が難しい場合もIssue、assignee、着手コメント、branch、PRによる従来運用を継続できる。schema移行ツールと状態復旧checkerは後続Issueで扱う。
 
+#### Project v1からv2への移行
+
+Project v1のIssues-only/manual契約と1件推薦は維持する。Dispatcherを使う場合はproject/team/delivery-planをすべてv2へ明示移行し、revision・digestと既存claim/branch/PR/手動記録を照合する。新しいDispatcher入出力は独立したdispatch schema v1である。[導入・復旧手順](dispatcher-setup.md)を参照する。保存台帳の設定変更や容量超過を理由に空の台帳で再開しない。
+
 ### 2.3 その他のversion
 
 rule version、prompt version、Golden Test fixture version、AI評価設定versionもtemplate release versionから分離する。変更対象の互換性と再現性に必要な単位だけをversioningする。

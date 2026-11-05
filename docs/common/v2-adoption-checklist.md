@@ -44,6 +44,10 @@
 専用テストは計1267件、固定Goldenは既存12＋Project25の37caseです。Project設計第17章1〜8に対応します。
 番号から参照する場合は[Issue一覧](https://github.com/gorillaimo/ai-driven-dev-template/issues)・[PR一覧](https://github.com/gorillaimo/ai-driven-dev-template/pulls)を使ってください。
 
+## Dispatcherの追加確認
+
+上記1267件は初期導入確認時点の固定基準である。追加したProject v2・候補選択・単一Linuxホストの排他台帳/P3接続は[Dispatcherの設計](dispatcher-design.md)と[導入・復旧](dispatcher-setup.md)を参照する。専用テストは`npm test --prefix tools/workflow-dispatch`で実SQLite・複数プロセス・COMMIT前後の強制終了・外部応答喪失を検証する。最新commitの実行結果はIssue #49と対応PRへ記録する。既存Golden Test単独を実排他の証拠とは扱わない。実AI起動・隔離・自律継続とstable Releaseは対象外である。
+
 ## 導入・移行・復旧の確認
 
 | 確認項目 | 証拠・結果 | 次の判断 |

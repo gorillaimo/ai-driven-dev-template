@@ -12,6 +12,8 @@ AI Driven Development Templateの利用者へ影響する変更を記録する�
 
 ### Added
 
+- Project v2の明示移行・純粋batch plannerと単一LinuxホストのPython/SQLite排他台帳を追加。共有領域・変更パス・実行枠/claim枠・世代・停止/復旧を検査し、P3署名/限定GitHub仲介と接続。合成例、読み取り専用CLI、導入/復旧文書、実並行プロセス/COMMIT前後の強制終了試験をNode22/24のCIへ接続。Project v1と既存推薦は維持。実AI起動・隔離・会話からの自律継続とstable Releaseは含まない。
+
 - GitHub限定実証用のcontroller・固定manifestと手動Actions入口の接続を追加。専用stepでApp鍵をrepo外へ保存し、発行/失効を含むAPI予算、mutation前の実読戻し、公開可能な結果JSON、失効/cleanup不明での停止を検査。合成issuerと実GitHubの評価を分け、本番の自律運用は有効化しない。
 
 - GitHub全量snapshot、Ed25519依頼/承認の照合、最小権限App transport、有限操作broker、repo外の永続journalと応答不明の読戻し、P1 event投影をgithub/v1として追加。合成テストをWorkflow Validationへ接続し、人間とAIの接続準備を分けた手順と限定実証入口を追加。実証環境の採用、会話認証・worker起動・複数Issue予約は別途確認。

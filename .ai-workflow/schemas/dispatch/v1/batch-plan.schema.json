@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:dispatch:v1:batch-plan",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "artifact_kind": {
+      "const": "batch-plan"
+    },
+    "status": {
+      "enum": ["passed", "blocked"]
+    },
+    "authority": {
+      "const": false
+    },
+    "configuration_digest": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "input_digest": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "selected": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "issue_number": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "feature_id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+          },
+          "human_owner": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "areas": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_-]{1,128}$"
+            },
+            "maxItems": 200
+          },
+          "allowed_paths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$",
+              "maxLength": 1024
+            },
+            "maxItems": 1000
+          },
+          "forbidden_paths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$",
+              "maxLength": 1024
+            },
+            "maxItems": 1000
+          },
+          "head_sha": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{40}$"
+          },
+          "profile_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "grant_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "contract_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "design_digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "stages": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "maxItems": 100
+          }
+        },
+        "required": [
+          "issue_number",
+          "feature_id",
+          "human_owner",
+          "areas",
+          "allowed_paths",
+          "forbidden_paths",
+          "head_sha",
+          "profile_digest",
+          "grant_digest",
+          "contract_digest",
+          "design_digest",
+          "stages"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 2
+    },
+    "held": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "issue_number": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9_]{1,128}$"
+            },
+            "maxItems": 100
+          }
+        },
+        "required": ["issue_number", "reasons"],
+        "additionalProperties": false
+      },
+      "maxItems": 100
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9_]{1,128}$"
+      },
+      "maxItems": 1000
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "status",
+    "authority",
+    "configuration_digest",
+    "input_digest",
+    "selected",
+    "held",
+    "diagnostics"
+  ],
+  "additionalProperties": false
+}

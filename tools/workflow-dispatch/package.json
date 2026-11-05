@@ -1,1 +1,27 @@
-{"name":"workflow-dispatch","version":"1.0.0","private":true,"type":"module","engines":{"node":">=22"},"scripts":{"test":"node ../../tests/workflow-dispatch/run.mjs"},"exports":{"./check":"./check.mjs","./plan":"./plan.mjs","./migrate":"./migrate.mjs","./store":"./store.mjs","./controller":"./controller.mjs"},"dependencies":{"workflow-rules":"file:../workflow-rules","workflow-execution":"file:../workflow-execution","workflow-github":"file:../workflow-github","ajv":"^8.17.1","ajv-formats":"^3.0.1","yaml":"^2.8.1"}}
+{
+  "name": "workflow-dispatch",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node ../../tests/workflow-dispatch/run.mjs"
+  },
+  "exports": {
+    "./check": "./check.mjs",
+    "./plan": "./plan.mjs",
+    "./migrate": "./migrate.mjs",
+    "./store": "./store.mjs",
+    "./controller": "./controller.mjs"
+  },
+  "dependencies": {
+    "workflow-rules": "file:../workflow-rules",
+    "workflow-execution": "file:../workflow-execution",
+    "workflow-github": "file:../workflow-github",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "yaml": "^2.8.1"
+  }
+}

@@ -1,0 +1,42 @@
+# Synthetic example only. Not an approval or live execution record.
+schema_version: 1
+artifact_kind: batch-plan
+status: passed
+authority: false
+configuration_digest: 427d11f7dddb35d9048e4305da07eb83e8e1f3cd4ba9e91ab36250f28c403734
+input_digest: 83c016fe1030afb70ea3459858bf704678e057b81bd2b2a84d94efd4f8259c6a
+selected:
+  - issue_number: 1
+    feature_id: a
+    human_owner: example-user
+    areas:
+      - backend
+    allowed_paths:
+      - packages/backend
+    forbidden_paths:
+      - secrets
+    head_sha: "2222222222222222222222222222222222222222"
+    profile_digest: b13109664086fc85be671758019919f1a211d39d13e7afc1eb26bee84f8827ab
+    grant_digest: 589db24da61f36ad7a490acdc5e600c97e2d03c6f3f88e8ad74f96ce5728bc29
+    contract_digest: "1111111111111111111111111111111111111111111111111111111111111111"
+    design_digest: dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+    stages:
+      - validation
+  - issue_number: 2
+    feature_id: b
+    human_owner: example-user
+    areas:
+      - frontend
+    allowed_paths:
+      - packages/frontend
+    forbidden_paths:
+      - secrets
+    head_sha: "2222222222222222222222222222222222222222"
+    profile_digest: b13109664086fc85be671758019919f1a211d39d13e7afc1eb26bee84f8827ab
+    grant_digest: 589db24da61f36ad7a490acdc5e600c97e2d03c6f3f88e8ad74f96ce5728bc29
+    contract_digest: "2222222222222222222222222222222222222222222222222222222222222222"
+    design_digest: dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+    stages:
+      - validation
+held: []
+diagnostics: []

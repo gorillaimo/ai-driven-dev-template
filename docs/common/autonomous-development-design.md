@@ -22,6 +22,8 @@
 
 具体的な上限値と最初のAIツールは後続実装と能力試験でも確認し、設計の合意と実行時の承認を分ける。既存の[Project統制設計](project-orchestration-design.md)・[Issue内部の設計](adaptive-workflow-design.md)を置き換えない。
 
+P4の実装仕様・有限上限・移行/復旧の保証範囲は[Dispatcherの設計](dispatcher-design.md)を参照する。P4は管理部品を提供し、P5の実AI起動・隔離とP7の会話からの自律継続は別段階で接続する。
+
 ## 2. 人間とAIの流れ
 
 ```mermaid

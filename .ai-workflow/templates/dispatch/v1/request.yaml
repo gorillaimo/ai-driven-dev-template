@@ -1,0 +1,445 @@
+# Synthetic example only. Not an approval or live execution record.
+schema_version: 1
+artifact_kind: request
+project:
+  schema_version: 2
+  artifact_kind: project
+  project_id: example-app
+  revision: 1
+  updated_at: 2026-10-27T00:00:00Z
+  updated_by:
+    actor_type: human
+    actor_ref: example-user
+  repository: example/project
+  runtime_backend: issues
+  coordination_mode: dispatcher
+  template_origin:
+    repository: https://github.com/gorillaimo/ai-driven-dev-template
+    version: 2.0.0-0.dev.0
+    commit: "0000000000000000000000000000000000000000"
+  coordinators:
+    scope: project
+    assignments:
+      - github_login: example-user
+        area_ids: []
+  membership_source:
+    type: repository
+    organization_team: null
+  required_repository_permission: write
+  status_mapping:
+    draft: project:draft
+    available_for_work: project:available-for-work
+    assigned: project:assigned
+    in_progress: project:in-progress
+    blocked: project:blocked
+    in_review: project:in-review
+    completed: project:completed
+    cancelled: project:cancelled
+  claim_policy:
+    heartbeat_interval_seconds: 14400
+    stale_after_seconds: 86400
+    on_stale: warn
+    release_policy: manual
+  areas:
+    - area_id: backend
+      paths:
+        - packages/backend
+      shared: false
+      integration_owner: null
+      conflict_policy: disjoint_scopes
+    - area_id: contracts
+      paths:
+        - docs/api
+        - docs/architecture.md
+      shared: true
+      integration_owner: example-user
+      conflict_policy: serialize
+    - area_id: frontend
+      paths:
+        - packages/frontend
+      shared: false
+      integration_owner: null
+      conflict_policy: disjoint_scopes
+  sync_policy:
+    direction: github_to_snapshot
+    checkpoint_key: event_id
+    on_failure: manual_review
+  repository_id: 1
+  dispatcher:
+    storage_id: synthetic-ledger
+    max_parallel_issues: 2
+    max_run_issues: 10
+    team:
+      revision: 1
+      digest: cac9b47e979ba3b5b1e3787d553ae92ad3c01989ef64c88eccc4a4b1b493a338
+    delivery_plan:
+      revision: 1
+      digest: a303ad76e7312910759d173dcc0a88bb1bd14112b9fcb16fa097f4a151541409
+team:
+  schema_version: 2
+  artifact_kind: team
+  project_id: example-app
+  revision: 1
+  updated_at: 2026-10-30T00:00:00Z
+  updated_by:
+    actor_type: human
+    actor_ref: example-user
+  membership_source:
+    type: repository
+    organization_team: null
+  members:
+    - github_login: example-user
+      active: true
+      roles:
+        - developer
+        - coordinator
+      areas:
+        - backend
+        - contracts
+        - frontend
+      max_concurrent_issues: 3
+      integration_owner:
+        - contracts
+deliveryPlan:
+  schema_version: 2
+  artifact_kind: delivery_plan
+  project_id: example-app
+  revision: 1
+  updated_at: 2026-10-27T00:00:00Z
+  updated_by:
+    actor_type: human
+    actor_ref: example-user
+  features:
+    - feature_id: a
+      source_ref:
+        kind: file
+        target: docs/system-context.md
+        fragment: feature-a
+      depends_on: []
+      area_ids:
+        - backend
+      planned_priority: 1
+      constraints: []
+      issue_refs:
+        - issue_ref: https://github.com/example/project/issues/1
+          work_id: issue-1
+          required: true
+    - feature_id: b
+      source_ref:
+        kind: file
+        target: docs/system-context.md
+        fragment: feature-b
+      depends_on: []
+      area_ids:
+        - frontend
+      planned_priority: 2
+      constraints: []
+      issue_refs:
+        - issue_ref: https://github.com/example/project/issues/2
+          work_id: issue-2
+          required: true
+  revision_history: []
+profile:
+  schema_version: 1
+  artifact_kind: profile
+  artifact_id: profile
+  revision: 1
+  repository: example/project
+  recorded_at: 2026-11-04T00:10:00Z
+  recorded_by:
+    actor_type: ai_agent
+    actor_ref: implementer
+    on_behalf_of: gorillaimo
+  input_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  evidence_refs:
+    - kind: source
+      id: evidence
+      revision: 1
+      digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      location:
+        kind: id
+        target: protected-evidence
+  human_owner: example-user
+  risk: high
+  allowed_stages:
+    - validation
+  allowed_paths:
+    - packages
+    - docs
+  forbidden_paths:
+    - secrets
+  required_acs:
+    - ac-1
+  review_required: true
+  review_omission_reason: ""
+  max_age_seconds: 3600
+  stop_severities:
+    - critical
+    - high
+  delegates: []
+  commands:
+    - command_id: unit
+      executable: node
+      argv:
+        - --test
+  checks:
+    - check_id: unit
+      kind: verification
+      domain: app
+      acs:
+        - ac-1
+      command_id: unit
+      test_check: true
+      min_tests: 1
+  limits:
+    max_issues: 10
+    max_concurrent_issues: 2
+    max_ai_processes: 3
+    run_seconds: 21600
+    cleanup_seconds: 600
+    call_seconds: 1800
+    max_repairs: 3
+    cost:
+      status: known
+      amount: 10
+      unit: synthetic-units
+  approval_refs:
+    - kind: source
+      id: policy-approval
+      revision: 1
+      digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      location:
+        kind: id
+        target: protected-policy-approval
+grant:
+  schema_version: 1
+  artifact_kind: grant
+  artifact_id: grant
+  revision: 1
+  repository: example/project
+  recorded_at: 2026-11-04T00:10:00Z
+  recorded_by:
+    actor_type: ai_agent
+    actor_ref: implementer
+    on_behalf_of: gorillaimo
+  input_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  evidence_refs:
+    - kind: source
+      id: evidence
+      revision: 1
+      digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      location:
+        kind: id
+        target: protected-evidence
+  run_id: run-1
+  profile:
+    kind: profile
+    id: profile
+    revision: 1
+    digest: b13109664086fc85be671758019919f1a211d39d13e7afc1eb26bee84f8827ab
+    location:
+      kind: id
+      target: profile
+  human_owner: example-user
+  request:
+    mode: continue
+    actor:
+      actor_type: human
+      actor_ref: example-user
+    reference:
+      kind: source
+      id: request
+      revision: 1
+      digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      location:
+        kind: id
+        target: protected-request
+  policy_approval_refs:
+    - kind: source
+      id: policy-approval
+      revision: 1
+      digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      location:
+        kind: id
+        target: protected-policy-approval
+  issued_at: 2026-11-04T00:00:00Z
+  expires_at: 2026-11-04T06:00:00Z
+  revoked: false
+  selected:
+    - issue_number: 1
+      work_id: issue-1
+      run_id: run-1
+      attempt: 1
+      base_sha: "1111111111111111111111111111111111111111"
+      head_sha: "2222222222222222222222222222222222222222"
+      plan:
+        id: plan-1
+        revision: 1
+        digest: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+      profile:
+        kind: profile
+        id: profile
+        revision: 1
+        digest: b13109664086fc85be671758019919f1a211d39d13e7afc1eb26bee84f8827ab
+        location:
+          kind: id
+          target: profile
+      contract_digest: "1111111111111111111111111111111111111111111111111111111111111111"
+      design_digest: dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+      stages:
+        - validation
+      allowed_paths:
+        - packages/backend
+      forbidden_paths:
+        - secrets
+      shared_areas: []
+      approval_refs:
+        - kind: source
+          id: design-approval
+          revision: 1
+          digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          location:
+            kind: id
+            target: protected-design-approval
+    - issue_number: 2
+      work_id: issue-2
+      run_id: run-1
+      attempt: 1
+      base_sha: "1111111111111111111111111111111111111111"
+      head_sha: "2222222222222222222222222222222222222222"
+      plan:
+        id: plan-1
+        revision: 1
+        digest: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+      profile:
+        kind: profile
+        id: profile
+        revision: 1
+        digest: b13109664086fc85be671758019919f1a211d39d13e7afc1eb26bee84f8827ab
+        location:
+          kind: id
+          target: profile
+      contract_digest: "2222222222222222222222222222222222222222222222222222222222222222"
+      design_digest: dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+      stages:
+        - validation
+      allowed_paths:
+        - packages/frontend
+      forbidden_paths:
+        - secrets
+      shared_areas: []
+      approval_refs:
+        - kind: source
+          id: design-approval
+          revision: 1
+          digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          location:
+            kind: id
+            target: protected-design-approval
+snapshot:
+  schema_version: 1
+  artifact_kind: github-snapshot
+  repository: example/project
+  repository_id: 1
+  started_at: 2026-11-04T00:10:00Z
+  finished_at: 2026-11-04T00:10:00Z
+  status: complete
+  policy_digest: 83a9721d8f40c8dbcbba5709f41c035a7c9d8742f33692f3fefd38011a642237
+  default_branch: main
+  sections:
+    issues: complete
+    prs: complete
+    branches: complete
+    comments: complete
+    reviews: complete
+    permissions: complete
+    protections: complete
+  issues:
+    - id: 11
+      number: 1
+      state: open
+      assignees:
+        - id: 7
+          login: example-user
+      labels:
+        - ready-for-ai
+      updated_at: 2026-11-04T00:10:00Z
+      body_digest: e8ea82a96aec183cce8f26a11702010a16cb81f049527208c097063e0f4f1517
+      contract_digest: "1111111111111111111111111111111111111111111111111111111111111111"
+    - id: 12
+      number: 2
+      state: open
+      assignees:
+        - id: 7
+          login: example-user
+      labels:
+        - ready-for-ai
+      updated_at: 2026-11-04T00:10:00Z
+      body_digest: e8ea82a96aec183cce8f26a11702010a16cb81f049527208c097063e0f4f1517
+      contract_digest: "2222222222222222222222222222222222222222222222222222222222222222"
+  prs: []
+  branches:
+    - name: main
+      sha: "2222222222222222222222222222222222222222"
+      protected: true
+  sources:
+    - kind: comment
+      id: 21
+      issue_number: 1
+      actor_id: 7
+      actor_type: User
+      updated_at: 2026-11-04T00:10:00Z
+      body_digest: 6b8e51386962a0e885d3306e048b073db86ae5f8866537e01c2436239ac65967
+      state: active
+      machine: null
+    - kind: comment
+      id: 22
+      issue_number: 1
+      actor_id: 7
+      actor_type: User
+      updated_at: 2026-11-04T00:10:00Z
+      body_digest: 0efcca06c1f2e49e04cbfa168b7dffd03e6e0239a063ee890cb38a188bd9dc81
+      state: active
+      machine: null
+  permissions:
+    - actor_id: 7
+      login: example-user
+      permission: admin
+      observed_at: 2026-11-04T00:10:00Z
+  protections:
+    - branch: main
+      enforced: true
+      bypass_actors: []
+      observed_at: 2026-11-04T00:10:00Z
+      source_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  pages: []
+  unresolved: []
+evaluated_at: 2026-11-04T00:10:00Z
+requested_issues: null
+issue_facts:
+  - issue_number: 1
+    priority: 1
+    approval: approved
+    blocker: none
+    pr_numbers: []
+  - issue_number: 2
+    priority: 2
+    approval: approved
+    blocker: none
+    pr_numbers: []
+constraint_facts: []
+ledger:
+  schema_version: 1
+  artifact_kind: ledger-view
+  project_id: example-app
+  configuration_digest: 427d11f7dddb35d9048e4305da07eb83e8e1f3cd4ba9e91ab36250f28c403734
+  generation: 1
+  status: ready
+  complete: true
+  claims: []
+  pending_operations: []
+  runs: []
+  history:
+    claims: 0
+    operations: 0
+    events: 0

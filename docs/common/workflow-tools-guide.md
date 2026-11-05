@@ -806,3 +806,10 @@ Summaryには成否・件数・未評価を表示します。secret・原文・c
 `tools/workflow-github/`は全量snapshot、署名付き依頼/承認の照合、有限の外部操作とreceiptを提供します。標準CLIは公開repoのGET専用で、書込みにはcontroller側の明示設定が必要です。通常のWorkflow Validationは合成テストだけを実行します。
 
 [接続準備](github-boundary-setup.md)には人間が行う設定とAIの準備、[記入例とAPI](../../.ai-workflow/templates/github/v1/README.md)には形式・コマンド・上限・復旧の入口があります。P1/v1の判定から実権限を作らず、P4/P5の予約・会話接続・worker起動を単独では提供しません。
+
+
+## Dispatcherの候補選択・排他台帳
+
+Project v2の形式・候補・移行案は`tools/workflow-dispatch/cli.mjs`で読み取り専用検査できる。実行profileと最新の全量観測から独立Issueを選び、controllerは単一LinuxホストのSQLite台帳でIssue・共有領域・実行枠を一括予約する。P3署名検証と限定GitHub仲介へ接続し、不明な外部操作は再送せず照合する。
+
+[導入・CLI・復旧](dispatcher-setup.md)と[仕様・保証範囲](dispatcher-design.md)を参照する。v1の検査・推薦は従来通り利用可能。実AI起動・隔離・会話の本人確認adapter・自律継続は後続機構が必要である。通常CIは固定lockfileの専用テストと実プロセス競合/強制終了試験を実行し、実GitHubへの書き込みやApp設定は行わない。

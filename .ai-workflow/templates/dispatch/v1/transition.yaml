@@ -1,0 +1,16 @@
+# Synthetic example only. Not an approval or live execution record.
+schema_version: 1
+artifact_kind: transition
+claim_id: synthetic-claim
+worker_id: synthetic-worker
+generation: 1
+status: in_review
+head_sha: "1111111111111111111111111111111111111111"
+evidence_refs:
+  - kind: source
+    id: design-approval
+    revision: 1
+    digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    location:
+      kind: id
+      target: protected-design-approval
