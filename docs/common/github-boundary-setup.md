@@ -74,3 +74,11 @@ commitは全treeと変更manifestを検査し、Git SHA-1を照合します。�
 `npm run test:live --prefix tools/workflow-github`は設定を自動探索しません。未接続なら`not_evaluated`と終了コード2を返し、APIを呼びません。通常CIもこの入口を呼びません。実証できた場合も、合成issuerでは`real_human_identity`が未評価のままです。実会話への接続、実worker隔離、Dispatcher予約の能力試験はP4/P5以降で行います。
 
 取得・操作の上限、APIとオフライン実行は[記入例とAPI](../../.ai-workflow/templates/github/v1/README.md)を参照してください。
+
+## このrepoで採用する手動Actions実証
+
+今回の実証は[GitHub Actionsの手動入口](github-trial-actions.md)を使います。人間が設定PRをレビュー・マージし、App専用鍵をActions Secretへ登録してから明示起動します。固定した実装SHAとsandboxだけを扱い、通常のPR/push CIへ実資格情報や書込みを持ち込みません。
+
+`tools/workflow-github/actions-entry.mjs`は、このrepo/owner/main/初回attempt/確認値/実装SHAを照合します。Secretを受けるのは専用prepare stepだけです。全量snapshotの元のTTLを延長せず、mutation前には契約・source・現在権限・legacy protectionを実GETで確認します。App発行/失効を含むAPI予算の最後の1要求は失効用に予約します。途中の機械報告はin_progressで、最終判定はDraft PR確認・失効・鍵cleanup後のreportに記録します。
+
+公開する成果物は安全なmetadata JSON 1つだけです。実際の人間認証やP4/P5の能力は未評価として残し、強制停止や失効/cleanup不明を成功にしません。設定の正本は[採用manifest](../../.ai-workflow/github-trial/README.md)、手動操作は[起動手順](github-trial-actions.md)で確認できます。

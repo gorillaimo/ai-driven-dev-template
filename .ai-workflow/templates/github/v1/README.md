@@ -68,3 +68,5 @@ outputは事前に作るmode0700・repo外directoryです。新しい`snapshot.j
 変更可能pathと禁止path、main保護、期限、予約、停止を全mutation前に照合します。callbackが実API数を報告できない場合は許可しません。P4の原子的な複数Issue予約やP5の認証済み会話接続は、このpackageを導入するだけでは提供されません。
 
 応答不明のreceiptが残った場合は[復旧手順](../../../../docs/common/github-boundary-setup.md#操作と復旧)を確認し、手動v1へ無断で記録を転用せず、実状態の照合を先に行ってください。
+
+`observe`にはadmission/operation/mutation等のphaseを渡します。brokerは全mutation前に必ずmutation phaseで再照合します。`verifyRunAuthorization`が返す`execution`は現在の束縛を示す情報で、変更してもcapabilityの権限は変わりません。App providerの`revocationState()`は安全な失効状態だけを返し、token発行応答の喪失もunknownとして扱います。このrepoで採用する手動controllerは[Actionsの起動手順](../../../../docs/common/github-trial-actions.md)を参照してください。

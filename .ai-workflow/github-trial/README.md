@@ -1,0 +1,17 @@
+# 今回のGitHub限定実証の設定
+
+`manifest.json`はこのrepoが採用する試行1回分の非秘密設定です。一般のテンプレート利用先の初期設定ではありません。別repoへコピーしても手動runnerのrepo/actor/ref照合で停止します。
+
+対象はsandbox Issue #1、repository ID 1446360916、App ID 5621990、installation ID 178788421です。契約と準備コメントはGitHubで確認し、manifestにはID/digestだけを保持します。会話本文や秘密鍵/tokenは複製しません。`manual_sources`は既知の準備記録をnot_claimとして照合する対応表です。手動Markdownのclaimを解析して作ったものではありません。
+
+`proof_sources`は合成trial issuerが署名形式と実GitHub sourceの束縛を試すための参照です。AIが書いた準備コメントを本物の人間承認へ昇格させません。本物の人間認証、P4予約、外部worker隔離、保存先の総合的な保護は未評価として残します。
+
+実証コードは固定した実装SHAのcontrollerが扱い、手動workflowの通常のPR/push CIでは起動しません。初回の全量snapshotを取得した後も、その60秒の有効期間を延長しません。操作前にはIssue・全コメント・現在のowner権限・legacy protectionを実GETで照合します。新しいsourceや契約/権限/保護/headの変更は停止理由です。1つのcontroller用lockとGitHub Actionsの固定concurrencyを使い、P4の原子的予約とは区別します。
+
+初期予算はtoken発行と失効を含むcontrollerのGitHub API要求100回、実証15分以内です。最後の1要求と時間をtoken失効用に予約します。source checkout・依存取得・Actionsのmetadata保存は準備処理として分離します。job自体は準備/片付け込み20分以内です。
+
+途中成功やunknownがある場合、再実行して新しいbranchやcommentで迂回しません。GitHubの「Re-run jobs」は拒否し、別の手動起動でも既存trial branch/PR/sourceがあれば開始前に停止します。必要な復旧は実receiptと実状態を人間が照合します。
+
+公開するのは1 MiB以下の安全なreport JSONだけです。最新receipt、journalのdigest、固定source/workflow SHA、API数、失効/鍵cleanupの結果と未評価を含み、署名依頼、秘密鍵/token、原文HTTP/commandログ、raw journalはuploadしません。実詳細の一時journalはrepo外のprivate fileに置きます。公開reportを秘密の保存先の代わりにはしません。
+
+強制停止ではfinally/cleanupが完了する保証はありません。結果がない、token失効不明、鍵cleanup不明は成功ではありません。必要な場合は人間がこの専用Appのinstallationを停止/アンインストールし、残る作成物を照合します。

@@ -61,7 +61,9 @@ export async function runLimitedTrial(config) {
         return boundedCall(
           (signal) => c.transport.request({ ...r, signal }),
           10000,
-          controller.signal,
+          r.signal
+            ? AbortSignal.any([r.signal, controller.signal])
+            : controller.signal,
         );
       },
     };
@@ -153,7 +155,7 @@ export async function runLimitedTrial(config) {
           : kind === "append_claim"
             ? { record_kind: "claim", status: "in_progress" }
             : kind === "append_record"
-              ? { record_kind: "report", status: "completed" }
+              ? { record_kind: "report", status: "in_progress" }
               : kind === "create_draft_pr"
                 ? { title: "Limited GitHub boundary trial" }
                 : {
@@ -167,19 +169,7 @@ export async function runLimitedTrial(config) {
                     ],
                     created_at: c.clock().replace(/\.\d{3}Z$/, "Z"),
                   };
-      const state = await boundedCall(
-        (signal) =>
-          c.observe({
-            repository: c.repository,
-            repository_id: c.repository_id,
-            run_id: input.grant.run_id,
-            transport: readonly,
-            signal,
-            remaining_api_requests: 100 - count,
-          }),
-        10000,
-        controller.signal,
-      );
+      const execution = auth.execution;
       const operation = {
         schema_version: 1,
         artifact_kind: "github-operation",
@@ -189,9 +179,9 @@ export async function runLimitedTrial(config) {
         repository_id: c.repository_id,
         issue_number: c.issue_number,
         run_id: input.grant.run_id,
-        claim_id: state.execution.claim_id,
-        worker_id: state.execution.worker_id,
-        generation: state.execution.generation,
+        claim_id: execution.claim_id,
+        worker_id: execution.worker_id,
+        generation: execution.generation,
         branch: c.branch,
         expected_head: expectedHead,
         policy_digest: hash(input.policy),

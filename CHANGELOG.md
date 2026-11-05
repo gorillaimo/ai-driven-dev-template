@@ -12,6 +12,8 @@ AI Driven Development Templateの利用者へ影響する変更を記録する�
 
 ### Added
 
+- GitHub限定実証用のcontroller・固定manifestと手動Actions入口の接続を追加。専用stepでApp鍵をrepo外へ保存し、発行/失効を含むAPI予算、mutation前の実読戻し、公開可能な結果JSON、失効/cleanup不明での停止を検査。合成issuerと実GitHubの評価を分け、本番の自律運用は有効化しない。
+
 - GitHub全量snapshot、Ed25519依頼/承認の照合、最小権限App transport、有限操作broker、repo外の永続journalと応答不明の読戻し、P1 event投影をgithub/v1として追加。合成テストをWorkflow Validationへ接続し、人間とAIの接続準備を分けた手順と限定実証入口を追加。実証環境の採用、会話認証・worker起動・複数Issue予約は別途確認。
 
 - アプリ/テンプレート/実行環境を分けるsecurity/v1、固定Gitleaks/OSV-Scanner/Semgrep CE/Trivy adapterと隔離実行、アプリCI→P1の検証記録接続、合成例・負のテスト、独立したread-only Security Validationを追加。secret/原文を公開せず、未実行・古いDB・故障・期限切れ例外を成功にしない。実Agent Runner/自動修正/実host・LLMへの検査は有効化しない。

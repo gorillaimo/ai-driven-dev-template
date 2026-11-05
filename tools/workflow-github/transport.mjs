@@ -96,13 +96,16 @@ function route(repository, method, path) {
     !path.startsWith("/") ||
     path.startsWith("//") ||
     path.includes("\\") ||
-    /[\x00-\x20#]/.test(path) ||
-    /%(?:2f|5c|2e)/i.test(path)
+    /[\x00-\x20#]/.test(path)
   )
+    return false;
+  const rawPath = path.split("?")[0];
+  if (/%(?:2f|5c|2e)/i.test(rawPath) || /(?:^|\/)\.{1,2}(?:\/|$)/.test(rawPath))
     return false;
   const url = new URL(path, "https://api.github.com"),
     prefix = "/repos/" + repository,
     local = url.pathname.slice(prefix.length);
+  if (/%(?:2f|5c|2e)/i.test(url.pathname)) return false;
   const query = new Set([
     "state",
     "sort",
@@ -149,6 +152,7 @@ export function createRestTransport(
     mode = "read_only",
     session,
     clock = () => new Date().toISOString(),
+    budget,
   },
   driver = privateHttpRequest,
 ) {
@@ -227,6 +231,7 @@ export function createRestTransport(
       const state = current();
       if (method !== "GET" && !state) fail("credential_missing");
       try {
+        budget?.charge(method, path);
         return await boundedCall(
           (s) =>
             driver({
@@ -235,7 +240,7 @@ export function createRestTransport(
               headers,
               ...(body === undefined ? {} : { body }),
               ...(state ? { token: state.token } : {}),
-              signal: s,
+              signal: budget ? AbortSignal.any([s, budget.signal]) : s,
             }),
           10000,
           signal,
@@ -255,8 +260,10 @@ export function createGitHubAppTokenProvider(
 ) {
   // Merely constructing this object reads no key and makes no API request.
   let issuing = false;
+  let lastRevocation = "not_issued";
   const owned = new Set();
   async function call(method, path, token, body) {
+    config.budget?.charge(method, path);
     const r = await boundedCall(
       (signal) =>
         driver({
@@ -268,7 +275,10 @@ export function createGitHubAppTokenProvider(
           },
           token,
           ...(body === undefined ? {} : { body }),
-          signal,
+          signal:
+            config.budget && path !== "/installation/token"
+              ? AbortSignal.any([signal, config.budget.signal])
+              : signal,
         }),
       10000,
     );
@@ -338,6 +348,7 @@ export function createGitHubAppTokenProvider(
           installation.suspended_at !== null
         )
           fail("app_identity_invalid");
+        lastRevocation = "unknown";
         const issued = await call(
           "POST",
           "/app/installations/" + config.installationId + "/access_tokens",
@@ -348,6 +359,7 @@ export function createGitHubAppTokenProvider(
           },
         );
         token = issued.token;
+        if (token) lastRevocation = "unknown";
         if (
           typeof token !== "string" ||
           !/^[A-Za-z0-9_.-]{1,16384}$/.test(token) ||
@@ -395,12 +407,19 @@ export function createGitHubAppTokenProvider(
         if (token) {
           try {
             await call("DELETE", "/installation/token", token);
-          } catch {}
+            lastRevocation = "revoked";
+          } catch {
+            lastRevocation = "unknown";
+            fail("token_revocation_unknown");
+          }
         }
         throw safeError(errorCode(error, "app_token_failed"));
       } finally {
         issuing = false;
       }
+    },
+    revocationState() {
+      return lastRevocation;
     },
     async revoke(session) {
       const state = sessions.get(session);
@@ -410,6 +429,7 @@ export function createGitHubAppTokenProvider(
         await call("DELETE", "/installation/token", state.token);
         state.revoked = true;
         state.token = "";
+        lastRevocation = "revoked";
       } catch {
         fail("token_revocation_unknown");
       }

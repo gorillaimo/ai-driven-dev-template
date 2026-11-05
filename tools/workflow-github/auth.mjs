@@ -125,7 +125,11 @@ function mappingKnown(policy, snapshot) {
       ),
     );
 }
-async function inspect(input, provider, { admitted = false } = {}) {
+async function inspect(
+  input,
+  provider,
+  { admitted = false, phase = "admission" } = {},
+) {
   if (
     badJson(input) ||
     !input ||
@@ -182,6 +186,7 @@ async function inspect(input, provider, { admitted = false } = {}) {
   const observed = await boundedCall(
     (signal) =>
       provider.observe({
+        phase,
         repository: p.repository,
         repository_id: p.repository_id,
         run_id: g.run_id,
@@ -513,13 +518,23 @@ export async function verifyRunAuthorization(input, provider) {
       observed_at: data.now,
       evidence_refs: [reference("github-authorization", hash(artifact))],
     }));
-    return { artifact, capability, facts };
+    return {
+      artifact,
+      capability,
+      facts,
+      execution: structuredClone(data.observed.execution),
+    };
   } catch (error) {
     artifact.diagnostics = [{ code: errorCode(error, "authorization_failed") }];
     return { artifact, facts: [] };
   }
 }
-export async function inspectCapability(capability, provider, journal) {
+export async function inspectCapability(
+  capability,
+  provider,
+  journal,
+  { phase = "operation" } = {},
+) {
   const cap = capabilities.get(capability),
     configuration = providers.get(provider);
   if (
@@ -529,5 +544,9 @@ export async function inspectCapability(capability, provider, journal) {
     configuration.journal !== journal
   )
     fail("capability_invalid");
-  return inspect(cap.data.input, configuration, { admitted: true });
+  if (
+    !["operation", "mutation", "reconciliation", "projection"].includes(phase)
+  )
+    fail("observation_phase_invalid");
+  return inspect(cap.data.input, configuration, { admitted: true, phase });
 }

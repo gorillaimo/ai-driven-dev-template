@@ -427,7 +427,9 @@ export async function executeBrokerOperation(operation, capability, context) {
       fail("operation_limit");
     receipt = newReceipt(operation, data.now);
     for (const [index, step] of steps.entries()) {
-      data = await inspectCapability(capability, authorityProvider, journal);
+      data = await inspectCapability(capability, authorityProvider, journal, {
+        phase: "mutation",
+      });
       client.charge(data.observed.api_requests);
       bind(operation, data);
       await checkTransport(transport, data);
