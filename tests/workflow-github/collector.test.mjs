@@ -12,7 +12,12 @@ function api(change = () => {}) {
         path = u.pathname;
       let body =
         path === "/repos/example/synthetic"
-          ? { id: 1, full_name: "example/synthetic", default_branch: "main" }
+          ? {
+              id: 1,
+              full_name: "example/synthetic",
+              default_branch: "main",
+              owner: { id: 70, login: "example", type: "Organization" },
+            }
           : path.endsWith("/issues")
             ? [apiIssue()]
             : path.endsWith("/branches")
@@ -211,6 +216,51 @@ test("complete effective rules do not become blocked by legacy-only diagnostic r
     );
     assert.equal(r.sections.protections, "complete", JSON.stringify(r));
     assert.ok(!r.unresolved.some((code) => code.startsWith("protection_")));
+  } finally {
+    s.close();
+  }
+});
+
+test("protection digests bind observed repository ownership rather than only rule bodies", async () => {
+  const s = fixture();
+  try {
+    const digests = [];
+    for (const owner of [
+      { id: 70, login: "example", type: "Organization" },
+      { id: 70, login: "example", type: "User" },
+      { id: 71, login: "example", type: "User" },
+    ]) {
+      const r = await collectGitHubSnapshot(
+        {
+          policy: s.policy,
+          scope: {
+            approval_sources: [],
+            actors: [],
+            include_protections: true,
+          },
+        },
+        api((q, v) => {
+          if (q.path === "/repos/example/synthetic") v.body.owner = owner;
+          if (q.path.endsWith("/protection"))
+            v.body = {
+              required_pull_request_reviews: {
+                bypass_pull_request_allowances: {
+                  users: [],
+                  apps: [],
+                  teams: [],
+                },
+              },
+              enforce_admins: { enabled: true },
+              allow_force_pushes: { enabled: false },
+              allow_deletions: { enabled: false },
+            };
+        }),
+        () => time,
+      );
+      assert.equal(r.sections.protections, "complete", JSON.stringify(r));
+      digests.push(r.protections[0].source_digest);
+    }
+    assert.equal(new Set(digests).size, 3);
   } finally {
     s.close();
   }

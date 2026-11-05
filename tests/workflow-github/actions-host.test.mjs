@@ -29,6 +29,8 @@ for (const [name, change] of [
   [
     "missing bypass",
     (q, r) => {
+      if (q.path === "/repos/gorillaimo/ai-driven-dev-template-sandbox")
+        r.body.owner.type = "Organization";
       if (q.path.endsWith("/protection"))
         delete r.body.required_pull_request_reviews
           .bypass_pull_request_allowances;
@@ -197,6 +199,11 @@ for (const [name, change, code] of [
       " without publishing raw settings",
     async () => {
       const s = actionsFixture((q, r) => {
+        if (
+          name === "bypass object" &&
+          q.path === "/repos/gorillaimo/ai-driven-dev-template-sandbox"
+        )
+          r.body.owner.type = "Organization";
         if (q.path.endsWith("/protection")) {
           change(r);
           r.body.private_canary = "PRIVATE_PROTECTION_CANARY";

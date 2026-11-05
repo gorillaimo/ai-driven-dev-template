@@ -20,3 +20,4 @@ import "./rest-query.test.mjs";
 import "./actions-entry.test.mjs";
 import "./actions-safety.test.mjs";
 import "./actions-cancellation.test.mjs";
+import "./actions-ownership.test.mjs";

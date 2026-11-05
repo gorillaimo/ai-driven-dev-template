@@ -91,6 +91,7 @@ export function actionsFixture(change = () => {}) {
         id: t.repository_id,
         full_name: t.repository,
         default_branch: t.base_branch,
+        owner: { ...t.owner, type: "User" },
       };
     else if (p === base + "/issues") body = [structuredClone(issue)];
     else if (p === base + "/issues/1") body = structuredClone(issue);
