@@ -181,3 +181,76 @@ test("verified worker completion frees only execution capacity, not the review c
     await s.close();
   }
 });
+
+for (const options of [
+  { workersStopped: false },
+  { unpublishedReconciled: false },
+])
+  test(
+    "recovery retains claims until stopped workers and unpublished changes are proven " +
+      JSON.stringify(options),
+    async () => {
+      const s = await controllerFixture(options);
+      try {
+        const r = await s.dispatcher.reserve(s.f),
+          c = r.reservations[0].claim;
+        assert.equal(
+          (
+            await s.dispatcher.recover({
+              claims: [
+                {
+                  claim_id: c.claim_id,
+                  old_generation: c.generation,
+                  action: "release",
+                  worker_id: "recovered",
+                  head_sha: c.head_sha,
+                },
+              ],
+            })
+          ).status,
+          "blocked",
+        );
+        assert.equal((await s.dispatcher.inspect()).claims.length, 1);
+      } finally {
+        await s.close();
+      }
+    },
+  );
+for (const fault of ["wrong actor", "ambiguous comment", "missing journal"])
+  test("uncertain GitHub operation stays blocked on " + fault, async () => {
+    const s = await controllerFixture();
+    try {
+      const r = await s.dispatcher.reserve(s.f),
+        { claim, handle } = r.reservations[0];
+      await s.dispatcher.execute(handle, s.operation(claim));
+      s.api.loseNext("comment");
+      await s.dispatcher.execute(handle, s.operation(claim, "append_claim"));
+      if (fault === "wrong actor") s.g.state.credential.actor_id += 1;
+      else if (fault === "ambiguous comment")
+        s.api.comments.push({ ...s.api.comments[0], id: 999 });
+      else {
+        const latest = s.g.journal.latest;
+        s.g.journal.latest = () => null;
+        assert.notEqual(s.g.journal.latest, latest);
+      }
+      const before = s.api.calls.filter((c) => c.method === "POST").length;
+      const v = await s.dispatcher.inspect(),
+        recovery = {
+          claims: v.claims.map((c) => ({
+            claim_id: c.claim_id,
+            old_generation: c.generation,
+            action: "resume",
+            worker_id: "recovered",
+            head_sha: c.head_sha,
+          })),
+        };
+      assert.equal((await s.dispatcher.recover(recovery)).status, "blocked");
+      assert.equal((await s.dispatcher.inspect()).pending_operations.length, 1);
+      assert.equal(
+        s.api.calls.filter((c) => c.method === "POST").length,
+        before,
+      );
+    } finally {
+      await s.close();
+    }
+  });

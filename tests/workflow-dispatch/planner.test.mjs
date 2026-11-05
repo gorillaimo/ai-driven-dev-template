@@ -190,3 +190,88 @@ test("git metadata area is rejected before planning", () => {
   bind(f);
   assert.equal(planBatch(f).status, "blocked");
 });
+test("unknown approval or constraint state stops the complete batch", () => {
+  for (const what of ["approval", "constraint"]) {
+    const f = fixture();
+    if (what === "approval") f.issue_facts[0].approval = "unknown";
+    else
+      f.constraint_facts.push({
+        feature_id: "a",
+        constraint_digest: "a".repeat(64),
+        status: "unknown",
+      });
+    assert.equal(planBatch(f).status, "blocked", what);
+  }
+});
+test("repository permission honors the Project required level", () => {
+  const f = fixture();
+  f.project.required_repository_permission = "admin";
+  f.snapshot.permissions[0].permission = "write";
+  bind(f);
+  assert.equal(planBatch(f).status, "blocked");
+});
+function pullRequest(f, patch = {}) {
+  return {
+    id: 100,
+    number: 10,
+    state: "open",
+    draft: false,
+    head_branch: "work/1",
+    head_sha: "1".repeat(40),
+    base_branch: "main",
+    base_sha: "2".repeat(40),
+    head_repository_id: f.snapshot.repository_id,
+    merged: false,
+    updated_at: f.evaluated_at,
+    body_digest: "a".repeat(64),
+    actor_id: 7,
+    ...patch,
+  };
+}
+test("a closed dependency requires an actually merged PR, then releases its downstream candidate", () => {
+  const f = fixture();
+  f.deliveryPlan.features[1].depends_on = [
+    { feature_id: "a", reason: "API first" },
+  ];
+  f.snapshot.issues[0].state = "closed";
+  f.issue_facts[0].pr_numbers = [10];
+  f.snapshot.prs = [pullRequest(f)];
+  bind(f);
+  assert.deepEqual(planBatch(f).selected, []);
+  f.snapshot.prs[0].state = "closed";
+  assert.deepEqual(planBatch(f).selected, []);
+  f.snapshot.prs[0].merged = true;
+  assert.deepEqual(
+    planBatch(f).selected.map((t) => t.issue_number),
+    [2],
+  );
+});
+test("latest priority is deterministic and empty scope selects no Issue", () => {
+  const f = fixture();
+  f.issue_facts[1].priority = 1;
+  f.issue_facts[0].priority = 2;
+  assert.deepEqual(
+    planBatch(f).selected.map((t) => t.issue_number),
+    [2, 1],
+  );
+  f.requested_issues = [];
+  assert.deepEqual(planBatch(f).selected, []);
+});
+test("ambiguous snapshot permissions stop all selection", () => {
+  const f = fixture();
+  f.snapshot.permissions.push({
+    ...f.snapshot.permissions[0],
+    permission: "read",
+  });
+  assert.equal(planBatch(f).status, "blocked");
+});
+test("a constraint with an unknown area stops configuration validation", () => {
+  const f = fixture();
+  f.deliveryPlan.features[0].constraints.push({
+    kind: "shared_area",
+    reference: { kind: "id", target: "missing" },
+    reason: "Synthetic",
+    area_id: "missing",
+  });
+  assert.equal(validateProjectV2(bind(f)).status, "blocked");
+});

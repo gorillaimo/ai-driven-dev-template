@@ -53,13 +53,13 @@ export async function controllerFixture(options = {}) {
     },
     workerEvidence: async (c) => ({
       ...evidence(c),
-      worker_stopped: true,
+      worker_stopped: options.workerStopped ?? true,
       release_confirmed: c.transition.status === "released",
     }),
     authorizeRecovery: async (c) => ({
       ...evidence(c),
-      workers_stopped: true,
-      unpublished_reconciled: true,
+      workers_stopped: options.workersStopped ?? true,
+      unpublished_reconciled: options.unpublishedReconciled ?? true,
     }),
   });
   const transport = {

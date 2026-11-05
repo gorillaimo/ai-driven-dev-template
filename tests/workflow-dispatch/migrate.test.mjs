@@ -77,3 +77,27 @@ test("a live manual claim cannot be silently marked released during conversion",
   });
   assert.equal(previewMigration(i).status, "blocked");
 });
+test("migration cannot lose shared reservations omitted from a legacy claim", () => {
+  const f = fixture();
+  f.project.areas[0].shared = true;
+  f.project.areas[0].integration_owner = "example-user";
+  f.team.members[0].integration_owner.push(f.project.areas[0].area_id);
+  const i = migrationInput(f),
+    c = claim({ origin: "manual-v1", areas: [] });
+  i.legacy_claims = [c];
+  i.migration.dispositions.push({
+    kind: "claim",
+    id: c.claim_id,
+    disposition: "retain",
+    claim: c,
+    approval_refs: [source("confirm")],
+  });
+  const { project, team, deliveryPlan } = i.to;
+  project.dispatcher.team.digest = hash(team);
+  i.migration.configuration_digest = hash({ project, team, deliveryPlan });
+  i.migration.inventory_digest = hash({
+    snapshot: i.snapshot,
+    legacy_claims: i.legacy_claims,
+  });
+  assert.equal(previewMigration(i).status, "blocked");
+});

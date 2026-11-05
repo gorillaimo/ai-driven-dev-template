@@ -372,3 +372,42 @@ test("confirmed operation replay cannot change actor or kind", async () => {
     s.close();
   }
 });
+test("inconsistent SQLite claim rows cannot hide a reservation on restart", async () => {
+  const s = setup();
+  let store;
+  try {
+    store = await opened(s);
+    await store.reserve(reservation(s.f));
+    await store.close();
+    store = null;
+    const { execFileSync } = await import("node:child_process");
+    execFileSync("python3", [
+      "-c",
+      "import sqlite3,sys\nc=sqlite3.connect(sys.argv[1])\nc.execute(\"UPDATE claims SET status='released'\")\nc.commit()\nc.close()",
+      join(s.directory, "ledger.sqlite"),
+    ]);
+    await assert.rejects(async () => {
+      store = await openStore({ directory: s.directory, configuration: s.f });
+    });
+  } finally {
+    await store?.close();
+    s.close();
+  }
+});
+test("an existing database over the fixed size cap is refused", async () => {
+  const s = setup();
+  let store;
+  try {
+    store = await opened(s);
+    await store.close();
+    store = null;
+    const { truncateSync } = await import("node:fs");
+    truncateSync(join(s.directory, "ledger.sqlite"), 128 * 1024 * 1024 + 1);
+    await assert.rejects(
+      openStore({ directory: s.directory, configuration: s.f }),
+    );
+  } finally {
+    await store?.close();
+    s.close();
+  }
+});
