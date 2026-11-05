@@ -281,7 +281,9 @@ export async function collectGitHubSnapshot(
       result.sections.permissions = "complete";
     } else result.unresolved.push("permission_unknown");
     if (scope.include_protections) {
-      result.protections = await collectProtections(p, client, clock);
+      result.protections = await collectProtections(p, client, clock, (code) =>
+        result.unresolved.push(code),
+      );
       result.sections.protections = result.protections.every(
         (x) => x.enforced === true && Array.isArray(x.bypass_actors),
       )

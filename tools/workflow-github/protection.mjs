@@ -2,7 +2,12 @@ import { hash, same, fail } from "./core.mjs";
 
 // Effective rules identify applicability. Never guess GitHub's fnmatch semantics.
 // Unknown/hidden bypass metadata makes the whole observation unusable.
-export async function collectProtections(policy, client, clock) {
+export async function collectProtections(
+  policy,
+  client,
+  clock,
+  diagnose = () => {},
+) {
   const base = "/repos/" + policy.repository,
     reads = [];
   const read = async (path) => {
@@ -14,6 +19,7 @@ export async function collectProtections(policy, client, clock) {
   const rulesets = await client.list(listPath);
   const details = new Map();
   let known = true;
+  const rulesetReasons = new Set();
   for (const item of rulesets) {
     if (
       !Number.isSafeInteger(item.id) ||
@@ -30,8 +36,10 @@ export async function collectProtections(policy, client, clock) {
       r.body.enforcement !== "active" ||
       !Array.isArray(r.body.rules) ||
       !Array.isArray(r.body.bypass_actors)
-    )
+    ) {
       known = false;
+      rulesetReasons.add("protection_ruleset_metadata_unknown");
+    }
     details.set(item.id, r.body);
   }
   const result = [],
@@ -50,6 +58,7 @@ export async function collectProtections(policy, client, clock) {
     );
     effectiveLists.push({ path, effective, key });
     const active = new Set(effective.map((r) => r.ruleset_id));
+    const reasons = new Set(rulesetReasons);
     let bypass = [],
       complete = known;
     for (const id of active) {
@@ -58,17 +67,33 @@ export async function collectProtections(policy, client, clock) {
         !detail ||
         !Array.isArray(detail.bypass_actors) ||
         detail.bypass_actors.length
-      )
+      ) {
         complete = false;
+        reasons.add("protection_ruleset_bypass_unknown");
+      }
     }
     // Conservatively require every active ruleset's bypass metadata, even if it
     // is unrelated to this branch. A read-only auditor can supply it later.
     for (const detail of details.values())
-      if (!Array.isArray(detail.bypass_actors)) complete = false;
+      if (!Array.isArray(detail.bypass_actors)) {
+        complete = false;
+        reasons.add("protection_ruleset_bypass_unknown");
+      }
     let legacyEnforced = false;
     if (legacy.status === 200) {
       const b = legacy.body,
         a = b.required_pull_request_reviews?.bypass_pull_request_allowances;
+      if (!a) reasons.add("protection_legacy_bypass_missing");
+      else {
+        if (!Array.isArray(a.users))
+          reasons.add("protection_legacy_bypass_users_missing");
+        if (!Array.isArray(a.apps))
+          reasons.add("protection_legacy_bypass_apps_missing");
+        if (!Array.isArray(a.teams))
+          reasons.add("protection_legacy_bypass_teams_missing");
+        else if (a.teams.length)
+          reasons.add("protection_legacy_team_bypass_unknown");
+      }
       if (
         !a ||
         !Array.isArray(a.users) ||
@@ -79,21 +104,44 @@ export async function collectProtections(policy, client, clock) {
         complete = false;
       else {
         bypass = [...a.users, ...a.apps].map((v) => v.id);
-        if (bypass.some((id) => !Number.isSafeInteger(id) || id < 1))
+        if (bypass.some((id) => !Number.isSafeInteger(id) || id < 1)) {
           complete = false;
+          reasons.add("protection_legacy_bypass_actor_invalid");
+        }
       }
       legacyEnforced =
         b.enforce_admins?.enabled === true &&
         !!b.required_pull_request_reviews &&
         b.allow_force_pushes?.enabled === false &&
         b.allow_deletions?.enabled === false;
-    } else if (legacy.status !== 404) complete = false;
+      if (b.enforce_admins?.enabled !== true)
+        reasons.add("protection_legacy_admins_not_enforced");
+      if (!b.required_pull_request_reviews)
+        reasons.add("protection_legacy_pr_rule_missing");
+      if (b.allow_force_pushes?.enabled !== false)
+        reasons.add("protection_legacy_force_push_not_blocked");
+      if (b.allow_deletions?.enabled !== false)
+        reasons.add("protection_legacy_deletion_not_blocked");
+    } else if (legacy.status !== 404) {
+      complete = false;
+      reasons.add(
+        legacy.status === 403
+          ? "protection_legacy_read_forbidden"
+          : "protection_legacy_read_unavailable",
+      );
+    }
     const enforced =
       complete &&
       (legacyEnforced ||
         ["pull_request", "non_fast_forward", "deletion"].every((t) =>
           effective.some((r) => r.type === t && details.has(r.ruleset_id)),
         ));
+    // Only fixed codes leave this module. Do not publish response bodies, actor
+    // names, server messages or settings; diagnostics never grant authority.
+    if (!enforced) {
+      if (!reasons.size) reasons.add("protection_required_rules_missing");
+      for (const code of reasons) diagnose(code);
+    }
     result.push({
       branch,
       enforced: complete ? enforced : "unknown",
