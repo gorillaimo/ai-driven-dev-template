@@ -9,6 +9,7 @@ import {
   rmSync,
   chmodSync,
   symlinkSync,
+  readdirSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -602,6 +603,50 @@ test("stop interrupts in-flight work; cached success is rechecked; exclusive sto
       clock: now,
     }),
   );
+});
+test("partial checkpoint survives interruption and a used run directory requires explicit recovery", async (t) => {
+  let entered, finish;
+  const started = new Promise((r) => {
+      entered = r;
+    }),
+    pending = new Promise((r) => {
+      finish = r;
+    });
+  const r = await rig(t, {
+      during: async () => {
+        entered();
+        await pending;
+      },
+    }),
+    running = r.c.run();
+  await started;
+  try {
+    const records = readdirSync(r.directory)
+      .filter((p) => p.endsWith(".json"))
+      .map((p) => JSON.parse(readFileSync(join(r.directory, p), "utf8")));
+    assert(
+      records.some(
+        (v) =>
+          v.artifact_kind === "integration-result" &&
+          v.status === "not_evaluated",
+      ),
+    );
+  } finally {
+    await r.c.stop();
+    finish();
+    await running;
+  }
+  r.c.close();
+  await assert.rejects(async () => {
+    const reopened = await openIntegrationController({
+      directory: r.directory,
+      ...r.i,
+      authority: r.authority,
+      executor: r.executor,
+      clock: now,
+    });
+    reopened.close();
+  });
 });
 test("all synthetic templates validate and cannot confer authority", async () => {
   const { parse } = await import(

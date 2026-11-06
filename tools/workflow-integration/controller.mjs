@@ -190,12 +190,34 @@ export async function openIntegrationController({
     JSON.stringify({ pid: process.pid, plan_digest: plan.plan_digest }),
   );
   fsyncSync(fd);
+  const runContext = JSON.stringify({
+    schema_version: 1,
+    artifact_kind: "integration-run-context",
+    authority: false,
+    profile: p,
+    request: r,
+    plan,
+  });
+  const contextBytes = Buffer.byteLength(runContext);
+  try {
+    if (
+      contextBytes > p.limits.artifact_bytes ||
+      contextBytes > p.limits.run_artifact_bytes
+    )
+      fail("artifact_limit");
+    writeProtected(join(root, "integration-run.json"), runContext);
+  } catch (err) {
+    closeSync(fd);
+    unlinkSync(lock);
+    if (err.code === "EEXIST") fail("run_recovery_required");
+    throw err;
+  }
   let closed = false,
     busy = false,
     poisoned = false,
     stopped = false,
     last = null,
-    totalBytes = 0,
+    totalBytes = contextBytes,
     guardCalls = 0;
   const reportIds = new Map();
   const abort = new AbortController(),
@@ -439,6 +461,7 @@ export async function openIntegrationController({
           stopped = true;
           abort.abort();
         }, p.limits.run_seconds * 1000);
+        store(result);
         await guard();
         let count = 0;
         for (const c of plan.cases) {
@@ -452,6 +475,7 @@ export async function openIntegrationController({
             log_refs: [],
           };
           result.cases.push(item);
+          store(result);
           try {
             prepared = await bounded(
               () =>
@@ -481,6 +505,7 @@ export async function openIntegrationController({
                   fail("prepare_unknown");
                 item[k] = prepared[k];
               }
+              store(result);
               for (const check of p.checks) {
                 await guard();
                 if (++count > p.limits.max_commands) fail("command_limit");
@@ -533,6 +558,8 @@ export async function openIntegrationController({
                   test_count: v.test_count,
                   ac_refs: [...check.ac_refs],
                 });
+                result.finished_at = timeValid();
+                store(result);
                 await guard();
               }
             }

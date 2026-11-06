@@ -301,6 +301,8 @@ main/head/依存/plan/profile/検査集合/image/順序の更新で、関連結�
 
 詳細ログと結果はrepo外の保護領域へ不変ファイルとして保存する。`execution/v1 integration-result` への投影は、実際に保存できた参照と元のexecution profileを用いる。記録のschema適合だけで、実行や人間承認を証明しない。
 
+実行前にprofile/request/planを保存し、途中の結果も未評価のcheckpointとして不変保存する。使用済みのrun保存先は自動的に再利用しない。host停止後は残存コンテナ・停止・公開成否・pinsを人間または承認した復旧手順で照合し、lockだけを削除して再開しない。host喪失後の自動停止・復旧をこの実装の試験だけで確認済みとしない。
+
 人間向け報告は対象Issueへの追記コメントとする。`github/v1 append_record` に自由本文を追加せず、報告専用の `github/v2 operation/receipt` と別journalを使う。公開にはP3権限に加え、保存済み結果と正確な操作に束縛したhost内部のpermitを必要とする。型と上限を確認した値から要約を生成し、raw log/diff/ソース/環境変数は転載しない。送信前に永続化し、応答不明は読戻しを優先して盲目的な再POSTを行わない。
 
 v2要約は権限の証拠ではない。既存v1 collectorが識別できないコメントは、既存の明示mapping手順で非claimとして確認するまで後続の権限判定を保留する。v1の未知情報の扱いを緩めて継続しない。P6単独では常駐起動、実モデル、production Runnerの採用、マージ設定の変更を有効化しない。

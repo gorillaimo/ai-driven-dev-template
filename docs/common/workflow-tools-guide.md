@@ -843,6 +843,8 @@ npm test --prefix tools/workflow-integration
 
 `core.mjs` の `planIntegration({profile, request})` はファイルを書かず、計画だけを返します。`controller.mjs` の `openIntegrationController` はhost側で `run()`、`recheck()`、`stop()`、`report()` を提供します。`report()` の既定値は公開前の準備で、外部へ書き込む場合だけhost側のpublisher設定と `publish: true` を使います。正常終了・停止確認後に `close()` します。
 
+保存先はrunごとに新しい保護ディレクトリを使います。profile/request/planと未評価の途中結果も保存し、使用済みの保存先を自動的に再利用しません。中断後は残存コンテナ・公開成否・pinsを照合し、lockだけを削除して再開しないでください。
+
 Docker実試験は別に行います。CIは固定base/Git版の検証専用imageを作成し、取得した不変image IDを `WORKFLOW_INTEGRATION_TEST_IMAGE` に渡して `npm run test:boundary --prefix tools/workflow-integration` を実行します。未指定の通常テストではDockerケースをskipと表示し、実隔離を確認済みにしません。専用boundaryコマンドではimage未指定をエラーにします。ビルド時に必要な通信と、検査コンテナの通信禁止を区別し、秘密情報やモデル認証を渡しません。
 
 `synthetic` authority/adapterの試験、実Git/コンテナの試験、許可した実PR群の限定実証、実モデル・production接続を分けて記録します。限定実証には対象・commit・command・変更先・上限を固定したmanifestを用意し、未実行の条件は未達として残します。
