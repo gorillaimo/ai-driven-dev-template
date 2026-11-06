@@ -55,5 +55,5 @@ test('Runner is locked and tested on Node 22/24, with separate secret-free real 
 
 test('Runner boundary preserves private modes by running the test host as the fixed worker UID',()=>{
  const job=parseYaml(read()).jobs.runner_boundary,step=job.steps.find(s=>s.run?.includes('tests/workflow-runner/boundary.mjs'));
- assert.ok(step.run.includes("sudo -n -- setpriv --reuid=1000"));assert.ok(step.run.includes("--clear-groups --reset-env"));assert.ok(step.run.includes('chown --recursive 1000:1000'));assert.ok(step.run.includes('mktemp -d'));assert.ok(step.run.includes('stat -c %g /var/run/docker.sock'));assert.ok(!/chmod.*777|--privileged|--network=host/.test(step.run));
+ assert.ok(step.run.includes("sudo -n -- setpriv --reuid=1000"));assert.ok(step.run.includes("--clear-groups --reset-env"));assert.ok(step.run.includes('cd "$1"'));assert.ok(step.run.includes('"$task_runner_tests/bin/node"'));assert.ok(step.run.includes('chown --recursive 1000:1000'));assert.ok(step.run.includes('mktemp -d'));assert.ok(step.run.includes('stat -c %g /var/run/docker.sock'));assert.ok(!/chmod.*777|--privileged|--network=host/.test(step.run));
 });

@@ -159,7 +159,13 @@ jobs:
           task_runner_tests=$(mktemp -d)
           trap 'sudo rm -rf "$task_runner_tests"' EXIT
           cp -a . "$task_runner_tests/repo"
+          task_runner_node=$(command -v node)
+          mkdir "$task_runner_tests/bin"
+          cp "$task_runner_node" "$task_runner_tests/bin/node"
+          task_runner_node="$task_runner_tests/bin/node"
           sudo -n -- chown --recursive 1000:1000 "$task_runner_tests"
           task_runner_docker_gid=$(stat -c %g /var/run/docker.sock)
-          task_runner_node=$(command -v node)
-          sudo -n -- setpriv --reuid=1000 --regid="$task_runner_docker_gid" --clear-groups --reset-env env PATH="$(dirname "$task_runner_node"):/usr/local/bin:/usr/bin:/bin" WORKFLOW_RUNNER_TEST_IMAGE="$WORKFLOW_RUNNER_TEST_IMAGE" "$task_runner_node" --test --test-reporter=tap "$task_runner_tests/repo/tests/workflow-runner/boundary.mjs"
+          sudo -n -- setpriv --reuid=1000 --regid="$task_runner_docker_gid" --clear-groups --reset-env env PATH="$task_runner_tests/bin:/usr/local/bin:/usr/bin:/bin" WORKFLOW_RUNNER_TEST_IMAGE="$WORKFLOW_RUNNER_TEST_IMAGE" sh -eu -c '
+            cd "$1"
+            exec "$2" --test --test-reporter=tap tests/workflow-runner/boundary.mjs
+          ' runner-boundary "$task_runner_tests/repo" "$task_runner_node"
