@@ -482,6 +482,24 @@ test("v2 publication: protected result only; v1 journal rejects v2; exact readba
     "failed",
   );
   assert(!api.comments[0].body.includes("stdout_base64"));
+  r.g.journal.append({
+    ...first,
+    schema_version: 1,
+    operation_id: "pending-v1",
+    status: "prepared",
+    confirmed_steps: 0,
+    request_count: 0,
+    observed: {},
+    partial: false,
+  });
+  const pendingReport = await r.c.report({ operation_id: "while-v1-pending" });
+  const blocked = await executeIntegrationSummaryOperation(
+    pendingReport.operation,
+    r.capability,
+    { ...context, permit: pendingReport.permit },
+  );
+  assert.equal(blocked.status, "failed");
+  assert.equal(api.calls.filter((c) => c.method === "POST").length, 1);
 });
 test("v2 publication: lost POST response is reconciled without resending and changed pins block publication", async (t) => {
   const r = await rig(t);

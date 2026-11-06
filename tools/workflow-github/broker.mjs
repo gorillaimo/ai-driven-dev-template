@@ -629,7 +629,8 @@ export async function executeIntegrationSummaryOperation(
         diagnostics: [],
       });
     }
-    if (journal.pending()) fail("operation_unresolved");
+    if (journal.pending() || context.journal.pending())
+      fail("operation_unresolved");
     data = await inspectCapability(
       capability,
       context.authorityProvider,
