@@ -4,6 +4,13 @@ Runnerは、Dispatcherが確保したIssueを、実装・実テスト・別conte
 
 **開発中の機構であり、実サービスへの送信と無人実行は未採用。** 固定CLIとDockerの実境界は、外部AIへ接続しない模擬応答で検証する。書込みvolumeの実行中の総容量制限と、実providerの利用量・料金は未確認のため、production adapterは起動を拒否する。形式検査や模擬試験の成功でこの拒否を解除しない。
 
+実験実装のマージと、実運用での有効化を分ける。
+
+- [Issue #50](https://github.com/gorillaimo/ai-driven-dev-template/issues/50): 実験実装、課金なしの合成試験・実CLI/Docker境界試験、CIと導入・引継ぎの説明を対象とする。
+- [Issue #66](https://github.com/gorillaimo/ai-driven-dev-template/issues/66): 永続書込み/sessionの実行中の容量制限、実人間sourceと署名の運用、実model・usage/料金、単一Issue→2Issueの限定実証、採用判定を対象とする。実運用が必要になった時点で着手条件を整える。
+
+実験実装は未採用のままレビュー・マージできる。#50の完了やCI成功だけでP5全体の実運用採用を完了とせず、#66の完了と個別の有効化承認までproduction起動拒否・実モデル予算0・無人実行未有効を維持する。
+
 ## 分担と実行の流れ
 
 ```mermaid

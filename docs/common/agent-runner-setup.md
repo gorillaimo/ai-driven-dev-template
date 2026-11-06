@@ -4,7 +4,12 @@
 
 **現在は実サービス接続の前段階。** 通常の手動運用はそのまま利用できる。Runnerのproduction起動は、書込み領域のquota検証・実provider試行・採用承認が揃うまで拒否する。GitHub Appを毎回インストールする必要はなく、既存のGitHub仲介を採用する場合の環境設定とは別の準備である。
 
+[実験実装のIssue #50](https://github.com/gorillaimo/ai-driven-dev-template/issues/50)のレビュー・マージには、GitHubのLinux環境で行うCIと共通仕様を確認する。この確認だけのために、利用者がMacへ仮想環境を新設したり、APIキーを登録したりする必要はない。
+実運用前の残実装・検証・採用判定は[Issue #66](https://github.com/gorillaimo/ai-driven-dev-template/issues/66)で扱う。実運用が必要になった時点で環境と方法を選び、個別に承認する。
+
 ## 課金なしで確認する
+
+以下は、Linux検証環境を持つ開発者が試験を再実行するための任意手順である。
 
 Linux / Node.js 22以上 / Python 3.11以上 / SQLite 3.35以上を用意し、repositoryのrootで実行する。Docker境界試験のホストUIDは固定workerと同じ1000を使い、保存領域とsocketを0700/0600のまま共有する。GitHub Actionsでは一時コピーをこのUIDへ渡して実行し、checkoutや保存先を誰でも読み書きできる権限に変更しない。Node.jsは開発管理用であり、アプリの言語をNode.jsに限定しない。
 
@@ -30,6 +35,8 @@ WORKFLOW_RUNNER_TEST_IMAGE=sha256:<実際のimage-ID> node --test --test-reporte
 試験は公開archiveをhash確認してimageをbuildし、provider credentialを使わず、固定した模擬Responsesを返す。filesystem/network/credential/cgroup、子プロセス停止、CLIのJSONL/usage/session再接続、実Nodeテスト、P4→Runner→P1の接続を確認する。**実AIによるコード変更・レビュー品質・実料金の試験とは分ける。** Docker socketへのアクセスは、信頼する専用の開発ホストだけに与える。
 
 ## 実サービス試行の前に確定する
+
+この節は#66で実運用前検証に着手する際の手順である。実験実装のマージ時に行う準備には含めない。
 
 AI・導入担当者が、対象Issue、実行hostとquota、snapshot・送信範囲、署名発行者、model、最新単価、回数/時間/費用、保存先、停止方法を具体的なmanifestにまとめる。人間はそのmanifestの対象と上限を承認する。承認やcredentialが不足している間は接続しない。
 
