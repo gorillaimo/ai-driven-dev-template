@@ -1,0 +1,6 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {profile,time} from './fixture.mjs';
+import {checkProfile} from '../../tools/workflow-runner/profile.mjs';
+test('profile pins finite resource, model, image and execution bounds',()=>{assert.equal(checkProfile(profile(),time).status,'passed');});
+for(const [name,change]of [['unknown field',p=>p.extra=true],['worker cap',p=>p.limits.max_ai_workers=4],['unlimited cost',p=>p.limits.cost_microusd=-1],['mutable image',p=>p.image='node:latest'],['wrong endpoint',p=>p.model.endpoint='https://example.invalid'],['expired price',p=>p.model.pricing_expires_at=time],['git path',p=>p.write_paths=['src/.git']],['forbidden overlap',p=>p.forbidden_paths=['src/key']],['broaden send scope',p=>p.send_paths=['other']],['overlapping writable roots',p=>p.write_paths=['src','src/a']]])test('profile rejects '+name,()=>{const p=profile();change(p);assert.equal(checkProfile(p,time).status,'blocked');});
+test('data accessors never run or leak into diagnostics',()=>{const p=profile();let touched=false;Object.defineProperty(p,'extra',{enumerable:true,get(){touched=true;throw Error('PRIVATE_CANARY');}});const r=checkProfile(p,time);assert.equal(touched,false);assert.ok(!JSON.stringify(r).includes('PRIVATE_CANARY'));assert.equal(r.status,'blocked');});

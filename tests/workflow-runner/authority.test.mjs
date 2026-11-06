@@ -1,0 +1,8 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {sign} from 'node:crypto';
+import {profile,time,signedRequest} from './fixture.mjs';
+import {canonical} from '../../tools/workflow-runner/core.mjs';
+import {createRunnerAuthority,verifyRequest} from '../../tools/workflow-runner/authority.mjs';
+function setup(intent='continue'){const p=profile(),s=signedRequest(p,intent);const e=s.envelope;e.signature=sign(null,Buffer.from('workflow-runner:v1:request\n'+canonical({issuer:e.issuer,key_id:e.key_id,payload:e.payload})),s.privateKey).toString('base64');const a=createRunnerAuthority({mode:'synthetic',keys:[s.key],readSource:async()=>s.source,clock:()=>time});return {p,s,a};}
+test('a current signed request and independently read human source produce an opaque ticket',async()=>{const {p,s,a}=setup();const r=await verifyRequest(a,s.envelope,p);assert.equal(r.intent,'continue');assert.equal(r.authority,false);assert.ok(r.ticket);assert.deepEqual(JSON.parse(JSON.stringify(r.ticket)),{});});
+for(const fault of ['signature','actor','source','edited','bot','permission','expired'])test('authority rejects '+fault,async()=>{const {p,s,a}=setup();if(fault==='signature')s.envelope.signature='A'.repeat(88);if(fault==='actor')s.source.actor_id=8;if(fault==='source')s.source.body_digest='f'.repeat(64);if(fault==='edited')s.source.updated_at='2026-11-06T00:00:01Z';if(fault==='bot')s.source.actor_type='Bot';if(fault==='permission')s.source.permission='read';if(fault==='expired'){s.envelope.payload.expires_at=time;}await assert.rejects(verifyRequest(a,s.envelope,p));});
+test('JSON cannot reconstruct a host authority',async()=>{const {p,s}=setup();await assert.rejects(verifyRequest({approved:true},s.envelope,p));});
