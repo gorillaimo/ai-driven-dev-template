@@ -57,6 +57,7 @@ jobs:
           npm ci --prefix tools/workflow-github --ignore-scripts --no-audit --no-fund
           npm ci --prefix tools/workflow-dispatch --ignore-scripts --no-audit --no-fund
           npm ci --prefix tools/workflow-runner --ignore-scripts --no-audit --no-fund
+          npm ci --prefix tools/workflow-integration --ignore-scripts --no-audit --no-fund
       - name: Existing schema and checker tests
         id: regression
         run: |
@@ -76,6 +77,7 @@ jobs:
           npm test --prefix tools/workflow-github
           npm test --prefix tools/workflow-dispatch
           npm test --prefix tools/workflow-runner
+          npm test --prefix tools/workflow-integration
       - name: CI runner and workflow contract tests
         id: contracts
         run: npm test --prefix tools/workflow-ci
@@ -132,6 +134,7 @@ jobs:
           npm ci --prefix tools/workflow-github --ignore-scripts --no-audit --no-fund
           npm ci --prefix tools/workflow-dispatch --ignore-scripts --no-audit --no-fund
           npm ci --prefix tools/workflow-runner --ignore-scripts --no-audit --no-fund
+          npm ci --prefix tools/workflow-integration --ignore-scripts --no-audit --no-fund
       - name: Build fixed secret-free test image
         id: runner_image
         run: |
@@ -169,3 +172,16 @@ jobs:
             cd "$1"
             exec "$2" --test --test-reporter=tap tests/workflow-runner/boundary.mjs
           ' runner-boundary "$task_runner_tests/repo" "$task_runner_node"
+
+      - name: Build verification-only integration image
+        run: |
+          set -eu
+          task_integration_build=$(mktemp -d)
+          trap 'rm -rf "$task_integration_build"' EXIT
+          cp tools/workflow-integration/runtime/Dockerfile "$task_integration_build/Dockerfile"
+          cp tools/workflow-runner/runtime/worker.mjs "$task_integration_build/worker.mjs"
+          env -u DOCKER_HOST -u DOCKER_CONTEXT -u DOCKER_TLS -u DOCKER_TLS_VERIFY -u DOCKER_CERT_PATH docker --host=unix:///var/run/docker.sock build --tag workflow-integration-boundary:local "$task_integration_build"
+          task_integration_image=$(env -u DOCKER_HOST -u DOCKER_CONTEXT -u DOCKER_TLS -u DOCKER_TLS_VERIFY -u DOCKER_CERT_PATH docker --host=unix:///var/run/docker.sock image inspect --format '{{.Id}}' workflow-integration-boundary:local)
+          printf 'WORKFLOW_INTEGRATION_TEST_IMAGE=%s\n' "$task_integration_image" >> "$GITHUB_ENV"
+      - name: Real isolated integration and security boundaries without model calls
+        run: npm run test:boundary --prefix tools/workflow-integration

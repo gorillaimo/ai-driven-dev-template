@@ -1,0 +1,24 @@
+# Synthetic example; not a capability or publication permit.
+{
+  "schema_version": 2,
+  "artifact_kind": "github-operation",
+  "operation_id": "integration-report-1",
+  "kind": "append_record",
+  "repository": "example/synthetic",
+  "repository_id": 1,
+  "issue_number": 1,
+  "run_id": "run-1",
+  "claim_id": "claim-1",
+  "worker_id": "worker-1",
+  "generation": 1,
+  "branch": "ai-work/1/branch-1",
+  "expected_head": "2222222222222222222222222222222222222222",
+  "policy_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+  "grant_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+  "stage": "validation",
+  "payload": {
+    "record_kind": "integration-report",
+    "result_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+    "summary_digest": "0000000000000000000000000000000000000000000000000000000000000000"
+  }
+}

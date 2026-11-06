@@ -13,9 +13,35 @@ import {
 import { resolve, relative, sep, join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { badJson, hash, same, MAX, fail } from "./core.mjs";
-import { validateGitHubArtifact } from "./schema.mjs";
+import {
+  validateGitHubArtifact,
+  validateIntegrationGitHubArtifact,
+} from "./schema.mjs";
 
 export function createFileJournal({ directory, sourceRoot, limits = MAX }) {
+  return openJournal(
+    { directory, sourceRoot, limits },
+    validateGitHubArtifact,
+    "journal.jsonl",
+  );
+}
+// Separate storage and validators prevent v2 records being admitted by v1.
+export function createIntegrationJournal({
+  directory,
+  sourceRoot,
+  limits = MAX,
+}) {
+  return openJournal(
+    { directory, sourceRoot, limits },
+    validateIntegrationGitHubArtifact,
+    "integration-journal.jsonl",
+  );
+}
+function openJournal(
+  { directory, sourceRoot, limits },
+  validateReceipt,
+  filename,
+) {
   if (
     !Number.isSafeInteger(limits?.journal_bytes) ||
     limits.journal_bytes < 1 ||
@@ -34,7 +60,7 @@ export function createFileJournal({ directory, sourceRoot, limits = MAX }) {
   )
     fail("journal_path_invalid");
   const lock = join(root, "controller.lock"),
-    path = join(root, "journal.jsonl"),
+    path = join(root, filename),
     owner = randomUUID();
   let lockFd,
     fd,
@@ -98,7 +124,7 @@ export function createFileJournal({ directory, sourceRoot, limits = MAX }) {
         fail("journal_corrupt");
       if (
         row.record.kind === "operation" &&
-        (!validateGitHubArtifact("receipt", row.record.receipt).valid ||
+        (!validateReceipt("receipt", row.record.receipt).valid ||
           Object.keys(row.record).sort().join() !== "kind,receipt")
       )
         fail("journal_corrupt");
@@ -243,7 +269,7 @@ export function createFileJournal({ directory, sourceRoot, limits = MAX }) {
         "partial",
       ];
       if (
-        !validateGitHubArtifact("receipt", receipt).valid ||
+        !validateReceipt("receipt", receipt).valid ||
         Object.keys(receipt).some((k) => !permitted.includes(k))
       )
         fail("journal_record_invalid");

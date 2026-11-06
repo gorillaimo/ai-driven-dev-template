@@ -1,0 +1,299 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:integration:v1:profile",
+  "title": "integration/v1 profile",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "artifact_kind": {
+      "const": "integration-profile"
+    },
+    "artifact_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "repository": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "repository_id": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "owner_id": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "base_branch": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*(?:^|/)\\.git(?:/|$))[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$"
+    },
+    "image": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 71,
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "scope": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1024,
+        "pattern": "^(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*(?:^|/)\\.git(?:/|$))[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$"
+      },
+      "minItems": 1,
+      "maxItems": 1000
+    },
+    "required_categories": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "type",
+          "api",
+          "shared",
+          "build",
+          "integration",
+          "authorization",
+          "security"
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 7
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+          },
+          "category": {
+            "enum": [
+              "type",
+              "api",
+              "shared",
+              "build",
+              "integration",
+              "authorization",
+              "security"
+            ]
+          },
+          "executable": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024,
+            "pattern": "^[A-Za-z0-9_./-]+$"
+          },
+          "argv": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 2048
+            },
+            "minItems": 0,
+            "maxItems": 256
+          },
+          "timeout_seconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1800
+          },
+          "minimum_tests": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000000
+          },
+          "ac_refs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9_-]+$"
+            },
+            "minItems": 1,
+            "maxItems": 100
+          }
+        },
+        "required": [
+          "id",
+          "category",
+          "executable",
+          "argv",
+          "timeout_seconds",
+          "minimum_tests",
+          "ac_refs"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1,
+      "maxItems": 100
+    },
+    "limits": {
+      "type": "object",
+      "properties": {
+        "max_prs": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "max_cases": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 11
+        },
+        "max_commands": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "command_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1800
+        },
+        "run_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 21600
+        },
+        "cleanup_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 600
+        },
+        "cpus": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2
+        },
+        "memory_mib": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2048
+        },
+        "pids": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 128
+        },
+        "scratch_mib": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256
+        },
+        "bundle_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 209715200
+        },
+        "source_files": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000
+        },
+        "file_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10485760
+        },
+        "source_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 104857600
+        },
+        "log_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10485760
+        },
+        "artifact_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 104857600
+        },
+        "run_artifact_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1073741824
+        },
+        "summary_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32768
+        }
+      },
+      "required": [
+        "max_prs",
+        "max_cases",
+        "max_commands",
+        "command_seconds",
+        "run_seconds",
+        "cleanup_seconds",
+        "cpus",
+        "memory_mib",
+        "pids",
+        "scratch_mib",
+        "bundle_bytes",
+        "source_files",
+        "file_bytes",
+        "source_bytes",
+        "log_bytes",
+        "artifact_bytes",
+        "run_artifact_bytes",
+        "summary_bytes"
+      ],
+      "additionalProperties": false
+    },
+    "execution_profile": {
+      "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "artifact_id",
+    "revision",
+    "repository",
+    "repository_id",
+    "owner_id",
+    "base_branch",
+    "image",
+    "reviewed_at",
+    "expires_at",
+    "scope",
+    "required_categories",
+    "checks",
+    "limits",
+    "execution_profile"
+  ],
+  "additionalProperties": false
+}

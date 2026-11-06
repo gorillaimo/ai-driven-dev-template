@@ -10,6 +10,8 @@ import {
   readSync,
   closeSync,
   fstatSync,
+  readFileSync,
+  statfsSync,
   constants,
 } from "node:fs";
 const mode = process.argv[2],
@@ -70,6 +72,174 @@ if (mode === "probe") {
   child.on("exit", (code) => (process.exitCode = code ?? 1));
 } else if (mode === "fixture") {
   await import("/fixture.mjs");
+} else if (mode === "integration-prepare") {
+  // Only this immutable image code interprets Git objects. No repository hook,
+  // configuration, checkout/filter or application command executes in this mode.
+  const { execFileSync } = await import("node:child_process");
+  let input = "";
+  for await (const b of process.stdin) {
+    input += b;
+    if (Buffer.byteLength(input) > 5242880) process.exit(2);
+  }
+  const q = JSON.parse(input),
+    L = q.limits;
+  const bytes = (b) => createHash("sha256").update(b).digest("hex");
+  const env = {
+    PATH: "/usr/local/bin:/usr/bin:/bin",
+    HOME: "/scratch",
+    XDG_CONFIG_HOME: "/scratch/empty",
+    GIT_CONFIG_NOSYSTEM: "1",
+    GIT_CONFIG_GLOBAL: "/dev/null",
+    GIT_NO_LAZY_FETCH: "1",
+    GIT_TERMINAL_PROMPT: "0",
+    GIT_ALLOW_PROTOCOL: "file",
+    GIT_PROTOCOL_FROM_USER: "0",
+    GIT_AUTHOR_NAME: "Integration",
+    GIT_AUTHOR_EMAIL: "integration@example.invalid",
+    GIT_COMMITTER_NAME: "Integration",
+    GIT_COMMITTER_EMAIL: "integration@example.invalid",
+    GIT_AUTHOR_DATE: "2000-01-01T00:00:00Z",
+    GIT_COMMITTER_DATE: "2000-01-01T00:00:00Z",
+  };
+  const git = (args) =>
+    execFileSync(
+      "git",
+      [
+        "--no-replace-objects",
+        "-c",
+        "core.hooksPath=/dev/null",
+        "-c",
+        "core.fsmonitor=false",
+        "-c",
+        "protocol.allow=never",
+        "-c",
+        "protocol.file.allow=always",
+        "-c",
+        "merge.renames=false",
+        "--git-dir=/scratch/repository",
+        ...args,
+      ],
+      {
+        env,
+        shell: false,
+        timeout: Math.min(L.command_seconds, 1800) * 1000,
+        maxBuffer: Math.max(12 * 1048576, L.file_bytes + 1024),
+        stdio: ["pipe", "pipe", "pipe"],
+      },
+    );
+  try {
+    if (
+      !/^[a-f0-9]{40}$/.test(q.main_sha) ||
+      !Array.isArray(q.heads) ||
+      q.heads.length > 10 ||
+      q.heads.some((h) => !/^[a-f0-9]{40}$/.test(h))
+    )
+      throw Error();
+    const boundary = {
+      uid: process.getuid(),
+      memory: readFileSync("/sys/fs/cgroup/memory.max", "utf8").trim(),
+      pids: readFileSync("/sys/fs/cgroup/pids.max", "utf8").trim(),
+      cpu: readFileSync("/sys/fs/cgroup/cpu.max", "utf8").trim(),
+      scratch_bytes:
+        statfsSync("/scratch").blocks * statfsSync("/scratch").bsize,
+      tmp_bytes: statfsSync("/tmp").blocks * statfsSync("/tmp").bsize,
+    };
+    git(["init", "--bare"]);
+    git(["bundle", "verify", "/work/source.bundle"]);
+    git(["bundle", "unbundle", "/work/source.bundle"]);
+    let commit = q.main_sha;
+    if (git(["cat-file", "-t", commit]).toString().trim() !== "commit")
+      throw Error();
+    let tree = git(["rev-parse", commit + "^{tree}"])
+      .toString()
+      .trim();
+    for (const head of q.heads) {
+      if (git(["cat-file", "-t", head]).toString().trim() !== "commit")
+        throw Error();
+      let out;
+      try {
+        out = git([
+          "merge-tree",
+          "--write-tree",
+          "--no-messages",
+          commit,
+          head,
+        ]);
+      } catch (e) {
+        if (e.status === 1) {
+          process.stdout.write(
+            JSON.stringify({ status: "conflict", boundary }) + "\n",
+          );
+          process.exit(0);
+        }
+        throw e;
+      }
+      tree = out.toString().trim();
+      if (!/^[a-f0-9]{40}$/.test(tree)) throw Error();
+      commit = git([
+        "commit-tree",
+        tree,
+        "-p",
+        commit,
+        "-p",
+        head,
+        "-m",
+        "P6 integration",
+      ])
+        .toString()
+        .trim();
+    }
+    const rows = git(["ls-tree", "-r", "-z", "--full-tree", tree])
+        .toString("utf8")
+        .split("\0")
+        .filter(Boolean),
+      files = [];
+    if (!rows.length || rows.length > L.source_files) throw Error();
+    let total = 0;
+    for (const row of rows) {
+      const m =
+        /^(100644|100755) blob ([a-f0-9]{40})\t([A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.-]+)*)$/.exec(
+          row,
+        );
+      if (
+        !m ||
+        m[3]
+          .split("/")
+          .some((x) => [".", "..", ".git", ".gitmodules"].includes(x))
+      )
+        throw Error();
+      const size = Number(git(["cat-file", "-s", m[2]]).toString());
+      total += size;
+      if (size > L.file_bytes || total > L.source_bytes) throw Error();
+      const b = git(["cat-file", "blob", m[2]]);
+      if (
+        b.length !== size ||
+        b
+          .subarray(0, 100)
+          .toString()
+          .startsWith("version https://git-lfs.github.com/spec/")
+      )
+        throw Error();
+      files.push({
+        path: m[3],
+        mode: m[1],
+        digest: bytes(b),
+        content_base64: b.toString("base64"),
+      });
+    }
+    process.stdout.write(
+      JSON.stringify({
+        status: "passed",
+        tree_sha: tree,
+        commit_sha: commit,
+        files,
+        boundary,
+        git_version: git(["--version"]).toString().trim(),
+      }) + "\n",
+    );
+  } catch {
+    process.stdout.write(JSON.stringify({ status: "error" }) + "\n");
+  }
 } else if (mode === "verify") {
   let input = "";
   for await (const part of process.stdin) {

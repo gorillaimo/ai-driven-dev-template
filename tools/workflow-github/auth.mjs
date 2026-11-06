@@ -550,3 +550,14 @@ export async function inspectCapability(
     fail("observation_phase_invalid");
   return inspect(cap.data.input, configuration, { admitted: true, phase });
 }
+// P6 must distinguish trial identity from production authority without changing
+// the established v1 inspectCapability return contract.
+export async function inspectIntegrationAuthorization(
+  capability,
+  provider,
+  journal,
+  options,
+) {
+  const data = await inspectCapability(capability, provider, journal, options);
+  return { ...data, authority_mode: providers.get(provider).mode };
+}

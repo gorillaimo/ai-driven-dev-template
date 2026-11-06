@@ -1,0 +1,52 @@
+# Synthetic example; no execution or approval authority.
+schema_version: 1
+artifact_kind: integration-plan
+authority: false
+run_id: run-1
+repository: example/synthetic
+repository_id: 1
+request_digest: 552be63957cb429d7e4d2f61769ff1e7369a5c8c560ac51c7231555a70d04c2f
+profile_digest: f3922cd0f5677179aff80a23819328fd5084a4970bb12136b4d278c22dacfb10
+main_sha: "2222222222222222222222222222222222222222"
+bundle_digest: dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+targets:
+  - issue_number: 1
+    pr_number: 11
+    head_sha: "3333333333333333333333333333333333333333"
+    plan_digest: "5555555555555555555555555555555555555555555555555555555555555555"
+    depends_on: []
+  - issue_number: 2
+    pr_number: 12
+    head_sha: "4444444444444444444444444444444444444444"
+    plan_digest: "6666666666666666666666666666666666666666666666666666666666666666"
+    depends_on: []
+order:
+  - 1
+  - 2
+cases:
+  - case_id: case-080a9ed428559ef602668b4c
+    issue_numbers:
+      - 1
+  - case_id: case-038966de9f6b9a901b20b4c6
+    issue_numbers:
+      - 2
+  - case_id: case-49a64717d5d4cb19952e6eac
+    issue_numbers:
+      - 1
+      - 2
+profile:
+  kind: profile
+  id: execution-profile
+  revision: 1
+  digest: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  location:
+    kind: id
+    target: execution-profile
+scope:
+  - src
+image: sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+checks_digest: 4c8f81318d64f58fc5c48759aacbf7e0b9acd2c3e54ec6080c98400df827afe9
+not_evaluated:
+  - all_subsets_and_orders
+  - human_merge_approval
+plan_digest: 718e0203d83b9be526268fb4777ff86d3f2d9fbc0e116f51d8a3a6273d44a5e4

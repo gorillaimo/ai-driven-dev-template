@@ -30,6 +30,21 @@ for (const [namespace, kinds] of [
         ),
       ),
     );
+for (const kind of ["operation", "receipt"])
+  ajv.addSchema(
+    JSON.parse(
+      readFileSync(new URL("github/v2/" + kind + ".schema.json", root), "utf8"),
+    ),
+  );
+export function validateIntegrationGitHubArtifact(kind, value) {
+  if (
+    !["operation", "receipt"].includes(kind) ||
+    badJson(value) ||
+    !finiteTimes(value)
+  )
+    return { valid: false };
+  return { valid: !!ajv.getSchema("urn:ai-workflow:github:v2:" + kind)(value) };
+}
 export function validateGitHubArtifact(kind, value) {
   if (
     ![
