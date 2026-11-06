@@ -64,6 +64,8 @@ CPU/memory/pids/scratchはDockerで制限する。成果収集時の容量検査
 
 DockerのHEALTHCHECKは、workerのevent loopが更新するheartbeatの鮮度だけを確認する。実行許可・費用・終了・工程成功の証拠としては扱わない。
 
+モデル仲介のsocket切断・呼出し期限はホストのprovider helperにも伝え、終了を観測する。Linuxのparent-death signalで、supervisor強制終了時にもhelperを残さない。切断後にprovider側の処理や請求が取り消されたとは断定せず、利用量不明なら費用予約とP4の実行claimを保持する。
+
 監視間隔は15秒。期限・権限・世代を確認し、停止時はTERMを送り5秒後にKILLする。containerのPIDと子プロセスの終了を確認できなければ枠・claimを解放せず、未確認として報告する。
 
 ## 証拠と修正反復

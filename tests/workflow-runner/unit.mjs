@@ -1207,6 +1207,81 @@ import {
       await s.close();
     }
   });
+  test("a stopped worker with unknown provider usage cannot release its P4 execution claim", async () => {
+    const s = await fixture({
+      seed: async ({ directory, p, claim }) => {
+        p.limits.cost_microusd = 50000;
+        const l = await openLedger({ directory, profile: p });
+        try {
+          await l.admit({
+            event_id: "old-event",
+            nonce: "old-nonce",
+            run_id: "run-1",
+            intent: "continue",
+            request_digest: "a".repeat(64),
+            now: time,
+          });
+          const a = await l.reserve({
+            attempt_id: "old-attempt",
+            run_id: "run-1",
+            claim_id: claim.claim_id,
+            worker_id: claim.worker_id,
+            generation: claim.generation,
+            issue_number: claim.issue_number,
+            role: "implementation",
+            context_id: "old-context",
+            head_sha: claim.head_sha,
+            now: time,
+          });
+          await l.reserveUsage({
+            request_id: "old-request",
+            attempt_id: a.attempt_id,
+            epoch: a.epoch,
+            input_digest: "b".repeat(64),
+            now: time,
+          });
+          const content = {
+              files: [],
+              bytes: 0,
+              source_digest: hash([]),
+              execution: {
+                attempt_id: a.attempt_id,
+                context_id: a.context_id,
+                role: a.role,
+                result: null,
+              },
+            },
+            digest = hash(content);
+          writeFileSync(
+            join(directory, a.attempt_id + ".artifact.json"),
+            JSON.stringify({ ...content, digest }),
+            { mode: 0o600 },
+          );
+          await l.observe({
+            attempt_id: a.attempt_id,
+            epoch: a.epoch,
+            status: "stopped",
+            container_id: null,
+            stopped: true,
+            artifact_digest: digest,
+            now: time,
+          });
+        } finally {
+          await l.close();
+        }
+      },
+    });
+    try {
+      const r = await s.supervisor.workerEvidence({
+        claim: s.claim,
+        binding_digest: "c".repeat(64),
+      });
+      assert.equal(r.worker_stopped, false);
+      assert.equal(r.release_confirmed, false);
+    } finally {
+      await s.close();
+    }
+  });
   test("missing adapter capability refuses startup and retains the claim", async () => {
     const s = await fixture({ missing: "stop_tree" });
     try {
@@ -1912,5 +1987,182 @@ test("artifact collection refuses invalid UTF-8 rather than publishing replaceme
     assert.throws(() => collectArtifacts(w));
   } finally {
     rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+{
+  function cancellationGateway(upstream) {
+    const p = profile();
+    p.limits.call_seconds = 1;
+    let reserved = 0,
+      settled = 0;
+    const gateway = createGateway({
+      mode: "synthetic",
+      profile: p,
+      clock: () => time,
+      upstream,
+      ledger: {
+        reserveUsage: async () => {
+          reserved++;
+        },
+        settleUsage: async () => {
+          settled++;
+        },
+      },
+      observeAttempt: async () => ({
+        attempt_id: "attempt-1",
+        run_id: "run-1",
+        epoch: 1,
+        active: true,
+        stopped: false,
+      }),
+    });
+    return {
+      gateway,
+      body: { model: p.model.id, input: "Synthetic cancellation test" },
+      counts: () => ({ reserved, settled }),
+    };
+  }
+  test("a model deadline reaches the provider cancellation signal and keeps its reservation", async () => {
+    let observedSignal;
+    const s = cancellationGateway(
+      async (body, options) =>
+        new Promise((resolve, reject) => {
+          observedSignal = options?.signal;
+          observedSignal?.addEventListener(
+            "abort",
+            () => reject(new Error("cancelled")),
+            { once: true },
+          );
+        }),
+    );
+    await assert.rejects(
+      s.gateway.request(
+        { method: "POST", path: "/v1/responses", body: s.body },
+        "attempt-1",
+      ),
+    );
+    assert.equal(observedSignal?.aborted, true);
+    assert.equal(s.gateway.unknown, true);
+    assert.deepEqual(s.counts(), { reserved: 1, settled: 0 });
+  });
+  test("closing a worker model socket cancels the active host call without releasing unknown usage", async () => {
+    const { serveGateway } = await import(
+        "../../tools/workflow-runner/gateway.mjs"
+      ),
+      { request } = await import("node:http");
+    const directory = mkdtempSync(join(tmpdir(), "runner-cancel-"));
+    let server, client, started, cancelled;
+    const ready = new Promise((r) => (started = r)),
+      aborted = new Promise((r) => (cancelled = r));
+    const s = cancellationGateway(
+      async (body, options) =>
+        new Promise((resolve, reject) => {
+          options?.signal?.addEventListener(
+            "abort",
+            () => {
+              cancelled();
+              reject(new Error("cancelled"));
+            },
+            { once: true },
+          );
+          started();
+        }),
+    );
+    try {
+      const socket = join(directory, "model.sock");
+      server = await serveGateway({
+        socket,
+        attempt_id: "attempt-1",
+        gateway: s.gateway,
+      });
+      client = request(
+        {
+          socketPath: socket,
+          method: "POST",
+          path: "/v1/responses",
+          headers: { "content-type": "application/json" },
+        },
+        () => {},
+      );
+      client.on("error", () => {});
+      client.end(JSON.stringify(s.body));
+      await ready;
+      await server.close();
+      let timer;
+      try {
+        await Promise.race([
+          aborted,
+          new Promise((resolve, reject) => {
+            timer = setTimeout(
+              () => reject(new Error("host call was not cancelled")),
+              2000,
+            );
+          }),
+        ]);
+      } finally {
+        clearTimeout(timer);
+      }
+      await new Promise(setImmediate);
+      assert.equal(s.gateway.unknown, true);
+      assert.deepEqual(s.counts(), { reserved: 1, settled: 0 });
+    } finally {
+      client?.destroy();
+      await server?.close();
+      rmSync(directory, { recursive: true, force: true });
+    }
+  });
+}
+
+test("the fixed provider helper terminates when its host parent dies without sending a request", async () => {
+  const { spawn } = await import("node:child_process"),
+    { once } = await import("node:events"),
+    { readFileSync } = await import("node:fs");
+  const helper = new URL(
+    "../../tools/workflow-runner/provider_http.py",
+    import.meta.url,
+  ).pathname;
+  const childCode =
+    "import runpy,time\nm=runpy.run_path(" +
+    JSON.stringify(helper) +
+    ",run_name='lifecycle_probe')\nm['bind_parent']()\nprint('READY',flush=True)\ntime.sleep(30)";
+  const launcherCode =
+    "import subprocess,sys,json\np=subprocess.Popen([sys.executable,'-c'," +
+    JSON.stringify(childCode) +
+    "],stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)\nprint(json.dumps({'pid':p.pid,'ready':p.stdout.readline().decode().strip()}),flush=True)\nsys.stdin.readline()\np.wait()";
+  const launcher = spawn("python3", ["-c", launcherCode], {
+    stdio: ["pipe", "pipe", "pipe"],
+  });
+  launcher.stderr.resume();
+  let pid;
+  function running() {
+    try {
+      return !/\) Z /.test(readFileSync("/proc/" + pid + "/stat", "utf8"));
+    } catch {
+      return false;
+    }
+  }
+  try {
+    const [data] = await once(launcher.stdout, "data"),
+      ready = JSON.parse(data.toString());
+    pid = ready.pid;
+    assert.equal(ready.ready, "READY");
+    const exited = once(launcher, "exit");
+    launcher.kill("SIGKILL");
+    await exited;
+    for (let n = 0; n < 100 && running(); n++)
+      await new Promise((r) => setTimeout(r, 10));
+    assert.equal(running(), false);
+  } finally {
+    if (pid && running())
+      try {
+        process.kill(pid, "SIGKILL");
+      } catch {}
+    if (launcher.exitCode === null && launcher.signalCode === null) {
+      const exited = once(launcher, "exit");
+      launcher.kill("SIGKILL");
+      await exited;
+    }
+    launcher.stdin.end();
   }
 });

@@ -867,7 +867,12 @@ export async function openSupervisor({
           })),
         worker_stopped:
           attempts.length > 0 &&
-          attempts.every((a) => a.stopped && !!a.artifact_digest),
+          attempts.every((a) => a.stopped && !!a.artifact_digest) &&
+          !view.usage.some(
+            (u) =>
+              ["reserved", "unknown"].includes(u.status) &&
+              attempts.some((a) => a.attempt_id === u.attempt_id),
+          ),
         release_confirmed: false,
       };
     },

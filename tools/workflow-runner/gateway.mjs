@@ -75,7 +75,8 @@ export function createGateway({
   let unknown = false,
     tail = Promise.resolve(),
     waiting = 0;
-  async function perform(q, attempt_id) {
+  async function perform(q, attempt_id, clientSignal) {
+    if (clientSignal?.aborted) fail("model_request_cancelled");
     if (
       unknown ||
       !safe(q) ||
@@ -141,7 +142,13 @@ export function createGateway({
     });
     try {
       const response = await bounded(
-        () => upstream(b),
+        (deadlineSignal) =>
+          upstream(b, {
+            signal: clientSignal
+              ? AbortSignal.any([deadlineSignal, clientSignal])
+              : deadlineSignal,
+            call_seconds: p.limits.call_seconds,
+          }),
         p.limits.call_seconds * 1000,
       );
       if (
@@ -199,10 +206,10 @@ export function createGateway({
   }
   const value = Object.freeze({
     receipt: (attempt_id) => receipts.get(attempt_id) ?? null,
-    request(q, attempt_id) {
+    request(q, attempt_id, { signal } = {}) {
       if (waiting >= 64) return Promise.reject(new Error("gateway_busy"));
       waiting++;
-      const r = tail.then(() => perform(q, attempt_id));
+      const r = tail.then(() => perform(q, attempt_id, signal));
       tail = r.catch(() => {}).finally(() => waiting--);
       return r;
     },
@@ -216,6 +223,8 @@ export function createGateway({
 export async function serveGateway({ socket, attempt_id, gateway }) {
   let closed = false;
   const server = createServer((req, res) => {
+    const cancellation = new AbortController();
+    res.on("close", () => cancellation.abort());
     let bytes = 0,
       parts = [];
     req.on("data", (part) => {
@@ -233,7 +242,9 @@ export async function serveGateway({ socket, attempt_id, gateway }) {
           path: req.url,
           body: JSON.parse(Buffer.concat(parts).toString("utf8")),
         };
-        const r = await gateway.request(q, attempt_id);
+        const r = await gateway.request(q, attempt_id, {
+          signal: cancellation.signal,
+        });
         if (!res.destroyed) {
           res.writeHead(r.status, {
             "content-type": r.content_type,
@@ -287,8 +298,21 @@ export function createProviderTransport({
     timeout_seconds > 1800
   )
     fail("provider_invalid");
-  const send = async (body) =>
+  const send = async (body, { signal, call_seconds = timeout_seconds } = {}) =>
     new Promise((resolve, reject) => {
+      if (signal?.aborted) {
+        reject(error("provider_response_unknown"));
+        return;
+      }
+      if (
+        !Number.isInteger(call_seconds) ||
+        call_seconds < 1 ||
+        call_seconds > 1800
+      ) {
+        reject(error("provider_invalid"));
+        return;
+      }
+      const requestSeconds = Math.min(timeout_seconds, call_seconds);
       const env = {
         PATH: "/usr/local/bin:/usr/bin:/bin",
         LANG: "C.UTF-8",
@@ -310,15 +334,15 @@ export function createProviderTransport({
       );
       let raw = "",
         size = 0,
-        done = false;
+        done = false,
+        stopping = false;
       const stop = () => {
+        stopping = true;
         child.kill("SIGKILL");
-        if (!done) {
-          done = true;
-          reject(error("provider_response_unknown"));
-        }
       };
-      const timer = setTimeout(stop, (timeout_seconds + 5) * 1000);
+      const timer = setTimeout(stop, requestSeconds * 1000);
+      signal?.addEventListener("abort", stop, { once: true });
+      if (signal?.aborted) stop();
       child.on("error", stop);
       child.stdin.on("error", stop);
       child.stderr.on("data", stop);
@@ -329,10 +353,11 @@ export function createProviderTransport({
       });
       child.on("close", (code) => {
         clearTimeout(timer);
+        signal?.removeEventListener("abort", stop);
         if (done) return;
         done = true;
         try {
-          if (code !== 0) throw Error();
+          if (stopping || code !== 0) throw Error();
           const r = JSON.parse(raw);
           if (
             !Number.isInteger(r.status) ||
@@ -345,7 +370,9 @@ export function createProviderTransport({
           reject(error("provider_response_unknown"));
         }
       });
-      child.stdin.end(JSON.stringify({ credential, body, timeout_seconds }));
+      child.stdin.end(
+        JSON.stringify({ credential, body, timeout_seconds: requestSeconds }),
+      );
     });
   providers.add(send);
   return send;
