@@ -254,3 +254,17 @@ for (const fault of ["wrong actor", "ambiguous comment", "missing journal"])
       await s.close();
     }
   });
+test("Runner can revalidate authority without changing handoff state", async () => {
+  const s = await controllerFixture();
+  try {
+    const r = await s.dispatcher.reserve(s.f),
+      { handle } = r.reservations[0];
+    const before = (await s.dispatcher.inspect()).claims[0].status;
+    assert.equal((await s.dispatcher.revalidate(handle)).status, "passed");
+    assert.equal((await s.dispatcher.inspect()).claims[0].status, before);
+    await s.dispatcher.stop("run-1");
+    assert.equal((await s.dispatcher.revalidate(handle)).status, "blocked");
+  } finally {
+    await s.close();
+  }
+});

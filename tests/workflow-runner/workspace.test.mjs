@@ -1,5 +1,92 @@
-import test from'node:test';import assert from'node:assert/strict';import{mkdtempSync,rmSync,writeFileSync,symlinkSync}from'node:fs';import{tmpdir}from'node:os';import{join}from'node:path';
-import{profile}from'./fixture.mjs';import{prepareWorkspace,collectArtifacts}from'../../tools/workflow-runner/workspace.mjs';
-test('workspace stages only approved readable/sendable files and separate writable roots',()=>{const root=mkdtempSync(join(tmpdir(),'runner-work-'));try{const w=prepareWorkspace({directory:root,profile:profile(),files:[{path:'src/main.js',content:'before'},{path:'AGENTS.md',content:'rules'}]});assert.equal(w.mounts.length,2);writeFileSync(join(w.mounts[0].source,'main.js'),'after');const r=collectArtifacts(w);assert.equal(r.files.find(f=>f.path==='src/main.js').content,'after');assert.match(r.digest,/^[a-f0-9]{64}$/);}finally{rmSync(root,{recursive:true,force:true});}});
-for(const path of ['../escape','src/.git/config','secrets/key','.codex/config.toml'])test('staging rejects '+path,()=>{const root=mkdtempSync(join(tmpdir(),'runner-work-'));try{assert.throws(()=>prepareWorkspace({directory:root,profile:profile(),files:[{path,content:'PRIVATE_CANARY'}]}));}finally{rmSync(root,{recursive:true,force:true});}});
-test('result collection refuses links instead of following them to host data',()=>{const root=mkdtempSync(join(tmpdir(),'runner-work-'));try{const w=prepareWorkspace({directory:root,profile:profile(),files:[{path:'src/main.js',content:'before'}]});symlinkSync('/etc/passwd',join(w.mounts[0].source,'escape'));assert.throws(()=>collectArtifacts(w));}finally{rmSync(root,{recursive:true,force:true});}});
+import test from "node:test";
+import assert from "node:assert/strict";
+import { mkdtempSync, rmSync, writeFileSync, symlinkSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { profile } from "./fixture.mjs";
+import {
+  prepareWorkspace,
+  collectArtifacts,
+} from "../../tools/workflow-runner/workspace.mjs";
+test("workspace stages only approved readable/sendable files and separate writable roots", () => {
+  const root = mkdtempSync(join(tmpdir(), "runner-work-"));
+  try {
+    const w = prepareWorkspace({
+      directory: root,
+      profile: profile(),
+      files: [
+        { path: "src/main.js", content: "before" },
+        { path: "AGENTS.md", content: "rules" },
+      ],
+    });
+    assert.equal(w.mounts.length, 2);
+    writeFileSync(join(w.mounts[0].source, "main.js"), "after");
+    const r = collectArtifacts(w);
+    assert.equal(
+      r.files.find((f) => f.path === "src/main.js").content,
+      "after",
+    );
+    assert.match(r.digest, /^[a-f0-9]{64}$/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+for (const path of [
+  "../escape",
+  "src/.git/config",
+  "secrets/key",
+  ".codex/config.toml",
+])
+  test("staging rejects " + path, () => {
+    const root = mkdtempSync(join(tmpdir(), "runner-work-"));
+    try {
+      assert.throws(() =>
+        prepareWorkspace({
+          directory: root,
+          profile: profile(),
+          files: [{ path, content: "PRIVATE_CANARY" }],
+        }),
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+test("result collection refuses links instead of following them to host data", () => {
+  const root = mkdtempSync(join(tmpdir(), "runner-work-"));
+  try {
+    const w = prepareWorkspace({
+      directory: root,
+      profile: profile(),
+      files: [{ path: "src/main.js", content: "before" }],
+    });
+    symlinkSync("/etc/passwd", join(w.mounts[0].source, "escape"));
+    assert.throws(() => collectArtifacts(w));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+test("protected workspace metadata restores unpushed content after a restart", async () => {
+  const root = mkdtempSync(join(tmpdir(), "runner-work-"));
+  try {
+    const p = profile(),
+      w = prepareWorkspace({
+        directory: root,
+        profile: p,
+        files: [{ path: "src/main.js", content: "before" }],
+      });
+    writeFileSync(join(w.mounts[0].source, "main.js"), "after");
+    const { restoreWorkspace } = await import(
+      "../../tools/workflow-runner/workspace.mjs"
+    );
+    const restored = restoreWorkspace({ directory: root, profile: p });
+    assert.equal(collectArtifacts(restored).files[0].content, "after");
+    assert.throws(() =>
+      restoreWorkspace({
+        directory: root,
+        profile: { ...p, repository_id: 2 },
+      }),
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
