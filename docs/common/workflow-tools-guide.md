@@ -834,6 +834,8 @@ Project v2の形式・候補・移行案は`tools/workflow-dispatch/cli.mjs`で�
 
 profile/requestの見本は [templates/integration](../../.ai-workflow/templates/integration/README.md)、契約・上限は[自律開発設計 第9章](autonomous-development-design.md#9-複数prの統合検証)を参照します。Node.jsはこの制御用です。利用先アプリの言語に合わせたimageとcommandを承認できます。
 
+初期adapterのテスト件数取得はNodeのTAPコメント形式（`# tests N`）に対応しています。別形式は、採用するimageに件数取得用の検査wrapperを用意するか、対応adapterを採用します。結合・認可・security検査の最低件数を0へ下げて不足を回避する設定は拒否します。build/型検査など件数を持たないcommandは、別の検査分類として成功条件を承認します。
+
 ### 開発者向けの入口と検査
 
 ```sh

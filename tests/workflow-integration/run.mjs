@@ -173,6 +173,10 @@ test("AC3: cycle, missing dependency, duplicate PR, unknown fields and limits ar
       changeProfile(i, (p) => {
         p.checks[0].argv = Array(257).fill("x");
       }),
+    (i) =>
+      changeProfile(i, (p) => {
+        p.checks[0].minimum_tests = 0;
+      }),
     (i) => {
       i.request.profile_digest = "f".repeat(64);
     },

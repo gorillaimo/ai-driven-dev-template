@@ -81,6 +81,11 @@ export function planIntegration(input) {
       new Set(p.checks.map((c) => c.id)).size !== p.checks.length ||
       new Set(p.required_categories).size !== p.required_categories.length ||
       p.checks.some((c) => c.timeout_seconds > p.limits.command_seconds) ||
+      p.checks.some(
+        (c) =>
+          ["integration", "authorization", "security"].includes(c.category) &&
+          c.minimum_tests < 1,
+      ) ||
       p.limits.scratch_mib < 16 ||
       p.limits.memory_mib < 64 ||
       p.limits.pids < 16
