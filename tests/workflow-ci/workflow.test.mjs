@@ -41,3 +41,19 @@ test('Project Golden dependencies, regression and shared case execution are conn
 });
 
 test('Dispatcher has locked dependencies, mandatory supported backend and full process suite',()=>{const steps=parseYaml(read()).jobs.validate.steps,install=steps.find(s=>s.id==='install').run,backend=steps.find(s=>s.id==='dispatch_backend');assert.ok(install.includes('npm ci --prefix tools/workflow-dispatch --ignore-scripts --no-audit --no-fund'));assert.ok(backend);assert.match(backend.run,/python3/);assert.match(backend.run,/sqlite3/);assert.match(backend.run,/fcntl/);assert.equal(backend['continue-on-error'],undefined);assert.ok(steps.find(s=>s.id==='regression').run.includes('npm test --prefix tools/workflow-dispatch'));});
+
+test('Runner is locked and tested on Node 22/24, with separate secret-free real isolation tests',()=>{
+ const w=parseYaml(read()),steps=w.jobs.validate.steps;
+ assert.ok(steps.find(s=>s.id==='install').run.includes('npm ci --prefix tools/workflow-runner --ignore-scripts --no-audit --no-fund'));
+ assert.ok(steps.find(s=>s.id==='regression').run.includes('npm test --prefix tools/workflow-runner'));
+ const job=w.jobs.runner_boundary;assert.ok(job);assert.equal(job['runs-on'],'ubuntu-latest');assert.equal(job['timeout-minutes'],15);assert.equal(job.if,undefined);
+ assert.ok(job.steps.some(s=>s.run?.includes('tests/workflow-runner/boundary.mjs')));
+ const build=job.steps.find(s=>s.id==='runner_image').run;assert.ok(build.includes('sha256sum --check'));assert.ok(build.includes('--network=none'));assert.ok(build.includes('runner-image.lock.json'));
+ for(const s of job.steps){assert.equal(s['continue-on-error'],undefined);if(s.uses)assert.match(s.uses,/^actions\/(checkout|setup-node)@[0-9a-f]{40}$/);}
+ assert.ok(!/secrets\.|pull_request_target|continue-on-error|upload-artifact|id-token/.test(read()));
+});
+
+test('Runner boundary preserves private modes by running the test host as the fixed worker UID',()=>{
+ const job=parseYaml(read()).jobs.runner_boundary,step=job.steps.find(s=>s.run?.includes('tests/workflow-runner/boundary.mjs'));
+ assert.ok(step.run.includes("sudo -n -- setpriv --reuid=1000"));assert.ok(step.run.includes("--clear-groups --reset-env"));assert.ok(step.run.includes('cd "$1"'));assert.ok(step.run.includes('"$task_runner_tests/bin/node"'));assert.ok(step.run.includes('chown --recursive 1000:1000'));assert.ok(step.run.includes('mktemp -d'));assert.ok(step.run.includes('stat -c %g /var/run/docker.sock'));assert.ok(!/chmod.*777|--privileged|--network=host/.test(step.run));
+});

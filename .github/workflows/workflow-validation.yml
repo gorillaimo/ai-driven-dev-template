@@ -56,6 +56,7 @@ jobs:
           npm ci --prefix tools/workflow-security --ignore-scripts --no-audit --no-fund
           npm ci --prefix tools/workflow-github --ignore-scripts --no-audit --no-fund
           npm ci --prefix tools/workflow-dispatch --ignore-scripts --no-audit --no-fund
+          npm ci --prefix tools/workflow-runner --ignore-scripts --no-audit --no-fund
       - name: Existing schema and checker tests
         id: regression
         run: |
@@ -74,6 +75,7 @@ jobs:
           npm test --prefix tools/workflow-security
           npm test --prefix tools/workflow-github
           npm test --prefix tools/workflow-dispatch
+          npm test --prefix tools/workflow-runner
       - name: CI runner and workflow contract tests
         id: contracts
         run: npm test --prefix tools/workflow-ci
@@ -107,3 +109,63 @@ jobs:
             printf '\nSee the Golden cases and Issue artifact step logs for case results, counts and not_evaluated reasons.\n'
             printf 'success is not human approval; skipped/cancelled/empty outcomes are not verification.\n'
           } >> "$GITHUB_STEP_SUMMARY"
+
+  runner_boundary:
+    name: Runner isolation (inert model, no provider credentials)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout tested revision
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Install locked Runner dependencies
+        run: |
+          npm ci --prefix tools/workflow-rules --ignore-scripts --no-audit --no-fund
+          npm ci --prefix tools/workflow-project --ignore-scripts --no-audit --no-fund
+          npm ci --prefix tools/workflow-execution --ignore-scripts --no-audit --no-fund
+          npm ci --prefix tools/workflow-github --ignore-scripts --no-audit --no-fund
+          npm ci --prefix tools/workflow-dispatch --ignore-scripts --no-audit --no-fund
+          npm ci --prefix tools/workflow-runner --ignore-scripts --no-audit --no-fund
+      - name: Build fixed secret-free test image
+        id: runner_image
+        run: |
+          set -eu
+          task_runner_build=$(mktemp -d)
+          trap 'rm -rf "$task_runner_build"' EXIT
+          node --input-type=module - "$task_runner_build" <<'NODE'
+          import {readFileSync,writeFileSync,copyFileSync} from 'node:fs';
+          import {join} from 'node:path';
+          const root=process.argv[2],lock=JSON.parse(readFileSync('tools/workflow-runner/runtime/runner-image.lock.json','utf8'));
+          if(lock.codex_archive!=='https://github.com/openai/codex/releases/download/rust-v0.166.0/codex-x86_64-unknown-linux-musl.tar.gz'||lock.codex_archive_digest!=='a0bf572d2f93f056c6712a6da348e96078dc84f3885fd7be67807ef389cb3978')throw Error('unreviewed runtime archive');
+          writeFileSync(join(root,'archive.sha256'),lock.codex_archive_digest+'  codex.tar.gz\n');
+          for(const name of ['Dockerfile','worker.mjs'])copyFileSync('tools/workflow-runner/runtime/'+name,join(root,name));
+          NODE
+          curl --fail --location --proto '=https' --tlsv1.2 --max-time 120 --output "$task_runner_build/codex.tar.gz" https://github.com/openai/codex/releases/download/rust-v0.166.0/codex-x86_64-unknown-linux-musl.tar.gz
+          (cd "$task_runner_build" && sha256sum --check archive.sha256)
+          tar --no-same-owner -xzf "$task_runner_build/codex.tar.gz" -C "$task_runner_build" codex-x86_64-unknown-linux-musl
+          mv "$task_runner_build/codex-x86_64-unknown-linux-musl" "$task_runner_build/codex"
+          env -u DOCKER_HOST -u DOCKER_CONTEXT -u DOCKER_TLS -u DOCKER_TLS_VERIFY -u DOCKER_CERT_PATH docker --host=unix:///var/run/docker.sock build --network=none --tag workflow-runner-boundary:local "$task_runner_build"
+          task_runner_image=$(env -u DOCKER_HOST -u DOCKER_CONTEXT -u DOCKER_TLS -u DOCKER_TLS_VERIFY -u DOCKER_CERT_PATH docker --host=unix:///var/run/docker.sock image inspect --format '{{.Id}}' workflow-runner-boundary:local)
+          printf 'WORKFLOW_RUNNER_TEST_IMAGE=%s\n' "$task_runner_image" >> "$GITHUB_ENV"
+      - name: Real CLI and Docker boundaries with inert model responses
+        run: |
+          set -eu
+          task_runner_tests=$(mktemp -d)
+          trap 'sudo rm -rf "$task_runner_tests"' EXIT
+          cp -a . "$task_runner_tests/repo"
+          task_runner_node=$(command -v node)
+          mkdir "$task_runner_tests/bin"
+          cp "$task_runner_node" "$task_runner_tests/bin/node"
+          task_runner_node="$task_runner_tests/bin/node"
+          sudo -n -- chown --recursive 1000:1000 "$task_runner_tests"
+          task_runner_docker_gid=$(stat -c %g /var/run/docker.sock)
+          sudo -n -- setpriv --reuid=1000 --regid="$task_runner_docker_gid" --clear-groups --reset-env env PATH="$task_runner_tests/bin:/usr/local/bin:/usr/bin:/bin" WORKFLOW_RUNNER_TEST_IMAGE="$WORKFLOW_RUNNER_TEST_IMAGE" sh -eu -c '
+            cd "$1"
+            exec "$2" --test --test-reporter=tap tests/workflow-runner/boundary.mjs
+          ' runner-boundary "$task_runner_tests/repo" "$task_runner_node"

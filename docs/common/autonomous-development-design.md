@@ -24,6 +24,10 @@
 
 P4の実装仕様・有限上限・移行/復旧の保証範囲は[Dispatcherの設計](dispatcher-design.md)を参照する。P4は管理部品を提供し、P5の実AI起動・隔離とP7の会話からの自律継続は別段階で接続する。
 
+P5の開発中の実装仕様と未採用条件は[Runnerの設計](agent-runner-design.md)、検証・導入は[Runnerの準備](agent-runner-setup.md)を参照する。模擬応答による実CLI/Docker試験を、実AIの単一/2Issue試行や無人実行の承認と同一視しない。
+
+P5は実験実装と実運用前検証に分ける。実験実装を先にマージしても、実運用前検証と個別の有効化承認が揃うまでproduction起動拒否・実モデル予算0・無人実行未有効を維持する。P6/P7の実装で部品を参照することと、実モデルを使う接続・自律運用の実証を区別する。
+
 ## 2. 人間とAIの流れ
 
 ```mermaid
@@ -309,9 +313,10 @@ P1〜P7は計画項目IDであり、GitHub Issue番号ではない。設計承�
 | P2 | [Issue #47](https://github.com/gorillaimo/ai-driven-dev-template/issues/47) | #46 |
 | P3 | [Issue #48](https://github.com/gorillaimo/ai-driven-dev-template/issues/48) | #46 |
 | P4 | [Issue #49](https://github.com/gorillaimo/ai-driven-dev-template/issues/49) | #48 |
-| P5 | [Issue #50](https://github.com/gorillaimo/ai-driven-dev-template/issues/50) | #47・#49 |
-| P6 | [Issue #51](https://github.com/gorillaimo/ai-driven-dev-template/issues/51) | #47・#48。Runner接続・最終完了には #50 も必要 |
-| P7 | [Issue #52](https://github.com/gorillaimo/ai-driven-dev-template/issues/52) | #50・#51 |
+| P5: 実験実装 | [Issue #50](https://github.com/gorillaimo/ai-driven-dev-template/issues/50) | #47・#49。課金なしの試験・CIと未採用条件まで |
+| P5: 実運用前検証・採用判定 | [Issue #66](https://github.com/gorillaimo/ai-driven-dev-template/issues/66) | #50のmain反映。実運用が必要になった時点で個別設計・試行承認を得る。現在は保留 |
+| P6 | [Issue #51](https://github.com/gorillaimo/ai-driven-dev-template/issues/51) | #47・#48。Runner部品の接続は #50、実モデル・production接続の実証は #66 の採用判定後 |
+| P7 | [Issue #52](https://github.com/gorillaimo/ai-driven-dev-template/issues/52) | #50・#51。実モデルの限定自律試行と実運用の有効化は #66 と個別承認が前提 |
 
 | 項目・依存 | 目的・主な変更候補 | 受け入れ条件・先行テスト |
 | :--- | :--- | :--- |
@@ -319,7 +324,7 @@ P1〜P7は計画項目IDであり、GitHub Issue番号ではない。設計承�
 | P2: セキュリティと検証接続。P1後 | 検査profile/adapter、アプリ別設定例、独立CI job、quality-gates/運用案内 | 合成secret/依存/危険設定・権限負のテスト例、scanner障害/非対応/古いDB、規則緩和拒否。オフライン検査を維持し、限定した実scanner試行も確認 |
 | P3: GitHub取得・操作境界。P1後 | collector/broker、snapshot/操作receipt、auth/permission/取得上限 | 全量pagination、担当/承認改変、API応答不明/再送、外部入力の不正指示、path/branch逸脱。偽APIの失敗テスト後に試験repoで限定実証 |
 | P4: 自動着手。P3後 | Project v2/移行、batch planner、Dispatcher/永続台帳 | 二重要求、複数writer、area/capacity、世代、途中再起動、手動記録との不一致。実並行プロセスで1件だけ確定することを検証 |
-| P5: 依頼から開始・再開するRunner。P2/P4後 | 認証済み依頼との接続、adapter契約、最初のCLI adapter、隔離/停止/予算・利用量 | fake adapterで本人性/重複起動/timeout/子プロセス/secret/通信/越境/利用量不明を試す。能力試験→単一Issue→2Issueの限定実行。必須能力なしでは起動拒否 |
+| P5: 依頼から開始・再開するRunner。P2/P4後 | 認証済み依頼との接続、adapter契約、最初のCLI adapter、隔離/停止/予算・利用量 | #50でfake/模擬応答と実CLI/Dockerの課金なし試験。#66で永続容量制限・実人間source/署名運用・実usage/料金と能力試験→単一Issue→2Issueの実AI試行を確認。必須能力なしでは起動拒否し、#50のマージだけで採用しない |
 | P6: PR横断検証・報告。P2/P3後、実行接続はP5後 | 一時統合環境、結果/鮮度検査、GitHub要約/保護artifact | 単独成功・統合失敗、Git/API/権限の競合、head/main更新、順序変更、元branchへの修正反映。組み合わせの保証範囲を確認 |
 | P7: 会話起点の自律継続と報告。P5/P6後 | 許可範囲内の候補抽出・継続選択、区切り/判断待ち/終了時の報告、停止/再開 | 候補を人間が指定しない継続依頼、作業完了後の次候補選択、1件保留で他Issue継続、全件待機、期限/費用/権限喪失、途中障害・手動復帰を試す。日中/夜間で同じ動作を確認。定時起動は必要時に別有効化 |
 

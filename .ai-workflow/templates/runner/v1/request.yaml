@@ -1,0 +1,20 @@
+# Synthetic example only. This is not authorization or live evidence.
+schema_version: 1
+artifact_kind: runner-request
+issuer: synthetic-issuer
+key_id: key-1
+payload:
+  event_id: event-1
+  session_id: session-1
+  nonce: nonce-1
+  repository_id: 1
+  actor_id: 7
+  run_id: run-1
+  runner_profile_digest: ddd41687a449160043354c136966bfb14eaa12042d9ec7c7b1995a2b1c6cacd9
+  intent: continue
+  issued_at: 2026-11-06T00:00:00Z
+  expires_at: 2026-11-06T00:01:00Z
+  source_id: "123"
+  source_updated_at: 2026-11-06T00:00:00Z
+  source_digest: 41ac483486cf60ac1487753c95843e370ebc35f2b4b1abb871ef96aadd4a2010
+signature: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==

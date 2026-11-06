@@ -96,3 +96,7 @@ P3の署名検査を実際に呼び、profile・契約・設計・パス・工�
 既存P3のAPI回数・サイズ・期限上限は維持する。復旧照合はGET最大20回、元操作との合計100回まで。OSやストレージが応答しない場合の厳密な停止時刻までは保証しない。保存結果不明時は再接続して照合する。
 
 専用テストは純粋planner、移行、署名/P3接続、実SQLite、2つのNode/Pythonプロセスの競合、COMMIT前後のSIGKILL、再起動barrier、外部応答喪失とGET照合を含む。CIはLinux/Python/SQLite能力の不足をskip扱いにせず失敗させる。実アプリの性能・セキュリティ全体、実worker隔離、本番運用、複数ホストfailoverの証明には用いない。
+
+## Runnerとの接続
+
+任意の隔離実行部品は[Agent Runnerの設計](agent-runner-design.md)を参照する。controllerの`revalidate(handle)`は現在のclaimとP3権限を読戻して検査し、hand-offや状態遷移を発生させない。Runnerは起動前・モデル送信前・定期監視でこの読戻しを使う。Runnerの実provider採用とP7の自律継続は、Dispatcherの実装完了と区別する。

@@ -1,0 +1,31 @@
+{
+  "name": "workflow-runner",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node ../../tests/workflow-runner/run.mjs",
+    "test:boundary": "node ../../tests/workflow-runner/boundary.mjs"
+  },
+  "exports": {
+    "./supervisor": "./supervisor.mjs",
+    "./authority": "./authority.mjs",
+    "./profile": "./core.mjs",
+    "./schema": "./core.mjs",
+    "./adapter": "./adapter.mjs",
+    "./gateway": "./gateway.mjs",
+    "./cli": "./cli.mjs"
+  },
+  "dependencies": {
+    "workflow-rules": "file:../workflow-rules",
+    "workflow-execution": "file:../workflow-execution",
+    "workflow-github": "file:../workflow-github",
+    "workflow-dispatch": "file:../workflow-dispatch",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "yaml": "^2.8.1"
+  }
+}

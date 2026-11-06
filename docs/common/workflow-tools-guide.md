@@ -23,6 +23,7 @@ Node.jsは開発管理に使い、利用先アプリの開発言語は問いま�
 | 検証・AIレビュー結果の整合 | [execution記録](#execution) |
 | 実セキュリティ検査 | [検査の接続](#security) |
 | GitHub取得・許可操作の接続 | [GitHub操作境界](#github-boundary) |
+| 隔離したAI実行の開発・検証 | [Runnerの準備](agent-runner-setup.md) |
 
 <a id="issue-artifacts"></a>
 
