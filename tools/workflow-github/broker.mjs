@@ -1,5 +1,8 @@
 import { inspectCapability } from "./auth.mjs";
-import { validateGitHubArtifact as validate } from "./schema.mjs";
+import {
+  validateGitHubArtifact as validate,
+  validateIntegrationGitHubArtifact,
+} from "./schema.mjs";
 import { createClient } from "./client.mjs";
 import { buildGitObjects } from "./git.mjs";
 import {
@@ -537,5 +540,170 @@ export async function reconcileBrokerOperation(
     };
   } finally {
     if (owns) busy.delete(context.journal);
+  }
+}
+
+// v2 intentionally accepts only controller-derived integration summaries.
+// Existing v1 operations, receipts and entry points retain their exact contract.
+export async function executeIntegrationSummaryOperation(
+  operation,
+  capability,
+  context,
+) {
+  let receipt,
+    client,
+    owns = false,
+    timer;
+  const abort = new AbortController();
+  try {
+    if (
+      badJson(operation) ||
+      !validateIntegrationGitHubArtifact("operation", operation).valid
+    )
+      fail("operation_invalid");
+    const journal = context?.reportJournal;
+    if (!journal?.durable || journal === context.journal || busy.has(journal))
+      fail("integration_journal_invalid");
+    busy.add(journal);
+    owns = true;
+    timer = setTimeout(() => abort.abort(), MAX.operation_seconds * 1000);
+    const { inspectIntegrationPublicationPermit } = await import(
+      "../workflow-integration/controller.mjs"
+    );
+    let data = await inspectCapability(
+      capability,
+      context.authorityProvider,
+      context.journal,
+    );
+    bind(operation, data);
+    await checkTransport(context.transport, data);
+    const prior = journal.latest(operation.operation_id);
+    const permit = await inspectIntegrationPublicationPermit(
+      context.permit,
+      operation,
+      { reconcile: !!prior },
+    );
+    if (data.input.policy.mode === "production" && permit.mode !== "production")
+      fail("publication_mode_invalid");
+    const body =
+      "<!-- ai-workflow:github:v2 -->\n" +
+      permit.summary +
+      "\n\n" +
+      JSON.stringify({
+        operation_id: operation.operation_id,
+        input_digest: hash(operation),
+      });
+    if (
+      operation.payload.result_digest !== hash(permit.result) ||
+      operation.payload.summary_digest !== hash(permit.summary) ||
+      Buffer.byteLength(body) > 32768
+    )
+      fail("publication_binding_invalid");
+    const p = data.input.policy;
+    client = createClient(context.transport, {
+      repository: p.repository,
+      limits: p.limits,
+      clock: () => data.now,
+      operation: true,
+      signal: abort.signal,
+    });
+    client.charge(data.observed.api_requests);
+    if (prior) {
+      if (prior.input_digest !== hash(operation)) fail("operation_reused");
+      receipt = prior;
+      const observed = await readExpected(receipt, data, client);
+      if (!observed)
+        return {
+          ...receipt,
+          status: "unknown",
+          diagnostics: [{ code: "operation_unresolved" }],
+        };
+      return journal.append({
+        ...receipt,
+        status: "confirmed",
+        confirmed_steps: 1,
+        recorded_at: data.now,
+        request_count: Math.max(receipt.request_count, client.requestCount),
+        observed,
+        partial: false,
+        diagnostics: [],
+      });
+    }
+    if (journal.pending() || context.journal.pending())
+      fail("operation_unresolved");
+    data = await inspectCapability(
+      capability,
+      context.authorityProvider,
+      context.journal,
+      { phase: "mutation" },
+    );
+    bind(operation, data);
+    await checkTransport(context.transport, data);
+    await inspectIntegrationPublicationPermit(context.permit, operation);
+    client.charge(data.observed.api_requests);
+    if (abort.signal.aborted) fail("operation_stopped");
+    if (client.requestCount + 3 > p.limits.operation_requests)
+      fail("operation_limit");
+    receipt = {
+      ...newReceipt(operation, data.now),
+      schema_version: 2,
+      expected: { kind: "comment", body_digest: hash(body), terminal: true },
+      request_count: client.requestCount,
+    };
+    journal.append(receipt);
+    receipt = { ...receipt, status: "sending" };
+    journal.append(receipt);
+    const response = await client.request(
+      "POST",
+      "/repos/" +
+        p.repository +
+        "/issues/" +
+        operation.issue_number +
+        "/comments",
+      { body },
+    );
+    if (response.status !== 201) fail("operation_response_invalid");
+    const observed = await readExpected(receipt, data, client);
+    if (!observed) fail("operation_readback_failed");
+    return journal.append({
+      ...receipt,
+      status: "confirmed",
+      confirmed_steps: 1,
+      recorded_at: data.now,
+      request_count: client.requestCount,
+      observed,
+      partial: false,
+    });
+  } catch (error) {
+    const code = errorCode(error, "integration_publication_unknown");
+    if (receipt && owns) {
+      try {
+        const next = {
+          ...receipt,
+          status:
+            receipt.status === "sending" || receipt.status === "unknown"
+              ? "unknown"
+              : receipt.status === "confirmed"
+                ? "confirmed"
+                : "failed",
+          request_count: Math.max(
+            receipt.request_count,
+            client?.requestCount ?? 0,
+          ),
+          partial: receipt.status === "sending" || receipt.partial,
+          diagnostics: [{ code }],
+        };
+        return context.reportJournal.append(next);
+      } catch {
+        return {
+          status: "unknown",
+          diagnostics: [{ code: "journal_unavailable" }],
+        };
+      }
+    }
+    return refusal(code);
+  } finally {
+    clearTimeout(timer);
+    if (owns) busy.delete(context.reportJournal);
   }
 }

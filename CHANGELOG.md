@@ -6,6 +6,8 @@ AI Driven Development Templateの利用者へ影響する変更を記録する�
 
 ## [Unreleased] - v2 development line
 
+- 複数PRの検査計画・隔離Git/固定command実行・証拠失効・元Issueへの修正要求をintegration/v1として追加。保存済み結果からP1へ投影し、安全なIssue要約を専用permitとgithub/v2の別journalで公開する。合成権限と実Git/隔離試験を区別し、実モデル・production Runner・無人運転・自動mergeは有効化しない。
+
 ### Security
 
 - 管理ツール6か所の間接依存fast-uriを3.1.8から3.1.9へ更新し、URI解析・正規化に関する4つの既知問題を修正。各ツールが実際に使用する依存を対象に、安全な文字列入力による回帰テストを追加。

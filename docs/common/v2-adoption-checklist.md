@@ -98,3 +98,12 @@
 | Quality Gates | 性能・安全性・失敗時の復旧を確認する観点 |
 | Golden Test | 固定した入力を使い、判定結果と正解見本の違いを検出するテスト |
 | fallback | 問題時に元記録を保ち、手動確認による運用へ戻ること |
+
+## 複数PRの統合検証を使う場合
+
+- 検査image/command・必要な分類・期限・資源上限・保護保存先を提案し、承認済みexecution profileと対応付ける。
+- P3/P4の実際の権限とtask handle、P6 profile承認元をhost側で照合する。合成試験で代用しない。
+- 元branchを保つ実Git/隔離commandの試験、許可したPR群の限定実証、停止/失効/二重公開防止を確認する。
+- 人間はGitHub要約を入口に、必要なときに保護記録を確認する。各マージ後に残りを再検証する。
+- v2コメントの非claim確認と既存v1 source mappingを済ませる。新形式を権限根拠にしない。
+- P5実モデル/production Runnerの採用と有効化、常駐の自律継続、v2 stable公開は別の条件として確認する。

@@ -259,7 +259,53 @@ main/PR head、依存、profileが変われば関連結果を失効させる。�
 
 競合修正は元Issueの担当へ戻す。一時統合branchの修正だけで解消済みにせず、元branchへ修正→個別検証/再レビュー→統合やり直しの順にする。仕様変更が必要なら人間へ戻す。
 
-GitHubにはcommitに束縛した要約/Check等を接続する案とするが、required checks・branch protection・マージ設定は勝手に変更しない。CI成功、AIレビュー成功、統合成功を人間承認へ読み替えない。
+GitHubにはcommitに束縛した要約を接続する。required checks・branch protection・マージ設定は勝手に変更しない。CI成功、AIレビュー成功、統合成功を人間承認へ読み替えない。
+
+### 9.1 P6の契約と実行境界
+
+`tools/workflow-integration` は計画と実行を分ける。`planIntegration({profile, request})` は副作用のない計画関数であり、`authority: false` を返す。`integration/v1` のprofile/request/plan/resultを用い、既存の `execution/v1` や `github/v1` の受理範囲は変更しない。
+
+profileはrepository/owner、承認済みexecution profileへの参照、検査image、固定command、必要な検査分類、資源上限、期限を定める。requestはmainとPR heads、各Issueのplan digest、依存、bundle digest、任意の明示順を指定する。plan digestはこれらと検査集合・順序・ケースを束縛する。
+
+順序は依存を先に、同順位はIssue番号の昇順とする。明示順も依存に反すれば拒否する。各PRの依存を含む集合と、選定PR全体を検査し、同一集合は重複させない。不足依存・循環・重複PR・未知入力は停止する。初版は同一repositoryのPRを対象とし、fork/submodule/LFS等の未対応入力を成功にしない。
+
+`openIntegrationController` はtrusted hostが設定する。P6 profileの承認、P4のopaque task handleと現在のclaim/世代、P3のopaque capability・担当・ready・対象・期限を開始時、各検査前後、報告直前に再確認する。hostのcallbackは信頼の起点であり、workerのJSONやrepositoryの文書から作成しない。合成authorityは実人間の認証を証明しない。
+
+### 9.2 検証専用の隔離adapter
+
+hostが承認したcommitから用意したGit bundleを受け取り、digest・サイズを照合する。取得やbundle生成をworkerに任せず、利用中のworktreeや `.git/config` を使い回さない。bundle展開と固定argvのGit処理は上限付きtmpfs内で行う。hook/filter、外部Git設定、replace/lazy fetch、Gitネットワークを利用しない。`merge-tree --write-tree` と固定した一時commitから、通常ファイルだけを取り出す。
+
+アプリの検査は別のコンテナで、取り出したソースをread-onlyでマウントし、固定executable/argvをshellなしで実行する。ネットワーク、credential、Docker socket、hostの書き込みvolumeを渡さない。永続worker/session volumeを使わない検証専用adapterであり、P5のモデル実行Runnerの採用条件を迂回しない。通常の会話による開発にDockerを必須化しない。
+
+初期hard capは次のとおり。profileは上限を下げることだけを許す。
+
+| 対象 | 上限 |
+| --- | --- |
+| 入力 / 結果JSON | 5 MiB / 1 MiB |
+| PR / ケース / 同時実行 / command数 | 10 / 11 / 1 / run全体100 |
+| command / run / cleanup | 30分 / 6時間 / 10分 |
+| CPU / memory / pids | 2 / 2 GiB / 128 |
+| 書き込み一時領域 | tmpfs合計256 MiB、永続worker書き込みvolumeなし |
+| bundle | 200 MiB |
+| ソース | 10,000ファイル、1ファイル10 MiB、合計100 MiB |
+| 保護ログ / artifact / run全体artifact | 1ケース10 MiB / 1件100 MiB / 1 GiB |
+| 公開要約 / 実モデル予算 | 32 KiB / 0 |
+
+さらに既存P3のAPI/page/時間/journal上限を適用し、P6の権限・鮮度確認はrun全体400回、報告操作IDは10件に制限する。上限に達したら対象を絞って新しいrunを準備する。設定値だけで隔離を確認済みにせず、コンテナ設定・cgroup・tmpfsを実行時に照合する。機能不足・故障・停止不能はblocked/未評価として扱い、hostでのアプリ実行へ切り替えない。
+
+### 9.3 結果・失効・公開
+
+Git競合と各commandの結果を区別する。必要な分類の検査がない場合や必要なテスト数に達しない場合は未評価とする。status、実行したケース、source/tree/commit digest、保護ログ参照、元IssueとACへの修正要求を記録する。停止・失敗で未実施のケースや、全部分集合/別順序の未検証も報告する。
+
+main/head/依存/plan/profile/検査集合/image/順序の更新で、関連結果を失効させる。予定どおり先行PRがマージされてもmainが変わるため、残りを再計画・再検証する。保存した過去の証拠は削除せず、現在の鮮度と区別する。
+
+詳細ログと結果はrepo外の保護領域へ不変ファイルとして保存する。`execution/v1 integration-result` への投影は、実際に保存できた参照と元のexecution profileを用いる。記録のschema適合だけで、実行や人間承認を証明しない。
+
+実行前にprofile/request/planを保存し、途中の結果も未評価のcheckpointとして不変保存する。使用済みのrun保存先は自動的に再利用しない。host停止後は残存コンテナ・停止・公開成否・pinsを人間または承認した復旧手順で照合し、lockだけを削除して再開しない。host喪失後の自動停止・復旧をこの実装の試験だけで確認済みとしない。
+
+人間向け報告は対象Issueへの追記コメントとする。`github/v1 append_record` に自由本文を追加せず、報告専用の `github/v2 operation/receipt` と別journalを使う。公開にはP3権限に加え、保存済み結果と正確な操作に束縛したhost内部のpermitを必要とする。型と上限を確認した値から要約を生成し、raw log/diff/ソース/環境変数は転載しない。送信前に永続化し、応答不明は読戻しを優先して盲目的な再POSTを行わない。
+
+v2要約は権限の証拠ではない。既存v1 collectorが識別できないコメントは、既存の明示mapping手順で非claimとして確認するまで後続の権限判定を保留する。v1の未知情報の扱いを緩めて継続しない。P6単独では常駐起動、実モデル、production Runnerの採用、マージ設定の変更を有効化しない。
 
 ## 10. 停止・復旧と人間への報告
 

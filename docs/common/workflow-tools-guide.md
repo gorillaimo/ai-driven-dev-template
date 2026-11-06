@@ -23,6 +23,7 @@ Node.jsは開発管理に使い、利用先アプリの開発言語は問いま�
 | 検証・AIレビュー結果の整合 | [execution記録](#execution) |
 | 実セキュリティ検査 | [検査の接続](#security) |
 | GitHub取得・許可操作の接続 | [GitHub操作境界](#github-boundary) |
+| 複数PRを組み合わせた検査 | [統合検証](#integration-verification) |
 | 隔離したAI実行の開発・検証 | [Runnerの準備](agent-runner-setup.md) |
 
 <a id="issue-artifacts"></a>
@@ -814,3 +815,46 @@ Summaryには成否・件数・未評価を表示します。secret・原文・c
 Project v2の形式・候補・移行案は`tools/workflow-dispatch/cli.mjs`で読み取り専用検査できる。実行profileと最新の全量観測から独立Issueを選び、controllerは単一LinuxホストのSQLite台帳でIssue・共有領域・実行枠を一括予約する。P3署名検証と限定GitHub仲介へ接続し、不明な外部操作は再送せず照合する。
 
 [導入・CLI・復旧](dispatcher-setup.md)と[仕様・保証範囲](dispatcher-design.md)を参照する。v1の検査・推薦は従来通り利用可能。実AI起動・隔離・会話の本人確認adapter・自律継続は後続機構が必要である。通常CIは固定lockfileの専用テストと実プロセス競合/強制終了試験を実行し、実GitHubへの書き込みやApp設定は行わない。
+
+<a id="integration-verification"></a>
+
+## 複数PRの統合検証（P6）
+
+**各PR単独に加え、選んだPRを組み合わせた動作も調べる任意の機能です。** 人間はGitHubの要約で、対象commit、実施した組み合わせ、失敗・未検証、修正先を確認します。詳細が必要なときに、承認した保護保存先の記録を確認します。
+
+この機能だけで「進めてください」から常駐運転が始まることはありません。実モデルやproduction Runnerの実運用前検証は別途行い、採用と有効化の承認が必要です。通常の会話による開発はコンテナなしで継続できます。
+
+### AI・導入担当者が準備するもの
+
+1. `integration/v1` のprofileを提案する。対象repository/人間担当、既存execution profileへの参照、検査imageの正確なID、アプリの検査command・必要な分類、期限、資源上限、保護保存先を確定する。
+2. mainと選定PR heads、依存、各Issueのplan、取り込み順を確認し、承認したcommitを含むGit bundleとdigestを用意する。元のIssue branchや作業場所は変更しない。
+3. trusted hostからP3/P4の実際のcapability/task handleと、承認元を照合するcallbackを接続する。workerへfactoryや権限portを公開しない。
+4. 検証専用adapterとcontrollerで実行する。機能不足は未評価として報告し、アプリのcommandをhostで代行しない。
+5. 保存した結果から安全なGitHub要約を作成する。公開には専用permitとv2 journalを使う。各マージ前に現状を再取得し、main/head等が変われば再計画する。
+
+profile/requestの見本は [templates/integration](../../.ai-workflow/templates/integration/README.md)、契約・上限は[自律開発設計 第9章](autonomous-development-design.md#9-複数prの統合検証)を参照します。Node.jsはこの制御用です。利用先アプリの言語に合わせたimageとcommandを承認できます。
+
+初期adapterのテスト件数取得はNodeのTAPコメント形式（`# tests N`）に対応しています。別形式は、採用するimageに件数取得用の検査wrapperを用意するか、対応adapterを採用します。結合・認可・security検査の最低件数を0へ下げて不足を回避する設定は拒否します。build/型検査など件数を持たないcommandは、別の検査分類として成功条件を承認します。
+
+### 開発者向けの入口と検査
+
+```sh
+npm ci --prefix tools/workflow-integration --ignore-scripts --no-audit --no-fund
+npm test --prefix tools/workflow-integration
+```
+
+`core.mjs` の `planIntegration({profile, request})` はファイルを書かず、計画だけを返します。`controller.mjs` の `openIntegrationController` はhost側で `run()`、`recheck()`、`stop()`、`report()` を提供します。`report()` の既定値は公開前の準備で、外部へ書き込む場合だけhost側のpublisher設定と `publish: true` を使います。正常終了・停止確認後に `close()` します。
+
+保存先はrunごとに新しい保護ディレクトリを使います。profile/request/planと未評価の途中結果も保存し、使用済みの保存先を自動的に再利用しません。中断後は残存コンテナ・公開成否・pinsを照合し、lockだけを削除して再開しないでください。
+
+Docker実試験は別に行います。CIは固定base/Git版の検証専用imageを作成し、取得した不変image IDを `WORKFLOW_INTEGRATION_TEST_IMAGE` に渡して `npm run test:boundary --prefix tools/workflow-integration` を実行します。未指定の通常テストではDockerケースをskipと表示し、実隔離を確認済みにしません。専用boundaryコマンドではimage未指定をエラーにします。ビルド時に必要な通信と、検査コンテナの通信禁止を区別し、秘密情報やモデル認証を渡しません。
+
+`synthetic` authority/adapterの試験、実Git/コンテナの試験、許可した実PR群の限定実証、実モデル・production接続を分けて記録します。限定実証には対象・commit・command・変更先・上限を固定したmanifestを用意し、未実行の条件は未達として残します。
+
+### 結果を見るときの注意
+
+- Git競合と、型・API・結合・認可等の失敗は別結果です。必要な検査の欠落や0テストは、その検査の成功にはなりません。
+- 全部分集合や全順序を検証する機能ではありません。依存を含む各PRの集合と、選定PR全体を対象にします。
+- 推奨順は検証したcommitでの参考情報です。マージするたびにmainが変わるため、残りを再検証します。
+- 修正は元Issueのbranchで行い、個別検査・再レビュー後に統合をやり直します。一時統合だけの修正を完了扱いにしません。
+- v2報告コメントをv1 collectorで扱う際は、既存の明示mapping手順で非claimと確認します。不明なコメントを権限根拠へ読み替えません。

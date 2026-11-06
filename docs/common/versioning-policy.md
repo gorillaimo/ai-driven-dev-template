@@ -276,3 +276,9 @@ profile/context/plan/result/reportとcommonは独立したsecurity/v1です。�
 ## github/v1の互換性
 
 GitHub操作境界は独立namespaceのcommon/policy/snapshot/session-request/authorization/operation/receiptで提供します。Issue/Project/execution v1と既存checkerの受理集合・Goldenは変更しません。未知version/keyは拒否します。機械receiptは手動Markdown v1へ無断投入せず、旧記録は人間の照合と対応表を経て移行します。復旧・手動fallbackは[接続準備](github-boundary-setup.md)を参照してください。部品の提供は本番認証入口・複数Issue Runnerの採用やv2 stable Releaseを意味しません。
+
+### 統合検証と報告の追加契約
+
+`integration/v1` はP6専用のprofile/request/plan/resultであり、既存の `execution/v1 integration-result` と区別する。P1への投影では元execution profileと保存済み証拠への参照を用い、既存v1の必須項目・受理範囲・権限の意味を変えない。
+
+人間向け統合要約は `github/v2 operation/receipt` の専用入口・別journalで扱う。v1へ自由本文フィールドを追加せず、v1 capabilityだけで公開を許可しない。v2コメントの追加で既存v1の未知source判定が生じた場合は、明示mappingで確認する。新形式を自動的に権限根拠として扱わない。VERSION/tag/Releaseとproduction Runner採用判定はこの追加だけでは変更しない。

@@ -1,0 +1,5 @@
+# 統合要約の専用操作
+
+このv2操作は保存済みP6結果の要約だけを扱います。自由本文は受け取りません。見本のJSON/YAMLは権限を持ちません。実行にはP3のopaque capabilityと、P6 controllerが発行した公開permit、v1とは別のv2 journalが必要です。v1入口でこの操作を受理してはいけません。
+
+v2コメントは人間向けの報告であり、承認/claimの証拠ではありません。v1 collectorで未知sourceとなる場合は既存の明示mapping手順で非claimとして確認します。

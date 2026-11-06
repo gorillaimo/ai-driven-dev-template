@@ -5,7 +5,7 @@ import { readFileSync, realpathSync } from 'node:fs';
 import { dirname, relative, sep } from 'node:path';
 
 // Resolve from each tool's Ajv, so a different tool's patched copy cannot hide a regression.
-for (const name of ['schema', 'rules', 'check', 'trace', 'golden', 'ci']) {
+for (const name of ['schema', 'rules', 'check', 'trace', 'golden', 'ci', 'integration']) {
   const tool = new URL('../../tools/workflow-' + name + '/', import.meta.url);
   const require = createRequire(new URL('package.json', tool));
   const fromAjv = createRequire(require.resolve('ajv/package.json'));

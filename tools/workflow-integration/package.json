@@ -1,0 +1,26 @@
+{
+  "name": "workflow-integration",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test ../../tests/workflow-integration/run.mjs",
+    "test:boundary": "WORKFLOW_INTEGRATION_BOUNDARY=required node --test --test-name-pattern=isolated ../../tests/workflow-integration/run.mjs"
+  },
+  "exports": {
+    "./core": "./core.mjs",
+    "./controller": "./controller.mjs"
+  },
+  "dependencies": {
+    "workflow-rules": "file:../workflow-rules",
+    "workflow-execution": "file:../workflow-execution",
+    "workflow-github": "file:../workflow-github",
+    "workflow-runner": "file:../workflow-runner",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "yaml": "^2.8.1"
+  }
+}

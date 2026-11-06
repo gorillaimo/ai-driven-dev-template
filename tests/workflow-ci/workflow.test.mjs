@@ -16,9 +16,9 @@ test('permissions and pinned official actions do not persist credentials or expo
  assert.ok(!/secrets\.|pull_request_target|continue-on-error|upload-artifact|id-token|cache:|always\(\).*\|\|/.test(text));
  for(const s of job.steps.filter(s=>s.run))assert.ok(!/\$\{\{/.test(s.run),'Fixed shell commands only');
 });
-test('eleven locked dependency installations and all existing suites are invoked',()=>{
+test('locked dependency installations and all existing suites are invoked',()=>{
  const steps=parseYaml(read()).jobs.validate.steps,commands=steps.map(s=>s.run??'').join('\n');
- for(const name of ['rules','check','trace','schema','golden','ci','project','execution','security','github','dispatch']){
+ for(const name of ['rules','check','trace','schema','golden','ci','project','execution','security','github','dispatch','runner','integration']){
   assert.ok(commands.includes('npm ci --prefix tools/workflow-'+name+' --ignore-scripts --no-audit --no-fund'));
  }
  for(const command of ['node tools/workflow-schema/validate.mjs','npm run test:brownfield --prefix tools/workflow-schema','npm test --prefix tools/workflow-rules','npm test --prefix tools/workflow-check','npm test --prefix tools/workflow-trace','npm test --prefix tools/workflow-golden','npm test --prefix tools/workflow-execution','npm test --prefix tools/workflow-security','npm test --prefix tools/workflow-ci','node tools/workflow-golden/run.mjs --json','node tools/workflow-ci/validate.mjs --json'])assert.ok(commands.includes(command),command);
@@ -56,4 +56,15 @@ test('Runner is locked and tested on Node 22/24, with separate secret-free real 
 test('Runner boundary preserves private modes by running the test host as the fixed worker UID',()=>{
  const job=parseYaml(read()).jobs.runner_boundary,step=job.steps.find(s=>s.run?.includes('tests/workflow-runner/boundary.mjs'));
  assert.ok(step.run.includes("sudo -n -- setpriv --reuid=1000"));assert.ok(step.run.includes("--clear-groups --reset-env"));assert.ok(step.run.includes('cd "$1"'));assert.ok(step.run.includes('"$task_runner_tests/bin/node"'));assert.ok(step.run.includes('chown --recursive 1000:1000'));assert.ok(step.run.includes('mktemp -d'));assert.ok(step.run.includes('stat -c %g /var/run/docker.sock'));assert.ok(!/chmod.*777|--privileged|--network=host/.test(step.run));
+});
+
+test('P6 has mandatory offline and real isolation tests without provider credentials',()=>{
+ const w=parseYaml(read()),steps=w.jobs.validate.steps,boundary=w.jobs.runner_boundary.steps;
+ assert.ok(steps.find(s=>s.id==='install').run.includes('npm ci --prefix tools/workflow-integration --ignore-scripts --no-audit --no-fund'));
+ assert.ok(steps.find(s=>s.id==='regression').run.includes('npm test --prefix tools/workflow-integration'));
+ const build=boundary.find(s=>s.run?.includes('workflow-integration/runtime/Dockerfile'));
+ const run=boundary.find(s=>s.run==='npm run test:boundary --prefix tools/workflow-integration');
+ assert.ok(build);assert.ok(run);assert.ok(boundary.indexOf(build)<boundary.indexOf(run));
+ assert.ok(build.run.includes('WORKFLOW_INTEGRATION_TEST_IMAGE='));assert.equal(run.if,undefined);assert.equal(run['continue-on-error'],undefined);
+ const text=JSON.stringify([build,run]);assert.ok(!/secrets\.|api_key|API_KEY|access_tokens|private_key|pull_request_target/.test(text));
 });
