@@ -1,0 +1,49 @@
+# Synthetic example only. This is not authorization or live evidence.
+schema_version: 1
+artifact_kind: runner-profile
+id: synthetic-runner
+revision: 1
+repository: example/synthetic
+repository_id: 1
+human_owner: gorillaimo
+owner_id: 7
+execution_profile_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+policy_digest: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+adapter_id: codex-0-166-0
+adapter_digest: a0bf572d2f93f056c6712a6da348e96078dc84f3885fd7be67807ef389cb3978
+image: sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+read_paths:
+  - src
+  - tests
+  - AGENTS.md
+write_paths:
+  - src
+  - tests
+forbidden_paths:
+  - secrets
+send_paths:
+  - src
+  - tests
+  - AGENTS.md
+model:
+  id: synthetic-model
+  endpoint: https://api.openai.com/v1/responses
+  context_tokens: 10000
+  input_microusd_per_million: 1000000
+  output_microusd_per_million: 2000000
+  pricing_digest: dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+  pricing_expires_at: 2026-11-07T00:00:00Z
+limits:
+  max_ai_workers: 3
+  run_seconds: 600
+  call_seconds: 60
+  cleanup_seconds: 30
+  max_repairs: 3
+  memory_mib: 512
+  cpus: 1
+  pids: 64
+  scratch_mib: 64
+  max_requests: 10
+  max_input_tokens: 10000
+  max_output_tokens: 1000
+  cost_microusd: 0

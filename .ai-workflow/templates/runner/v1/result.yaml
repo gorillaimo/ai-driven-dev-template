@@ -1,0 +1,15 @@
+# Synthetic example only. This is not authorization or live evidence.
+schema_version: 1
+artifact_kind: runner-result
+status: blocked
+mode: synthetic
+run_id: run-1
+profile_digest: ddd41687a449160043354c136966bfb14eaa12042d9ec7c7b1995a2b1c6cacd9
+attempts: []
+diagnostics:
+  - adapter_capability_missing
+not_evaluated:
+  - real_human_identity
+  - live_provider
+  - production_adoption
+evidence_refs: []

@@ -6,6 +6,10 @@ AI Driven Development Templateの利用者へ影響する変更を記録する�
 
 ## [Unreleased] - v2 development line
 
+### Added
+
+- 認証済み依頼・上限付き台帳・モデル仲介・固定Codex CLI/Docker adapterを持つ隔離Runnerの開発実装と、模擬応答による境界試験を追加。実provider・書込みvolume quota・単一/2Issueの実AI試行・production採用は未完了で、production起動は拒否する。P4の読戻し専用revalidate APIを追加し、既存v1契約と手動運用を維持。
+
 ### Security
 
 - 管理ツール6か所の間接依存fast-uriを3.1.8から3.1.9へ更新し、URI解析・正規化に関する4つの既知問題を修正。各ツールが実際に使用する依存を対象に、安全な文字列入力による回帰テストを追加。

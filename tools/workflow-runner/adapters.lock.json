@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "adapters": [
+    {
+      "id": "codex-0-166-0",
+      "version": "0.166.0",
+      "license": "Apache-2.0",
+      "archive_digest": "a0bf572d2f93f056c6712a6da348e96078dc84f3885fd7be67807ef389cb3978",
+      "platform": "linux/amd64",
+      "endpoint": "https://api.openai.com/v1/responses",
+      "production_adopted": false
+    }
+  ]
+}

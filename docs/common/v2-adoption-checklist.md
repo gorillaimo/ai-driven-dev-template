@@ -70,7 +70,7 @@
 | Security/Privacy/NFR/Resiliencyの未確認事項がstable利用を妨げない | 人間による確認待ち。実際の本人確認・権限・証拠、scope・未push変更・引継ぎ・障害対応、他OSでの動作は、静的な検証だけでは確認できない |
 | マニュアルの使いやすさ、移行結果/fallbackの承認 | 人間による確認待ち。下の観点でレビューする |
 | 対象version/commit・Release notes・公開の明示承認 | 人間による確認待ち。Release専用Issue/PRで判断。現在のVERSIONは開発版のまま |
-| Projects / Dispatcher / Runner | 未検証/任意拡張。v2初期範囲の必須条件ではなく、必要性と別承認で判断 |
+| Projects / Dispatcher / Runner | 任意拡張。Runnerの模擬応答による固定CLI/Docker試験と、実provider試行・quota・採用承認は区別する。[準備と未採用条件](agent-runner-setup.md)を参照。v2初期範囲の必須条件は変更しない |
 
 ### 人間がマニュアルを見直す観点
 

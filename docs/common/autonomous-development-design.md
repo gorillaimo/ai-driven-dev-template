@@ -24,6 +24,8 @@
 
 P4の実装仕様・有限上限・移行/復旧の保証範囲は[Dispatcherの設計](dispatcher-design.md)を参照する。P4は管理部品を提供し、P5の実AI起動・隔離とP7の会話からの自律継続は別段階で接続する。
 
+P5の開発中の実装仕様と未採用条件は[Runnerの設計](agent-runner-design.md)、検証・導入は[Runnerの準備](agent-runner-setup.md)を参照する。模擬応答による実CLI/Docker試験を、実AIの単一/2Issue試行や無人実行の承認と同一視しない。
+
 ## 2. 人間とAIの流れ
 
 ```mermaid

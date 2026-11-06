@@ -492,6 +492,18 @@ export async function openDispatcher({
           });
         }
       }),
+    revalidate: (h) =>
+      queued(async () => {
+        try {
+          const c = await current(h);
+          const a = await authorize(c);
+          return output("passed", { authorization: a.artifact });
+        } catch (e) {
+          return output("blocked", {
+            diagnostics: [code(e, "task_authorization_denied")],
+          });
+        }
+      }),
     handoff: (h) =>
       queued(async () => {
         try {

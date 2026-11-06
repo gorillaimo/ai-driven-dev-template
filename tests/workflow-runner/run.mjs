@@ -1,9 +1,1 @@
-import "./profile.test.mjs";
-import "./authority.test.mjs";
-import "./ledger.test.mjs";
-import "./workspace.test.mjs";
-import "./gateway.test.mjs";
-import "./docker.test.mjs";
-import "./codex.test.mjs";
-import "./supervisor.test.mjs";
-import './evidence.test.mjs';
+import "./unit.mjs";

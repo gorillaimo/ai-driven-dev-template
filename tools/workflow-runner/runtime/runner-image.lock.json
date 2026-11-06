@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "platform": "linux/amd64",
+  "base": "node:22-bookworm-slim@sha256:5ec23b7c622b00547753bc6ffd78085dd868a68aeb41c8e0a1418f033e13d96d",
+  "codex_archive": "https://github.com/openai/codex/releases/download/rust-v0.166.0/codex-x86_64-unknown-linux-musl.tar.gz",
+  "codex_archive_digest": "a0bf572d2f93f056c6712a6da348e96078dc84f3885fd7be67807ef389cb3978",
+  "codex_version": "0.166.0",
+  "live_model_evaluated": false
+}
