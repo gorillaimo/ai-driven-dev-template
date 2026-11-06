@@ -154,4 +154,12 @@ jobs:
           task_runner_image=$(env -u DOCKER_HOST -u DOCKER_CONTEXT -u DOCKER_TLS -u DOCKER_TLS_VERIFY -u DOCKER_CERT_PATH docker --host=unix:///var/run/docker.sock image inspect --format '{{.Id}}' workflow-runner-boundary:local)
           printf 'WORKFLOW_RUNNER_TEST_IMAGE=%s\n' "$task_runner_image" >> "$GITHUB_ENV"
       - name: Real CLI and Docker boundaries with inert model responses
-        run: node --test --test-reporter=tap tests/workflow-runner/boundary.mjs
+        run: |
+          set -eu
+          task_runner_tests=$(mktemp -d)
+          trap 'sudo rm -rf "$task_runner_tests"' EXIT
+          cp -a . "$task_runner_tests/repo"
+          sudo chown --recursive 1000:1000 "$task_runner_tests"
+          task_runner_docker_gid=$(stat -c %g /var/run/docker.sock)
+          task_runner_node=$(command -v node)
+          sudo --user='#1000' --group="#$task_runner_docker_gid" env PATH="$(dirname "$task_runner_node"):/usr/local/bin:/usr/bin:/bin" WORKFLOW_RUNNER_TEST_IMAGE="$WORKFLOW_RUNNER_TEST_IMAGE" "$task_runner_node" --test --test-reporter=tap "$task_runner_tests/repo/tests/workflow-runner/boundary.mjs"

@@ -6,7 +6,7 @@
 
 ## 課金なしで確認する
 
-Linux / Node.js 22以上 / Python 3.11以上 / SQLite 3.35以上を用意し、repositoryのrootで実行する。Node.jsは開発管理用であり、アプリの言語をNode.jsに限定しない。
+Linux / Node.js 22以上 / Python 3.11以上 / SQLite 3.35以上を用意し、repositoryのrootで実行する。Docker境界試験のホストUIDは固定workerと同じ1000を使い、保存領域とsocketを0700/0600のまま共有する。GitHub Actionsでは一時コピーをこのUIDへ渡して実行し、checkoutや保存先を誰でも読み書きできる権限に変更しない。Node.jsは開発管理用であり、アプリの言語をNode.jsに限定しない。
 
 ```sh
 npm ci --prefix tools/workflow-rules --ignore-scripts --no-audit --no-fund

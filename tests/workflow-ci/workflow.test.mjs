@@ -52,3 +52,8 @@ test('Runner is locked and tested on Node 22/24, with separate secret-free real 
  for(const s of job.steps){assert.equal(s['continue-on-error'],undefined);if(s.uses)assert.match(s.uses,/^actions\/(checkout|setup-node)@[0-9a-f]{40}$/);}
  assert.ok(!/secrets\.|pull_request_target|continue-on-error|upload-artifact|id-token/.test(read()));
 });
+
+test('Runner boundary preserves private modes by running the test host as the fixed worker UID',()=>{
+ const job=parseYaml(read()).jobs.runner_boundary,step=job.steps.find(s=>s.run?.includes('tests/workflow-runner/boundary.mjs'));
+ assert.ok(step.run.includes("sudo --user='#1000'"));assert.ok(step.run.includes('chown --recursive 1000:1000'));assert.ok(step.run.includes('mktemp -d'));assert.ok(step.run.includes('stat -c %g /var/run/docker.sock'));assert.ok(!/chmod.*777|--privileged|--network=host/.test(step.run));
+});

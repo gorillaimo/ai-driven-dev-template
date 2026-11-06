@@ -62,6 +62,8 @@ snapshotに入れるファイルは明示入力だけとし、read_pathsとsend_
 
 CPU/memory/pids/scratchはDockerで制限する。成果収集時の容量検査は、実行中の書込みvolumeやCLI sessionによるディスク消費を防ぐ保証ではない。この差を解消するquota対応のホスト構成と実境界試験が、production採用の前提になる。
 
+DockerのHEALTHCHECKは、workerのevent loopが更新するheartbeatの鮮度だけを確認する。実行許可・費用・終了・工程成功の証拠としては扱わない。
+
 監視間隔は15秒。期限・権限・世代を確認し、停止時はTERMを送り5秒後にKILLする。containerのPIDと子プロセスの終了を確認できなければ枠・claimを解放せず、未確認として報告する。
 
 ## 証拠と修正反復

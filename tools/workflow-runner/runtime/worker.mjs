@@ -2,10 +2,62 @@
 import { createServer, request } from "node:http";
 import { createHash } from "node:crypto";
 import { spawn } from "node:child_process";
-import { mkdirSync, writeFileSync, existsSync } from "node:fs";
+import {
+  mkdirSync,
+  writeFileSync,
+  existsSync,
+  openSync,
+  readSync,
+  closeSync,
+  fstatSync,
+  constants,
+} from "node:fs";
 const mode = process.argv[2],
   sessionRoot = existsSync("/session") ? "/session" : "/scratch",
   codexHome = sessionRoot + "/codex";
+// The health command reads a bounded heartbeat without refreshing it. Host
+// authority, deadlines and stop verification never rely on this hint.
+const heartbeatPath = "/scratch/runner-heartbeat";
+if (mode === "health") {
+  let fd,
+    healthy = false;
+  try {
+    fd = openSync(
+      heartbeatPath,
+      constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK,
+    );
+    const st = fstatSync(fd);
+    if (st.isFile() && st.size <= 32 && st.nlink === 1) {
+      const bytes = Buffer.alloc(32),
+        count = readSync(fd, bytes, 0, bytes.length, 0),
+        raw = bytes.subarray(0, count).toString("utf8"),
+        age = Date.now() - Number(raw);
+      healthy = /^[0-9]{13}$/.test(raw) && age >= 0 && age <= 5000;
+    }
+  } catch {
+  } finally {
+    if (fd !== undefined) closeSync(fd);
+  }
+  process.exit(healthy ? 0 : 1);
+}
+function touchHeartbeat() {
+  const fd = openSync(
+    heartbeatPath,
+    constants.O_WRONLY |
+      constants.O_CREAT |
+      constants.O_TRUNC |
+      constants.O_NOFOLLOW |
+      constants.O_NONBLOCK,
+    0o600,
+  );
+  try {
+    writeFileSync(fd, String(Date.now()));
+  } finally {
+    closeSync(fd);
+  }
+}
+touchHeartbeat();
+setInterval(touchHeartbeat, 1000).unref();
 if (mode === "probe") {
   const child = spawn("/runtime/codex", ["--version"], {
     stdio: "inherit",

@@ -89,7 +89,7 @@ test(
         fixture = join(root, "fixture.mjs");
       writeFileSync(
         fixture,
-        "import{spawn}from'node:child_process';import{writeFileSync}from'node:fs';process.on('SIGTERM',()=>{});spawn('node',['-e',\"process.on('SIGTERM',()=>{});setInterval(()=>{},100)\"],{stdio:'ignore'});writeFileSync('/work/src/unpushed','preserved');setInterval(()=>{},100);",
+        "import{spawn}from'node:child_process';import{writeFileSync}from'node:fs';process.on('SIGTERM',()=>{});spawn('node',['-e',\"process.on('SIGTERM',()=>{});setInterval(()=>{},100)\"],{stdio:'ignore'});writeFileSync('/work/src/unpushed','preserved');writeFileSync('/work/src/pid',String(process.pid));setInterval(()=>{},100);",
       );
       const args = dockerArgs({
         attempt_id,
@@ -121,6 +121,27 @@ test(
         if (text) break;
         await new Promise((r) => setTimeout(r, 20));
       }
+      await docker(["exec", id, "node", "/runtime/worker.mjs", "health"]);
+      await docker([
+        "exec",
+        id,
+        "node",
+        "-e",
+        "const fs=require('node:fs'),pid=Number(fs.readFileSync('/work/src/pid','utf8'));if(pid<2)process.exit(2);process.kill(pid,'SIGSTOP');fs.writeFileSync('/scratch/runner-heartbeat','0');",
+      ]);
+      assert.equal(
+        await docker([
+          "exec",
+          id,
+          "node",
+          "/runtime/worker.mjs",
+          "health",
+        ]).then(
+          () => true,
+          () => false,
+        ),
+        false,
+      );
       const r = await stopContainer(id, attempt_id);
       assert.equal(r.stopped, true);
       const c = await inspectContainer(id, attempt_id);
