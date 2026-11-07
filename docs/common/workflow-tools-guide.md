@@ -800,6 +800,8 @@ plain JSONのみ受理し、getter/Proxy/cycle/特殊object/疎配列等をschem
 
 新しいSecurity Validationは、PR/main/手動と週1回mainで実検査を行います。既存Workflow Validationはfake/合成テストをNode22/24で実行し、scanner取得を混ぜません。このrepoが検査するのはtemplate code/依存で、利用先アプリの検査は別途採用します。required checksや権限/課金設定を自動変更しません。
 
+会話の細かな指示が来るたびに、すべてのscannerを呼ぶ設計ではありません。変更影響と工程の区切りで必要な検査を選びます。ただし現行CIはpushごとに全体を検査し、差分に応じた省略・結果の自動再利用は未実装です。旧commitの成功を新commitの証拠に転記せず、対象・版・脆弱性情報・期限の束縛を維持します。[検査時点と再確認](operations-reference.md#security-review-timing)を参照してください。
+
 Summaryには成否・件数・未評価を表示します。secret・原文・code断片・raw reportはuploadしません。詳細の保存先は人間が承認して選び、CIの一時ファイルが終了後も参照できるとは扱いません。検出・未対応・故障・未実行・古いDB・停止不明を区別し、未解決指摘や期限切れ例外を成功へ昇格しません。
 
 動的検査とLLM機能固有の検査は、条件と隔離/負のテストの例です。実host/実LLMを検査するadapterは未提供で、未設定を非該当や成功にしません。Dartなど初期規則が未対応の言語も保留にします。scanner成功はASVS準拠、認証/tenant境界、人間承認、Agent Runner全体の安全性を保証しません。
