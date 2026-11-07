@@ -1459,6 +1459,8 @@ export async function openContinuation({
   async function accept(request, { drive: run = true, wait = true } = {}) {
     try {
       if (closed || poisoned) fail("writer_unavailable");
+      if (!safe(request)) fail("request_invalid");
+      request = structuredClone(request);
       await verifyRequest(request);
       if (request.intent === "status") return report("observed");
       if (state.run_id && request.run_id !== state.run_id)

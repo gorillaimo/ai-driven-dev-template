@@ -3575,4 +3575,30 @@ if (process.env.WORKFLOW_CONTINUATION_TEST === "1") {
     assert.notEqual(stopped.status, "running");
     assert(r.stops > 0);
   });
+  test("P7 Security: mutation while source authorization is pending cannot widen a signed request", async (t) => {
+    let entered, release;
+    const authorizing = new Promise((r) => (entered = r)),
+      wait = new Promise((r) => (release = r));
+    const r = await continuationFixture(t, {
+      extendPorts(ports) {
+        const original = ports.authorizeRequest;
+        ports.authorizeRequest = async (q) => {
+          entered();
+          await wait;
+          return original(q);
+        };
+      },
+    });
+    const request = r.q("continue", { requested_issues: [1] }),
+      accepting = r.c.accept(request, { drive: false });
+    await authorizing;
+    request.requested_issues = [1, 2];
+    release();
+    await accepting;
+    const started = await r.c.tick();
+    assert.deepEqual(
+      started.issues.map((i) => i.issue_number),
+      [1],
+    );
+  });
 }
