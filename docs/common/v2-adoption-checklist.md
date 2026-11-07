@@ -107,3 +107,7 @@
 - 人間はGitHub要約を入口に、必要なときに保護記録を確認する。各マージ後に残りを再検証する。
 - v2コメントの非claim確認と既存v1 source mappingを済ませる。新形式を権限根拠にしない。
 - P5実モデル/production Runnerの採用と有効化、常駐の自律継続、v2 stable公開は別の条件として確認する。
+
+## 継続制御の合成実験
+
+`npm test --prefix tools/workflow-continuation`で、全量候補選択・次batch・P3/P4/P5/P6の合成E2E、停止/再開・再送・上限・保護記録を確認する。実行結果はIssue/PRへ記録する。native認証/権限委譲・実利用量/料金・一般runの実GitHub報告・実モデル試行は未評価として残す。#68完了で親#52や保留中#66、production/無人運転、stable Releaseを完了扱いにしない。

@@ -1,0 +1,50 @@
+# Synthetic example only. Expired, not execution or human approval authority.
+schema_version: 1
+artifact_kind: continuation-report
+authority: false
+mode: synthetic
+repository: example/project
+run_id: null
+profile_digest: 41fe7fa11e1b10e23a8f7b8fb8b35607bba7f6ba68bd07a8ede05d098d7c6ea2
+policy_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+configuration_digest: 427d11f7dddb35d9048e4305da07eb83e8e1f3cd4ba9e91ab36250f28c403734
+execution_profile_digest: b13109664086fc85be671758019919f1a211d39d13e7afc1eb26bee84f8827ab
+integration_profile_digest: "9999999999999999999999999999999999999999999999999999999999999999"
+main_sha: null
+held: []
+recommended_merge_order: []
+remaining_issues: []
+status: waiting
+reason: no_candidates
+request_status: observed
+started_at: null
+recorded_at: 2026-11-04T00:10:00Z
+deadline: null
+selected_total: 0
+issues: []
+usage:
+  simulated_calls: 0
+  simulated_cost_units: 0
+  reserved_calls: 0
+  reserved_cost_units: 0
+actual_model_calls: 0
+provider_cost: 0
+event_sequence: 1
+observations: 1
+operations: 0
+not_evaluated:
+  - native_request_identity
+  - native_delegation
+  - live_github_publication
+  - real_model_usage
+  - production_runner_adoption
+  - host_loss_automatic_cleanup
+  - evidence_retention
+checkpoint_ref:
+  kind: source
+  id: continuation-event-1
+  revision: 1
+  digest: 96aa08c3a514f230e310750be89ce1c4de109aec8469277b883b50a2c96ca3bb
+  location:
+    kind: id
+    target: continuation-event-1

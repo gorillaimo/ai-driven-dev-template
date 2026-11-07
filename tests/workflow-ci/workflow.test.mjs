@@ -18,7 +18,7 @@ test('permissions and pinned official actions do not persist credentials or expo
 });
 test('locked dependency installations and all existing suites are invoked',()=>{
  const steps=parseYaml(read()).jobs.validate.steps,commands=steps.map(s=>s.run??'').join('\n');
- for(const name of ['rules','check','trace','schema','golden','ci','project','execution','security','github','dispatch','runner','integration']){
+ for(const name of ['rules','check','trace','schema','golden','ci','project','execution','security','github','dispatch','runner','integration','continuation']){
   assert.ok(commands.includes('npm ci --prefix tools/workflow-'+name+' --ignore-scripts --no-audit --no-fund'));
  }
  for(const command of ['node tools/workflow-schema/validate.mjs','npm run test:brownfield --prefix tools/workflow-schema','npm test --prefix tools/workflow-rules','npm test --prefix tools/workflow-check','npm test --prefix tools/workflow-trace','npm test --prefix tools/workflow-golden','npm test --prefix tools/workflow-execution','npm test --prefix tools/workflow-security','npm test --prefix tools/workflow-ci','node tools/workflow-golden/run.mjs --json','node tools/workflow-ci/validate.mjs --json'])assert.ok(commands.includes(command),command);
@@ -67,4 +67,14 @@ test('P6 has mandatory offline and real isolation tests without provider credent
  assert.ok(build);assert.ok(run);assert.ok(boundary.indexOf(build)<boundary.indexOf(run));
  assert.ok(build.run.includes('WORKFLOW_INTEGRATION_TEST_IMAGE='));assert.equal(run.if,undefined);assert.equal(run['continue-on-error'],undefined);
  const text=JSON.stringify([build,run]);assert.ok(!/secrets\.|api_key|API_KEY|access_tokens|private_key|pull_request_target/.test(text));
+});
+
+
+test('P7 synthetic continuation is mandatory on Node22/24 without enabling native models or Docker',()=>{
+ const w=parseYaml(read()),steps=w.jobs.validate.steps;
+ assert.ok(steps.find(s=>s.id==='install').run.includes('npm ci --prefix tools/workflow-continuation --ignore-scripts --no-audit --no-fund'));
+ assert.ok(steps.find(s=>s.id==='regression').run.includes('npm test --prefix tools/workflow-continuation'));
+ assert.deepEqual(w.jobs.validate.strategy.matrix.node,[22,24]);
+ assert.ok(!JSON.stringify(w.jobs.runner_boundary).includes('workflow-continuation'));
+ assert.deepEqual(w.permissions,{contents:'read'});
 });

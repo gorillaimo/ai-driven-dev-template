@@ -14,6 +14,8 @@ AI Driven Development Templateの利用者へ影響する変更を記録する�
 
 ### Added
 
+- 次の許可済みIssueを選び直す継続制御の合成host library、continuation/v1の5成果物、保護journal・停止/照合・合算上限・安全な要約を追加。既存P3/P4/P5/P6を通す合成E2Eと境界試験をNode22/24 CIへ接続。native接続・実モデル/料金・実GitHubの一般run投稿・production採用・無人運転は未評価で、v2 stableは作成しない。
+
 - 認証済み依頼・上限付き台帳・モデル仲介・固定Codex CLI/Docker adapterを持つ隔離Runnerの実験実装と、模擬応答による境界試験を追加。実provider・永続書込み容量制限・単一/2Issueの実AI試行・production採用は後続Issue #66で扱い、実験実装のマージ後もproduction起動を拒否する。P4の読戻し専用revalidate APIを追加し、既存v1契約と手動運用を維持。
 
 - Project v2の明示移行・純粋batch plannerと単一LinuxホストのPython/SQLite排他台帳を追加。共有領域・変更パス・実行枠/claim枠・世代・停止/復旧を検査し、P3署名/限定GitHub仲介と接続。合成例、読み取り専用CLI、導入/復旧文書、実並行プロセス/COMMIT前後の強制終了試験をNode22/24のCIへ接続。Project v1と既存推薦は維持。実AI起動・隔離・会話からの自律継続とstable Releaseは含まない。

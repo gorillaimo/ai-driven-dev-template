@@ -396,3 +396,7 @@ execution/v1はProjectなしでも使える記録形式と読み取り専用の�
 利用法・保証範囲は[ツールガイド](workflow-tools-guide.md#execution)を参照してください。検査の成功は実際のAIレビュー/scanner実行・実行権限・安全性の証明ではありません。
 
 実scannerと既存アプリCIを接続する手順は[セキュリティ検査](workflow-tools-guide.md#security)を参照してください。GitHubのSecurity Validationと既存のオフライン検査は独立しています。
+
+## 継続制御の実験を確認する場合
+
+次のIssueへの自動選択・停止/再開・報告は[合成host library](../../tools/workflow-continuation/README.md)で試験できます。会話から実モデルを継続起動する接続は未提供です。通常の依頼手順は変わらず、Runnerの実運用前検証と採用承認、無人実行の有効化は別途必要です。

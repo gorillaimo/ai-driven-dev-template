@@ -1,0 +1,26 @@
+{
+  "name": "workflow-continuation",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    "./controller": "./controller.mjs"
+  },
+  "scripts": {
+    "test": "WORKFLOW_CONTINUATION_TEST=1 node --test-name-pattern=^P7 ../../tests/workflow-runner/unit.mjs"
+  },
+  "dependencies": {
+    "workflow-rules": "file:../workflow-rules",
+    "workflow-execution": "file:../workflow-execution",
+    "workflow-github": "file:../workflow-github",
+    "workflow-dispatch": "file:../workflow-dispatch",
+    "workflow-runner": "file:../workflow-runner",
+    "workflow-integration": "file:../workflow-integration",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "yaml": "^2.8.1"
+  }
+}

@@ -79,3 +79,7 @@ AI・導入担当者が、対象Issue、実行hostとquota、snapshot・送信�
 前のcontainer ID、保存workspace、provider usageのいずれかが確認できなければ自動再開しない。未知usageはproviderの実記録と照合する手順が必要であり、現段階では自動精算による解除を提供しない。台帳削除、旧workerの再割当、同じ呼出しの盲目的な再送は行わない。
 
 手動へ戻す場合も、元のbranch・claim・成果・台帳を保持し、確認できた状態と未確認事項をIssueへ要約する。Runnerを使わない従来の開発手順は継続できる。
+
+## 継続制御の実験を確認する場合
+
+次のIssueへの自動選択・停止/再開・報告は[合成host library](../../tools/workflow-continuation/README.md)で試験できます。会話から実モデルを継続起動する接続は未提供です。通常の依頼手順は変わらず、Runnerの実運用前検証と採用承認、無人実行の有効化は別途必要です。

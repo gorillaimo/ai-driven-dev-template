@@ -29,7 +29,7 @@ flowchart LR
   R --> G
 ```
 
-Supervisorの`accept`は、ホストが既に取得したP4の不透明handleだけを受け取る。候補選択を繰り返す常駐ループはP7、PRの組合せ検査はP6の担当である。workerにGitHub tokenを配布せず、公開操作はホストがP3/P4を通して行う。
+Supervisorの`accept`は、ホストが既に取得したP4の不透明handleだけを受け取る。候補選択を繰り返す制御はP7、PRの組合せ検査はP6の担当である。workerにGitHub tokenを配布せず、公開操作はホストがP3/P4を通して行う。
 
 最大2Issueを同時に扱い、各Issueは実装、検証、レビューの順に進める。AI枠が1なら順番に実行する。1件の実装失敗で、独立した別Issueの記録を捨てない。実装と検証の両工程が現在のclaimで許可されていない場合、このpipelineは開始せず、手動確認へ戻す。
 
@@ -96,3 +96,7 @@ DockerのHEALTHCHECKは、workerのevent loopが更新するheartbeatの鮮度�
 共通の設計・仕様は本書、個別の承認・検証結果はIssue/PR、実出力や台帳はrepository外の保護領域を正本とする。GitHubには対象Issue/head、結果、診断、未評価、必要な判断、保護記録への参照を要約する。raw prompt、コード本文、provider応答、credentialを無条件に投稿しない。P6/P7による自動報告は別段階で接続する。
 
 導入・検証コマンド、未採用の条件は[セットアップ](agent-runner-setup.md)を参照する。
+
+## 継続制御との接続境界
+
+P7の[合成実験](../../tools/workflow-continuation/README.md)はparent runと各batchの対応を保持する。Supervisorの既存acceptと再送防止は維持し、同じenvelopeを再利用して次batchを起動しない。合成bridgeと既存libraryのE2Eを、native継続権限・実利用量・実モデルの検証と区別する。production採用と無人実行の条件は変わらない。

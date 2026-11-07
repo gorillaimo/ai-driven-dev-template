@@ -1,0 +1,400 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:continuation:v1:report",
+  "title": "continuation/v1 report",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "artifact_kind": {
+      "const": "continuation-report"
+    },
+    "authority": {
+      "const": false
+    },
+    "mode": {
+      "const": "synthetic"
+    },
+    "repository": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "run_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "profile_digest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "status": {
+      "enum": [
+        "running",
+        "waiting",
+        "stopped",
+        "reconcile_required",
+        "finished"
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+    },
+    "request_status": {
+      "enum": ["observed", "accepted", "duplicate", "rejected"]
+    },
+    "started_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "recorded_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "deadline": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "selected_total": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "issue_number": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "head_sha": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40,
+            "pattern": "^[a-f0-9]{40}$"
+          },
+          "plan_digest": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "pr_number": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "enum": ["running", "held", "integration_pending", "review_ready"]
+          },
+          "repairs": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+            },
+            "minItems": 0,
+            "maxItems": 20
+          },
+          "proofs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "stage": {
+                  "enum": [
+                    "implementation",
+                    "verification",
+                    "review",
+                    "security"
+                  ]
+                },
+                "status": {
+                  "enum": ["passed", "failed", "not_evaluated", "error"]
+                },
+                "head_sha": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40,
+                  "pattern": "^[a-f0-9]{40}$"
+                },
+                "evidence_digest": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "required": ["stage", "status", "head_sha", "evidence_digest"],
+              "additionalProperties": false
+            },
+            "minItems": 0,
+            "maxItems": 4
+          },
+          "evidence_ref": {
+            "anyOf": [
+              {
+                "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "issue_number",
+          "head_sha",
+          "plan_digest",
+          "pr_number",
+          "status",
+          "repairs",
+          "reasons",
+          "proofs",
+          "evidence_ref"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 10
+    },
+    "usage": {
+      "type": "object",
+      "properties": {
+        "simulated_calls": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "simulated_cost_units": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "reserved_calls": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "reserved_cost_units": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "simulated_calls",
+        "simulated_cost_units",
+        "reserved_calls",
+        "reserved_cost_units"
+      ],
+      "additionalProperties": false
+    },
+    "actual_model_calls": {
+      "const": 0
+    },
+    "provider_cost": {
+      "const": 0
+    },
+    "event_sequence": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "observations": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 400
+    },
+    "operations": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "not_evaluated": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+      },
+      "minItems": 1,
+      "maxItems": 20
+    },
+    "checkpoint_ref": {
+      "anyOf": [
+        {
+          "$ref": "urn:ai-workflow:execution:v1:common#/$defs/reference"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "held": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "issue_number": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+            },
+            "minItems": 0,
+            "maxItems": 20
+          }
+        },
+        "required": ["issue_number", "reasons"],
+        "additionalProperties": false
+      },
+      "minItems": 0,
+      "maxItems": 100
+    },
+    "recommended_merge_order": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "maxItems": 10,
+      "uniqueItems": true
+    },
+    "policy_digest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "configuration_digest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "execution_profile_digest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "integration_profile_digest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "main_sha": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "remaining_issues": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "maxItems": 100,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "authority",
+    "mode",
+    "repository",
+    "run_id",
+    "profile_digest",
+    "status",
+    "reason",
+    "request_status",
+    "started_at",
+    "recorded_at",
+    "deadline",
+    "selected_total",
+    "issues",
+    "usage",
+    "actual_model_calls",
+    "provider_cost",
+    "event_sequence",
+    "observations",
+    "operations",
+    "not_evaluated",
+    "checkpoint_ref",
+    "held",
+    "recommended_merge_order",
+    "policy_digest",
+    "configuration_digest",
+    "execution_profile_digest",
+    "integration_profile_digest",
+    "main_sha",
+    "remaining_issues"
+  ],
+  "additionalProperties": false
+}

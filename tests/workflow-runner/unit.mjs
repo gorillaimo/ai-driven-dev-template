@@ -42,6 +42,15 @@ import {
   prepareWorkspace,
 } from "../../tools/workflow-runner/workspace.mjs";
 
+const continuationImports =
+  process.env.WORKFLOW_CONTINUATION_TEST === "1"
+    ? await Promise.all([
+        import("../../tools/workflow-continuation/controller.mjs"),
+        import("../workflow-dispatch/fixture.mjs"),
+        import("node:fs"),
+      ])
+    : null;
+
 // authority.test.mjs
 {
   function setup(intent = "continue") {
@@ -2166,3 +2175,1430 @@ test("the fixed provider helper terminates when its host parent dies without sen
     launcher.stdin.end();
   }
 });
+
+// P7 tests share this file to keep every static target inside the existing argv cap.
+// The original Runner suite has no new dependency or activation side effect.
+if (process.env.WORKFLOW_CONTINUATION_TEST === "1") {
+  const [continuation, dispatch, fsExtra] = continuationImports;
+  const {
+    planContinuation,
+    createSyntheticContinuationAdapter,
+    openContinuation,
+    validateContinuationArtifact,
+    renderContinuationReport,
+  } = continuation;
+  const {
+    fixture: dispatchInput,
+    claim: dispatchClaim,
+    time: ct,
+    bind,
+  } = dispatch;
+  const { readdirSync, readFileSync, appendFileSync } = fsExtra;
+  const cp = () => ({
+    schema_version: 1,
+    artifact_kind: "continuation-profile",
+    id: "synthetic-continuation",
+    revision: 1,
+    mode: "synthetic",
+    repository: "example/project",
+    repository_id: 1,
+    human_owner: "example-user",
+    owner_id: 7,
+    policy_digest: "a".repeat(64),
+    configuration_digest: dispatchInput().ledger.configuration_digest,
+    execution_profile_digest: hash(dispatchInput().profile),
+    integration_profile_digest: "9".repeat(64),
+    reviewed_at: "2026-11-04T00:00:00Z",
+    expires_at: "2026-11-04T06:00:00Z",
+    required_stages: ["implementation", "verification", "review", "security"],
+    limits: {
+      max_issues: 10,
+      max_concurrent_issues: 2,
+      max_workers: 3,
+      run_seconds: 21600,
+      cleanup_seconds: 600,
+      call_seconds: 1800,
+      max_repairs: 3,
+      monitor_seconds: 30,
+      idle_observations: 2,
+      observations: 400,
+      operations: 100,
+      reports: 100,
+      journal_bytes: 33554432,
+      events: 10000,
+      artifact_bytes: 104857600,
+      summary_bytes: 32768,
+      model_calls: 0,
+      provider_budget: 0,
+      simulated_calls: 100,
+      simulated_cost_units: 10000,
+      batch_calls: 20,
+      batch_cost_units: 1000,
+    },
+  });
+  function profileFor(f) {
+    const p = cp();
+    p.repository = f.project.repository;
+    p.human_owner = f.profile.human_owner;
+    p.configuration_digest = f.ledger.configuration_digest;
+    p.execution_profile_digest = hash(f.profile);
+    return p;
+  }
+  async function continuationFixture(t, options = {}) {
+    const f = options.input ?? dispatchInput(),
+      p = profileFor(f),
+      directory = mkdtempSync(join(tmpdir(), "continuation-68-"));
+    options.change?.(f, p);
+    const requests = new Set(),
+      jobs = new Map(),
+      knownHandles = new Set(),
+      reports = [];
+    let sequence = 0,
+      clockTime = ct,
+      starts = 0,
+      stops = 0,
+      c;
+    const clock = () => clockTime;
+    const q = (intent = "continue", patch = {}) => {
+      const r = {
+        schema_version: 1,
+        artifact_kind: "continuation-request",
+        repository: p.repository,
+        repository_id: p.repository_id,
+        owner_id: p.owner_id,
+        run_id: "parent-run",
+        profile_digest: hash(p),
+        policy_digest: p.policy_digest,
+        event_id: "event-" + ++sequence,
+        nonce: "nonce-" + sequence,
+        intent,
+        issued_at: clockTime,
+        expires_at: new Date(Date.parse(clockTime) + 60000).toISOString(),
+        source: {
+          id: "source-" + sequence,
+          actor_id: p.owner_id,
+          actor_type: "User",
+          body_digest: hash({ intent, sequence }),
+          updated_at: clockTime,
+        },
+        requested_issues: null,
+        ...patch,
+      };
+      requests.add(hash(r));
+      return r;
+    };
+    const outcome = (n) => {
+      const target = f.grant.selected.find((t) => t.issue_number === n),
+        head = target.head_sha;
+      const item = {
+        issue_number: n,
+        claim_id: "claim-" + n,
+        head_sha: head,
+        plan_digest: target.plan.digest,
+        pr_number: 10 + n,
+        status: options.held === n ? "held" : "passed",
+        repairs: 0,
+        proofs: p.required_stages.map((stage) => ({
+          stage,
+          status: "passed",
+          head_sha: head,
+          plan_digest: target.plan.digest,
+          profile_digest: p.execution_profile_digest,
+          context_id:
+            stage === "implementation"
+              ? "impl-" + n
+              : stage === "review"
+                ? "review-" + n
+                : null,
+          evidence_refs: [source("p7-" + stage + "-" + n)],
+        })),
+      };
+      if (options.missingStage)
+        item.proofs = item.proofs.filter(
+          (x) => x.stage !== options.missingStage,
+        );
+      if (options.sameContext)
+        item.proofs.find((x) => x.stage === "review").context_id = "impl-" + n;
+      if (options.staleProof) item.proofs[0].head_sha = "f".repeat(40);
+      return item;
+    };
+    const ports = {
+      async authorizeRequest({ request, binding_digest }) {
+        return {
+          mode: "synthetic",
+          allowed:
+            requests.has(hash(request)) && request.source.actor_type === "User",
+          binding_digest,
+          observed_at: clockTime,
+        };
+      },
+      async observe() {
+        const value = structuredClone(f);
+        value.evaluated_at = clockTime;
+        return {
+          dispatcher_input: value,
+          observed_at: clockTime,
+          main_sha: f.snapshot.branches[0].sha,
+          worker_count: [...jobs.values()]
+            .filter((j) => !j.done)
+            .reduce((n, j) => n + j.numbers.length, 0),
+        };
+      },
+      async reserve({ issue_numbers, operation_id }) {
+        const reservations = issue_numbers.map((n) => {
+          const target = f.grant.selected.find((t) => t.issue_number === n),
+            handle = Object.freeze({}),
+            task = dispatchClaim({
+              claim_id: "claim-" + n,
+              worker_id: "worker-" + n,
+              run_id: f.grant.run_id,
+              issue_number: n,
+              feature_id: n === 1 ? "a" : "b",
+              areas: n === 1 ? ["backend"] : ["frontend"],
+              allowed_paths: target.allowed_paths,
+              head_sha: target.head_sha,
+              profile_digest: hash(f.profile),
+              grant_digest: hash(f.grant),
+              contract_digest: target.contract_digest,
+              design_digest: target.design_digest,
+              stages: target.stages,
+              status: "ready",
+              execution_active: true,
+            });
+          knownHandles.add(handle);
+          f.ledger.claims.push(task);
+          return { claim: structuredClone(task), handle };
+        });
+        return {
+          status: options.reserveUnknown ? "unknown" : "passed",
+          reservations,
+        };
+      },
+      async revalidate({ reservation }) {
+        return {
+          status: knownHandles.has(reservation.handle) ? "passed" : "blocked",
+        };
+      },
+      async start({ batch_id, reservations }) {
+        starts++;
+        const handle = Object.freeze({});
+        jobs.set(handle, {
+          batch_id,
+          numbers: reservations.map((r) => r.claim.issue_number),
+          done: false,
+        });
+        await options.startWait?.();
+        return handle;
+      },
+      async poll({ handle }) {
+        const j = jobs.get(handle);
+        if (!j) throw Error("unknown");
+        await options.pollWait?.();
+        if (options.pending)
+          return { status: "running", worker_count: j.numbers.length };
+        j.done = true;
+        for (const n of j.numbers) {
+          const target = f.grant.selected.find((t) => t.issue_number === n);
+          if (!f.snapshot.prs.some((pr) => pr.number === 10 + n))
+            f.snapshot.prs.push({
+              id: 100 + n,
+              number: 10 + n,
+              state: "open",
+              draft: true,
+              head_branch: "feature/" + n,
+              head_sha: target.head_sha,
+              base_branch: f.snapshot.default_branch,
+              base_sha: f.snapshot.branches[0].sha,
+              head_repository_id: p.repository_id,
+              merged: false,
+              updated_at: clockTime,
+              body_digest: hash({ issue: n }),
+              actor_id: p.owner_id,
+            });
+          const row = f.ledger.claims.find((c) => c.issue_number === n);
+          row.status = options.held === n ? "blocked" : "in_review";
+          row.execution_active = false;
+        }
+        return {
+          status: "complete",
+          worker_stopped: true,
+          usage: {
+            status: options.unknownUsage ? "unknown" : "known",
+            calls: j.numbers.length * 2,
+            cost_units: j.numbers.length,
+          },
+          items: j.numbers.map(outcome),
+        };
+      },
+      async integrate({ targets, main_sha }) {
+        return {
+          status: options.integrationFail ? "failed" : "passed",
+          main_sha: options.staleIntegration ? "e".repeat(40) : main_sha,
+          targets: targets.map((x) => ({
+            issue_number: x.issue_number,
+            head_sha: x.head_sha,
+            plan_digest: x.plan_digest,
+          })),
+          profile_digest: p.integration_profile_digest,
+          recommended_merge_order: targets.map((t) => t.issue_number),
+          evidence_refs: [source("p7-integration")],
+        };
+      },
+      async notify(value) {
+        reports.push(structuredClone(value));
+        if (options.reportUnknown) throw Error("SYNTHETIC_PRIVATE_CONTENT");
+        return { confirmed: true, report_digest: value.report_digest };
+      },
+      async stop() {
+        stops++;
+        for (const j of jobs.values()) j.done = true;
+        for (const row of f.ledger.claims) {
+          row.execution_active = false;
+          if (row.status === "ready") row.status = "blocked";
+        }
+        return { stopped: true };
+      },
+      async reconcile({ state_digest }) {
+        return {
+          state_digest,
+          observed_at: clockTime,
+          workers_stopped: options.reconcileUnknown !== true,
+          operations_reconciled: options.reconcileUnknown !== true,
+          settlements: [...jobs.values()].map((j) => ({
+            batch_id: j.batch_id,
+            usage: {
+              status: "known",
+              calls: j.numbers.length * 2,
+              cost_units: j.numbers.length,
+            },
+          })),
+        };
+      },
+    };
+    options.extendPorts?.(ports, { f, p });
+    const adapter = createSyntheticContinuationAdapter(ports);
+    c = await openContinuation({ directory, profile: p, adapter, clock });
+    t.after(async () => {
+      await c.close();
+      rmSync(directory, { recursive: true, force: true });
+    });
+    return {
+      c,
+      p,
+      f,
+      q,
+      adapter,
+      ports,
+      reports,
+      directory,
+      jobs,
+      clock,
+      setTime(v) {
+        clockTime = v;
+      },
+      get starts() {
+        return starts;
+      },
+      get stops() {
+        return stops;
+      },
+    };
+  }
+  test("P7 AC1: choose independent Issues without a user list; record all stages and integration", async (t) => {
+    const r = await continuationFixture(t);
+    await r.c.accept(r.q(), { drive: false });
+    await r.c.tick();
+    assert.equal(r.starts, 1);
+    const done = await r.c.tick();
+    assert.deepEqual(
+      done.issues.map((x) => x.issue_number),
+      [1, 2],
+    );
+    assert(done.issues.every((x) => x.status === "review_ready"));
+    assert.equal(done.actual_model_calls, 0);
+    assert.equal(done.provider_cost, 0);
+    assert.equal(done.usage.simulated_calls, 4);
+    assert.equal(validateContinuationArtifact("report", done).valid, true);
+    await r.c.tick();
+    assert.equal((await r.c.tick()).status, "waiting");
+    assert.equal(r.starts, 1);
+    assert(r.reports.some((x) => x.kind === "review_ready"));
+    assert(renderContinuationReport(done).includes("synthetic"));
+  });
+  test("P7 AC2: one held Issue does not discard an independent successful Issue", async (t) => {
+    const r = await continuationFixture(t, { held: 1 });
+    await r.c.accept(r.q(), { drive: false });
+    await r.c.tick();
+    const done = await r.c.tick();
+    assert.equal(done.issues.find((i) => i.issue_number === 1).status, "held");
+    assert.equal(
+      done.issues.find((i) => i.issue_number === 2).status,
+      "review_ready",
+    );
+  });
+  test("P7 AC1/2: explicit scope, known blocker, dependencies and full-inventory failure preserve P4 rules", async () => {
+    const f = dispatchInput(),
+      p = profileFor(f);
+    let d = planContinuation({
+      profile: p,
+      inventory: {
+        dispatcher_input: f,
+        observed_at: ct,
+        main_sha: f.snapshot.branches[0].sha,
+        worker_count: 0,
+      },
+      state: null,
+      requested_issues: null,
+      now: ct,
+    });
+    assert.deepEqual(
+      d.selected.map((x) => x.issue_number),
+      [1, 2],
+    );
+    assert.equal(d.authority, false);
+    f.issue_facts[0].blocker = "known";
+    d = planContinuation({
+      profile: p,
+      inventory: {
+        dispatcher_input: f,
+        observed_at: ct,
+        main_sha: f.snapshot.branches[0].sha,
+        worker_count: 0,
+      },
+      state: null,
+      requested_issues: null,
+      now: ct,
+    });
+    assert.deepEqual(
+      d.selected.map((x) => x.issue_number),
+      [2],
+    );
+    f.snapshot.status = "partial";
+    d = planContinuation({
+      profile: p,
+      inventory: {
+        dispatcher_input: f,
+        observed_at: ct,
+        main_sha: f.snapshot.branches[0].sha,
+        worker_count: 0,
+      },
+      state: null,
+      requested_issues: null,
+      now: ct,
+    });
+    assert.equal(d.status, "blocked");
+    assert.equal(d.selected.length, 0);
+  });
+  test("P7 AC3: missing review, reused context, stale proof and failed integration cannot become review-ready", async (t) => {
+    for (const option of [
+      { missingStage: "review" },
+      { sameContext: true },
+      { staleProof: true },
+      { integrationFail: true },
+      { staleIntegration: true },
+    ]) {
+      const r = await continuationFixture(t, option);
+      await r.c.accept(r.q(), { drive: false });
+      await r.c.tick();
+      const done = await r.c.tick();
+      assert(
+        done.issues.every((x) => x.status !== "review_ready"),
+        JSON.stringify(option),
+      );
+    }
+  });
+  test("P7 AC4: request replay is idempotent; status does not stop or start work; forged sources are denied", async (t) => {
+    const r = await continuationFixture(t, { pending: true }),
+      request = r.q();
+    await r.c.accept(request, { drive: false });
+    await r.c.tick();
+    const before = await r.c.status();
+    const status = await r.c.accept(r.q("status"));
+    assert.equal(status.status, "running");
+    assert.equal(r.stops, 0);
+    assert.equal(r.starts, 1);
+    await r.c.accept(request, { drive: false });
+    assert.deepEqual((await r.c.status()).usage, before.usage);
+    assert.equal(r.starts, 1);
+    const forged = structuredClone(request);
+    forged.source.actor_type = "Bot";
+    assert.equal((await r.c.accept(forged)).request_status, "rejected");
+    assert.equal(r.stops, 0);
+    assert.equal(r.starts, 1);
+  });
+  test("P7 AC4: stop fences pending starts and requires reconciliation; new continue cannot reset counters", async (t) => {
+    let release, entered;
+    const started = new Promise((r) => {
+      entered = r;
+    });
+    const waiting = new Promise((r) => {
+      release = r;
+    });
+    const r = await continuationFixture(t, {
+      pending: true,
+      startWait: async () => {
+        entered();
+        await waiting;
+      },
+    });
+    await r.c.accept(r.q(), { drive: false });
+    const tick = r.c.tick();
+    await started;
+    const stopping = r.c.accept(r.q("stop"));
+    release();
+    await stopping;
+    await tick;
+    const stopped = await r.c.status();
+    assert(["stopped", "reconcile_required"].includes(stopped.status));
+    const count = r.starts;
+    await r.c.accept(r.q(), { drive: false });
+    assert.equal(r.starts, count);
+    assert.equal(
+      (await r.c.status()).usage.reserved_calls,
+      stopped.usage.reserved_calls,
+    );
+    await r.c.reconcile();
+    await r.c.accept(r.q(), { drive: false });
+    assert.equal((await r.c.status()).run_id, "parent-run");
+    assert.equal(r.starts, count);
+  });
+  test("P7 AC4: a narrowed instruction cannot silently widen again or leave excluded workers running", async (t) => {
+    const r = await continuationFixture(t, { pending: true });
+    await r.c.accept(r.q(), { drive: false });
+    await r.c.tick();
+    await r.c.accept(r.q("constrain", { requested_issues: [1] }), {
+      drive: false,
+    });
+    assert(r.stops > 0);
+    const next = await r.c.accept(
+      r.q("continue", { requested_issues: [1, 2] }),
+      { drive: false },
+    );
+    assert.equal(next.request_status, "rejected");
+    assert.equal(r.starts, 1);
+  });
+  test("P7 AC4/5: unknown usage and publication outcomes retain reservations, do not blindly retry", async (t) => {
+    const a = await continuationFixture(t, { unknownUsage: true });
+    await a.c.accept(a.q(), { drive: false });
+    await a.c.tick();
+    const bad = await a.c.tick();
+    assert.equal(bad.status, "reconcile_required");
+    assert(bad.usage.reserved_calls > 0);
+    const b = await continuationFixture(t, { reportUnknown: true });
+    const result = await b.c.accept(b.q(), { drive: false });
+    assert.equal(result.status, "reconcile_required");
+    const notices = b.reports.length;
+    await b.c.accept(b.q(), { drive: false });
+    assert.equal(b.reports.length, notices);
+    assert.equal(b.starts, 0);
+    assert(!JSON.stringify(result).includes("SYNTHETIC_PRIVATE_CONTENT"));
+  });
+  test("P7 NFR: total Issue/usage limits survive continuation and profile changes do not grant budget", async (t) => {
+    const r = await continuationFixture(t, {
+      change(f, p) {
+        p.limits.max_issues = 1;
+      },
+    });
+    await r.c.accept(r.q(), { drive: false });
+    await r.c.tick();
+    await r.c.tick();
+    for (let n = 0; n < 3; n++) await r.c.tick();
+    assert.equal(r.starts, 1);
+    const before = await r.c.status();
+    await r.c.accept(r.q(), { drive: false });
+    assert.equal(
+      (await r.c.status()).usage.simulated_calls,
+      before.usage.simulated_calls,
+    );
+    const invalid = r.q();
+    invalid.profile_digest = "f".repeat(64);
+    assert.equal((await r.c.accept(invalid)).request_status, "rejected");
+  });
+  test("P7 Security: JSON adapters, accessors, production profiles and unknown fields grant no authority", async (t) => {
+    const r = await continuationFixture(t),
+      p = structuredClone(r.p);
+    p.mode = "production";
+    assert.equal(validateContinuationArtifact("profile", p).valid, false);
+    const d = mkdtempSync(join(tmpdir(), "continuation-denied-"));
+    t.after(() => rmSync(d, { recursive: true, force: true }));
+    await assert.rejects(
+      openContinuation({
+        directory: d,
+        profile: r.p,
+        adapter: { approved: true },
+        clock: r.clock,
+      }),
+    );
+    let called = false;
+    const evil = {
+      get profile() {
+        called = true;
+        throw Error();
+      },
+    };
+    assert.equal(planContinuation(evil).status, "blocked");
+    assert.equal(called, false);
+    const invalid = r.q();
+    invalid.approved = true;
+    assert.equal((await r.c.accept(invalid)).request_status, "rejected");
+  });
+  test("P7 Resiliency: exclusive writer, tampered checkpoint, restart and bounded recovery", async (t) => {
+    const r = await continuationFixture(t);
+    await r.c.accept(r.q(), { drive: false });
+    await r.c.tick();
+    await assert.rejects(
+      openContinuation({
+        directory: r.directory,
+        profile: r.p,
+        adapter: r.adapter,
+        clock: r.clock,
+      }),
+    );
+    await r.c.close();
+    const restored = await openContinuation({
+      directory: r.directory,
+      profile: r.p,
+      adapter: r.adapter,
+      clock: r.clock,
+    });
+    t.after(() => restored.close());
+    assert.equal((await restored.status()).status, "reconcile_required");
+    await restored.close();
+    appendFileSync(join(r.directory, "continuation.jsonl"), "broken\n");
+    await assert.rejects(
+      openContinuation({
+        directory: r.directory,
+        profile: r.p,
+        adapter: r.adapter,
+        clock: r.clock,
+      }),
+    );
+  });
+  test("P7 AC5: main changes invalidate integration; expiry fences work; reports expose no raw content", async (t) => {
+    const r = await continuationFixture(t);
+    await r.c.accept(r.q(), { drive: false });
+    await r.c.tick();
+    await r.c.tick();
+    r.f.snapshot.branches[0].sha = "e".repeat(40);
+    await r.c.tick();
+    const current = await r.c.status();
+    assert(!JSON.stringify(current).includes("stdout_base64"));
+    await r.c.accept(r.q(), { drive: false });
+    r.setTime("2026-11-04T06:00:01Z");
+    await r.c.tick();
+    assert.notEqual((await r.c.status()).status, "running");
+    assert(r.stops > 0);
+  });
+  test("P7 AC6: synthetic bridge uses actual P3/P4 claims, P5 stages/evidence and P6 integration without model calls", async (t) => {
+    const { controllerFixture } = await import(
+      "../workflow-dispatch/controller-fixture.mjs"
+    );
+    const { verifyRunAuthorization } = await import(
+      "../../tools/workflow-github/auth.mjs"
+    );
+    const {
+      createIntegrationAuthority,
+      createSyntheticIntegrationExecutor,
+      openIntegrationController,
+    } = await import("../../tools/workflow-integration/controller.mjs");
+    const { ref } = await import("../workflow-execution/fixture.mjs");
+    const { parse } = await import(
+      "../../tools/workflow-continuation/node_modules/yaml/dist/index.js"
+    );
+    const d = await controllerFixture();
+    t.after(() => d.close());
+    const ep = d.f.profile,
+      rp = profile({
+        execution_profile_digest: hash(ep),
+        policy_digest: hash(d.g.policy),
+      });
+    const ip = parse(
+      readFileSync(
+        new URL(
+          "../../.ai-workflow/templates/integration/v1/profile.yaml",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+    ip.repository = d.f.project.repository;
+    ip.execution_profile = ref(ep);
+    ip.reviewed_at = "2026-11-04T00:00:00Z";
+    ip.expires_at = "2026-11-04T06:00:00Z";
+    let reserved,
+      runnerResult,
+      evaluatedInput,
+      supervisor,
+      runnerDirectory,
+      stageCount = 0,
+      integrationCount = 0;
+    const prepared = new Map(),
+      stageHistory = [];
+    function evidence(claim, attempts) {
+      const input = execution();
+      input.profile = structuredClone(ep);
+      input.grant = structuredClone(d.f.grant);
+      input.context.subject = structuredClone(input.grant.selected[0]);
+      const {
+        contract_digest,
+        design_digest,
+        stages,
+        allowed_paths,
+        forbidden_paths,
+        shared_areas,
+        approval_refs,
+        ...subject
+      } = input.context.subject;
+      input.context.subject = subject;
+      input.context.evaluated_at = ct;
+      input.context.contract_digest = contract_digest;
+      input.context.design_digest = design_digest;
+      input.verifications[0].subject = structuredClone(subject);
+      input.verifications[0].test_count = 1;
+      input.verifications[0].started_at = ct;
+      input.verifications[0].finished_at = ct;
+      const a = attempts.findLast((a) => a.role === "verification");
+      if (a)
+        input.verifications[0].log_refs = [
+          { ...source("actual-verification"), digest: a.artifact_digest },
+        ];
+      input.reviews[0].subject = structuredClone(subject);
+      input.reviews[0].started_at = ct;
+      input.reviews[0].finished_at = ct;
+      input.reviews[0].implementer.context_id =
+        attempts.findLast((a) => a.role === "implementation")?.context_id ??
+        "missing";
+      input.reviews[0].reviewer.context_id =
+        attempts.findLast((a) => a.role === "review")?.context_id ?? "missing";
+      const review = attempts.findLast((a) => a.role === "review");
+      if (review)
+        input.reviews[0].evidence_refs.push({
+          ...source("actual-review"),
+          digest: review.artifact_digest,
+        });
+      rebind(input);
+      return input;
+    }
+    const r = await continuationFixture(t, {
+      input: d.f,
+      change(f, p) {
+        p.policy_digest = hash(d.g.policy);
+        p.integration_profile_digest = hash(ip);
+      },
+      extendPorts(ports, { f, p }) {
+        ports.observe = async () => {
+          f.ledger = await d.dispatcher.inspect();
+          return {
+            dispatcher_input: structuredClone(f),
+            observed_at: ct,
+            main_sha: f.snapshot.branches[0].sha,
+            worker_count: 0,
+          };
+        };
+        ports.reserve = async ({ issue_numbers }) => {
+          const result = await d.dispatcher.reserve({
+            ...f,
+            requested_issues: issue_numbers,
+          });
+          assert.equal(result.status, "passed", JSON.stringify(result));
+          reserved = result.reservations[0];
+          for (const kind of ["create_branch", "append_claim"])
+            assert.equal(
+              (
+                await d.dispatcher.execute(
+                  reserved.handle,
+                  d.operation(reserved.claim, kind),
+                )
+              ).status,
+              "confirmed",
+            );
+          assert.equal(
+            (await d.dispatcher.handoff(reserved.handle)).status,
+            "ready",
+          );
+          f.ledger = await d.dispatcher.inspect();
+          return result;
+        };
+        ports.revalidate = ({ reservation }) =>
+          d.dispatcher.revalidate(reservation.handle);
+        ports.start = async () => {
+          runnerDirectory = mkdtempSync(join(tmpdir(), "continuation-p5-"));
+          const signed = signedRequest(rp);
+          signed.envelope.payload.issued_at = ct;
+          signed.envelope.payload.source_updated_at = ct;
+          signed.envelope.payload.expires_at = "2026-11-04T00:11:00Z";
+          signed.source.updated_at = ct;
+          signed.source.observed_at = ct;
+          signed.envelope.signature = sign(
+            null,
+            Buffer.from(
+              "workflow-runner:v1:request\n" +
+                canonical({
+                  issuer: signed.envelope.issuer,
+                  key_id: signed.envelope.key_id,
+                  payload: signed.envelope.payload,
+                }),
+            ),
+            signed.privateKey,
+          ).toString("base64");
+          const authority = createRunnerAuthority({
+            mode: "synthetic",
+            keys: [signed.key],
+            readSource: async () => signed.source,
+            clock: () => ct,
+          });
+          const adapter = createSyntheticAdapter({
+            probe: async () => ({
+              schema_version: 1,
+              artifact_kind: "runner-capability",
+              adapter_id: rp.adapter_id,
+              adapter_digest: ADAPTER_DIGEST,
+              image: rp.image,
+              mode: "synthetic",
+              observed_at: ct,
+              checks: Object.fromEntries(
+                [
+                  "version",
+                  "noninteractive",
+                  "structured_output",
+                  "isolated_write",
+                  "network_none",
+                  "credential_separation",
+                  "resource_limits",
+                  "stop_tree",
+                  "resume",
+                  "usage",
+                  "model_gateway",
+                ].map((k) => [k, true]),
+              ),
+              evidence_digest: "a".repeat(64),
+            }),
+            async start(q) {
+              stageCount++;
+              await q.onCreated("synthetic-" + stageCount);
+              return q;
+            },
+            async observe(q) {
+              const input = prepared.get(q.attempt.attempt_id);
+              return {
+                status: "completed",
+                stopped: true,
+                context_id: q.context_id,
+                output:
+                  q.role === "verification"
+                    ? { exit_code: 0, test_count: 1, command: q.command }
+                    : q.role === "review"
+                      ? { message: JSON.stringify(input.reviews[0]) }
+                      : {},
+              };
+            },
+            async stop() {
+              return { stopped: true };
+            },
+          });
+          supervisor = await openSupervisor({
+            directory: runnerDirectory,
+            profile: rp,
+            authority,
+            adapter,
+            dispatcher: d.dispatcher,
+            mode: "synthetic",
+            clock: () => ct,
+            async prepareTask(q) {
+              const input = evidence(q.claim, [...q.history, q.attempt]);
+              prepared.set(q.attempt.attempt_id, input);
+              const path = join(runnerDirectory, q.attempt.attempt_id);
+              mkdirSync(path, { mode: 0o700 });
+              return {
+                workspace: prepareWorkspace({
+                  directory: path,
+                  profile: { ...rp, write_paths: ["src"] },
+                  files: [{ path: "src/main.js", content: "Synthetic" }],
+                }),
+                prompt: "Synthetic task",
+                execution_profile: ep,
+                command_id: "unit",
+              };
+            },
+            async evaluate(q) {
+              evaluatedInput = evidence(q.claim, q.attempts);
+              stageHistory.push(...q.attempts);
+              return { input: evaluatedInput, repairable: false };
+            },
+          });
+          runnerResult = await supervisor.accept(signed.envelope, [
+            { claim_id: reserved.claim.claim_id, handle: reserved.handle },
+          ]);
+          assert.equal(
+            runnerResult.status,
+            "passed",
+            JSON.stringify(runnerResult),
+          );
+          return Object.freeze({});
+        };
+        ports.poll = async () => {
+          const item = {
+            issue_number: 1,
+            claim_id: reserved.claim.claim_id,
+            head_sha: reserved.claim.head_sha,
+            plan_digest: f.grant.selected[0].plan.digest,
+            pr_number: 11,
+            status: runnerResult.status,
+            repairs: 0,
+            proofs: p.required_stages.map((stage) => ({
+              stage,
+              status: "passed",
+              head_sha: reserved.claim.head_sha,
+              plan_digest: f.grant.selected[0].plan.digest,
+              profile_digest: hash(ep),
+              context_id:
+                stageHistory.find(
+                  (a) =>
+                    a.role ===
+                    (stage === "implementation"
+                      ? "implementation"
+                      : stage === "review"
+                        ? "review"
+                        : "verification"),
+                )?.context_id ?? null,
+              evidence_refs: [
+                { ...source("actual-" + stage), digest: hash(evaluatedInput) },
+              ],
+            })),
+          };
+          f.snapshot.prs = [
+            {
+              id: 111,
+              number: 11,
+              state: "open",
+              draft: true,
+              head_branch: reserved.claim.branch,
+              head_sha: reserved.claim.head_sha,
+              base_branch: "main",
+              base_sha: f.snapshot.branches[0].sha,
+              head_repository_id: 1,
+              merged: false,
+              updated_at: ct,
+              body_digest: hash(""),
+              actor_id: 99,
+            },
+          ];
+          d.g.state.snapshot = structuredClone(f.snapshot);
+          d.g.state.execution = {
+            ...d.g.state.execution,
+            claim_id: reserved.claim.claim_id,
+            worker_id: reserved.claim.worker_id,
+            generation: reserved.claim.generation,
+            branch: reserved.claim.branch,
+            expected_head: reserved.claim.head_sha,
+          };
+          f.issue_facts[0].pr_numbers = [11];
+          return {
+            status: "complete",
+            worker_stopped: true,
+            usage: {
+              status: "known",
+              calls: stageCount,
+              cost_units: stageCount,
+            },
+            items: [item],
+          };
+        };
+        ports.integrate = async ({ targets, main_sha }) => {
+          integrationCount++;
+          const authorized = await verifyRunAuthorization(
+            { ...d.g.input, snapshot: structuredClone(f.snapshot) },
+            d.g.provider,
+          );
+          assert.equal(
+            authorized.artifact.status,
+            "allowed",
+            JSON.stringify(authorized.artifact),
+          );
+          const authority = createIntegrationAuthority({
+            mode: "synthetic",
+            dispatcher: d.dispatcher,
+            tasks: [{ issue_number: 1, handle: reserved.handle }],
+            approveProfile: async (q) => ({
+              binding_digest: q.binding_digest,
+              approved: true,
+              owner_id: 7,
+              observed_at: ct,
+              expires_at: "2026-11-04T06:00:00Z",
+            }),
+            authorize: async () => ({
+              capability: authorized.capability,
+              provider: d.g.provider,
+              journal: d.g.journal,
+            }),
+          });
+          const executor = createSyntheticIntegrationExecutor({
+            prepare: async (q) => ({
+              status: "passed",
+              tree_sha: "a".repeat(40),
+              commit_sha: "b".repeat(40),
+              source_digest: hash(q.case),
+              source: {},
+            }),
+            verify: async () => ({
+              status: "passed",
+              exit_code: 0,
+              test_count: 1,
+              stdout_base64: "",
+              stderr_base64: "",
+            }),
+            stop: async () => ({ stopped: true }),
+          });
+          const path = mkdtempSync(join(tmpdir(), "continuation-p6-"));
+          const controller = await openIntegrationController({
+            directory: path,
+            profile: ip,
+            request: {
+              schema_version: 1,
+              artifact_kind: "integration-request",
+              run_id: f.grant.run_id,
+              repository: p.repository,
+              repository_id: 1,
+              profile_digest: hash(ip),
+              main_sha,
+              bundle_digest: "d".repeat(64),
+              targets: targets.map((t) => ({
+                ...t,
+                pr_number: 11,
+                depends_on: [],
+              })),
+            },
+            authority,
+            executor,
+            clock: () => ct,
+          });
+          try {
+            const result = await controller.run();
+            assert.equal(
+              result.status,
+              "passed",
+              JSON.stringify(result.diagnostics),
+            );
+            return {
+              status: result.status,
+              main_sha,
+              targets,
+              profile_digest: hash(ip),
+              recommended_merge_order: targets.map((t) => t.issue_number),
+              evidence_refs: [{ ...source("actual-p6"), digest: hash(result) }],
+            };
+          } finally {
+            controller.close();
+            rmSync(path, { recursive: true, force: true });
+          }
+        };
+        ports.stop = async () => {
+          if (supervisor) await supervisor.close();
+          return { stopped: true };
+        };
+      },
+    });
+    t.after(async () => {
+      if (supervisor) await supervisor.close();
+      if (runnerDirectory)
+        rmSync(runnerDirectory, { recursive: true, force: true });
+    });
+    await r.c.accept(r.q(), { drive: false });
+    await r.c.tick();
+    const done = await r.c.tick();
+    assert.equal(runnerResult?.status, "passed", JSON.stringify(runnerResult));
+    assert.equal(stageCount, 3, JSON.stringify(done));
+    assert.equal(integrationCount, 1, JSON.stringify(done));
+    assert.equal(done.issues[0].status, "review_ready", JSON.stringify(done));
+    assert.equal(done.usage.simulated_calls, 3);
+    assert.equal(done.actual_model_calls, 0);
+    assert.equal(done.provider_cost, 0);
+    assert.notEqual(
+      evaluatedInput.reviews[0].implementer.context_id,
+      evaluatedInput.reviews[0].reviewer.context_id,
+    );
+    assert.equal((await d.dispatcher.inspect()).claims[0].status, "ready"); // No implicit claim release or merge.
+  });
+
+  test("P7 AC1: a completed milestone selects the next independent batch under the same parent budget", async (t) => {
+    const r = await continuationFixture(t, {
+      change(f, p) {
+        p.limits.max_concurrent_issues = 1;
+      },
+    });
+    await r.c.accept(r.q(), { drive: false });
+    await r.c.tick();
+    assert.equal(r.starts, 1);
+    const second = await r.c.tick();
+    assert.equal(r.starts, 2);
+    assert.deepEqual(
+      second.issues.map((x) => x.issue_number),
+      [1, 2],
+    );
+    assert.equal(second.issues[0].status, "review_ready");
+    assert.equal(second.issues[1].status, "running");
+    const done = await r.c.tick();
+    assert.equal(done.usage.simulated_calls, 4);
+    assert.equal(done.run_id, "parent-run");
+  });
+  test("P7 AC2: PR creation cannot satisfy dependency; observed merge and explicit P4 release enable the next Issue", async (t) => {
+    const r = await continuationFixture(t, {
+      change(f, p) {
+        f.deliveryPlan.features[1].depends_on = [
+          { feature_id: "a", reason: "synthetic" },
+        ];
+        bind(f);
+        p.configuration_digest = f.ledger.configuration_digest;
+      },
+    });
+    await r.c.accept(r.q(), { drive: false });
+    await r.c.tick();
+    await r.c.tick();
+    assert.equal(r.starts, 1);
+    r.f.issue_facts[0].pr_numbers = [11];
+    await r.c.tick();
+    assert.equal(r.starts, 1);
+    r.f.snapshot.issues[0].state = "closed";
+    r.f.snapshot.prs[0].state = "closed";
+    r.f.snapshot.prs[0].merged = true;
+    r.f.snapshot.branches[0].sha = "e".repeat(40);
+    // The host reconciles stopped work and publication, then receives P4's release.
+    r.f.ledger.claims[0].status = "released";
+    r.f.ledger.claims[0].execution_active = false;
+    await r.c.accept(r.q(), { drive: false });
+    const next = await r.c.tick();
+    assert.equal(r.starts, 2, JSON.stringify(next));
+    assert.equal(next.issues[1].issue_number, 2);
+  });
+  test("P7 AC3: main update forces a new integration result and cannot reuse an earlier pass", async (t) => {
+    let checks = 0;
+    const f = await continuationFixture(t, {
+      extendPorts(ports, { p }) {
+        ports.integrate = async (q) => ({
+          status: ++checks === 1 ? "passed" : "failed",
+          main_sha: q.main_sha,
+          targets: q.targets,
+          profile_digest: p.integration_profile_digest,
+          evidence_refs: [source("new-integration")],
+        });
+      },
+    });
+    await f.c.accept(f.q(), { drive: false });
+    await f.c.tick();
+    let result = await f.c.tick();
+    assert(result.issues.every((i) => i.status === "review_ready"));
+    f.f.snapshot.branches[0].sha = "e".repeat(40);
+    result = await f.c.tick();
+    assert.equal(checks, 2);
+    assert(result.issues.every((i) => i.status === "held"));
+  });
+  test("P7 AC4: a malformed notification acknowledgment is unknown and fences all subsequent updates", async (t) => {
+    const r = await continuationFixture(t, {
+      extendPorts(ports) {
+        ports.notify = async () => ({
+          confirmed: true,
+          report_digest: "f".repeat(64),
+        });
+      },
+    });
+    const result = await r.c.accept(r.q(), { drive: false });
+    assert.equal(result.status, "reconcile_required");
+    assert(r.stops > 0);
+    const rows = readFileSync(join(r.directory, "continuation.jsonl"), "utf8")
+      .trim()
+      .split("\n")
+      .map(JSON.parse);
+    assert(
+      rows
+        .at(-1)
+        .checkpoint.state.outbox.some(
+          (o) => o.kind === "notify" && o.status === "unknown",
+        ),
+    );
+  });
+  test("P7 NFR: all host authorization, observation and polling calls consume the same finite observation cap", async (t) => {
+    let checks = 0;
+    const r = await continuationFixture(t, {
+      change(f, p) {
+        p.limits.observations = 4;
+      },
+      extendPorts(ports) {
+        const original = ports.revalidate;
+        ports.revalidate = async (q) => {
+          checks++;
+          return original(q);
+        };
+      },
+    });
+    await r.c.accept(r.q(), { drive: false });
+    await r.c.tick();
+    await r.c.tick();
+    const stopped = await r.c.status();
+    assert.equal(stopped.observations, 4);
+    assert.notEqual(stopped.status, "running");
+    assert(r.stops > 0);
+    assert(checks <= 2);
+  });
+  test("P7 Security: missing inventory, stale authority and wrong claim generation fence work without releasing claims", async (t) => {
+    for (const change of [
+      (f) => {
+        f.snapshot.status = "partial";
+      },
+      (f) => {
+        f.issue_facts[0].approval = "unknown";
+      },
+      (f) => {
+        f.ledger.generation = 2;
+      },
+      (f) => {
+        f.snapshot.permissions[0].permission = "read";
+      },
+    ]) {
+      const r = await continuationFixture(t, { pending: true });
+      await r.c.accept(r.q(), { drive: false });
+      await r.c.tick();
+      change(r.f);
+      await r.c.tick();
+      assert.notEqual((await r.c.status()).status, "running");
+      assert.equal(r.starts, 1);
+      assert(r.f.ledger.claims.every((c) => c.status !== "released"));
+    }
+  });
+  test("P7 AC4: unknown reservation results cannot be retried or treated as confirmed", async (t) => {
+    const r = await continuationFixture(t, { reserveUnknown: true });
+    await r.c.accept(r.q(), { drive: false });
+    const bad = await r.c.tick();
+    assert.equal(bad.status, "reconcile_required");
+    assert.equal(r.starts, 0);
+    const rows = readFileSync(join(r.directory, "continuation.jsonl"), "utf8")
+      .trim()
+      .split("\n")
+      .map(JSON.parse);
+    assert(
+      rows
+        .at(-1)
+        .checkpoint.state.outbox.some(
+          (o) => o.kind === "reserve" && o.status === "unknown",
+        ),
+    );
+  });
+  test("P7 NFR/Resiliency: journal and protected record limits fail closed, never yield a successful ready report", async (t) => {
+    for (const limits of [
+      { events: 4 },
+      { artifact_bytes: 128 },
+      { journal_bytes: 4096 },
+      { reports: 1 },
+      { operations: 1 },
+      { simulated_calls: 20, batch_calls: 20 },
+    ]) {
+      const r = await continuationFixture(t, {
+        change(f, p) {
+          Object.assign(p.limits, limits);
+          p.limits.max_concurrent_issues = 1;
+        },
+      });
+      await r.c.accept(r.q(), { drive: false });
+      for (let i = 0; i < 4; i++) await r.c.tick();
+      const report = await r.c.status();
+      assert.notEqual(report.status, "running");
+      assert.equal(report.actual_model_calls, 0);
+    }
+  });
+
+  test("P7 Resiliency: an unresolved late startup cannot be certified stopped or resumed", async (t) => {
+    let entered, release;
+    const enteredStart = new Promise((r) => (entered = r)),
+      late = new Promise((r) => (release = r));
+    const r = await continuationFixture(t, {
+      change(f, p) {
+        p.limits.cleanup_seconds = 1;
+      },
+      startWait: async () => {
+        entered();
+        await late;
+      },
+      pending: true,
+    });
+    await r.c.accept(r.q(), { drive: false });
+    const work = r.c.tick();
+    await enteredStart;
+    const stopped = await r.c.accept(r.q("stop"));
+    assert.equal(stopped.status, "reconcile_required");
+    const before = r.starts;
+    await r.c.accept(r.q(), { drive: false });
+    assert.equal(r.starts, before);
+    release();
+    await work;
+    assert.equal((await r.c.status()).status, "reconcile_required");
+    assert((await r.c.status()).usage.reserved_calls > 0);
+  });
+  test("P7 NFR: hard caps, real-model budget and malformed source data cannot be increased by JSON", async (t) => {
+    const r = await continuationFixture(t);
+    for (const [key, value] of [
+      ["max_issues", 11],
+      ["max_concurrent_issues", 3],
+      ["max_workers", 4],
+      ["model_calls", 1],
+      ["provider_budget", 1],
+      ["monitor_seconds", 31],
+    ]) {
+      const p = structuredClone(r.p);
+      p.limits[key] = value;
+      assert.equal(
+        validateContinuationArtifact("profile", p).valid,
+        false,
+        key,
+      );
+    }
+    const oversized = r.q();
+    oversized.source.id = "x".repeat(5 * 1024 * 1024 + 1);
+    assert.equal((await r.c.accept(oversized)).request_status, "rejected");
+    assert.equal(r.starts, 0);
+    assert.equal(planContinuation(new Proxy({}, {})).status, "blocked");
+  });
+  test("P7 AC1/5: explicit Issue scope, repairs and pending reasons remain readable in safe reports", async (t) => {
+    const r = await continuationFixture(t, {
+      change(f) {
+        f.issue_facts[0].blocker = "known";
+      },
+    });
+    await r.c.accept(r.q("continue", { requested_issues: [1, 2] }), {
+      drive: false,
+    });
+    await r.c.tick();
+    let report = await r.c.tick();
+    assert.equal(report.issues.length, 1);
+    assert.equal(report.issues[0].issue_number, 2);
+    assert(
+      report.held.some(
+        (h) => h.issue_number === 1 && h.reasons.includes("issue_blocked"),
+      ),
+    );
+    assert(report.remaining_issues.includes(1));
+    assert(!renderContinuationReport(report).includes("context_id"));
+    assert.deepEqual(report.recommended_merge_order, [2]);
+  });
+  test("P7 AC6: every shipped continuation example validates independently but provides no runtime authority", async () => {
+    const { parse } = await import(
+      "../../tools/workflow-continuation/node_modules/yaml/dist/index.js"
+    );
+    const dir = new URL(
+      "../../.ai-workflow/templates/continuation/v1/",
+      import.meta.url,
+    );
+    for (const kind of [
+      "profile",
+      "request",
+      "decision",
+      "checkpoint",
+      "report",
+    ]) {
+      const value = parse(readFileSync(new URL(kind + ".yaml", dir), "utf8"));
+      assert.equal(validateContinuationArtifact(kind, value).valid, true, kind);
+      if (["decision", "checkpoint", "report"].includes(kind))
+        assert.equal(value.authority, false);
+    }
+  });
+
+  test("P7 AC3: a main update during integration cannot be reported ready before a fresh pass", async (t) => {
+    let called = 0;
+    const r = await continuationFixture(t, {
+      extendPorts(ports, { f }) {
+        const original = ports.integrate;
+        ports.integrate = async (q) => {
+          const value = await original(q);
+          if (++called === 1) f.snapshot.branches[0].sha = "e".repeat(40);
+          return value;
+        };
+      },
+    });
+    await r.c.accept(r.q(), { drive: false });
+    await r.c.tick();
+    const stale = await r.c.tick();
+    assert(stale.issues.every((i) => i.status !== "review_ready"));
+    assert(!r.reports.some((n) => n.kind === "review_ready"));
+    const fresh = await r.c.tick();
+    assert(fresh.issues.every((i) => i.status === "review_ready"));
+    assert.equal(called, 2);
+  });
+  test("P7 AC4: a new stop supersedes an older pending reconciliation response", async (t) => {
+    let entered, release;
+    const enteredRead = new Promise((r) => (entered = r)),
+      response = new Promise((r) => (release = r));
+    const r = await continuationFixture(t, {
+      pending: true,
+      extendPorts(ports) {
+        const original = ports.reconcile;
+        ports.reconcile = async (q) => {
+          entered();
+          await response;
+          return original(q);
+        };
+      },
+    });
+    await r.c.accept(r.q(), { drive: false });
+    await r.c.tick();
+    await r.c.stop();
+    const recovery = r.c.reconcile();
+    await enteredRead;
+    await r.c.stop();
+    release();
+    await recovery;
+    const after = await r.c.accept(r.q(), { drive: false });
+    assert.notEqual(after.status, "running");
+    assert.equal(after.request_status, "rejected");
+  });
+  test("P7 AC1/4: background drive waits finitely and status leaves it running", async (t) => {
+    const r = await continuationFixture(t, {
+      change(f, p) {
+        f.issue_facts.forEach((i) => (i.blocker = "known"));
+        p.limits.monitor_seconds = 1;
+      },
+    });
+    await r.c.accept(r.q(), { wait: false });
+    assert.equal((await r.c.accept(r.q("status"))).status, "running");
+    const deadline = Date.now() + 5000;
+    while ((await r.c.status()).status === "running" && Date.now() < deadline)
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    assert.equal((await r.c.status()).status, "waiting");
+    assert.equal(r.starts, 0);
+    assert(r.reports.some((r) => r.kind === "finish"));
+  });
+  test("P7 AC4: stopping a specifically scoped run does not require resending its Issue list", async (t) => {
+    const r = await continuationFixture(t, { pending: true });
+    await r.c.accept(r.q("continue", { requested_issues: [1] }), {
+      drive: false,
+    });
+    await r.c.tick();
+    const stopped = await r.c.accept(r.q("stop"));
+    assert.equal(stopped.request_status, "accepted");
+    assert.notEqual(stopped.status, "running");
+    assert(r.stops > 0);
+  });
+  test("P7 Security: mutation while source authorization is pending cannot widen a signed request", async (t) => {
+    let entered, release;
+    const authorizing = new Promise((r) => (entered = r)),
+      wait = new Promise((r) => (release = r));
+    const r = await continuationFixture(t, {
+      extendPorts(ports) {
+        const original = ports.authorizeRequest;
+        ports.authorizeRequest = async (q) => {
+          entered();
+          await wait;
+          return original(q);
+        };
+      },
+    });
+    const request = r.q("continue", { requested_issues: [1] }),
+      accepting = r.c.accept(request, { drive: false });
+    await authorizing;
+    request.requested_issues = [1, 2];
+    release();
+    await accepting;
+    const started = await r.c.tick();
+    assert.deepEqual(
+      started.issues.map((i) => i.issue_number),
+      [1],
+    );
+  });
+}

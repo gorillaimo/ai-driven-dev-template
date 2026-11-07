@@ -1,0 +1,44 @@
+# Synthetic example only. Expired, not execution or human approval authority.
+schema_version: 1
+artifact_kind: continuation-decision
+authority: false
+status: passed
+action: start
+reason: ready
+main_sha: "2222222222222222222222222222222222222222"
+inventory_digest: 6a44cff96a47fe9f0e2b1ace5f3acdc543657bac9d9805d6866157c710706f49
+selected:
+  - issue_number: 1
+    feature_id: a
+    human_owner: example-user
+    areas:
+      - backend
+    allowed_paths:
+      - packages/backend
+    forbidden_paths:
+      - secrets
+    head_sha: "2222222222222222222222222222222222222222"
+    profile_digest: b13109664086fc85be671758019919f1a211d39d13e7afc1eb26bee84f8827ab
+    grant_digest: 589db24da61f36ad7a490acdc5e600c97e2d03c6f3f88e8ad74f96ce5728bc29
+    contract_digest: "1111111111111111111111111111111111111111111111111111111111111111"
+    design_digest: dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+    stages:
+      - validation
+  - issue_number: 2
+    feature_id: b
+    human_owner: example-user
+    areas:
+      - frontend
+    allowed_paths:
+      - packages/frontend
+    forbidden_paths:
+      - secrets
+    head_sha: "2222222222222222222222222222222222222222"
+    profile_digest: b13109664086fc85be671758019919f1a211d39d13e7afc1eb26bee84f8827ab
+    grant_digest: 589db24da61f36ad7a490acdc5e600c97e2d03c6f3f88e8ad74f96ce5728bc29
+    contract_digest: "2222222222222222222222222222222222222222222222222222222222222222"
+    design_digest: dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+    stages:
+      - validation
+held: []
+diagnostics: []
