@@ -1,8 +1,10 @@
 # 隔離したv2導入・段階移行の確認例
 
-実装確認の基準はPR #41マージ後のmain、v1参照は`v1.0.0`です。
+この例は、PR #41マージ後の固定commitと`v1.0.0`を使う、初期導入・段階移行の再現手順です。
 これは、一時コピーと合成入力を使って確認手順を再現する例です。実案件への移行・承認・担当割当は行いません。
 [試用前の確認表](../../common/v2-adoption-checklist.md)と[移行ガイド](../../common/migration-v1-to-v2.md)を併読してください。
+
+以下の7package・1267件は当時の確認範囲です。現在のmainの全CIには追加部品・隔離境界・セキュリティ検査もあります。最新の提供範囲は[確認表の追加部品一覧](../../common/v2-adoption-checklist.md#optional-components)、全CIの入口は[ツールガイド](../../common/workflow-tools-guide.md#ci)を参照してください。固定commitの手順と現在のツールを混在させないでください。
 
 ## 1. 元commitを固定して展開する
 
@@ -42,10 +44,10 @@ printf '一時確認先: %s\n' "$issue42_dir"
 | 文書中心の従来運用 | Node.jsの導入は不要 |
 | この例のrules/check段階移行 | rules / checkの2つ |
 | 同梱Goldenのみ | rules / check / trace / golden / projectの5つ |
-| CIと同じ全回帰 | 上記5つとschema / ciの計7つ |
+| この固定commitの初期全回帰 | 上記5つとschema / ciの計7つ。現在のmainの全CIとは範囲が異なる |
 
 GoldenにはProject用25caseも同梱します。Projectの依存を入れることと、利用先にProject台帳を採用することは別です。
-次は全7packageを導入する例です。最小Goldenを試す場合はschemaとciをループから外します。
+次はこの固定commitの7packageを導入する例です。最小Goldenを試す場合はschemaとciをループから外します。
 
 ```bash
 cd "$issue42_fresh"

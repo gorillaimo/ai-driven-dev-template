@@ -332,13 +332,14 @@ main更新と手動操作でも起動します。手動実行はworkflowをdefau
 
 実行内容:
 
-1. 専用10package（schema/rules/check/trace/golden/ci/project/execution/security/github）のlockfileで依存取得。install scriptsは無効。
-2. 既存の静的テスト、execution記録の検査、Goldenハーネスのテスト、CI検査・workflow契約テストを実行。
-   GitHub境界の偽APIテストも含みます。HTTP helperのオフライン試験にはPython 3.10以上とGitを使用します。
+1. 専用14package（schema/rules/check/trace/golden/ci/project/execution/security/github/dispatch/runner/integration/continuation）のlockfileで依存取得。install scriptsは無効。
+2. 静的checker、execution記録、Goldenハーネス、CI契約、P3〜P7の合成・障害・回帰試験を実行。
+   GitHub境界の偽API試験と、Dispatcher/Runnerの実台帳・プロセス試験も含みます。Git、Linux/Python 3.11以上、SQLite 3.35以上を使います。
 3. Golden固定caseを実行。
 4. repositoryに保存したIssue成果物の形式・識別子・必要なローカル参照を検査。
 
-依存取得にはネットワークが必要です。検査は依存導入後オフラインで動き、外部AI・GitHub API・fixture内commandを呼びません。
+これに加え、別jobで固定CLI・Docker隔離境界とP6の実Git/検証commandを試験します。模擬応答を使い、実モデルやproviderのcredentialは使いません。
+Node22/24の回帰は依存導入後オフラインで動き、実GitHub APIを呼びません。CI全体では依存・固定CLI・image等の取得に通信を使います。現在の全回帰の正本は[workflowのinstall/test steps](../../.github/workflows/workflow-validation.yml)です。ローカルで一部のcheckerだけを使う条件とは分けてください。
 Ubuntuで検査するため、Windows/macOS固有の挙動やアプリの実行環境を保証するものではありません。
 
 ### 保存Issue YAMLの扱い
@@ -354,14 +355,15 @@ planのstage完了は同directoryのstateで確認し、stateがなければ完�
 trace node/check参照の既知IDとlink endpoint、明示Markdown anchorとJSON Pointerは検査できます。
 削除済みfileなど現checkoutだけでは存在を確認できない必要参照を自動承認しません。人間が現存する検証記録への参照を見直すか、既存のcontext付き境界checkerで個別にレビューしてください。
 
-ローカルで同じ検査を実行するには、Golden Test節の既存5packageに加えて次を導入します（schemaテストを実行する場合はworkflow-schemaの依存も導入）。
+ローカルで保存Issueの検査を実行するには、Golden Test節の既存5packageに加えて次を導入します。これは全14packageの回帰や実隔離jobを再現する手順ではありません。
 
 ```sh
 npm ci --prefix tools/workflow-ci --ignore-scripts --no-audit --no-fund
-npm test --prefix tools/workflow-ci
 node tools/workflow-ci/validate.mjs
 node tools/workflow-ci/validate.mjs --json
 ```
+
+`npm test --prefix tools/workflow-ci`はworkflow契約と複数ツールの依存に関する回帰も含むため、workflowのinstall stepsに従って全14packageを準備してから実行します。
 
 結果のartifact_countは対象数、excluded_countはIssue領域の補助file等の除外数、reference_countsはpass/block/not_evaluatedの件数です。
 全体passでもnot_evaluatedは未確認のままです。成功は仕様の意味、承認者本人性、工程完了、実装の正しさを保証しません。
@@ -377,7 +379,7 @@ failure/skipped/cancelledと、起動していない検査を成功と読み替�
 fork PRの初回承認やActions利用制限により未実行となる場合は、保守者がGitHubの画面で状態を確認します。Secretsやwrite権限を与えて通す運用にはしません。
 このworkflowはcontents:readとcredential非保持で動き、PRコメント・ラベル・自動承認・merge・deployを行いません。
 
-導入時は新workflow、必要な10tool package、tests、.ai-workflow/schemas、共通文書を一緒に保持してください。
+workflow全体を導入する場合は、同じcommitのworkflow、install stepsで列挙する14tool package、tests、.ai-workflow/schemas、共通文書を保持し、各jobの実行環境も確認してください。checkerを部分導入する場合は、利用するツールと必要な依存・schema・fixtureを揃えます。
 branch protectionやrequired checksは自動変更しません。まず実行時間と誤検知を観測し、人間が必要性を判断してから必須化します。
 無効化する場合はGitHubのActions画面でこのworkflowだけを停止するか、レビュー済みPRで新workflowを取り除きます。required checkに設定済みなら、先に人間がその設定を見直します。
 失敗時は元成果物・見本を保存してIssueへ理由を記録し、個別checkerと従来のIssue・branch・PR運用で確認を続けられます。

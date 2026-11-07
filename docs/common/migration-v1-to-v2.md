@@ -9,9 +9,13 @@
 - v1 stable: `v1.0.0`
 - v2: development line
 - `v2.0.0`stable Release: 未公開
-- 現在の`main`にはIssue成果物のschema v1、YAMLテンプレート、同梱例の形式テスト、モジュール式ルール解決libraryがある。計画・状態・再開候補の静的checkerも利用できる。追跡性checkerとBrownfield手順・深度別テンプレートも利用できる。Golden TestとIssue内部のActions統合も利用できる。Projectの3成果物schema・合成記入例・形式テストも利用できる。Projectの依存DAG・wave・計画改訂validatorも利用できる。member/ownership/capacityのsnapshot検査も利用できる。手動Coordinatorの手順・コメント様式・机上例も利用できる。明示snapshotの進捗集約・不整合検出も利用できる。読み取り専用の次作業推薦とProjectを含む固定37caseのGolden Testも利用できる。実GitHubの自動取得・更新は後続対応。工程は自動実行しない。
+- 通常の会話開発と、Issue内部のschema・rule解決・計画/状態・追跡性・Brownfield・Golden・Actionsは利用できる。Projectの台帳・依存/wave・member・手動Coordinator・集約・推薦も必要に応じて採用できる。
+- 検証・レビューの記録検査、実scanner、GitHubの取得・許可操作仲介も部品として提供している。利用先固有の対象・権限・通信・保存先を確認して接続する。
+- Dispatcher、Runner、複数PRの統合検証、次Issueへの継続制御には実験用の部品と合成試験がある。実人間の会話から実モデルを継続実行する接続、実利用量/料金、production Runner採用・無人運転は未完了で、移行だけでは有効化しない。
 
-設計文書が存在するだけで、AIが状態管理、自動再開、次Issue選択、claim、複数人調整を自動実行できるとは扱わない。対応する後続実装Issueが完了した機構だけを有効化する。
+現在の提供範囲と必要環境は[テンプレートガイド](template-guide.md#現在使える範囲と導入条件)、部品ごとの未評価は[試用前の確認表](v2-adoption-checklist.md#optional-components)を参照する。通常の会話開発とNode.jsによる検査を使うために、実験用Runnerの環境やGitHub Appを一律に用意する必要はない。
+
+設計文書や部品が存在すること、合成試験の成功、利用先での有効化は別に確認する。実装済み範囲を確認し、接続・採用に必要な承認が揃った機構だけを有効化する。
 
 ## 2. 移行しない選択
 
