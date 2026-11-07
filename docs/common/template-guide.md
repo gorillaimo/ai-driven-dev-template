@@ -27,7 +27,21 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 
 利用にはAI開発ツールの設定とGitHubへの接続が必要です。人間は目的・必要な設計・成果物を確認します。
 複数人での担当割当や競合の調整は、人間の判断を前提にしています。
-検証・修正は作業中のAIが行います。別AIによるレビューを標準工程として管理する仕組みと、複数Issueの自動並行実行は、現在の提供範囲には含みません。
+通常の会話開発では、作業中のAIが検証・修正とPRの準備を進めます。別contextでのAIレビューや複数Issueの自動並行実行には実験用の部品がありますが、実モデルを使う一連の接続と実運用の採用は未完了です。
+
+## 現在使える範囲と導入条件
+
+現在はv2開発版です。まず通常の会話開発から始め、必要な機能を追加します。
+
+| 使いたいこと | 現在の範囲 | 用意するもの・読む資料 |
+| :--- | :--- | :--- |
+| AIに依頼してIssue・設計・実装・PRを進める | 規約と記録をAIが読み、許可された作業を進める通常の使い方 | AI開発ツールとGitHub接続。[初期セットアップ](operations-setup.md)から始める |
+| 計画・現在地・要件とテストの対応を検査する | schema/checker/Goldenを必要な範囲で利用可能 | Node.js 22以上と採用するツールの依存。[検査ツール](workflow-tools-guide.md) |
+| 複数人の担当・依存・進捗を整理する | Project台帳、手動Coordinator、集約・推薦を任意で利用可能 | 調整する人間と必要な記録。[担当調整](manual-coordinator.md) |
+| セキュリティ検査やGitHub操作をコードで接続する | 固定scanner、取得・操作仲介の部品を提供。利用先の設定・採用は個別に確認 | [セキュリティ検査](workflow-tools-guide.md#security) / [GitHub接続準備](github-boundary-setup.md) |
+| 作業の自動予約・AI起動・複数PR検証・次Issueへの継続を組み合わせる | Dispatcher/Runner/統合検証/継続制御の部品と合成試験を提供。実モデルによる継続運用は未提供 | [試用前の確認表](v2-adoption-checklist.md#optional-components)で必要環境と未評価を確認 |
+
+通常の会話開発を始めるために、Docker、専用Linux環境、GitHub App、実験用Runnerのモデル鍵を一律に用意する必要はありません。アプリ固有の開発環境や、利用するAIツールの契約・認証は別途必要です。AIツールへのGitHub接続と、任意の操作仲介部品が使うGitHub Appは区別します。
 
 ## 全体像：誰が何をするか
 
@@ -57,7 +71,7 @@ Issue/PRには作業契約・担当・着手・レビューの記録を残し、
 
 [図を拡大する](../assets/template-guide/development-flow.svg) / [Mermaidの原本](../assets/template-guide/development-flow.mmd)
 
-図は代表的な流れです。文書のみのIssueや既存構成を継続する場合など、AIはIssueの契約と変更リスクに応じて必要な工程・検査を選びます。
+図は通常の会話開発の代表的な流れです。文書のみのIssueや既存構成を継続する場合など、AIはIssueの契約と変更リスクに応じて必要な工程・検査を選びます。
 図のローカル検査はPR前の例です。計画・設計など、各工程の区切りでも必要に応じて実行します。
 「次工程の条件」には、人間の担当者、ready-for-ai、既存作業との競合、依存関係、必要な承認の確認も含みます。検査の成功だけで承認済み・作業完了とは判断しません。
 不足・失敗・未確認事項があれば、その理由を確認して修正や人間への相談に戻ります。PRのCIが未実行の状態も成功として扱いません。
@@ -80,6 +94,10 @@ Issue/PRには作業契約・担当・着手・レビューの記録を残し、
 | `tools/workflow-execution/` | 検証・別AIレビュー等の記録 | 提出記録の対象・鮮度・参照・指摘対応が整合するか。実検証やAI起動は別 |
 | `tools/workflow-security/` | 検査profile・実scannerと結果 | 対象/版/鮮度・実結果を検査。templateと利用先アプリを区別 |
 | `tools/workflow-github/` | GitHub実状態、署名付き依頼・承認、有限の操作要求 | 取得の不足・権限・headを照合し、許可した操作と読戻しを記録。利用には別途接続設定が必要 |
+| `tools/workflow-dispatch/` | Project v2、全量snapshot、承認・claimの記録 | 候補と共有領域・実行枠を照合し、専用台帳で予約・停止・復旧を管理。AIの起動は別 |
+| `tools/workflow-runner/` | 予約済みtask、実行profile、認証済み依頼 | 実装・検証・別contextレビュー・修正の実験用Supervisor。実モデル試行・production採用は未完了 |
+| `tools/workflow-integration/` | 固定したmain/PR/head、検査profile | PRの組合せを一時環境で検証し、失効・修正要求を記録。実モデル起動は行わない |
+| `tools/workflow-continuation/` | 合成hostの依頼、全量候補、上限付きrun | 次batch選択、停止・照合・報告。実会話や実モデルへの接続は未提供 |
 | `tools/workflow-golden/` | 固定した入力と正解見本 | テンプレートの判定が見本から変わっていないか。既存12＋Project25の37ケースを比較 |
 | `tools/workflow-ci/` | 保存されたIssue成果物 | 形式や識別子・参照の整合性。保存Projectの自動走査は行わない |
 
@@ -91,9 +109,11 @@ Issue/PRには作業契約・担当・着手・レビューの記録を残し、
 | :--- | :--- | :--- |
 | Issueの作成・更新等 | `issue-contract-check.yml` | 必要項目の有無を調べ、ready-for-ai/needs-info等のラベルや不足のコメントを反映する。仕様や承認の妥当性は判断しない |
 | PRの作成・更新等 | `pr-issue-link-check.yml` | 対応Issueのリンクと「実行した検証」の記載を確認する |
-| PRの作成・更新、main更新、手動起動 | `workflow-validation.yml` | Node.js 22/24でテンプレートの静的テスト・Golden Test・保存Issue成果物の検査を実行する |
+| PRの作成・更新、main更新、手動起動 | `workflow-validation.yml` | Node.js 22/24の回帰・Golden・保存Issue検査と、模擬応答による実CLI/Dockerの隔離境界を検査する |
+| PRの作成・更新、main更新、手動起動、定期実行 | `security-validation.yml` | 固定scannerでテンプレート自身のsecret・依存・ソース・構成を検査する |
 
 `Workflow Validation`は読み取り専用です。Issue契約チェックによるラベル更新と区別し、自動承認・マージ・デプロイは行いません。
+GitHub上の隔離境界試験は実モデルを呼ばず、通常の利用者に同じDocker環境を必須化しません。scannerの版・DB取得やimage準備には通信を使うため、CI全体をオフラインとは扱いません。
 AIが実際のstep/logを確認し、結果と未検証事項をPRへまとめます。
 
 ### 開発するアプリのコードとテスト

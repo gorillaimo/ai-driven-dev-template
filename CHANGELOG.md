@@ -14,6 +14,10 @@ AI Driven Development Templateの利用者へ影響する変更を記録する�
 
 ### Added
 
+- v2ガイドの提供範囲を通常の会話開発・任意の検査/管理ツール・実験用接続に整理。GitHub/P1〜P7とCIの現在の入口・必要環境を案内し、固定した初期導入の7package/1267件と現行全CIを区別。実運用の保留とRelease条件は維持。
+- 運用マニュアルにPRテンプレート全項目の意味・確認先・人間のレビュー観点を追加。参考資料でQuality Gates、チェック欄、CI結果と未検証の読み方、説明・修正依頼、承認とマージの違いを案内。
+- AIに任せるセキュリティ検査・AIレビュー・指摘修正を運用マニュアルへ明記。変更影響と工程境界での検査、pushごとの現行CI、結果の自動再利用の未実装を区別し、必須検査や証拠条件を維持。
+
 - 次の許可済みIssueを選び直す継続制御の合成host library、continuation/v1の5成果物、保護journal・停止/照合・合算上限・安全な要約を追加。既存P3/P4/P5/P6を通す合成E2Eと境界試験をNode22/24 CIへ接続。native接続・実モデル/料金・実GitHubの一般run投稿・production採用・無人運転は未評価で、v2 stableは作成しない。
 
 - 認証済み依頼・上限付き台帳・モデル仲介・固定Codex CLI/Docker adapterを持つ隔離Runnerの実験実装と、模擬応答による境界試験を追加。実provider・永続書込み容量制限・単一/2Issueの実AI試行・production採用は後続Issue #66で扱い、実験実装のマージ後もproduction起動を拒否する。P4の読戻し専用revalidate APIを追加し、既存v1契約と手動運用を維持。

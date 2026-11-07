@@ -3,25 +3,49 @@
 初期範囲の機能実装は揃っています。現在は`2.0.0-0.dev.0`の開発版です。
 この表は導入と試用の判断材料です。Issue #42の完了やCI成功だけで、移行承認・alpha/stable公開を確定しません。
 
+通常の会話開発、必要な範囲で採用する検査ツール、実験段階の接続部品を分けて確認します。通常の開始手順に、専用Linuxホスト・Docker・GitHub App・実験用Runnerの鍵を一律に追加するものではありません。
+
 初回の依頼は[初期セットアップ](operations-setup.md)、日常の依頼は[運用マニュアル](operations-manual.md)を参照してください。この表は採用・移行・Release判断の際に参照し、実行して試す場合は[隔離した導入・移行例](../examples/v2-adoption/README.md)を使ってください。
 
-## 確認の基準と区分
+## 証拠の区分
 
-- 基準main: `ec00ebd1bf750c47a5533f0fc571b86abff6c022`（PR #41マージ後）。
-- v1 stable: `v1.0.0` → `f343151ef62cdc1d5ec3fe0cb2d3cfea7d4a0921`。GitHub refと読み取りfetchで照合。
-- 隔離確認: 2026-10-31、Linux / Node.js 24.19.0 / npm 11.9.0。既存node_modulesなしのarchiveから導入。
-- 実CIの基準証拠: [PR #41のNode22/24](https://github.com/gorillaimo/ai-driven-dev-template/actions/runs/41180021475)と[main push](https://github.com/gorillaimo/ai-driven-dev-template/actions/runs/41182774286)。前者は両jobのstep/log、後者はsuccess状態を確認。
-- この文書変更後の検証commit・実CI・詳細な実行記録は、[Issue #42](https://github.com/gorillaimo/ai-driven-dev-template/issues/42)と対応PRへ記録する。
+この文書の1267件・7package等の数値は、後半に記載する初期導入の固定記録です。追加した部品と現在の採用条件は、次の一覧を参照してください。現在のcommitごとの検証結果はIssue/PRと実CIに残します。
 
 | 区分 | 意味 |
 | :--- | :--- |
 | 確認済み（静的/合成） | 固定入力・隔離コピー・文書/机上確認で結果を確かめた。証拠の種類は行ごとに示す |
 | 人間による確認待ち | 実際の使い方、採用、本人・権限・承認・競合、Release可否などを人間が判断する |
-| 未検証/任意拡張 | 実案件/他OS/ライブ操作は未検証。Projects等の追加機構は必要性と別Issue/承認で判断する |
+| 未検証/任意拡張 | 実案件/他OS/ライブ操作は未検証。追加機構は必要性と別Issue/承認で判断する |
 
 実CIは実際に実行されたテストの証拠です。合成入力によるテストの成功だけでは、実案件の情報が正しいことまでは確認できません。
 
-## 実装と確認の対応
+<a id="optional-components"></a>
+
+## 追加部品の提供範囲と採用条件
+
+P1〜P7は自律開発設計の計画項目IDです。すべてを導入する必要はありません。AIが利用目的に合う部品と必要環境を提案し、人間が接続・採用を判断します。
+
+| 部品 | 提供・確認の範囲 | 必要なもの・残る判断 |
+| :--- | :--- | :--- |
+| P1: execution | 検証・レビュー・指摘対応の記録形式と静的整合checker | Node.js 22以上。実テスト/レビューの実行・証拠の真正性は別に確認。[記録の使い方](workflow-tools-guide.md#execution) |
+| P2: security | 固定scannerの接続、結果検査、アプリCIとの対応、テンプレート自身のSecurity Validation | ローカルで実scannerを動かす場合はDocker等の対応環境と版/DB取得。利用先アプリの対象・通信・保存先は個別採用。[検査手順](workflow-tools-guide.md#security) |
+| P3: GitHub操作境界 | 全量取得、署名付き依頼/承認の検査、許可操作・journal・読戻し。合成試験と限定実証 | Node.js、live HTTPではPython、対応する接続と権限。書込み仲介はrepo限定App等を個別設定。会話の本人確認入口は別。[接続準備](github-boundary-setup.md) |
+| P4: Dispatcher | Project v2、候補選択・原子的claim・世代/停止/復旧。SQLite・複数プロセスの試験 | Node.js、専用Linux/Python 3.11以上/SQLite 3.35以上、repo外の保護保存先。手動運用から明示移行。[導入・復旧](dispatcher-setup.md) |
+| P5: Runner | 隔離Supervisor、実装/検証/別contextレビュー/修正、模擬応答による実CLI/Docker境界試験 | 実モデル試行・容量制限の残検証・採用判定は[#66](https://github.com/gorillaimo/ai-driven-dev-template/issues/66)で保留。production起動拒否を維持。[準備](agent-runner-setup.md) |
+| P6: 統合検証 | 固定main/PRの検査計画・実Git/隔離command・結果失効・元Issueへの修正要求 | 対応するDocker検証環境、承認済みprofileとP3/P4権限。GitHub要約には専用permit等が必要。実モデル起動とは別。[利用手順](workflow-tools-guide.md#integration-verification) |
+| P7: 継続制御 | 合成hostで次batch選択・局所保留・合算上限・停止/照合・安全な報告。P3〜P6を使う合成E2E | 合成E2Eには既存P4/P5のLinux/Python/SQLite環境。native本人性/権限委譲・実利用量/料金・一般runの実GitHub公開・実モデル継続は未接続/未評価。[APIと境界](../../tools/workflow-continuation/README.md) |
+
+実装・合成試験の完了と、利用先での接続・有効化を分けます。[#52](https://github.com/gorillaimo/ai-driven-dev-template/issues/52)は実運用接続と実モデル試行が未完了で、#66の保留を迂回しません。production採用・無人実行・alpha/stable公開はいずれも別の判断です。アプリ自身のテスト・運用環境も別途確認します。
+
+## 初期導入の確認記録（固定基準）
+
+- 基準main: `ec00ebd1bf750c47a5533f0fc571b86abff6c022`（PR #41マージ後）。
+- v1 stable: `v1.0.0` → `f343151ef62cdc1d5ec3fe0cb2d3cfea7d4a0921`。GitHub refと読み取りfetchで照合。
+- 隔離確認: 2026-10-31、Linux / Node.js 24.19.0 / npm 11.9.0。既存node_modulesなしのarchiveから導入。
+- 実CIの基準証拠: [PR #41のNode22/24](https://github.com/gorillaimo/ai-driven-dev-template/actions/runs/41180021475)と[main push](https://github.com/gorillaimo/ai-driven-dev-template/actions/runs/41182774286)。前者は両jobのstep/log、後者はsuccess状態を確認。
+- 初期導入確認時の検証commit・実CI・詳細な実行記録は、[Issue #42](https://github.com/gorillaimo/ai-driven-dev-template/issues/42)と対応PRを参照する。
+
+### 実装と確認の対応
 
 以下の専用テストは、隔離した全回帰で実行済みです。ここでのコマンドはrepository rootから、必要な依存を導入した後に実行します。
 
@@ -48,7 +72,7 @@
 
 上記1267件は初期導入確認時点の固定基準である。追加したProject v2・候補選択・単一Linuxホストの排他台帳/P3接続は[Dispatcherの設計](dispatcher-design.md)と[導入・復旧](dispatcher-setup.md)を参照する。専用テストは`npm test --prefix tools/workflow-dispatch`で実SQLite・複数プロセス・COMMIT前後の強制終了・外部応答喪失を検証する。最新commitの実行結果はIssue #49と対応PRへ記録する。既存Golden Test単独を実排他の証拠とは扱わない。実AI起動・隔離・自律継続とstable Releaseは対象外である。
 
-## 導入・移行・復旧の確認
+## 初期導入・移行・復旧の確認結果
 
 | 確認項目 | 証拠・結果 | 次の判断 |
 | :--- | :--- | :--- |
