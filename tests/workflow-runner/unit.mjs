@@ -2166,3 +2166,124 @@ test("the fixed provider helper terminates when its host parent dies without sen
     launcher.stdin.end();
   }
 });
+
+// P7 tests share this file to keep every static target inside the existing argv cap.
+// The original Runner suite has no new dependency or activation side effect.
+if (process.env.WORKFLOW_CONTINUATION_TEST === '1') {
+  const {planContinuation,createSyntheticContinuationAdapter,openContinuation,validateContinuationArtifact,renderContinuationReport}=await import('../../tools/workflow-continuation/controller.mjs');
+  const {fixture:dispatchInput,claim:dispatchClaim,time:ct,bind}=await import('../workflow-dispatch/fixture.mjs');
+  const {readdirSync,readFileSync,appendFileSync}=await import('node:fs');
+  const cp=()=>({schema_version:1,artifact_kind:'continuation-profile',id:'synthetic-continuation',revision:1,mode:'synthetic',repository:'example/project',repository_id:1,human_owner:'example-user',owner_id:7,policy_digest:'a'.repeat(64),configuration_digest:dispatchInput().ledger.configuration_digest,execution_profile_digest:hash(dispatchInput().profile),integration_profile_digest:'9'.repeat(64),reviewed_at:'2026-11-04T00:00:00Z',expires_at:'2026-11-04T06:00:00Z',required_stages:['implementation','verification','review','security'],limits:{max_issues:10,max_concurrent_issues:2,max_workers:3,run_seconds:21600,cleanup_seconds:600,call_seconds:1800,max_repairs:3,monitor_seconds:30,idle_observations:2,observations:400,operations:100,reports:100,journal_bytes:33554432,events:10000,artifact_bytes:104857600,summary_bytes:32768,model_calls:0,provider_budget:0,simulated_calls:100,simulated_cost_units:10000,batch_calls:20,batch_cost_units:1000}});
+  function profileFor(f){const p=cp();p.repository=f.project.repository;p.human_owner=f.profile.human_owner;p.configuration_digest=f.ledger.configuration_digest;p.execution_profile_digest=hash(f.profile);return p;}
+  async function continuationFixture(t,options={}) {
+    const f=dispatchInput(),p=profileFor(f),directory=mkdtempSync(join(tmpdir(),'continuation-68-'));
+    options.change?.(f,p);const requests=new Set(),jobs=new Map(),knownHandles=new Set(),reports=[];
+    let sequence=0,clockTime=ct,starts=0,stops=0,c;
+    const clock=()=>clockTime;
+    const q=(intent='continue',patch={})=>{
+      const r={schema_version:1,artifact_kind:'continuation-request',repository:p.repository,repository_id:p.repository_id,owner_id:p.owner_id,run_id:'parent-run',profile_digest:hash(p),policy_digest:p.policy_digest,event_id:'event-'+(++sequence),nonce:'nonce-'+sequence,intent,issued_at:clockTime,expires_at:new Date(Date.parse(clockTime)+60000).toISOString(),source:{id:'source-'+sequence,actor_id:p.owner_id,actor_type:'User',body_digest:hash({intent,sequence}),updated_at:clockTime},requested_issues:null,...patch};requests.add(hash(r));return r;
+    };
+    const outcome=(n)=>{
+      const target=f.grant.selected.find(t=>t.issue_number===n),head=target.head_sha;
+      const item={issue_number:n,claim_id:'claim-'+n,head_sha:head,plan_digest:target.plan.digest,pr_number:10+n,status:options.held===n?'held':'passed',repairs:0,proofs:p.required_stages.map(stage=>({stage,status:'passed',head_sha:head,plan_digest:target.plan.digest,profile_digest:p.execution_profile_digest,context_id:stage==='implementation'?'impl-'+n:stage==='review'?'review-'+n:null,evidence_refs:[source('p7-'+stage+'-'+n)]}))};
+      if(options.missingStage)item.proofs=item.proofs.filter(x=>x.stage!==options.missingStage);
+      if(options.sameContext)item.proofs.find(x=>x.stage==='review').context_id='impl-'+n;
+      if(options.staleProof)item.proofs[0].head_sha='f'.repeat(40);
+      return item;
+    };
+    const ports={
+      async authorizeRequest({request,binding_digest}){return {mode:'synthetic',allowed:requests.has(hash(request))&&request.source.actor_type==='User',binding_digest,observed_at:clockTime};},
+      async observe(){const value=structuredClone(f);value.evaluated_at=clockTime;return {dispatcher_input:value,observed_at:clockTime,main_sha:f.snapshot.branches[0].sha,worker_count:[...jobs.values()].filter(j=>!j.done).reduce((n,j)=>n+j.numbers.length,0)};},
+      async reserve({issue_numbers,operation_id}){
+        const reservations=issue_numbers.map(n=>{const target=f.grant.selected.find(t=>t.issue_number===n),handle=Object.freeze({}),task=dispatchClaim({claim_id:'claim-'+n,worker_id:'worker-'+n,run_id:f.grant.run_id,issue_number:n,feature_id:n===1?'a':'b',areas:n===1?['backend']:['frontend'],allowed_paths:target.allowed_paths,head_sha:target.head_sha,profile_digest:hash(f.profile),grant_digest:hash(f.grant),contract_digest:target.contract_digest,design_digest:target.design_digest,stages:target.stages,status:'ready',execution_active:true});knownHandles.add(handle);f.ledger.claims.push(task);return {claim:structuredClone(task),handle};});
+        return {status:options.reserveUnknown?'unknown':'passed',reservations};
+      },
+      async revalidate({reservation}){return {status:knownHandles.has(reservation.handle)?'passed':'blocked'};},
+      async start({batch_id,reservations}){starts++;const handle=Object.freeze({});jobs.set(handle,{batch_id,numbers:reservations.map(r=>r.claim.issue_number),done:false});await options.startWait?.();return handle;},
+      async poll({handle}){
+        const j=jobs.get(handle);if(!j)throw Error('unknown');await options.pollWait?.();
+        if(options.pending)return {status:'running',worker_count:j.numbers.length};
+        j.done=true;for(const n of j.numbers){const row=f.ledger.claims.find(c=>c.issue_number===n);row.status=options.held===n?'blocked':'in_review';row.execution_active=false;}
+        return {status:'complete',worker_stopped:true,usage:{status:options.unknownUsage?'unknown':'known',calls:j.numbers.length*2,cost_units:j.numbers.length},items:j.numbers.map(outcome)};
+      },
+      async integrate({targets,main_sha}){return {status:options.integrationFail?'failed':'passed',main_sha:options.staleIntegration?'e'.repeat(40):main_sha,targets:targets.map(x=>({issue_number:x.issue_number,head_sha:x.head_sha,plan_digest:x.plan_digest})),profile_digest:p.integration_profile_digest,evidence_refs:[source('p7-integration')]};},
+      async notify(value){reports.push(structuredClone(value));if(options.reportUnknown)throw Error('SYNTHETIC_PRIVATE_CONTENT');return {confirmed:true,report_digest:value.report_digest};},
+      async stop(){stops++;for(const j of jobs.values())j.done=true;for(const row of f.ledger.claims){row.execution_active=false;if(row.status==='ready')row.status='blocked';}return {stopped:true};},
+      async reconcile({state_digest}){return {state_digest,observed_at:clockTime,workers_stopped:options.reconcileUnknown!==true,operations_reconciled:options.reconcileUnknown!==true,settlements:[...jobs.values()].map(j=>({batch_id:j.batch_id,usage:{status:'known',calls:j.numbers.length*2,cost_units:j.numbers.length}}))};},
+    };
+    const adapter=createSyntheticContinuationAdapter(ports);
+    c=await openContinuation({directory,profile:p,adapter,clock});
+    t.after(async()=>{await c.close();rmSync(directory,{recursive:true,force:true});});
+    return {c,p,f,q,adapter,ports,reports,directory,jobs,clock,setTime(v){clockTime=v;},get starts(){return starts;},get stops(){return stops;}};
+  }
+  test('P7 AC1: choose independent Issues without a user list; record all stages and integration',async t=>{
+    const r=await continuationFixture(t);await r.c.accept(r.q(),{drive:false});await r.c.tick();assert.equal(r.starts,1);
+    const done=await r.c.tick();assert.deepEqual(done.issues.map(x=>x.issue_number),[1,2]);assert(done.issues.every(x=>x.status==='review_ready'));
+    assert.equal(done.actual_model_calls,0);assert.equal(done.provider_cost,0);assert.equal(done.usage.simulated_calls,4);assert.equal(validateContinuationArtifact('report',done).valid,true);
+    await r.c.tick();assert.equal((await r.c.tick()).status,'waiting');assert.equal(r.starts,1);
+    assert(r.reports.some(x=>x.kind==='review_ready'));assert(renderContinuationReport(done).includes('synthetic'));
+  });
+  test('P7 AC2: one held Issue does not discard an independent successful Issue',async t=>{
+    const r=await continuationFixture(t,{held:1});await r.c.accept(r.q(),{drive:false});await r.c.tick();const done=await r.c.tick();
+    assert.equal(done.issues.find(i=>i.issue_number===1).status,'held');assert.equal(done.issues.find(i=>i.issue_number===2).status,'review_ready');
+  });
+  test('P7 AC1/2: explicit scope, known blocker, dependencies and full-inventory failure preserve P4 rules',async()=>{
+    const f=dispatchInput(),p=profileFor(f);
+    let d=planContinuation({profile:p,inventory:{dispatcher_input:f,observed_at:ct,main_sha:f.snapshot.branches[0].sha,worker_count:0},state:null,requested_issues:null,now:ct});assert.deepEqual(d.selected.map(x=>x.issue_number),[1,2]);assert.equal(d.authority,false);
+    f.issue_facts[0].blocker='known';d=planContinuation({profile:p,inventory:{dispatcher_input:f,observed_at:ct,main_sha:f.snapshot.branches[0].sha,worker_count:0},state:null,requested_issues:null,now:ct});assert.deepEqual(d.selected.map(x=>x.issue_number),[2]);
+    f.snapshot.status='partial';d=planContinuation({profile:p,inventory:{dispatcher_input:f,observed_at:ct,main_sha:f.snapshot.branches[0].sha,worker_count:0},state:null,requested_issues:null,now:ct});assert.equal(d.status,'blocked');assert.equal(d.selected.length,0);
+  });
+  test('P7 AC3: missing review, reused context, stale proof and failed integration cannot become review-ready',async t=>{
+    for(const option of [{missingStage:'review'},{sameContext:true},{staleProof:true},{integrationFail:true},{staleIntegration:true}]){
+      const r=await continuationFixture(t,option);await r.c.accept(r.q(),{drive:false});await r.c.tick();const done=await r.c.tick();assert(done.issues.every(x=>x.status!=='review_ready'),JSON.stringify(option));
+    }
+  });
+  test('P7 AC4: request replay is idempotent; status does not stop or start work; forged sources are denied',async t=>{
+    const r=await continuationFixture(t,{pending:true}),request=r.q();await r.c.accept(request,{drive:false});await r.c.tick();
+    const before=await r.c.status();const status=await r.c.accept(r.q('status'));assert.equal(status.status,'running');assert.equal(r.stops,0);assert.equal(r.starts,1);
+    await r.c.accept(request,{drive:false});assert.deepEqual((await r.c.status()).usage,before.usage);assert.equal(r.starts,1);
+    const forged=structuredClone(request);forged.source.actor_type='Bot';assert.equal((await r.c.accept(forged)).request_status,'rejected');
+    assert.equal(r.stops,0);assert.equal(r.starts,1);
+  });
+  test('P7 AC4: stop fences pending starts and requires reconciliation; new continue cannot reset counters',async t=>{
+    let release,entered;const started=new Promise(r=>{entered=r;});const waiting=new Promise(r=>{release=r;});
+    const r=await continuationFixture(t,{pending:true,startWait:async()=>{entered();await waiting;}});
+    await r.c.accept(r.q(),{drive:false});const tick=r.c.tick();await started;const stopping=r.c.accept(r.q('stop'));release();await stopping;await tick;
+    const stopped=await r.c.status();assert(['stopped','reconcile_required'].includes(stopped.status));const count=r.starts;
+    await r.c.accept(r.q(),{drive:false});assert.equal(r.starts,count);assert.equal((await r.c.status()).usage.reserved_calls,stopped.usage.reserved_calls);
+    await r.c.reconcile();await r.c.accept(r.q(),{drive:false});assert.equal((await r.c.status()).run_id,'parent-run');assert.equal(r.starts,count);
+  });
+  test('P7 AC4: a narrowed instruction cannot silently widen again or leave excluded workers running',async t=>{
+    const r=await continuationFixture(t,{pending:true});await r.c.accept(r.q(),{drive:false});await r.c.tick();
+    await r.c.accept(r.q('constrain',{requested_issues:[1]}),{drive:false});assert(r.stops>0);
+    const next=await r.c.accept(r.q('continue',{requested_issues:[1,2]}),{drive:false});assert.equal(next.request_status,'rejected');assert.equal(r.starts,1);
+  });
+  test('P7 AC4/5: unknown usage and publication outcomes retain reservations, do not blindly retry',async t=>{
+    const a=await continuationFixture(t,{unknownUsage:true});await a.c.accept(a.q(),{drive:false});await a.c.tick();const bad=await a.c.tick();assert.equal(bad.status,'reconcile_required');assert(bad.usage.reserved_calls>0);
+    const b=await continuationFixture(t,{reportUnknown:true});const result=await b.c.accept(b.q(),{drive:false});assert.equal(result.status,'reconcile_required');const notices=b.reports.length;await b.c.accept(b.q(),{drive:false});assert.equal(b.reports.length,notices);assert.equal(b.starts,0);
+    assert(!JSON.stringify(result).includes('SYNTHETIC_PRIVATE_CONTENT'));
+  });
+  test('P7 NFR: total Issue/usage limits survive continuation and profile changes do not grant budget',async t=>{
+    const r=await continuationFixture(t,{change(f,p){p.limits.max_issues=1;}});await r.c.accept(r.q(),{drive:false});await r.c.tick();await r.c.tick();for(let n=0;n<3;n++)await r.c.tick();
+    assert.equal(r.starts,1);const before=await r.c.status();await r.c.accept(r.q(),{drive:false});assert.equal((await r.c.status()).usage.simulated_calls,before.usage.simulated_calls);
+    const invalid=r.q();invalid.profile_digest='f'.repeat(64);assert.equal((await r.c.accept(invalid)).request_status,'rejected');
+  });
+  test('P7 Security: JSON adapters, accessors, production profiles and unknown fields grant no authority',async t=>{
+    const r=await continuationFixture(t),p=structuredClone(r.p);p.mode='production';assert.equal(validateContinuationArtifact('profile',p).valid,false);
+    const d=mkdtempSync(join(tmpdir(),'continuation-denied-'));t.after(()=>rmSync(d,{recursive:true,force:true}));
+    await assert.rejects(openContinuation({directory:d,profile:r.p,adapter:{approved:true},clock:r.clock}));
+    let called=false;const evil={get profile(){called=true;throw Error();}};assert.equal(planContinuation(evil).status,'blocked');assert.equal(called,false);
+    const invalid=r.q();invalid.approved=true;assert.equal((await r.c.accept(invalid)).request_status,'rejected');
+  });
+  test('P7 Resiliency: exclusive writer, tampered checkpoint, restart and bounded recovery',async t=>{
+    const r=await continuationFixture(t);await r.c.accept(r.q(),{drive:false});await r.c.tick();
+    await assert.rejects(openContinuation({directory:r.directory,profile:r.p,adapter:r.adapter,clock:r.clock}));await r.c.close();
+    const restored=await openContinuation({directory:r.directory,profile:r.p,adapter:r.adapter,clock:r.clock});t.after(()=>restored.close());assert.equal((await restored.status()).status,'reconcile_required');
+    await restored.close();appendFileSync(join(r.directory,'continuation.jsonl'),'broken\n');await assert.rejects(openContinuation({directory:r.directory,profile:r.p,adapter:r.adapter,clock:r.clock}));
+  });
+  test('P7 AC5: main changes invalidate integration; expiry fences work; reports expose no raw content',async t=>{
+    const r=await continuationFixture(t);await r.c.accept(r.q(),{drive:false});await r.c.tick();await r.c.tick();
+    r.f.snapshot.branches[0].sha='e'.repeat(40);await r.c.tick();const current=await r.c.status();assert(!JSON.stringify(current).includes('stdout_base64'));
+    r.setTime('2026-11-04T06:00:01Z');await r.c.tick();assert.notEqual((await r.c.status()).status,'running');assert(r.stops>0);
+  });
+}
