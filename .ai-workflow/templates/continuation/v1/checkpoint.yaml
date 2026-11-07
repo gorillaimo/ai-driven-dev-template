@@ -1,0 +1,38 @@
+# Synthetic example only. Expired, not execution or human approval authority.
+schema_version: 1
+artifact_kind: continuation-checkpoint
+mode: synthetic
+authority: false
+profile_digest: 41fe7fa11e1b10e23a8f7b8fb8b35607bba7f6ba68bd07a8ede05d098d7c6ea2
+sequence: 1
+last_digest: null
+state:
+  run_id: null
+  status: waiting
+  reason: no_candidates
+  started_at: null
+  deadline: null
+  requested_issues: null
+  stop_fence: false
+  can_resume: false
+  main_sha: null
+  seen: []
+  selected_issues: []
+  held: []
+  recommended_merge_order: []
+  issues: []
+  jobs: []
+  outbox: []
+  usage:
+    simulated_calls: 0
+    simulated_cost_units: 0
+    reserved_calls: 0
+    reserved_cost_units: 0
+  observations: 1
+  operations: 0
+  reports: 0
+  idle: 0
+  artifact_bytes: 0
+  last_inventory_ref: null
+  last_integration_digest: null
+  last_report_ref: null

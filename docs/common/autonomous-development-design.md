@@ -334,6 +334,34 @@ v2要約は権限の証拠ではない。既存v1 collectorが識別できない
 
 利用例: 日中に依頼して作業が一区切りついた時点で報告を読む場合も、夜に依頼して保存済みの報告を翌朝読む場合も、同じ選択・実行・報告の契約を使う。
 
+### 10.1 継続制御の実験実装（continuation/v1）
+
+`tools/workflow-continuation/`は、trusted hostが受け取った合成依頼から、候補の再選択と実行・検証・報告を管理するlibraryである。P7の実運用接続・実モデル試行とは分けて提供する。native/production adapterはなく、会話サービスの常駐起動や実GitHubへの新しい一般run投稿は有効化しない。
+
+`planContinuation`は全量入力を既存P4 plannerへ渡す純粋関数で、authority:falseを返す。登録済みopaque adapterを使う`openContinuation`がaccept/tick/status/stop/reconcile/closeを提供する。本人確認と自由文の解釈はhost側で行い、source/event/nonce、repo/owner、parent run、方針/profile digest、期限、対象Issueへ依頼を束縛する。具体指示は範囲を絞る場合に受け入れ、未承認の拡大を拒否する。
+
+区切りと最大30秒間隔で全量の候補/claim/PR/main/権限を確認する。既知の局所保留では独立候補を継続し、全体不明・権限喪失・上限では新規開始を止める。PR準備完了は依存完了ではない。claimの原子的予約・世代・解除はP4が管理し、P7には実行batchと照合記録だけを保存する。
+
+P5の1回のacceptは選択済み最大2件を扱う。P7はparentとbatchを対応付け、既存の再送防止を変更しない。P5の修正は元Issue/branchで最大3巡、進展なしなら早期保留とする。P6失敗の元Issue/ACへの修正要求を残し、欠落・失効・未評価を成功にしない。4工程の証拠と別レビューcontext、Issue/plan/head/profile、PRと最新mainでのP6結果が揃う範囲だけreview_readyとする。main更新時は古い成功を失効させる。
+
+専用のcontinuation/v1はprofile/request/decision/checkpoint/reportを定義する。repo外の0700保存先で単一writerとdigest chain付きjournalを使い、副作用前のintent、sending、confirmed/unknown、保護記録参照を保存する。不明な利用量・公開成否・起動は予約を保持してreconcile_requiredへ移る。再起動時も照合を必要とし、新依頼だけで期限・件数・予算をリセットしない。停止後の外部通知は行わず、返却reportと保護記録へ理由を残す。
+
+| 対象 | hard cap（profileは引下げのみ） |
+| --- | --- |
+| 入力 / 出力 | 5 MiB / 1 MiB |
+| 総Issue / 同時Issue / worker | 10 / 2 / 3（レビュー含む） |
+| run / cleanup / call | 6時間 / 10分 / 30分 |
+| 修正 / 空候補観測 | 3巡、進展なしは早期保留 / 2回でwaiting |
+| 観測・権限確認 / 副作用 / report | parent全体400 / 100 / 100 |
+| journal / event / 保護記録 | 32 MiB / 10,000 / 100 MiB |
+| 公開要約 / 実モデル呼び出し・provider予算 | 32 KiB / 0・0 |
+
+合成利用量はcalls/cost_unitsをbatch前に予約し、既知結果だけを精算する。全batch・修正・レビューをparent単位で合算し、再送/再開で復活させない。実料金の検証ではない。
+
+人間向けreportは期間・権限設定digest、Issue/PR/head、工程証拠のdigest、修正回数、保留・残作業、参考マージ順、合成利用量、未評価、checkpoint参照を含む。raw log/diff/ソース/環境変数は保護領域だけに置く。APIと合成portの詳細は[ツールREADME](../../tools/workflow-continuation/README.md)、記入例は[continuation/v1](../../.ai-workflow/templates/continuation/v1/README.md)を参照する。
+
+合成E2Eは実際のP3/P4/P5/P6 libraryをfake基盤で通す。native本人性、親子run権限委譲、実利用量・料金、一般runのGitHub公開、host喪失時cleanup、保管期限、実モデル立会い/限定自律試行は未評価である。合成hostのallowedや署名を本番の本人確認へ転用しない。後続の実運用検証と個別の採用承認を必要とする。
+
 ## 11. 互換性と変更する契約
 
 - `AGENTS.md`と`development-rules.md`はlegacy always-onとして維持する。自動実行が有効でも、人間指示、Issue契約、必要承認、TDD、Quality Gates、scopeを優先する。
@@ -362,7 +390,7 @@ P1〜P7は計画項目IDであり、GitHub Issue番号ではない。設計承�
 | P5: 実験実装 | [Issue #50](https://github.com/gorillaimo/ai-driven-dev-template/issues/50) | #47・#49。課金なしの試験・CIと未採用条件まで |
 | P5: 実運用前検証・採用判定 | [Issue #66](https://github.com/gorillaimo/ai-driven-dev-template/issues/66) | #50のmain反映。実運用が必要になった時点で個別設計・試行承認を得る。現在は保留 |
 | P6 | [Issue #51](https://github.com/gorillaimo/ai-driven-dev-template/issues/51) | #47・#48。Runner部品の接続は #50、実モデル・production接続の実証は #66 の採用判定後 |
-| P7 | [Issue #52](https://github.com/gorillaimo/ai-driven-dev-template/issues/52) | #50・#51。実モデルの限定自律試行と実運用の有効化は #66 と個別承認が前提 |
+| P7 | [Issue #52](https://github.com/gorillaimo/ai-driven-dev-template/issues/52)、合成実験は[子Issue #68](https://github.com/gorillaimo/ai-driven-dev-template/issues/68) | #50・#51。実モデルの限定自律試行と実運用の有効化は #66 と個別承認が前提 |
 
 | 項目・依存 | 目的・主な変更候補 | 受け入れ条件・先行テスト |
 | :--- | :--- | :--- |

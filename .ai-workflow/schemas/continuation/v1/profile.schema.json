@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:continuation:v1:profile",
+  "title": "continuation/v1 profile",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "artifact_kind": {
+      "const": "continuation-profile"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "mode": {
+      "const": "synthetic"
+    },
+    "repository": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "repository_id": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "human_owner": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "pattern": "^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$"
+    },
+    "owner_id": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "policy_digest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "configuration_digest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "execution_profile_digest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "integration_profile_digest": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "required_stages": {
+      "type": "array",
+      "items": {
+        "enum": ["implementation", "verification", "review", "security"]
+      },
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "limits": {
+      "type": "object",
+      "properties": {
+        "max_issues": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "max_concurrent_issues": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2
+        },
+        "max_workers": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "run_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 21600
+        },
+        "cleanup_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 600
+        },
+        "call_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1800
+        },
+        "max_repairs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "monitor_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "idle_observations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2
+        },
+        "observations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 400
+        },
+        "operations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "reports": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "journal_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 33554432
+        },
+        "events": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000
+        },
+        "artifact_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 104857600
+        },
+        "summary_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32768
+        },
+        "model_calls": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 0
+        },
+        "provider_budget": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 0
+        },
+        "simulated_calls": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "simulated_cost_units": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "batch_calls": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "batch_cost_units": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        }
+      },
+      "required": [
+        "max_issues",
+        "max_concurrent_issues",
+        "max_workers",
+        "run_seconds",
+        "cleanup_seconds",
+        "call_seconds",
+        "max_repairs",
+        "monitor_seconds",
+        "idle_observations",
+        "observations",
+        "operations",
+        "reports",
+        "journal_bytes",
+        "events",
+        "artifact_bytes",
+        "summary_bytes",
+        "model_calls",
+        "provider_budget",
+        "simulated_calls",
+        "simulated_cost_units",
+        "batch_calls",
+        "batch_cost_units"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "id",
+    "revision",
+    "mode",
+    "repository",
+    "repository_id",
+    "human_owner",
+    "owner_id",
+    "policy_digest",
+    "configuration_digest",
+    "execution_profile_digest",
+    "integration_profile_digest",
+    "reviewed_at",
+    "expires_at",
+    "required_stages",
+    "limits"
+  ],
+  "additionalProperties": false
+}

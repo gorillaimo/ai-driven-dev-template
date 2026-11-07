@@ -1,0 +1,21 @@
+# Synthetic example only. Expired, not execution or human approval authority.
+schema_version: 1
+artifact_kind: continuation-request
+repository: example/project
+repository_id: 1
+owner_id: 7
+run_id: synthetic-parent
+profile_digest: 41fe7fa11e1b10e23a8f7b8fb8b35607bba7f6ba68bd07a8ede05d098d7c6ea2
+policy_digest: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+event_id: synthetic-event
+nonce: synthetic-nonce
+intent: continue
+issued_at: 2026-11-04T00:10:00Z
+expires_at: 2026-11-04T00:11:00Z
+source:
+  id: synthetic-source
+  actor_id: 7
+  actor_type: User
+  body_digest: 17cf076950d931f820a3905a9716a22564b5ed5492224e4c7ce575d6f4d446dd
+  updated_at: 2026-11-04T00:10:00Z
+requested_issues: null

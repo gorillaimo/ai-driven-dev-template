@@ -24,6 +24,7 @@ Node.jsは開発管理に使い、利用先アプリの開発言語は問いま�
 | 実セキュリティ検査 | [検査の接続](#security) |
 | GitHub取得・許可操作の接続 | [GitHub操作境界](#github-boundary) |
 | 複数PRを組み合わせた検査 | [統合検証](#integration-verification) |
+| 次のIssueへの継続制御の合成試験 | [継続制御](#continuation) |
 | 隔離したAI実行の開発・検証 | [Runnerの準備](agent-runner-setup.md) |
 
 <a id="issue-artifacts"></a>
@@ -858,3 +859,13 @@ Docker実試験は別に行います。CIは固定base/Git版の検証専用imag
 - 推奨順は検証したcommitでの参考情報です。マージするたびにmainが変わるため、残りを再検証します。
 - 修正は元Issueのbranchで行い、個別検査・再レビュー後に統合をやり直します。一時統合だけの修正を完了扱いにしません。
 - v2報告コメントをv1 collectorで扱う際は、既存の明示mapping手順で非claimと確認します。不明なコメントを権限根拠へ読み替えません。
+
+<a id="continuation"></a>
+
+## 継続制御の合成試験
+
+`tools/workflow-continuation/`は、許可済み候補を再選択し、P4予約・P5実行/修正・P6統合検証・安全な報告を呼ぶ実験用host libraryです。`npm test --prefix tools/workflow-continuation`で、既存部品を使った合成E2Eと停止・再送・上限・未知情報の試験を行います。既存Runner単独のtest入口も維持します。
+
+[APIとhost port](../../tools/workflow-continuation/README.md)、[5成果物の例](../../.ai-workflow/templates/continuation/v1/README.md)、[共通仕様10.1](autonomous-development-design.md#101-継続制御の実験実装continuationv1)を参照してください。報告は人間が読む要約、checkpoint/journalはAI・hostが照合する詳細記録です。必要なときに人間も参照できます。
+
+native adapter・実モデル・一般runの実GitHub投稿は未接続です。合成試験の成功でproduction・無人運転・v2 stableを有効化せず、通常の会話開発の導入条件も変えません。
