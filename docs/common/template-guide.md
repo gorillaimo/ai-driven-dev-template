@@ -27,7 +27,7 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 
 利用にはAI開発ツールの設定とGitHubへの接続が必要です。人間は目的・必要な設計・成果物を確認します。
 複数人での担当割当や競合の調整は、人間の判断を前提にしています。
-通常の会話開発では、作業中のAIが検証・修正とPRの準備を進めます。別contextでのAIレビューや複数Issueの自動並行実行には実験用の部品がありますが、実モデルを使う一連の接続と実運用の採用は未完了です。
+通常の会話開発では、作業中のAIが検証・修正とPRの準備を進めます。並列作業や独立レビューに使える機能は、AIが利用中の環境で確認します。実行できない検査・レビューは未実施として報告します。
 
 ## 現在使える範囲と導入条件
 
@@ -39,11 +39,9 @@ AIエージェントと人間が、GitHub issueを作業契約として共有し
 | 計画・現在地・要件とテストの対応を検査する | schema/checker/Goldenを必要な範囲で利用可能 | Node.js 22以上と採用するツールの依存。[検査ツール](workflow-tools-guide.md) |
 | 複数人の担当・依存・進捗を整理する | Project台帳、手動Coordinator、集約・推薦を任意で利用可能 | 調整する人間と必要な記録。[担当調整](manual-coordinator.md) |
 | セキュリティ検査やGitHub操作をコードで接続する | 固定scanner、取得・操作仲介の部品を提供。利用先の設定・採用は個別に確認 | [セキュリティ検査](workflow-tools-guide.md#security) / [GitHub接続準備](github-boundary-setup.md) |
-| 作業の自動予約・AI起動・複数PR検証・次Issueへの継続を組み合わせる | Dispatcher/Runner/統合検証/継続制御の部品と合成試験を提供。実モデルによる継続運用は未提供 | [試用前の確認表](v2-adoption-checklist.md#optional-components)で必要環境と未評価を確認 |
+| 自律実行の作業量・停止条件を決める | 既定値・設定変更・途中保存と再開を設計。設定機能と利用枠に応じた自動停止は未実装 | [自律実行の既定値と設定](operations-manual.md#autonomous-settings) |
 
-通常の会話開発を始めるために、Docker、専用Linux環境、GitHub App、実験用Runnerのモデル鍵を一律に用意する必要はありません。アプリ固有の開発環境や、利用するAIツールの契約・認証は別途必要です。AIツールへのGitHub接続と、任意の操作仲介部品が使うGitHub Appは区別します。
-
-独自Runnerなしで担当Issueを続けて進める方法と、利用枠に余裕を残して止める条件は[継続・停止・再開の具体設計](native-continuation-design.md)に整理しています。残量取得が非対応でも件数・時間で区切る設計です。現在の会話開発で使う規約・記録と、今後実装する判断補助や環境接続を区別し、割合による自動停止・全環境での並列実行を提供済みとは扱いません。
+必要な開発環境と接続は、利用するAIツール・アプリ・採用する検査に合わせて確認します。AIツールへのGitHub接続と、任意の操作仲介部品が使うGitHub Appは区別します。
 
 ## 全体像：誰が何をするか
 
@@ -97,7 +95,6 @@ Issue/PRには作業契約・担当・着手・レビューの記録を残し、
 | `tools/workflow-security/` | 検査profile・実scannerと結果 | 対象/版/鮮度・実結果を検査。templateと利用先アプリを区別 |
 | `tools/workflow-github/` | GitHub実状態、署名付き依頼・承認、有限の操作要求 | 取得の不足・権限・headを照合し、許可した操作と読戻しを記録。利用には別途接続設定が必要 |
 | `tools/workflow-dispatch/` | Project v2、全量snapshot、承認・claimの記録 | 候補と共有領域・実行枠を照合し、専用台帳で予約・停止・復旧を管理。AIの起動は別 |
-| `tools/workflow-runner/` | 予約済みtask、実行profile、認証済み依頼 | 実装・検証・別contextレビュー・修正の実験用Supervisor。実モデル試行・production採用は未完了 |
 | `tools/workflow-integration/` | 固定したmain/PR/head、検査profile | PRの組合せを一時環境で検証し、失効・修正要求を記録。実モデル起動は行わない |
 | `tools/workflow-continuation/` | 合成hostの依頼、全量候補、上限付きrun | 次batch選択、停止・照合・報告。実会話や実モデルへの接続は未提供 |
 | `tools/workflow-golden/` | 固定した入力と正解見本 | テンプレートの判定が見本から変わっていないか。既存12＋Project25の37ケースを比較 |
@@ -193,7 +190,7 @@ template本体のversionと成果物の`schema_version`は独立しており、t
 
 `docs/common/adaptive-workflow-design.md`の4.1～4.3が実装済みschemaの契約です。templateは実際のIDや状態へ置換して利用します。形式検証の成功は承認・工程完了・参照先の存在を保証しません。利用・検証コマンドは`docs/common/workflow-tools-guide.md`、移行・fallbackは`docs/common/versioning-policy.md`を参照してください。計画・状態・再開候補の意味検査は第5.4・6.4節のcheckerで提供します。対応表の網羅と参照は第7章の追跡性checkerで検査します。Projectの3成果物の形式はproject-orchestration-design第5.5節を参照してください。依存DAG・wave・改訂の検査は第8.4節のvalidatorで追加利用できます。member/ownership/capacityは第9.4節でsnapshotを追加検査できます。従来のIssueベース運用を維持します。
 
-Issue内部の工程選択と再開はadaptive workflow、プロジェクト全体の開発順序、担当割当、進捗集約、AI主導の次Issue提案はproject orchestrationの責務です。後者の初期標準はIssues-onlyと手動Coordinatorであり、GitHub Projects、Dispatcher、外部Agent Runnerを必須にしません。
+Issue内部の工程選択と再開はadaptive workflow、プロジェクト全体の開発順序、担当割当、進捗集約、AI主導の次Issue提案はproject orchestrationの責務です。後者の初期標準はIssues-onlyと手動Coordinatorです。
 
 ## テンプレート本体の運用
 
@@ -418,7 +415,3 @@ execution/v1はProjectなしでも使える記録形式と読み取り専用の�
 利用法・保証範囲は[ツールガイド](workflow-tools-guide.md#execution)を参照してください。検査の成功は実際のAIレビュー/scanner実行・実行権限・安全性の証明ではありません。
 
 実scannerと既存アプリCIを接続する手順は[セキュリティ検査](workflow-tools-guide.md#security)を参照してください。GitHubのSecurity Validationと既存のオフライン検査は独立しています。
-
-## 継続制御の実験を確認する場合
-
-次のIssueへの自動選択・停止/再開・報告は[合成host library](../../tools/workflow-continuation/README.md)で試験できます。会話から実モデルを継続起動する接続は未提供です。通常の依頼手順は変わらず、Runnerの実運用前検証と採用承認、無人実行の有効化は別途必要です。
