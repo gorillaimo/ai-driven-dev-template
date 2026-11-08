@@ -74,12 +74,13 @@ except ValueError as error:assert error is original
 `));
 
 test('preparation timing is opt-in, bounded, sanitized and tolerates output failure',async()=>timingCheck(`
-def forbidden():raise AssertionError('disabled clock called')
+disabled_calls=[]
+def forbidden():disabled_calls.append(True);raise AssertionError('disabled clock called')
 t=m.PreparationTiming(False,forbidden)
 with t.measure('gitleaks_download'):pass
 out=io.StringIO()
 with contextlib.redirect_stderr(out):t.emit()
-assert out.getvalue()=='' and t.stages==[]
+assert out.getvalue()=='' and t.stages==[] and disabled_calls==[]
 t=m.PreparationTiming(True,lambda:0)
 with t.measure('https://secret.invalid/private/path?token=credential'):pass
 r=report(t);assert r['stages']==[{'stage_id':'unknown','status':'not_evaluated','duration_ms':None}]
@@ -87,12 +88,29 @@ t=m.PreparationTiming(True,lambda:0)
 for _ in range(33):
  with t.measure('PyPI_database_download'):pass
 r=report(t);assert len(r['stages'])==32 and r['truncated'] is True
+t=m.PreparationTiming(True,lambda:0)
+with t.measure('osv_download'):
+ for _ in range(32):
+  with t.measure('osv_checksum'):pass
+r=report(t);assert len(r['stages'])==32 and r['truncated'] is True
 class BrokenOutput:
  def write(self,value):raise OSError('secret-output')
  def flush(self):raise OSError('secret-output')
 t=m.PreparationTiming(True,lambda:0)
 with t.measure('Pub_database_validation'):pass
 with contextlib.redirect_stderr(BrokenOutput()):t.emit()
+original=KeyboardInterrupt('credential-interruption')
+t=m.PreparationTiming(True,lambda:0)
+try:
+ with t.measure('osv_download'):raise original
+except KeyboardInterrupt as error:assert error is original
+assert report(t)['stages'][0]['status']=='failed'
+class BrokenRecords(list):
+ def append(self,row):raise OSError('credential-recording-failure')
+t=m.PreparationTiming(True,lambda:0);t.stages=BrokenRecords()
+try:
+ with t.measure('osv_download'):raise original
+except KeyboardInterrupt as error:assert error is original
 `));
 
 test('preparation timing retains CLI stdout and exit status for unset, unknown and enabled flags',async()=>timingCheck(`

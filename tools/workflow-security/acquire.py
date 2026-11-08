@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Acquire public, pinned tools and bounded OSV snapshots. No project data is sent."""
-import datetime,email.utils,hashlib,json,os,signal,stat,sys,tarfile,tempfile,urllib.request,zipfile
+import datetime,email.utils,hashlib,json,os,signal,stat,sys,tarfile,tempfile,time,urllib.request,zipfile
+from contextlib import contextmanager
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent
 MAX_TOOL=256*1024*1024
@@ -9,6 +10,54 @@ MAX_EXPANDED=2*1024*1024*1024
 MAX_ENTRIES=500000
 STAGE="arguments"
 TOOL=None
+
+class PreparationTiming:
+    """Optional, bounded diagnostics; never evidence of successful acquisition/scanning."""
+    IDS=frozenset([tool+'_'+phase for tool in ('gitleaks','osv','trivy') for phase in ('download','checksum','extract')]+[ecosystem+'_database_'+phase for ecosystem in ('npm','PyPI','Pub') for phase in ('download','validation')])
+
+    def __init__(self,enabled=False,clock=None):
+        self.enabled=enabled is True
+        self.clock=clock if clock is not None else time.perf_counter_ns
+        self.stages=[];self.truncated=False;self.emitted=False
+
+    def _now(self):
+        try:
+            value=self.clock()
+            return value if type(value) is int and value>=0 else None
+        except Exception:return None
+
+    @contextmanager
+    def measure(self,stage_id):
+        if not self.enabled:
+            yield;return
+        if len(self.stages)>=32:
+            self.truncated=True
+            yield;return
+        stage=stage_id if type(stage_id) is str and stage_id in self.IDS else 'unknown'
+        start=self._now();failed=False
+        try:yield
+        except BaseException:
+            failed=True
+            raise
+        finally:
+            # Diagnostic failures must not replace the acquisition's result/exception.
+            try:
+                end=self._now();duration=None
+                if stage!='unknown' and start is not None and end is not None and 0<=end-start<=600000000000:duration=(end-start)//1000000
+                if len(self.stages)>=32:self.truncated=True
+                else:self.stages.append({'stage_id':stage,'status':'failed' if failed else ('completed' if duration is not None else 'not_evaluated'),'duration_ms':duration})
+            except Exception:pass
+
+    def emit(self):
+        if not self.enabled or self.emitted:return
+        self.emitted=True
+        try:
+            payload={'format_version':1,'artifact_kind':'security-preparation-timing','stages':self.stages,'truncated':self.truncated}
+            line=json.dumps(payload,separators=(',',':'))+'\n'
+            # Fixed IDs/fields and 32 rows normally require less than 4 KiB.
+            if len(line.encode('utf-8'))>16384:return
+            sys.stderr.write(line);sys.stderr.flush()
+        except Exception:pass
 
 class DatabaseLimitError(ValueError):
     def __init__(self,code,counts):
@@ -70,8 +119,9 @@ def inspect_database(path):
     if advisories==0:raise ValueError('database_empty')
     return {'entries':entries,'expanded':expanded,'advisories':advisories}
 
-def acquire(destination,ecosystems):
+def acquire(destination,ecosystems,timing=None):
     global STAGE,TOOL
+    if timing is None:timing=PreparationTiming()
     if any(e not in ['npm','PyPI','Pub'] for e in ecosystems) or len(ecosystems)>3 or len(set(ecosystems))!=len(ecosystems):raise ValueError('ecosystem_invalid')
     target=Path(destination)
     if target.exists():raise ValueError('output_exists')
@@ -84,35 +134,40 @@ def acquire(destination,ecosystems):
             inventory['tools'].append({'tool_id':'semgrep','version':tool['version'],'binary_digest':tool['sha256'],'archive_digest':tool['sha256']});continue
         STAGE='tool_download';TOOL=tool['tool_id']
         archive=target/(tool['tool_id']+'.download')
-        download(tool['url'],archive,MAX_TOOL)
-        if sha(archive)!=tool['sha256']:raise ValueError('checksum_invalid')
+        with timing.measure(tool['tool_id']+'_download'):
+            download(tool['url'],archive,MAX_TOOL)
+        with timing.measure(tool['tool_id']+'_checksum'):
+            if sha(archive)!=tool['sha256']:raise ValueError('checksum_invalid')
         binary=target/'bin'/tool['binary']
-        if tool['tool_id']=='osv':os.replace(archive,binary)
-        else:
-            with tarfile.open(archive,'r:gz') as tar:
-                members=[m for m in tar.getmembers() if m.name==tool['binary']]
-                if len(members)!=1 or not members[0].isfile() or members[0].size>MAX_TOOL:raise ValueError('archive_invalid')
-                with tar.extractfile(members[0]) as src,binary.open('xb') as dst:
-                    total=0
-                    while True:
-                        block=src.read(1024*1024)
-                        if not block:break
-                        total+=len(block)
-                        if total>MAX_TOOL:raise ValueError('archive_limit')
-                        dst.write(block)
-            archive.unlink()
-        binary.chmod(0o555)
-        inventory['tools'].append({'tool_id':tool['tool_id'],'version':tool['version'],'binary_digest':sha(binary),'archive_digest':tool['sha256']})
+        with timing.measure(tool['tool_id']+'_extract'):
+            if tool['tool_id']=='osv':os.replace(archive,binary)
+            else:
+                with tarfile.open(archive,'r:gz') as tar:
+                    members=[m for m in tar.getmembers() if m.name==tool['binary']]
+                    if len(members)!=1 or not members[0].isfile() or members[0].size>MAX_TOOL:raise ValueError('archive_invalid')
+                    with tar.extractfile(members[0]) as src,binary.open('xb') as dst:
+                        total=0
+                        while True:
+                            block=src.read(1024*1024)
+                            if not block:break
+                            total+=len(block)
+                            if total>MAX_TOOL:raise ValueError('archive_limit')
+                            dst.write(block)
+                archive.unlink()
+            binary.chmod(0o555)
+            inventory['tools'].append({'tool_id':tool['tool_id'],'version':tool['version'],'binary_digest':sha(binary),'archive_digest':tool['sha256']})
     compressed=0;expanded=0;entries=0
     for ecosystem in ecosystems:
         STAGE='database_download';TOOL=None
         directory=target/'db'/ecosystem;directory.mkdir(mode=0o755)
         path=directory/'all.zip';source='https://osv-vulnerabilities.storage.googleapis.com/'+ecosystem+'/all.zip'
         metadata={}
-        compressed+=download(source,path,MAX_DB-compressed,metadata)
+        with timing.measure(ecosystem+'_database_download'):
+            compressed+=download(source,path,MAX_DB-compressed,metadata)
         STAGE='database_validation'
-        inspected=inspect_database(path);entries+=inspected['entries'];expanded+=inspected['expanded']
-        validate_database_totals({'database_entries':entries,'database_expanded_bytes':expanded,'database_compressed_bytes':compressed})
+        with timing.measure(ecosystem+'_database_validation'):
+            inspected=inspect_database(path);entries+=inspected['entries'];expanded+=inspected['expanded']
+            validate_database_totals({'database_entries':entries,'database_expanded_bytes':expanded,'database_compressed_bytes':compressed})
         now=datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00','Z')
         inventory['databases'].append({'ecosystem':ecosystem,'digest':sha(path),'fetched_at':now,'checked_at':now,'source':source,'snapshot_kind':'public_snapshot','advisory_count':inspected['advisories'],**metadata})
         path.chmod(0o444)
@@ -121,14 +176,16 @@ def acquire(destination,ecosystems):
     return inventory
 
 if __name__=='__main__':
+    timing=PreparationTiming(os.environ.get('WORKFLOW_SECURITY_TIMING')=='1')
     try:
         if len(sys.argv)!=3:raise ValueError('arguments_invalid')
         signal.signal(signal.SIGALRM,lambda *_: (_ for _ in ()).throw(TimeoutError()))
         signal.alarm(600)
-        result=acquire(sys.argv[1],sys.argv[2].split(',') if sys.argv[2] else [])
+        result=acquire(sys.argv[1],sys.argv[2].split(',') if sys.argv[2] else [],timing=timing)
         print(json.dumps({'status':'acquired','tools':len(result['tools']),'databases':len(result['databases'])}))
     except Exception as error:
         known={'ecosystem_invalid','output_exists','download_limit','checksum_invalid','archive_invalid','archive_limit','database_invalid','database_format_invalid','database_empty','database_entry_limit','database_expanded_limit','arguments_invalid'}
         code=str(error) if isinstance(error,ValueError) and str(error) in known else 'acquisition_failed'
         counts=error.counts if isinstance(error,DatabaseLimitError) else {}
         print(json.dumps({'status':'error','code':code,'stage':STAGE,'tool_id':TOOL,'http_status':getattr(error,'code',None) if isinstance(getattr(error,'code',None),int) else None,**counts}));sys.exit(1)
+    finally:timing.emit()
