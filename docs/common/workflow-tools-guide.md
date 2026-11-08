@@ -802,6 +802,19 @@ plain JSONのみ受理し、getter/Proxy/cycle/特殊object/疎配列等をschem
 
 会話の細かな指示が来るたびに、すべてのscannerを呼ぶ設計ではありません。変更影響と工程の区切りで必要な検査を選びます。ただし現行CIはpushごとに全体を検査し、差分に応じた省略・結果の自動再利用は未実装です。旧commitの成功を新commitの証拠に転記せず、対象・版・脆弱性情報・期限の束縛を維持します。[検査時点と再確認](operations-reference.md#security-review-timing)を参照してください。
 
+取得準備の待ち時間は、Security Validationの「Acquire pinned public tools and npm vulnerability snapshot」stepログで確認できます。`acquire.py`は`WORKFLOW_SECURITY_TIMING=1`のときだけ、stderrへ`artifact_kind: security-preparation-timing`のJSONを終了時に1行出します。通常の取得結果は従来どおりstdoutです。未設定や他の値では時計を読まず、診断も出しません。
+
+| 診断の項目 | 読み方 |
+| :--- | :--- |
+| `stage_id` | `gitleaks`/`osv`/`trivy`の`download`・`checksum`・`extract`、または`npm`/`PyPI`/`Pub`の`database_download`・`database_validation`。未知IDは`unknown`。 |
+| `status` | `completed`はその区間を計測できたこと、`failed`は区間内で処理が中断したこと、`not_evaluated`は時計の異常などで評価できないこと。検査全体の合否とは別です。 |
+| `duration_ms` | 単調時計による整数ミリ秒。1ms未満は`0`、未計測・逆行・600秒超などは`null`です。 |
+| `truncated` | 最大32工程を超え、記録を省略した場合に`true`。JSON行は最大16KiBで、URL・path・例外本文・環境変数の値は含めません。 |
+
+`extract`にはOSVバイナリの配置、権限設定、バイナリdigest確認も含みます。DBの`validation`は形式・展開件数/容量の検証で、最後のDB digest計算やinventory書込みは含みません。Python外のSemgrep image pullも未計測です。工程の合計をstep全体の時間とみなしたり、差分をimage pullの実測値とみなしたりしないでください。
+
+未着手の工程は記録されず、強制終了やstderr故障では診断自体が残らない場合もあります。欠落を0秒や成功へ置き換えません。計測・出力の故障は元の取得結果や終了codeを変更しません。この診断は最適化判断の参考であり、cacheの導入・検査省略・合否結果の再利用や、速度改善・安全性の証明には使いません。
+
 Summaryには成否・件数・未評価を表示します。secret・原文・code断片・raw reportはuploadしません。詳細の保存先は人間が承認して選び、CIの一時ファイルが終了後も参照できるとは扱いません。検出・未対応・故障・未実行・古いDB・停止不明を区別し、未解決指摘や期限切れ例外を成功へ昇格しません。
 
 動的検査とLLM機能固有の検査は、条件と隔離/負のテストの例です。実host/実LLMを検査するadapterは未提供で、未設定を非該当や成功にしません。Dartなど初期規則が未対応の言語も保留にします。scanner成功はASVS準拠、認証/tenant境界、人間承認、Agent Runner全体の安全性を保証しません。

@@ -43,6 +43,8 @@ jobs:
         run: node tools/workflow-security/admission.mjs
       - name: Acquire pinned public tools and npm vulnerability snapshot
         timeout-minutes: 10
+        env:
+          WORKFLOW_SECURITY_TIMING: '1'
         run: |
           python3 tools/workflow-security/acquire.py "$RUNNER_TEMP/security-tools" npm
           docker pull --platform=linux/amd64 semgrep/semgrep@sha256:fb59331f2772da4a9960692ae31961cd58a7c666c014125e9202c96bdfdc38cc
