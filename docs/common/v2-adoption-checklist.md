@@ -5,6 +5,8 @@
 
 通常の会話開発、必要な範囲で採用する検査ツール、実験段階の接続部品を分けて確認します。通常の開始手順に、専用Linuxホスト・Docker・GitHub App・実験用Runnerの鍵を一律に追加するものではありません。
 
+Runnerなしの継続開発・利用枠に応じた停止・途中保存は[具体設計](native-continuation-design.md)を参照します。通常経路は利用中のAI環境を使い、残量取得が非対応でも件数/時間で区切る設計です。自動制御・残量取得接続・実環境での継続/停止は未実装/未評価を残し、文書や合成試験だけで対応済みとしません。
+
 初回の依頼は[初期セットアップ](operations-setup.md)、日常の依頼は[運用マニュアル](operations-manual.md)を参照してください。この表は採用・移行・Release判断の際に参照し、実行して試す場合は[隔離した導入・移行例](../examples/v2-adoption/README.md)を使ってください。
 
 ## 証拠の区分
@@ -35,7 +37,7 @@ P1〜P7は自律開発設計の計画項目IDです。すべてを導入する�
 | P6: 統合検証 | 固定main/PRの検査計画・実Git/隔離command・結果失効・元Issueへの修正要求 | 対応するDocker検証環境、承認済みprofileとP3/P4権限。GitHub要約には専用permit等が必要。実モデル起動とは別。[利用手順](workflow-tools-guide.md#integration-verification) |
 | P7: 継続制御 | 合成hostで次batch選択・局所保留・合算上限・停止/照合・安全な報告。P3〜P6を使う合成E2E | 合成E2Eには既存P4/P5のLinux/Python/SQLite環境。native本人性/権限委譲・実利用量/料金・一般runの実GitHub公開・実モデル継続は未接続/未評価。[APIと境界](../../tools/workflow-continuation/README.md) |
 
-実装・合成試験の完了と、利用先での接続・有効化を分けます。[#52](https://github.com/gorillaimo/ai-driven-dev-template/issues/52)は実運用接続と実モデル試行が未完了で、#66の保留を迂回しません。production採用・無人実行・alpha/stable公開はいずれも別の判断です。アプリ自身のテスト・運用環境も別途確認します。
+実装・合成試験の完了と、利用先での接続・有効化を分けます。[#52](https://github.com/gorillaimo/ai-driven-dev-template/issues/52)ではRunnerなしの経路を再設計しています。上表のP5/P7の実運用接続・実モデル試行は未完了で、独自Runnerを採用する場合の#66の条件も維持します。#66の完了を通常の会話開発の前提にはしません。production採用・無人実行・alpha/stable公開はいずれも別の判断です。アプリ自身のテスト・運用環境も別途確認します。
 
 ## 初期導入の確認記録（固定基準）
 

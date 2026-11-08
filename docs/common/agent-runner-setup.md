@@ -2,6 +2,8 @@
 
 日常の依頼方法は[運用マニュアル](operations-manual.md)、実装の契約は[設計](agent-runner-design.md)を参照する。この資料は導入担当者・AI向けであり、人間が各Issueで繰り返す操作一覧ではない。
 
+この資料の独自Runnerは任意拡張です。Codex Cloud等の通常の会話開発や[Runnerなしの継続・停止・再開](native-continuation-design.md)を選ぶ場合、この資料の専用環境・provider credentialや#66の完了を必須にしません。利用枠取得や機械的な停止の対応は別途確認します。
+
 **現在は実サービス接続の前段階。** 通常の手動運用はそのまま利用できる。Runnerのproduction起動は、書込み領域のquota検証・実provider試行・採用承認が揃うまで拒否する。GitHub Appを毎回インストールする必要はなく、既存のGitHub仲介を採用する場合の環境設定とは別の準備である。
 
 [実験実装のIssue #50](https://github.com/gorillaimo/ai-driven-dev-template/issues/50)のレビュー・マージには、GitHubのLinux環境で行うCIと共通仕様を確認する。この確認だけのために、利用者がMacへ仮想環境を新設したり、APIキーを登録したりする必要はない。
