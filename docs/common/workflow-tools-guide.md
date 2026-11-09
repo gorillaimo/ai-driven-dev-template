@@ -6,6 +6,7 @@ Node.jsは開発管理に使い、利用先アプリの開発言語は問いま�
 
 | 調べたいこと | 利用節 |
 | :--- | :--- |
+| 自律実行の既定値を変える | [設定ファイルの編集・検査](#autonomy-settings) |
 | Issue成果物を用意する | [記入とschema検証](#issue-artifacts) |
 | ルールの適用を決める | [モジュール式ルール](#rules) |
 | 計画・現在地・再開候補 | [plan/stateの検査](#workflow-state) |
@@ -26,6 +27,52 @@ Node.jsは開発管理に使い、利用先アプリの開発言語は問いま�
 | 複数PRを組み合わせた検査 | [統合検証](#integration-verification) |
 | 次のIssueへの継続制御の合成試験 | [継続制御](#continuation) |
 | 隔離したAI実行の開発・検証 | [Runnerの準備](agent-runner-setup.md) |
+
+<a id="autonomy-settings"></a>
+
+## 自律実行の設定ファイルを編集・検査する
+
+日常の変更依頼は[運用マニュアル](operations-manual.md#autonomous-settings)を使います。AI・導入者が手編集する場合は、`.ai-workflow/autonomy.yaml`を変更し、検査後に通常のIssue用branch/PRで確認します。今回だけの指定は作業記録に残し、このファイルを変更しません。
+
+```yaml
+schema_version: 1
+artifact_kind: autonomy-settings
+revision: 1
+limits:
+  issues: 2
+  minutes: 60
+  parallel_issues: 1
+  repair_rounds: 2
+quota:
+  stop_new_remaining_percent: 30
+  checkpoint_remaining_percent: 15
+```
+
+上はテンプレートの初期値です。プロジェクトの既定値を変えるときは`revision`も増やし、変更理由と適用範囲をPRに記載します。過去のrevisionとの比較や承認者の照合は、この静的検査の対象ではありません。
+
+| 項目 | 意味・設定可能な範囲 |
+| :--- | :--- |
+| `limits.issues` | 1回に進める総Issue数。整数1〜10 |
+| `limits.minutes` | 作業期限。整数11〜360分。最後の10分は保存・報告に確保 |
+| `limits.parallel_issues` | 同時に進めるIssue数。整数1〜2、かつ総Issue数以下。並列機能・分割承認は別に確認 |
+| `limits.repair_rounds` | Issueごとの修正巡回。整数0〜3。0は追加の修正巡回を行わず指摘を保留する設定 |
+| `quota.stop_new_remaining_percent` | 新規着手を止める残量。整数2〜100 |
+| `quota.checkpoint_remaining_percent` | 途中保存を優先する残量。整数1〜99、かつ新規着手を止める値より小さくする |
+
+Node.js 22以上と既存のschema検査の依存を使います。repository rootで実行します。
+
+```sh
+npm ci --prefix tools/workflow-schema --ignore-scripts --no-audit --no-fund
+npm run check:autonomy --prefix tools/workflow-schema
+```
+
+固定の`.ai-workflow/autonomy.yaml`と、設定契約の固定合成試験を検査します。別path/URL・環境変数から設定を自動発見せず、ファイルや入力を修正しません。設定欠落・通常ファイルでないもの・16KiB超・壊れたYAML・重複key/alias/tag・未知key/version・型/範囲・大小関係の不整合は失敗です。失敗時は`autonomy_settings_unreadable`、`autonomy_schema_invalid`、`autonomy_threshold_order`、`autonomy_parallel_limit`等の固定codeから確認します。raw値や設定本文は診断へ出しません。
+
+schemaは型と範囲を定義します。閾値の順序と並列数の大小関係は検査入口でも確認するため、JSON Schemaだけの適合を全条件の成功としません。初回の依存取得後はオフラインで実行し、HTTP・外部AI・アプリcommandを呼びません。非変更・通信禁止・欠落/不正時の失敗を、テスト用Node子プロセスでも確認します。
+
+既存の`npm test --prefix tools/workflow-schema`にも同じ検査を含め、現行のNode22/24 CIで確認します。部分導入では同じcommitの`tools/workflow-schema/`、`tests/workflow-schema/`、`.ai-workflow/schemas/`、`.ai-workflow/templates/`と設定ファイルを保持してください。
+
+成功は保存された既定値の適合を示します。今回だけの指定との合成・実行時の自動適用・利用枠取得・停止・権限/承認・作業完了を保証しません。不正時に初期値へ黙って戻す動作もありません。これらの実行制御は[共通設計](native-continuation-design.md)の後続範囲です。
 
 <a id="issue-artifacts"></a>
 

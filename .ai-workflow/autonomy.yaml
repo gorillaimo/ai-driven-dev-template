@@ -1,0 +1,13 @@
+# プロジェクトの既定値です。実行の許可や自動起動を表すものではありません。
+# 今回だけの指定は作業記録に残し、既定値の変更はPRで確認します。
+schema_version: 1
+artifact_kind: autonomy-settings
+revision: 1
+limits:
+  issues: 2
+  minutes: 60
+  parallel_issues: 1
+  repair_rounds: 2
+quota:
+  stop_new_remaining_percent: 30
+  checkpoint_remaining_percent: 15

@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-workflow:autonomy:v1:settings",
+  "title": "Autonomy project defaults v1",
+  "description": "Configuration only, not authority or execution evidence. The offline check also verifies threshold ordering and parallel_issues <= issues.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "artifact_kind", "revision", "limits", "quota"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "artifact_kind": { "const": "autonomy-settings" },
+    "revision": { "type": "integer", "minimum": 1 },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issues", "minutes", "parallel_issues", "repair_rounds"],
+      "properties": {
+        "issues": { "type": "integer", "minimum": 1, "maximum": 10 },
+        "minutes": { "type": "integer", "minimum": 11, "maximum": 360 },
+        "parallel_issues": { "type": "integer", "minimum": 1, "maximum": 2 },
+        "repair_rounds": { "type": "integer", "minimum": 0, "maximum": 3 }
+      }
+    },
+    "quota": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stop_new_remaining_percent", "checkpoint_remaining_percent"],
+      "properties": {
+        "stop_new_remaining_percent": { "type": "integer", "minimum": 2, "maximum": 100 },
+        "checkpoint_remaining_percent": { "type": "integer", "minimum": 1, "maximum": 99 }
+      }
+    }
+  }
+}
