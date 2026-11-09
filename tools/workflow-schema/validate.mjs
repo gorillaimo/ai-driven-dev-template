@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { readFileSync, readdirSync, lstatSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import test from 'node:test';
 import Ajv from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
@@ -43,6 +43,37 @@ function diagnostics(kind, value) {
     return x < y ? -1 : x > y ? 1 : 0;
   });
   return { valid, errors };
+}
+
+const autonomyValidate = ajv.compile(JSON.parse(readFileSync(
+  new URL('.ai-workflow/schemas/autonomy/v1/settings.schema.json', root), 'utf8')));
+
+function autonomyDiagnostics(value) {
+  if (!autonomyValidate(value)) return { valid: false, codes: ['autonomy_schema_invalid'] };
+  const codes = [];
+  if (value.quota.checkpoint_remaining_percent >= value.quota.stop_new_remaining_percent) codes.push('autonomy_threshold_order');
+  if (value.limits.parallel_issues > value.limits.issues) codes.push('autonomy_parallel_limit');
+  return { valid: codes.length === 0, codes };
+}
+
+function parseAutonomyYaml(text) {
+  try {
+    if (typeof text !== 'string' || Buffer.byteLength(text, 'utf8') > 16384) throw Error();
+    const doc = parseDocument(text, { version: '1.2', uniqueKeys: true });
+    if (doc.errors.length || doc.warnings.length) throw Error();
+    visit(doc, { Alias() { throw Error(); }, Node(_, node) { if (node.tag) throw Error(); } });
+    return doc.toJS({ maxAliasCount: 0 });
+  } catch { throw new Error('autonomy_yaml_invalid'); }
+}
+
+function readAutonomySettings() {
+  // Fixed project file only; this is not an arbitrary-path loader or a run grant.
+  const file = new URL('.ai-workflow/autonomy.yaml', root);
+  try {
+    const stat = lstatSync(file);
+    if (!stat.isFile() || stat.size > 16384) throw Error();
+    return parseAutonomyYaml(readFileSync(file, 'utf8'));
+  } catch { throw new Error('autonomy_settings_unreadable'); }
 }
 
 test('case manifest has unique IDs and covers every committed fixture', () => {
@@ -124,6 +155,7 @@ test('autonomy configured file is valid and remains unchanged', () => {
 
 test('autonomy defaults, user changes and inclusive bounds remain valid without mutation', () => {
   const values = [autonomyFixture()];
+  const revised = autonomyFixture(); revised.revision = 2; values.push(revised);
   for (const [field, choices] of Object.entries({
     issues: [1, 3, 10], minutes: [11, 90, 360], parallel_issues: [1, 2], repair_rounds: [0, 3],
   })) for (const choice of choices) {
@@ -217,7 +249,7 @@ fs.readFileSync=(p,...args)=>{if(fixed(p)){if('${mode}'==='missing')throw Error(
 fs.lstatSync=(p,...args)=>fixed(p)&&'${mode}'==='not-file'?{isFile:()=>false}:stat(p,...args);
 const deny=()=>{throw Error('external_operation_forbidden')};for(const m of [http,https,net,cp])for(const k of ['request','get','connect','createConnection','exec','execSync','execFile','execFileSync','spawn','spawnSync','fork'])if(typeof m[k]==='function')m[k]=deny;
 for(const k of ['writeFileSync','appendFileSync','renameSync','unlinkSync','mkdirSync'])fs[k]=deny;globalThis.fetch=deny;syncBuiltinESMExports();`);
-      const r = spawnSync(process.execPath, ['--import', preload, '--test-name-pattern=^autonomy configured file is valid', fileURLToPath(import.meta.url)], { encoding: 'utf8', timeout: 15000, maxBuffer: 128 * 1024 });
+      const r = spawnSync(process.execPath, ['--import', pathToFileURL(preload).href, '--test-name-pattern=^autonomy configured file is valid', fileURLToPath(import.meta.url)], { encoding: 'utf8', timeout: 15000, maxBuffer: 128 * 1024 });
       assert.equal(r.error, undefined, 'probe_process_failed');
       assert.equal(r.status, ['valid', 'changed'].includes(mode) ? 0 : 1, 'probe_status_invalid');
       assert.equal((r.stdout + r.stderr).includes('credential-sentinel'), false);
