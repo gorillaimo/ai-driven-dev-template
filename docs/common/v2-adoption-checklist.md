@@ -5,7 +5,7 @@
 
 通常の会話開発、必要な範囲で採用する検査ツール、実験段階の接続部品を分けて確認します。必要な開発環境と接続は、利用するAIツール・アプリ・採用する検査に合わせて確認します。
 
-自律実行の既定値と変更方法は[運用マニュアル](operations-manual.md#autonomous-settings)、停止・途中保存・再開の詳細は[設計](native-continuation-design.md)を参照します。既定設定ファイルと[オフライン適合検査](workflow-tools-guide.md#autonomy-settings)を提供しています。設定の自動適用・利用枠取得・停止制御は未実装です。残量を取得できない環境では件数・時間で区切る設計です。
+自律実行の既定値と変更方法は[運用マニュアル](operations-manual.md#autonomous-settings)、停止・途中保存・再開の詳細は[設計](native-continuation-design.md)を参照します。既定設定と[適合検査](workflow-tools-guide.md#autonomy-settings)、AIが設定・候補・上限・保存/再開を確認する[会話手順](development-rules.md#continuation-procedure)と[記録例](operations-reference.md#continuation-records)を提供しています。残量を取得できない環境では残量不明として件数・時間で区切ります。今回指定との機械的な設定合成・利用枠自動取得・常時監視/強制停止は未実装です。自然言語の手順と実環境で確認できた動作は区別して判断します。
 
 初回の依頼は[初期セットアップ](operations-setup.md)、日常の依頼は[運用マニュアル](operations-manual.md)を参照してください。この表は採用・移行・Release判断の際に参照し、実行して試す場合は[隔離した導入・移行例](../examples/v2-adoption/README.md)を使ってください。
 

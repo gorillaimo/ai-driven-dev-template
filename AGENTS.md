@@ -19,6 +19,7 @@
 - `docs/common/development-rules.md`: AI向けの開発規約
 - `docs/common/operations-manual.md`: 人間向けの運用手順
 - `docs/common/quality-gates.md`: NFR、Security、Resiliency の品質ゲート
+- 作業の選択・継続を任された場合は、[継続依頼の手順](docs/common/development-rules.md#continuation-procedure)と[設定・停止・再開の設計](docs/common/native-continuation-design.md)を確認し、設定・上限・候補・保存記録を照合してから進める。
 - `docs/system-context.md`: アプリ全体の前提、存在する場合は必ず参照
 - `docs/architecture.md`: 採用アーキテクチャ、技術スタック、デフォルト構成との差分、存在する場合は必ず参照
 - `docs/prototype.md`: プロトタイプの範囲、検証結果、後続issue候補、プロトタイプ関連issueでは必ず参照
