@@ -7,6 +7,8 @@
 
 自律実行の既定値と変更方法は[運用マニュアル](operations-manual.md#autonomous-settings)、停止・途中保存・再開の詳細は[設計](native-continuation-design.md)を参照します。既定設定と[適合検査](workflow-tools-guide.md#autonomy-settings)、AIが設定・候補・上限・保存/再開を確認する[会話手順](development-rules.md#continuation-procedure)と[記録例](operations-reference.md#continuation-records)を提供しています。残量を取得できない環境では残量不明として件数・時間で区切ります。今回指定との機械的な設定合成・利用枠自動取得・常時監視/強制停止は未実装です。自然言語の手順と実環境で確認できた動作は区別して判断します。
 
+値から上限・停止理由を返す[任意の判断補助](workflow-tools-guide.md#autonomy-budget)も提供します。残量取得・AI起動・実停止や履歴の保存は行わず、通常の会話手順への自動接続もありません。固定入力の試験と、実環境での動作確認は区別します。
+
 初回の依頼は[初期セットアップ](operations-setup.md)、日常の依頼は[運用マニュアル](operations-manual.md)を参照してください。この表は採用・移行・Release判断の際に参照し、実行して試す場合は[隔離した導入・移行例](../examples/v2-adoption/README.md)を使ってください。
 
 ## 証拠の区分

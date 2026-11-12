@@ -51,6 +51,214 @@ const continuationImports =
       ])
     : null;
 
+// An optional, synchronous budget decision. These inputs are synthetic observations,
+// never grants, a real quota reading, or evidence that any worker was stopped.
+if (process.env.WORKFLOW_CONTINUATION_TEST === "1") {
+  const budget = (input) => continuationImports[0].decideContinuationBudget(input);
+  const start = "2026-11-10T00:00:00Z";
+  const at = (minutes) => new Date(Date.parse(start) + minutes * 60000).toISOString();
+  const input = () => ({
+    policy: { schema_version: 1, artifact_kind: "autonomy-settings", revision: 1,
+      limits: { issues: 2, minutes: 60, parallel_issues: 1, repair_rounds: 2 },
+      quota: { stop_new_remaining_percent: 30, checkpoint_remaining_percent: 15 } },
+    run: { started_at: start, last_checked_at: start,
+      issues: [{ number: 81, repair_rounds: 0 }], active_issues: [], active_agents: 1,
+      stop_requested: false, authorization_lost: false, storage_failed: false, work_unknown: false },
+    observation: { status: "unsupported" }, now: at(10),
+  });
+  const observed = (v) => {
+    v.observation = { status: "available", retry_count: 0, observed_at: v.now,
+      expected_scope: { account_ref: "synthetic-account", workspace_ref: "synthetic-workspace", window_ids: ["short", "long"] },
+      observed_scope: { account_ref: "synthetic-account", workspace_ref: "synthetic-workspace" },
+      windows: ["short", "long"].map(id => ({ id, metric: "remaining_percent", value: 80 })),
+      warning: false, exhausted: false };
+    return v;
+  };
+  const freeze = (v) => { if (v && typeof v === "object") { Object.values(v).forEach(freeze); Object.freeze(v); } return v; };
+  const closed = (r) => {
+    assert.equal(r.decision, "checkpoint"); assert.equal(r.authority, false);
+    assert.equal(r.can_start_issue, false); assert.equal(r.can_start_agent, false);
+    assert.deepEqual(r.repairable_issues, []);
+    assert.equal(JSON.stringify(r).includes("credential-sentinel"), false);
+  };
+  test("P7 Budget: unsupported quota is unknown, deterministic and immutable, never authority", () => {
+    const v = freeze(input()), before = JSON.stringify(v), r = budget(v);
+    assert.deepEqual(r, { schema_version: 1, artifact_kind: "autonomy-budget-decision", authority: false,
+      decision: "continue", reason_codes: [], held_issues: [], stop_new_at: at(50), deadline_at: at(60),
+      remaining_percent: null, can_start_issue: true, can_start_agent: true, repairable_issues: [] });
+    assert.deepEqual(budget(v), r); assert.equal(JSON.stringify(v), before);
+    r.reason_codes.push("mutated-output"); assert.deepEqual(budget(v).reason_codes, []);
+  });
+  test("P7 Budget: valid policy changes retain fixed ten-minute save margin", () => {
+    for (const minutes of [11, 90, 360]) {
+      const v = input(); v.policy.revision = 2; v.policy.limits.minutes = minutes; v.now = at(0);
+      assert.equal(budget(v).deadline_at, at(minutes)); assert.equal(budget(v).stop_new_at, at(minutes - 10));
+    }
+    const v = input(); v.now = "2026-11-10T09:10:00+09:00";
+    assert.deepEqual(budget(v), budget(input()));
+  });
+  for (const [minutes, decision] of [[49 + 59 / 60, "continue"], [50, "stop_new"], [59 + 59 / 60, "stop_new"], [60, "checkpoint"]]) {
+    test(`P7 Budget: time boundary ${minutes} is ${decision}`, () => {
+      const v = input(); v.now = at(minutes); const r = budget(v); assert.equal(r.decision, decision);
+      if (decision !== "continue") { assert.equal(r.can_start_issue, false); assert.equal(r.can_start_agent, false); }
+      if (decision === "checkpoint") closed(r);
+    });
+  }
+  test("P7 Budget: 90-minute run stops new work at 80, expires at 90 without reset", () => {
+    const v = input(); v.policy.limits.minutes = 90;
+    v.now = at(80); assert.equal(budget(v).decision, "stop_new");
+    v.now = at(90); closed(budget(v)); assert.equal(budget(v).deadline_at, at(90));
+    assert.equal(v.run.started_at, start);
+  });
+  test("P7 Budget: invalid, missing and reversed clocks cannot open a new run", () => {
+    const mutations = [v => v.now = "credential-sentinel", v => v.now = "2026-02-30T00:00:00Z",
+      v => v.now = "2026-11-10", v => v.run.last_checked_at = at(11),
+      v => v.run.started_at = at(1), v => delete v.run.started_at];
+    for (const mutate of mutations) { const v = input(); mutate(v); closed(budget(v)); }
+  });
+  for (const [flag, code] of [["stop_requested", "budget_stopped"], ["authorization_lost", "budget_authority_lost"],
+    ["storage_failed", "budget_storage_failed"], ["work_unknown", "budget_work_unknown"]]) {
+    test(`P7 Budget: ${flag} takes precedence over available capacity`, () => {
+      const v = input(); v.run[flag] = true; const r = budget(v); closed(r); assert(r.reason_codes.includes(code));
+    });
+  }
+  test("P7 Budget: policy type, version, unknown fields, bounds and cross-relations fail closed", () => {
+    const changes = [v => v.policy.schema_version = 2, v => v.policy.revision = 0,
+      v => v.policy.extra = "credential-sentinel", v => delete v.policy.quota,
+      v => v.policy.limits = null, v => v.policy.quota.checkpoint_remaining_percent = 30,
+      v => { v.policy.limits.issues = 1; v.policy.limits.parallel_issues = 2; }];
+    for (const [key, values] of Object.entries({ issues: [0, 11, "2", null], minutes: [10, 361, 1.5], parallel_issues: [0, 3], repair_rounds: [-1, 4] }))
+      for (const value of values) changes.push(v => v.policy.limits[key] = value);
+    for (const [key, values] of Object.entries({ stop_new_remaining_percent: [1, 101, "30"], checkpoint_remaining_percent: [0, 100] }))
+      for (const value of values) changes.push(v => v.policy.quota[key] = value);
+    for (const change of changes) { const v = input(); change(v); closed(budget(v)); }
+  });
+  test("P7 Budget: malformed run collections and unknown input fields fail closed", () => {
+    const changes = [v => v.private = "credential-sentinel", v => v.run.extra = true,
+      v => delete v.run.storage_failed, v => v.run.stop_requested = "false", v => v.run.issues = null,
+      v => v.run.issues.push({ number: 81, repair_rounds: 0 }), v => v.run.issues[0].number = 0,
+      v => v.run.issues[0].number = Number.MAX_SAFE_INTEGER + 1,
+      v => v.run.issues[0].repair_rounds = 4, v => v.run.active_issues = [82],
+      v => v.run.active_issues = [81, 81], v => v.run.active_agents = -1, v => v.run.active_agents = 4,
+      v => v.run.issues = Array.from({ length: 11 }, (_, n) => ({ number: n + 1, repair_rounds: 0 })),
+      v => v.observation.extra = "credential-sentinel"];
+    for (const change of changes) { const v = input(); change(v); closed(budget(v)); }
+    for (const v of [undefined, null, [], true, "credential-sentinel", {}]) closed(budget(v));
+  });
+  test("P7 Budget: non-JSON values, accessors, cycles and proxies are not evaluated", () => {
+    let reads = 0;
+    const getter = input(); Object.defineProperty(getter.run, "secret", { enumerable: true, get() { reads++; throw Error("credential-sentinel"); } });
+    const proxy = new Proxy({}, { ownKeys() { reads++; throw Error("credential-sentinel"); } });
+    const cycle = input(); cycle.run.loop = cycle;
+    const values = [getter, proxy, cycle];
+    for (const bad of [NaN, Infinity, -Infinity, 1n, () => {}, new Date(), Symbol("secret")]) { const v = input(); v.run.active_agents = bad; values.push(v); }
+    for (const v of values) closed(budget(v)); assert.equal(reads, 0);
+  });
+  for (const [remaining, decision] of [[0, "checkpoint"], [15, "checkpoint"], [16, "stop_new"], [30, "stop_new"], [31, "continue"], [99.5, "continue"], [100, "continue"]]) {
+    test(`P7 Budget: remaining ${remaining} has inclusive threshold decision ${decision}`, () => {
+      const v = observed(input()); v.observation.windows.forEach(w => w.value = remaining);
+      const r = budget(v); assert.equal(r.decision, decision); assert.equal(r.remaining_percent, remaining);
+      if (decision === "checkpoint") closed(r);
+    });
+  }
+  test("P7 Budget: uses the minimum of all required windows and converts used percent", () => {
+    const v = observed(input()); v.observation.windows[1] = { id: "long", metric: "used_percent", value: 80 };
+    const r = budget(v); assert.equal(r.remaining_percent, 20); assert.equal(r.decision, "stop_new");
+    v.observation.windows.reverse(); assert.deepEqual(budget(v), r);
+  });
+  test("P7 Budget: exactly 60 seconds is fresh, 61 seconds/future/bad scopes are unknown", () => {
+    const v = observed(input()); v.observation.observed_at = at(9);
+    assert.equal(budget(v).decision, "continue");
+    const changes = [v => v.observation.observed_at = at(10 - 61 / 60), v => v.observation.observed_at = at(11),
+      v => v.observation.observed_at = "credential-sentinel", v => v.observation.observed_scope.account_ref = "other",
+      v => v.observation.observed_scope.workspace_ref = "other", v => v.observation.windows.pop(),
+      v => v.observation.windows[0].id = "unrelated", v => v.observation.windows[0].value = -1,
+      v => v.observation.windows[0].value = 101, v => v.observation.windows[0].value = "80",
+      v => v.observation.windows[0].metric = "tokens", v => v.observation.windows.push(v.observation.windows[0]),
+      v => v.observation.expected_scope.window_ids.push("short"),
+      v => v.observation.expected_scope.account_ref = "x".repeat(129), v => v.observation.windows = []];
+    for (const change of changes) for (const retry of [0, 1]) {
+      const f = observed(input()); change(f); f.observation.retry_count = retry;
+      const r = budget(f); assert.equal(r.decision, retry ? "checkpoint" : "stop_new");
+      assert(r.reason_codes.includes("budget_quota_unknown")); assert.equal(r.remaining_percent, null);
+      assert.equal(r.can_start_issue, false); assert.equal(r.can_start_agent, false);
+    }
+  });
+  test("P7 Budget: unsupported quota and a failed supported source never share a fallback", () => {
+    const v = input(); assert.equal(budget(v).decision, "continue");
+    for (const retry of [0, 1]) {
+      v.observation = { status: "unavailable", retry_count: retry };
+      assert.equal(budget(v).decision, retry ? "checkpoint" : "stop_new");
+    }
+    v.observation.retry_count = 2; closed(budget(v));
+    v.observation = { status: "unknown" }; closed(budget(v));
+  });
+  test("P7 Budget: warnings and exhaustion checkpoint even when a sample is unusable", () => {
+    for (const flag of ["warning", "exhausted"]) for (const value of [99, -1]) {
+      const v = observed(input()); v.observation[flag] = true; v.observation.windows[0].value = value;
+      const r = budget(v); closed(r); assert(r.reason_codes.includes("budget_quota_critical"));
+    }
+  });
+  test("P7 Budget: issue/parallel capacity does not prevent a budgeted review agent", () => {
+    const v = input(); v.run.issues.push({ number: 82, repair_rounds: 0 }); v.run.active_issues = [81];
+    const r = budget(v); assert.equal(r.can_start_issue, false); assert.equal(r.can_start_agent, true);
+    assert.deepEqual(r.repairable_issues, [81]);
+    assert(r.reason_codes.includes("budget_issue_limit")); assert(r.reason_codes.includes("budget_parallel_limit"));
+    v.run.active_agents = 3; assert.equal(budget(v).can_start_agent, false);
+  });
+  test("P7 Budget: repair holds are local, zero repairs is valid, overparallel is unsafe", () => {
+    const v = input(); v.policy.limits.issues = 3; v.policy.limits.parallel_issues = 2;
+    v.run.issues = [{ number: 82, repair_rounds: 0 }, { number: 81, repair_rounds: 2 }]; v.run.active_issues = [82];
+    const r = budget(v); assert.equal(r.can_start_issue, true); assert.deepEqual(r.held_issues, [81]); assert.deepEqual(r.repairable_issues, [82]);
+    v.policy.limits.repair_rounds = 0; assert.deepEqual(budget(v).held_issues, [81, 82]); assert.deepEqual(budget(v).repairable_issues, []);
+    v.policy.limits.parallel_issues = 1; v.run.active_issues = [81, 82]; closed(budget(v));
+  });
+  test("P7 Budget: save window and low quota never propose a new repair cycle", () => {
+    const v = input(); v.run.active_issues = [81]; v.now = at(50); assert.deepEqual(budget(v).repairable_issues, []);
+    const q = observed(input()); q.run.active_issues = [81]; q.observation.windows[0].value = 30;
+    assert.deepEqual(budget(q).repairable_issues, []);
+  });
+  test("P7 Budget: reports all applicable reasons in fixed order with checkpoint precedence", () => {
+    const v = observed(input()); v.now = at(60); v.observation.observed_at = v.now; v.observation.windows[0].value = 15;
+    for (const flag of ["stop_requested", "authorization_lost", "storage_failed", "work_unknown"]) v.run[flag] = true;
+    v.run.issues = [{ number: 82, repair_rounds: 2 }, { number: 81, repair_rounds: 2 }]; v.run.active_issues = [82, 81]; v.run.active_agents = 3;
+    const r = budget(v); closed(r); assert.deepEqual(r.held_issues, [81, 82]);
+    assert.deepEqual(r.reason_codes, ["budget_stopped", "budget_authority_lost", "budget_storage_failed", "budget_work_unknown",
+      "budget_deadline", "budget_save_window", "budget_quota_critical", "budget_quota_low", "budget_issue_limit",
+      "budget_parallel_limit", "budget_agent_limit", "budget_repair_limit"]);
+  });
+  test("P7 Budget: serialization limit applies to otherwise shaped inputs without leaking values", () => {
+    let small, large;
+    for (let n = 0; n <= 63; n++) {
+      const v = observed(input()), o = v.observation, ref = "\u0001".repeat(128);
+      o.expected_scope.account_ref = o.expected_scope.workspace_ref = o.observed_scope.account_ref = o.observed_scope.workspace_ref = ref;
+      o.expected_scope.window_ids = Array.from({ length: 16 }, (_, i) => "\u0001".repeat(n) + String.fromCharCode(65 + i));
+      o.windows = o.expected_scope.window_ids.map(id => ({ id, metric: "remaining_percent", value: 80 }));
+      if (Buffer.byteLength(JSON.stringify(v)) <= 16384) small = v; else { large = v; break; }
+    }
+    assert(small && large); assert.equal(budget(small).decision, "continue"); closed(budget(large));
+  });
+  test("P7 Budget: decision calls perform no IO, process, quota acquisition or clock reads", async () => {
+    const names = ["node:fs", "node:http", "node:https", "node:net", "node:child_process"];
+    const modules = await Promise.all(names.map(n => import(n)));
+    const { syncBuiltinESMExports } = await import("node:module");
+    const saved = [], calls = [], originalDate = Date, originalFetch = globalThis.fetch;
+    const deny = () => { calls.push("forbidden"); throw Error("credential-sentinel"); };
+    const v = freeze(input()); let result;
+    try {
+      for (const m of modules) for (const key of ["readFileSync", "writeFileSync", "openSync", "appendFileSync", "renameSync", "unlinkSync", "request", "get", "connect", "createConnection", "exec", "execSync", "execFile", "execFileSync", "spawn", "spawnSync", "fork"])
+        if (typeof m.default[key] === "function") { saved.push([m.default, key, m.default[key]]); m.default[key] = deny; }
+      globalThis.fetch = deny;
+      globalThis.Date = class extends originalDate { constructor(...args) { if (!args.length) deny(); super(...args); } static now() { return deny(); } };
+      syncBuiltinESMExports(); result = budget(v);
+    } finally {
+      for (const [object, key, value] of saved) object[key] = value;
+      globalThis.Date = originalDate; globalThis.fetch = originalFetch; syncBuiltinESMExports();
+    }
+    assert.deepEqual(calls, []); assert.equal(result.decision, "continue");
+  });
+}
+
 // authority.test.mjs
 {
   function setup(intent = "continue") {

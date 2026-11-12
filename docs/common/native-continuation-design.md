@@ -152,7 +152,7 @@ push/PR作成・コメント投稿が応答不明なら、新しい操作を盲�
 | :--- | :--- |
 | 保存する既定設定・静的検査 | `.ai-workflow/autonomy.yaml`と独立schema、既存workflow-schema入口での型/範囲/大小関係の検査を提供。自律起動や実行時停止は行わない |
 | 通常の会話手順への接続 | AGENTSから開発規約の継続手順へ接続し、設定・候補・上限・保存/再開をAIが確認する。Issue/PR向け記録例を提供。代表Issueの確認結果と未実証シナリオはIssue/PRへ記録し、全環境での制御実証と扱わない |
-| 任意の判断補助 | `tools/workflow-continuation/`の既存純粋計画部と既存test群を第一候補に調査。`decideContinuationBudget({policy, observation, run, now})`で開始可/新規停止/保存停止と固定理由codeを返す案。GitHub/AI/command起動・認証取得の副作用を持たせない。既存v1受理集合を変えない。最終API/配置は実装契約で確定 |
+| 任意の判断補助 | 既存`tools/workflow-continuation/controller.mjs`の`decideContinuationBudget({policy, observation, run, now})`が、注入した値から継続/新規停止/保存優先・操作別候補・局所保留・固定理由codeを返す。既存P7テスト入口で確認。[APIと範囲](../../tools/workflow-continuation/README.md#budget)を参照。実験用host/会話手順へ自動接続せず、残量/時計の取得・実停止/保存は行わない |
 | 任意の環境接続 | 正規に公開された残量/agent/停止/保存能力を接続する。現在の会話で残量取得不可なら非対応を維持。新環境・認証・課金・定期起動を暗黙に追加しない |
 
 新しいJS/Python sourceは現行246件と固定argv10の上限を確認してから計画する。検査対象除外や上限緩和で追加余地を作らない。既存schemaの受理範囲・実行権限・起動制限・台帳の意味を変更しない。機械補助の形式/版が必要なら別契約として承認し、Issue v1の完了や権限を推測で埋めない。

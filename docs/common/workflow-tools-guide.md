@@ -7,6 +7,7 @@ Node.jsは開発管理に使い、利用先アプリの開発言語は問いま�
 | 調べたいこと | 利用節 |
 | :--- | :--- |
 | 自律実行の既定値を変える | [設定ファイルの編集・検査](#autonomy-settings) |
+| 上限や停止条件を値から判定する | [任意の判断補助](#autonomy-budget) |
 | Issue成果物を用意する | [記入とschema検証](#issue-artifacts) |
 | ルールの適用を決める | [モジュール式ルール](#rules) |
 | 計画・現在地・再開候補 | [plan/stateの検査](#workflow-state) |
@@ -73,6 +74,18 @@ schemaは型と範囲を定義します。閾値の順序と並列数の大小�
 既存の`npm test --prefix tools/workflow-schema`にも同じ検査を含め、現行のNode22/24 CIで確認します。部分導入では同じcommitの`tools/workflow-schema/`、`tests/workflow-schema/`、`.ai-workflow/schemas/`、`.ai-workflow/templates/`と設定ファイルを保持してください。
 
 成功は保存された既定値の適合を示します。今回だけの指定との合成・実行時の自動適用・利用枠取得・停止・権限/承認・作業完了を保証しません。不正時に初期値へ黙って戻す動作もありません。これらの実行制御は[共通設計](native-continuation-design.md)の後続範囲です。
+
+<a id="autonomy-budget"></a>
+
+## 値から上限・停止条件を判定する
+
+`tools/workflow-continuation/controller.mjs`の`decideContinuationBudget({policy, observation, run, now})`を任意で使えます。設定と累積・注入した時刻・残量から、継続/新規停止/保存優先、Issue/agent別の候補、修正の局所保留、固定理由を返す同期関数です。入力形式と実行例は[APIの説明](../../tools/workflow-continuation/README.md#budget)を参照してください。
+
+残量は複数枠の最小値を使い、非対応と取得故障を区別します。件数上限で新Issueを止めても、既存Issueの必要なレビュー用agentは別の予算条件で確認できます。`stop_new`だけを見て一律に判断せず、操作別の候補と理由を確認します。
+
+関数はファイル/時計/残量取得、通信・command、AI起動・停止・保存を行いません。module import時の同梱schema読込みとは区別します。`authority:false`の助言であり、担当・承認・依存・必須検査や入力の真正性を代替しません。実効設定の合成・履歴の照合と保存は呼出し元の責務です。会話手順/実験hostへの自動接続や常時監視/強制停止は未提供です。
+
+既存依存の導入後、`npm test --prefix tools/workflow-continuation`で合成E2Eと境界試験を実行します。現在のNode22/24 CIに同じ入口で含まれ、既存Runner単独の入口も維持します。固定の合成値と時計による試験であり、実残量取得や実際の停止を確認した結果ではありません。
 
 <a id="issue-artifacts"></a>
 
