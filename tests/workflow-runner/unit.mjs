@@ -156,7 +156,7 @@ if (process.env.WORKFLOW_CONTINUATION_TEST === "1") {
   });
   for (const [remaining, decision] of [[0, "checkpoint"], [15, "checkpoint"], [16, "stop_new"], [30, "stop_new"], [31, "continue"], [99.5, "continue"], [100, "continue"]]) {
     test(`P7 Budget: remaining ${remaining} has inclusive threshold decision ${decision}`, () => {
-      const v = observed(input()); v.observation.windows[0].value = remaining;
+      const v = observed(input()); v.observation.windows.forEach(w => w.value = remaining);
       const r = budget(v); assert.equal(r.decision, decision); assert.equal(r.remaining_percent, remaining);
       if (decision === "checkpoint") closed(r);
     });

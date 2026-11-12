@@ -34,6 +34,7 @@ for (const [ns, kinds] of [
   ["issue", ["common"]],
   ["execution", ["common"]],
   ["continuation", ["profile", "request", "decision", "checkpoint", "report"]],
+  ["autonomy", ["settings"]],
 ])
   for (const kind of kinds)
     ajv.addSchema(
@@ -56,6 +57,115 @@ export function validateContinuationArtifact(kind, value) {
       safe(value) &&
       !!ajv.getSchema("urn:ai-workflow:continuation:v1:" + kind)(value),
   };
+}
+
+const budgetPolicyValid = ajv.getSchema("urn:ai-workflow:autonomy:v1:settings"),
+  budgetTimeValid = ajv.compile({ type: "string", format: "date-time" });
+const budgetReasons = [
+  "budget_input_invalid", "budget_policy_invalid", "budget_clock_invalid",
+  "budget_stopped", "budget_authority_lost", "budget_storage_failed", "budget_work_unknown",
+  "budget_deadline", "budget_save_window", "budget_quota_critical", "budget_quota_low",
+  "budget_quota_unknown", "budget_issue_limit", "budget_parallel_limit", "budget_agent_limit", "budget_repair_limit",
+];
+const budgetKeys = (v, keys) => v !== null && typeof v === "object" && !Array.isArray(v) &&
+  Object.keys(v).length === keys.length && keys.every(k => Object.hasOwn(v, k));
+const budgetInteger = (v, min, max) => Number.isSafeInteger(v) && v >= min && v <= max;
+const budgetText = (v, max) => typeof v === "string" && v.length > 0 && v.length <= max && v.trim().length > 0;
+const budgetTime = v => budgetTimeValid(v) && Number.isFinite(Date.parse(v)) ? Date.parse(v) : null;
+
+// Advice for the supplied snapshot only: no IO, clock acquisition, grants, or run reset.
+export function decideContinuationBudget(input) {
+  const out = {
+    schema_version: 1, artifact_kind: "autonomy-budget-decision", authority: false,
+    decision: "checkpoint", reason_codes: [], held_issues: [],
+    stop_new_at: null, deadline_at: null, remaining_percent: null,
+    can_start_issue: false, can_start_agent: false, repairable_issues: [],
+  };
+  const invalid = code => ({ ...out, reason_codes: [code] });
+  try {
+    // Inspect descriptors/proxies before reading fields or serializing any input.
+    if (!safe(input) || Buffer.byteLength(JSON.stringify(input), "utf8") > 16384 ||
+      !budgetKeys(input, ["policy", "observation", "run", "now"])) return invalid("budget_input_invalid");
+    const { policy: p, observation: o, run: r, now } = input;
+    if (!budgetPolicyValid(p) || p.quota.checkpoint_remaining_percent >= p.quota.stop_new_remaining_percent ||
+      p.limits.parallel_issues > p.limits.issues) return invalid("budget_policy_invalid");
+    const flags = ["stop_requested", "authorization_lost", "storage_failed", "work_unknown"];
+    if (!budgetKeys(r, ["started_at", "last_checked_at", "issues", "active_issues", "active_agents", ...flags]) ||
+      flags.some(k => typeof r[k] !== "boolean") ||
+      !Array.isArray(r.issues) || r.issues.length > 10 ||
+      r.issues.some(v => !budgetKeys(v, ["number", "repair_rounds"]) ||
+        !budgetInteger(v.number, 1, Number.MAX_SAFE_INTEGER) || !budgetInteger(v.repair_rounds, 0, 3)) ||
+      new Set(r.issues.map(v => v.number)).size !== r.issues.length ||
+      !Array.isArray(r.active_issues) || r.active_issues.length > 2 ||
+      new Set(r.active_issues).size !== r.active_issues.length ||
+      r.active_issues.some(n => !budgetInteger(n, 1, Number.MAX_SAFE_INTEGER) || !r.issues.some(v => v.number === n)) ||
+      !budgetInteger(r.active_agents, 0, 3)) return invalid("budget_input_invalid");
+    // Unknown fields are structural failures, not a supported-source outage.
+    if (!o || typeof o !== "object" || Array.isArray(o) ||
+      (o.status === "unsupported" ? !budgetKeys(o, ["status"]) :
+        o.status === "unavailable" ? !budgetKeys(o, ["status", "retry_count"]) :
+          o.status === "available" ? !budgetKeys(o, ["status", "retry_count", "observed_at", "expected_scope", "observed_scope", "windows", "warning", "exhausted"]) : true) ||
+      (o.status !== "unsupported" && !budgetInteger(o.retry_count, 0, 1))) return invalid("budget_input_invalid");
+    if (o.status === "available" && (
+      !budgetKeys(o.expected_scope, ["account_ref", "workspace_ref", "window_ids"]) ||
+      !budgetKeys(o.observed_scope, ["account_ref", "workspace_ref"]) ||
+      !Array.isArray(o.windows) || o.windows.some(w => !budgetKeys(w, ["id", "metric", "value"])) ||
+      typeof o.warning !== "boolean" || typeof o.exhausted !== "boolean")) return invalid("budget_input_invalid");
+    const t = budgetTime(now), start = budgetTime(r.started_at), last = budgetTime(r.last_checked_at);
+    if (t === null || start === null || last === null || start > last || last > t) return invalid("budget_clock_invalid");
+    const deadline = start + p.limits.minutes * 60000, saveAt = deadline - 600000;
+    const date = new Date(deadline);
+    if (!Number.isFinite(date.getTime()) || date.getUTCFullYear() > 9999) return invalid("budget_clock_invalid");
+    out.deadline_at = date.toISOString(); out.stop_new_at = new Date(saveAt).toISOString();
+    const reasons = new Set(); let checkpoint = false, stopAllNew = false;
+    const add = (code, stop = false) => { reasons.add(code); if (stop) checkpoint = true; };
+    for (const [key, code] of [["stop_requested", "budget_stopped"], ["authorization_lost", "budget_authority_lost"],
+      ["storage_failed", "budget_storage_failed"], ["work_unknown", "budget_work_unknown"]]) if (r[key]) add(code, true);
+    if (t >= deadline) add("budget_deadline", true);
+    if (t >= saveAt) { add("budget_save_window"); stopAllNew = true; }
+    const quotaUnknown = () => { add("budget_quota_unknown", o.retry_count === 1); stopAllNew = true; };
+    if (o.status === "unavailable") quotaUnknown();
+    if (o.status === "available") {
+      if (o.warning || o.exhausted) add("budget_quota_critical", true);
+      const expected = o.expected_scope, actual = o.observed_scope, at = budgetTime(o.observed_at);
+      const ids = expected.window_ids;
+      const usable = [expected.account_ref, expected.workspace_ref, actual.account_ref, actual.workspace_ref].every(v => budgetText(v, 128)) &&
+        expected.account_ref === actual.account_ref && expected.workspace_ref === actual.workspace_ref &&
+        Array.isArray(ids) && ids.length >= 1 && ids.length <= 16 && ids.every(v => budgetText(v, 64)) && new Set(ids).size === ids.length &&
+        o.windows.length === ids.length && new Set(o.windows.map(w => w.id)).size === o.windows.length &&
+        o.windows.every(w => ids.includes(w.id) && ["used_percent", "remaining_percent"].includes(w.metric) &&
+          typeof w.value === "number" && Number.isFinite(w.value) && w.value >= 0 && w.value <= 100) &&
+        at !== null && at <= t && t - at <= 60000;
+      if (!usable) quotaUnknown();
+      else {
+        out.remaining_percent = Math.min(...o.windows.map(w => w.metric === "used_percent" ? 100 - w.value : w.value));
+        if (out.remaining_percent <= p.quota.checkpoint_remaining_percent) add("budget_quota_critical", true);
+        if (out.remaining_percent <= p.quota.stop_new_remaining_percent) { add("budget_quota_low"); stopAllNew = true; }
+      }
+    }
+    const issueFull = r.issues.length >= p.limits.issues,
+      parallelFull = r.active_issues.length >= p.limits.parallel_issues,
+      agentFull = r.active_agents >= 3;
+    if (issueFull) add("budget_issue_limit");
+    if (parallelFull) add("budget_parallel_limit", r.active_issues.length > p.limits.parallel_issues);
+    if (agentFull) add("budget_agent_limit");
+    out.held_issues = r.issues.filter(v => v.repair_rounds >= p.limits.repair_rounds).map(v => v.number).sort((a, b) => a - b);
+    if (out.held_issues.length) add("budget_repair_limit");
+    out.reason_codes = budgetReasons.filter(code => reasons.has(code));
+    out.decision = checkpoint ? "checkpoint" : reasons.size ? "stop_new" : "continue";
+    if (!checkpoint && !stopAllNew) {
+      out.can_start_issue = !issueFull && !parallelFull;
+      out.can_start_agent = !agentFull;
+      out.repairable_issues = r.active_issues.filter(n => !out.held_issues.includes(n)).sort((a, b) => a - b);
+    }
+    return out;
+  } catch {
+    // Neither caller data nor raw exceptions belong in public budget diagnostics.
+    return { schema_version: 1, artifact_kind: "autonomy-budget-decision", authority: false,
+      decision: "checkpoint", reason_codes: ["budget_input_invalid"], held_issues: [],
+      stop_new_at: null, deadline_at: null, remaining_percent: null,
+      can_start_issue: false, can_start_agent: false, repairable_issues: [] };
+  }
 }
 const fresh = (at, now, seconds = 60) =>
   typeof at === "string" &&

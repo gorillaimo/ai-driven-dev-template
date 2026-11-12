@@ -80,7 +80,7 @@ Issue/PRには作業契約・担当・着手・レビューの記録を残し、
 
 ### 自律実行：作業・保存・再確認を繰り返す
 
-AIは[継続依頼の手順](development-rules.md#continuation-procedure)に従い、設定・上限・担当Issueを確認し、許可範囲で作業・保存・次候補の確認を行います。人間が毎回、次のIssueを指定する必要はありません。コードは保存した設定の値を検査し、上限や時刻の確認・停止判断はAIが工程の区切りで行います。残量自動取得・常時監視による強制停止・別AIの自動起動は未実装です。
+AIは[継続依頼の手順](development-rules.md#continuation-procedure)に従い、設定・上限・担当Issueを確認し、許可範囲で作業・保存・次候補の確認を行います。人間が毎回、次のIssueを指定する必要はありません。コードは保存設定を検査し、任意の[判断補助](workflow-tools-guide.md#autonomy-budget)で上限や停止条件も判定できます。AIは工程の区切りで実態と結果を確認し、作業・保存・停止へ進みます。残量自動取得・常時監視による強制停止・別AIの自動起動は未実装です。
 
 ![人間の継続依頼から、AIが候補と上限を確認し、Issueの作業・保存・再確認を繰り返す。停止条件では保存して報告し、人間は準備されたPRを随時確認する設計](../assets/template-guide/autonomous-flow.svg)
 
@@ -112,7 +112,7 @@ AIは[継続依頼の手順](development-rules.md#continuation-procedure)に従�
 | `tools/workflow-github/` | GitHub実状態、署名付き依頼・承認、有限の操作要求 | 取得の不足・権限・headを照合し、許可した操作と読戻しを記録。利用には別途接続設定が必要 |
 | `tools/workflow-dispatch/` | Project v2、全量snapshot、承認・claimの記録 | 候補と共有領域・実行枠を照合し、専用台帳で予約・停止・復旧を管理。AIの起動は別 |
 | `tools/workflow-integration/` | 固定したmain/PR/head、検査profile | PRの組合せを一時環境で検証し、失効・修正要求を記録。実モデル起動は行わない |
-| `tools/workflow-continuation/` | 合成hostの依頼、全量候補、上限付きrun | 次batch選択、停止・照合・報告。実会話や実モデルへの接続は未提供 |
+| `tools/workflow-continuation/` | 任意の判断補助は設定・累積・時刻・残量、実験hostは合成依頼/全量候補/run | [判断補助](workflow-tools-guide.md#autonomy-budget)は上限と停止理由を返す。実験hostは次batch選択・照合・報告。実会話/実モデルへの自動接続は未提供 |
 | `tools/workflow-golden/` | 固定した入力と正解見本 | テンプレートの判定が見本から変わっていないか。既存12＋Project25の37ケースを比較 |
 | `tools/workflow-ci/` | 保存されたIssue成果物 | 形式や識別子・参照の整合性。保存Projectの自動走査は行わない |
 
