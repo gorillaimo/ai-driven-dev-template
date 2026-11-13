@@ -6,6 +6,14 @@
 
 以下の7package・1267件は当時の確認範囲です。現在のmainの全CIには追加部品・隔離境界・セキュリティ検査もあります。最新の提供範囲は[確認表の追加部品一覧](../../common/v2-adoption-checklist.md#optional-components)、全CIの入口は[ツールガイド](../../common/workflow-tools-guide.md#ci)を参照してください。固定commitの手順と現在のツールを混在させないでください。
 
+| 試したいこと | 使う例 |
+| :--- | :--- |
+| 継続依頼から複数Issue・個別PR・レビュー・保存/報告へ進む流れ | [会話と記録の例](../native-continuation/README.md)。説明用の架空例 |
+| 保存設定と合成した状況から上限判定の助言を得る | [上限判定ツールの実行例](../autonomy-budget/README.md)。その文書と同じcommitの完全なcheckoutを使用 |
+| 初期版の導入・v1からの段階移行を再現する | この文書の以下の手順。下記の固定commitを使用 |
+
+通常の会話環境で実際に確認した範囲と未実証の条件は[確認表](../../common/v2-adoption-checklist.md#通常の会話環境で確認した範囲)を参照してください。
+
 ## 1. 元commitを固定して展開する
 
 前提はLinux、Bash、Git、tar、Python 3、Node.js 22以上、npmです。確認環境はNode.js 24.19.0 / npm 11.9.0でした。
