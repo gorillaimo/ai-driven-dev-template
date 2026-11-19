@@ -294,12 +294,12 @@
         "data_types": []
       },
       "opt_ins": [],
-      "input_digest": "49b492311dc6fc6ca32f3c781ac063e14f744a3de375999ee6aca4d20478a8ec",
+      "input_digest": "bceeadf3b52d244f946fba526333b56bd7771c0c33507ccd6f5002675a5122d8",
       "source_digests": {
         "docs/common/rules/legacy/rule.yaml": "bebcb36dc81b0cff2835d2959b5980ba91d73395ce52bc97525c2dc7ff04b23b",
         "docs/common/rules/legacy/rule.md": "56252e68e6d1dc0eff5da78829bff35f5e9d0dd25ce0cb08f176f1dfad3000ed",
-        "AGENTS.md": "94346fbf8fb4973c97531100ba077a86f70ca3b22b7e476b55cbb7f62b8eab22",
-        "docs/common/development-rules.md": "1544abcad0d2ae9a073a85dbf198799478f69b9c3d16ee75067c227a9a6cb294"
+        "AGENTS.md": "5fc3d71ce04ab468e09ec654c02846bfeae76845fd0226fba4b2fefcc42787d0",
+        "docs/common/development-rules.md": "f9f843ba794f440a7fdf76d41149815805ecf1cb6f992fb9c789de65f1b9f5c9"
       },
       "rules": [
         {
