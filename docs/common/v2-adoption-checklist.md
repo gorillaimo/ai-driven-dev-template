@@ -3,6 +3,8 @@
 初期範囲の機能実装は揃っています。現在は`2.0.0-0.dev.0`の開発版です。
 この表は導入と試用の判断材料です。Issue #42の完了やCI成功だけで、移行承認・alpha/stable公開を確定しません。
 
+公開を検討する場合は[公開前の確認資料・公開文案](v2-release-readiness.md)で、必須範囲・移行・残る条件と公開までの判断を確認します。
+
 通常の会話開発、必要な範囲で採用する検査ツール、実験段階の接続部品を分けて確認します。必要な開発環境と接続は、利用するAIツール・アプリ・採用する検査に合わせて確認します。
 
 自律実行の既定値と変更方法は[運用マニュアル](operations-manual.md#autonomous-settings)、停止・途中保存・再開の詳細は[設計](native-continuation-design.md)を参照します。既定設定と[適合検査](workflow-tools-guide.md#autonomy-settings)、AIが設定・候補・上限・保存/再開を確認する[会話手順](development-rules.md#continuation-procedure)と[記録例](operations-reference.md#continuation-records)を提供しています。残量を取得できない環境では残量不明として件数・時間で区切ります。今回指定との機械的な設定合成・利用枠自動取得・常時監視/強制停止は未実装です。自然言語の手順と実環境で確認できた動作は区別して判断します。
@@ -38,7 +40,7 @@
 | 上限判定の実行例 | 保存設定を読み、件数・時間・合成残量30%/15%・観測不明など8例の戻り値と入力/設定の非変更を確認 | 合成入力の判定。実サービスの残量取得・AIの停止・保存は行わない |
 | 停止・復旧 | 実際に発生した保存/読戻しと人間のマージ待ちを記録 | 実残量による停止、サービス強制中断からの復旧、権限撤回・実内容競合は未実証 |
 
-実施条件・対象commit・レビュー・検査結果は[Issue #83](https://github.com/gorillaimo/ai-driven-dev-template/issues/83)、成果物は[PR #86](https://github.com/gorillaimo/ai-driven-dev-template/pull/86)・[PR #87](https://github.com/gorillaimo/ai-driven-dev-template/pull/87)を参照します。会話例の架空の記入内容は実施記録と区別します。利用先での採用、親Issue #52全体の受け入れ、Release可否は別に判断します。
+実施条件・対象commit・レビュー・検査結果は[Issue #83](https://github.com/gorillaimo/ai-driven-dev-template/issues/83)、成果物は[PR #86](https://github.com/gorillaimo/ai-driven-dev-template/pull/86)・[PR #87](https://github.com/gorillaimo/ai-driven-dev-template/pull/87)を参照します。会話例の架空の記入内容は実施記録と区別します。通常の会話方式は、限定試用と残る制約を含む範囲で[親Issue #52](https://github.com/gorillaimo/ai-driven-dev-template/issues/52)を人間が受け入れ済みです。[担当者確認の手順](development-rules.md#pr-owner-confirmation)も追加済みで、機械的な強制や実チーム運用の実証とは区別します。利用先での採用とRelease可否は別に判断します。
 
 <a id="optional-components"></a>
 
